@@ -388,3 +388,58 @@ class TestWorkersNeverRaise:
 
         assert state["report"] is not None, "a model timeout must not end the run"
         assert any(e.stage == "extract" for e in state["errors"])
+
+
+class TestGraphStructure:
+    """The declared graph, and the diagram we publish of it."""
+
+    def test_declared_edges_match_the_intended_topology(self) -> None:
+        from agentic_research.graph.workflow import build_graph
+
+        builder = build_graph()
+        plain = set(builder.edges)
+        assert ("verify_citations", "finalize") in plain
+        assert ("finalize", "__end__") in plain
+        assert ("search_worker", "dedupe_sources") in plain
+        assert ("fetch_worker", "register_sources") in plain
+        assert ("extract_worker", "assess_coverage") in plain
+        # finalize is terminal: nothing may route out of it except END.
+        assert [t for s, t in plain if s == "finalize"] == ["__end__"]
+
+    def test_every_dispatcher_declares_a_non_send_fallback(self) -> None:
+        """A conditional edge returning an empty Send list silently ends the
+        graph, so each dispatcher must also be able to route to a real node."""
+        from agentic_research.graph.workflow import build_graph
+
+        fallbacks = {
+            "generate_queries": "assess_coverage",
+            "dedupe_sources": "register_sources",
+            "register_sources": "assess_coverage",
+        }
+        branches = build_graph().branches
+        for source, fallback in fallbacks.items():
+            ends = next(iter(branches[source].values())).ends or {}
+            assert fallback in ends.values(), f"{source} cannot fall through"
+
+    def test_rendered_diagram_matches_the_executable_graph(self) -> None:
+        """We render Mermaid ourselves because LangGraph 1.2.x's
+        draw_mermaid() drops finalize->END and invents conditional edges that
+        were never declared. This pins our renderer to the real structure."""
+        from agentic_research.graph.workflow import build_graph, render_mermaid
+
+        builder = build_graph()
+        diagram = render_mermaid()
+
+        for source, target in builder.edges:
+            src = "START" if source == "__start__" else source
+            tgt = "END" if target == "__end__" else target
+            assert f"    {src} --> {tgt}" in diagram, f"missing {src}->{tgt}"
+
+        for source, branches in builder.branches.items():
+            for branch in branches.values():
+                for target in (branch.ends or {}).values():
+                    assert f"{source} -." in diagram
+                    assert target in diagram
+
+        assert "finalize --> END" in diagram
+        assert "finalize -.-> register_sources" not in diagram

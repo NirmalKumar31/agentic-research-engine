@@ -178,6 +178,19 @@ writes a `RunError` into state. This is not defensive padding — a real
 development, because the worker caught only `LLMError` and the router had
 mapped connection errors but not timeouts.
 
+**`draw_mermaid()` mis-renders this graph.**
+
+A third, less dangerous one, found while generating the diagrams.
+``compiled.get_graph().draw_mermaid()`` drops ``finalize -> END`` and invents
+three conditional edges that were never declared, including
+``finalize -> register_sources``. Bisecting showed it appears once the
+``dedupe_sources`` branch is added, and it reproduces with placeholder nodes.
+Execution is unaffected — ``builder.edges`` and ``builder.branches`` are
+correct, and a test asserts ``finalize`` runs exactly once — but a published
+diagram showing a loop that does not exist is worse than none. The
+``graph`` CLI command therefore renders Mermaid from the builder's own
+structures, and a test pins that rendering against them.
+
 **A conditional edge returning `[]` silently ends the graph.**
 
 ```python

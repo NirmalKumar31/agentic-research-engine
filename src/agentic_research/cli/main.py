@@ -286,14 +286,17 @@ def show_graph(
     ] = None,
 ) -> None:
     """Print the research graph as a Mermaid diagram."""
-    from agentic_research.graph.workflow import compile_graph
+    from agentic_research.graph.workflow import render_mermaid
 
-    mermaid = compile_graph().get_graph().draw_mermaid()
+    mermaid = render_mermaid()
     if output is not None:
         output.write_text(mermaid, encoding="utf-8")
         console.print(f"Written to {output}")
     else:
-        console.print(mermaid)
+        # Straight to stdout: Rich would treat Mermaid's [node] labels as
+        # markup tags and silently strip them, and this output is meant to be
+        # copied into a document verbatim.
+        sys.stdout.write(mermaid + "\n")
 
 
 if __name__ == "__main__":

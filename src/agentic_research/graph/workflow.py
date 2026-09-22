@@ -156,3 +156,76 @@ def compile_graph(
 ) -> CompiledStateGraph[ResearchState, RunContext, ResearchState, ResearchState]:
     """Compile the graph, optionally with a checkpointer."""
     return build_graph().compile(checkpointer=checkpointer)
+
+
+# Nodes that wait for a whole parallel stage to finish, and the single
+# back-edge. Rendered differently so the diagram shows the structure that
+# matters rather than just the wiring.
+_BARRIERS = frozenset({"dedupe_sources", "register_sources", "assess_coverage"})
+_LOOP_NODE = "generate_followups"
+_FAN_OUT = frozenset({"search_worker", "fetch_worker", "extract_worker"})
+
+
+def render_mermaid() -> str:
+    """Render the graph as Mermaid from the builder's own edges and branches.
+
+    Deliberately not ``compiled.get_graph().draw_mermaid()``. That helper
+    mis-renders this graph on LangGraph 1.2.x: it drops ``finalize -> END``
+    and invents three conditional edges that were never declared, including
+    ``finalize -> register_sources``. Execution is unaffected — the tests
+    confirm ``finalize`` runs exactly once and the graph terminates — but a
+    diagram showing a loop that does not exist is worse than no diagram.
+
+    ``builder.edges`` and ``builder.branches`` are the structures the runtime
+    actually uses, so a diagram rendered from them cannot disagree with
+    behaviour.
+    """
+    builder = build_graph()
+    ids = {START: "START", END: "END"}
+
+    def node_id(name: str) -> str:
+        return ids.get(name, name)
+
+    def declaration(name: str) -> str:
+        if name in (START, END):
+            return f"{ids[name]}([{ids[name]}])"
+        if name in _BARRIERS:
+            return f"{name}[{name}<br/><i>defer: waits for the whole stage</i>]"
+        if name in _FAN_OUT:
+            return f"{name}[{name}<br/><i>xN in parallel</i>]"
+        return f"{name}[{name}]"
+
+    ordered: list[str] = []
+
+    def remember(name: str) -> None:
+        if name not in ordered:
+            ordered.append(name)
+
+    for source, target in builder.edges:
+        remember(source)
+        remember(target)
+    for source, branches in builder.branches.items():
+        remember(source)
+        for branch in branches.values():
+            for target in (branch.ends or {}).values():
+                remember(target)
+
+    lines = ["graph TD"]
+    lines += [f"    {declaration(name)}" for name in ordered]
+    lines += [
+        f"    {node_id(source)} --> {node_id(target)}" for source, target in sorted(builder.edges)
+    ]
+    for source, branches in sorted(builder.branches.items()):
+        for branch in branches.values():
+            for target in (branch.ends or {}).values():
+                # Only the genuine back-edge is labelled as the loop.
+                arrow = (
+                    "-. another round .->"
+                    if (source, target) == (_LOOP_NODE, "generate_queries")
+                    else "-.->"
+                )
+                lines.append(f"    {node_id(source)} {arrow} {node_id(target)}")
+
+    lines.append("    classDef barrier fill:#e8f0fe,stroke:#4285f4")
+    lines.append(f"    class {','.join(sorted(_BARRIERS))} barrier")
+    return "\n".join(lines)
