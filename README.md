@@ -434,6 +434,10 @@ Sources it selected included an arXiv paper and an MDPI journal article
 alongside two industry write-ups — domain concentration 0.20, meaning no
 single publisher dominated.
 
+The unedited artifacts from this run are committed under
+[`examples/sample-run/`](examples/sample-run/), including the full evidence
+chain with every quote and its verification flag.
+
 Two things worth reading honestly rather than as marketing:
 
 - **Deduplication saved little here (2 of 48).** Six genuinely different

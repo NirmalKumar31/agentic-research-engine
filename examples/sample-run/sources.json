@@ -1,0 +1,142 @@
+[
+  {
+    "id": "S1",
+    "url": "https://www.mdpi.com/2073-431X/14/4/120",
+    "canonical_url": "https://mdpi.com/2073-431X/14/4/120",
+    "title": "FraudX AI: An Interpretable Machine Learning Framework for Credit Card Fraud Detection on Imbalanced Datasets",
+    "domain": "mdpi.com",
+    "content_hash": "53134d9e8889dfff",
+    "source_type": "other",
+    "published_date": null,
+    "fetch_status": "provider_content",
+    "fetch_error": null,
+    "quality_score": 0.633,
+    "quality_reasons": [
+      "other baseline 0.50",
+      "search relevance 0.91 -> +0.083",
+      "substantial content (1487 words) -> +0.050"
+    ],
+    "search_score": 0.9125066,
+    "found_by_queries": [
+      "Q1"
+    ],
+    "answers_sub_questions": [
+      "SQ1"
+    ],
+    "duplicate_of": null,
+    "retrieved_at": "2026-09-22T21:39:08.529567Z",
+    "word_count": 1487
+  },
+  {
+    "id": "S2",
+    "url": "https://nussknacker.io/blog/real-time-transaction-fraud-detection",
+    "canonical_url": "https://nussknacker.io/blog/real-time-transaction-fraud-detection",
+    "title": "Real-time transaction fraud detection - Nussknacker",
+    "domain": "nussknacker.io",
+    "content_hash": "5d45d371884c7edd",
+    "source_type": "blog",
+    "published_date": null,
+    "fetch_status": "provider_content",
+    "fetch_error": null,
+    "quality_score": 0.581,
+    "quality_reasons": [
+      "blog baseline 0.45",
+      "search relevance 0.90 -> +0.081",
+      "substantial content (1731 words) -> +0.050"
+    ],
+    "search_score": 0.9047265,
+    "found_by_queries": [
+      "Q3"
+    ],
+    "answers_sub_questions": [
+      "SQ3"
+    ],
+    "duplicate_of": null,
+    "retrieved_at": "2026-09-22T21:39:08.529602Z",
+    "word_count": 1731
+  },
+  {
+    "id": "S3",
+    "url": "https://codesignal.com/learn/courses/evaluation-metrics-advanced-techniques/lessons/comprehensive-evaluation-strategies-for-imbalanced-data",
+    "canonical_url": "https://codesignal.com/learn/courses/evaluation-metrics-advanced-techniques/lessons/comprehensive-evaluation-strategies-for-imbalanced-data",
+    "title": "Comprehensive Evaluation Strategies for Imbalanced Data",
+    "domain": "codesignal.com",
+    "content_hash": "9e60fd6ef490b7fc",
+    "source_type": "other",
+    "published_date": null,
+    "fetch_status": "provider_content",
+    "fetch_error": null,
+    "quality_score": 0.627,
+    "quality_reasons": [
+      "other baseline 0.50",
+      "search relevance 0.89 -> +0.077",
+      "substantial content (1672 words) -> +0.050"
+    ],
+    "search_score": 0.8851659,
+    "found_by_queries": [
+      "Q2"
+    ],
+    "answers_sub_questions": [
+      "SQ2"
+    ],
+    "duplicate_of": null,
+    "retrieved_at": "2026-09-22T21:39:08.529626Z",
+    "word_count": 1672
+  },
+  {
+    "id": "S4",
+    "url": "https://arxiv.org/html/2208.11904v1",
+    "canonical_url": "https://arxiv.org/html/2208.11904v1",
+    "title": "Empirical study of Machine Learning Classifier Evaluation ...",
+    "domain": "arxiv.org",
+    "content_hash": "cc0a3ac4a98eceb5",
+    "source_type": "academic",
+    "published_date": null,
+    "fetch_status": "provider_content",
+    "fetch_error": null,
+    "quality_score": 0.975,
+    "quality_reasons": [
+      "academic baseline 0.85",
+      "search relevance 0.88 -> +0.075",
+      "substantial content (1787 words) -> +0.050"
+    ],
+    "search_score": 0.875031,
+    "found_by_queries": [
+      "Q2"
+    ],
+    "answers_sub_questions": [
+      "SQ2"
+    ],
+    "duplicate_of": null,
+    "retrieved_at": "2026-09-22T21:39:08.529637Z",
+    "word_count": 1787
+  },
+  {
+    "id": "S5",
+    "url": "https://jrtcse.com/index.php/home/article/view/JRTCSE.2025.13.1.9",
+    "canonical_url": "https://jrtcse.com/index.php/home/article/view/JRTCSE.2025.13.1.9",
+    "title": "Real-Time Fraud Detection Using Streaming Data in Financial Transactions | JOURNAL OF RECENT TRENDS IN COMPUTER SCIENCE AND ENGINEERING ( JRTCSE)",
+    "domain": "jrtcse.com",
+    "content_hash": "e8c2e0620799ed4f",
+    "source_type": "other",
+    "published_date": null,
+    "fetch_status": "provider_content",
+    "fetch_error": null,
+    "quality_score": 0.624,
+    "quality_reasons": [
+      "other baseline 0.50",
+      "search relevance 0.87 -> +0.074",
+      "substantial content (1058 words) -> +0.050"
+    ],
+    "search_score": 0.8708723,
+    "found_by_queries": [
+      "Q3"
+    ],
+    "answers_sub_questions": [
+      "SQ3"
+    ],
+    "duplicate_of": null,
+    "retrieved_at": "2026-09-22T21:39:08.529656Z",
+    "word_count": 1058
+  }
+]
