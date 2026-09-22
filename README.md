@@ -502,7 +502,7 @@ throughput — hence a separate concurrency limit for local providers.
 
 ```bash
 pip install -e ".[dev]"
-pytest                    # 199 tests, under 10s, no network, no credentials, no cost
+pytest                    # 202 tests, under 10s, no network, no credentials, no cost
 ```
 
 Default runs are hermetic. Every external boundary — models, search, page

@@ -374,4 +374,4 @@ search, `qwen3:4b` running locally, zero API cost):
 - 0 separate page fetches — all five sources reused content the search
   provider already returned
 - 0 → 9 citations from moving citations into the schema
-- 199 hermetic tests in under 10 seconds
+- 202 hermetic tests in under 10 seconds
