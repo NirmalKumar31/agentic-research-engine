@@ -104,7 +104,7 @@ try:
     for role, spec in sorted(ModelRouter(preview).describe().items()):
         st.sidebar.text(f"{role:12} {spec}")
     config_error = None
-except Exception as exc:  # noqa: BLE001 - surfaced in the UI
+except Exception as exc:
     preview = None
     config_error = str(exc)
 
@@ -133,7 +133,7 @@ if st.button("Run research", type="primary", disabled=not question.strip()):
         log = st.empty()
         try:
             result = asyncio.run(execute(question.strip(), preview, status, log))
-        except Exception as exc:  # noqa: BLE001 - shown rather than traced to a terminal
+        except Exception as exc:
             status.update(label="Failed", state="error")
             st.error(str(exc))
             result = None
