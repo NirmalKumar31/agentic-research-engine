@@ -289,6 +289,20 @@ streamlit run app/streamlit_app.py
 
 Same engine, same event stream — the UI contains no research logic.
 
+### Docker
+
+```bash
+docker build -t agentic-research .
+docker run --rm --env-file .env \
+  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  -v "$PWD/outputs:/home/researcher/outputs" \
+  agentic-research research "..."
+```
+
+`localhost` inside a container is the container, so local and hybrid modes
+need `OLLAMA_BASE_URL` pointed at the host. CI builds the image and runs the
+CLI inside it on every push.
+
 ### Output artifacts
 
 ```
