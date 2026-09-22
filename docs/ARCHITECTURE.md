@@ -1,0 +1,548 @@
+# Architecture
+
+This document explains how the engine works and, more importantly, *why* each
+piece is shaped the way it is. Where a decision had a real alternative, the
+alternative and the reason for rejecting it are stated.
+
+---
+
+## 1. The problem
+
+Asking one model "compare approaches for detecting fraud in imbalanced
+datasets" produces fluent, confident prose with plausible-looking citations
+that frequently point at nothing. Three separate failures are bundled
+together:
+
+1. **No decomposition.** A broad question has several dimensions. One pass
+   answers the easiest one and asserts the rest.
+2. **No retrieval discipline.** Either nothing is retrieved, or a snippet is
+   treated as sufficient evidence for a claim it does not contain.
+3. **No verification.** Nothing checks that a cited source exists, was read,
+   or says what the citation implies.
+
+The engine addresses each one with a distinct mechanism: a planner, an
+evidence pipeline with stored provenance, and a citation verifier.
+
+---
+
+## 2. System overview
+
+```mermaid
+graph TB
+    subgraph Interfaces
+        CLI[CLI<br/>typer + rich]
+        UI[Streamlit app]
+        EV[Evaluation harness]
+    end
+
+    subgraph Orchestration
+        RUN[runner.py<br/>context, lifetimes, artifacts]
+        GRAPH[LangGraph StateGraph<br/>13 nodes, bounded loop]
+    end
+
+    subgraph Providers
+        ROUTER[ModelRouter<br/>role to provider]
+        OPENAI[(OpenAI)]
+        OLLAMA[(Ollama)]
+        SEARCH[SearchProvider]
+        TAVILY[(Tavily)]
+        BRAVE[(Brave)]
+        FETCH[PageFetcher<br/>+ trafilatura]
+    end
+
+    subgraph Evidence
+        DEDUP[Deduplication<br/>URL then content]
+        QUALITY[Source quality]
+        STORE[EvidenceStore<br/>+ quote verification]
+        CITE[Citation verifier]
+    end
+
+    CLI --> RUN
+    UI --> RUN
+    EV --> RUN
+    RUN --> GRAPH
+    GRAPH --> ROUTER
+    GRAPH --> SEARCH
+    GRAPH --> FETCH
+    GRAPH --> DEDUP --> QUALITY --> STORE --> CITE
+    ROUTER --> OPENAI
+    ROUTER --> OLLAMA
+    SEARCH --> TAVILY
+    SEARCH --> BRAVE
+```
+
+Interfaces never touch providers. They drive `runner.stream_research`, which
+builds the runtime context and runs the graph. This is why the CLI, the UI and
+the evaluation harness contain no research logic at all.
+
+---
+
+## 3. The graph
+
+```mermaid
+graph TD
+    START([START]) --> AQ[analyze_query]
+    AQ --> PR[plan_research]
+    PR --> GQ[generate_queries]
+
+    GQ -.Send xN.-> SW[search_worker]
+    SW --> DS[dedupe_sources<br/>defer=True]
+
+    DS -.Send xM.-> FW[fetch_worker]
+    FW --> RS[register_sources<br/>defer=True]
+
+    RS -.Send xM.-> EW[extract_worker]
+    EW --> AC[assess_coverage<br/>defer=True]
+
+    AC -->|gaps and budget left| GF[generate_followups]
+    GF -->|new questions| GQ
+    GF -->|none produced| SY
+    AC -->|sufficient or budget spent| SY[synthesize]
+
+    SY --> VC[verify_citations]
+    VC --> FIN[finalize]
+    FIN --> END([END])
+
+    style DS fill:#e8f0fe
+    style RS fill:#e8f0fe
+    style AC fill:#e8f0fe
+    style GF fill:#fff4e5
+```
+
+Blue nodes are barriers. The orange node is the only back-edge.
+
+### 3.1 Why stage-level fan-out
+
+The obvious design gives each "researcher" a sub-question and has it search,
+fetch and extract. It is easier to draw and it is worse, for one reason: **a
+worker cannot see its siblings.**
+
+Three sub-questions about fraud detection will all surface the same Wikipedia
+page. Under worker-level fan-out that page is downloaded three times and sent
+to a model three times. The workers cannot deduplicate because none of them
+knows the others found it.
+
+Splitting the pipeline at stage boundaries puts a deduplication barrier
+between search and fetch, where every result from every query is visible at
+once:
+
+```
+9 raw results  ->  dedupe  ->  3 unique URLs  ->  3 fetches, 3 extraction calls
+```
+
+The cost is two extra synchronisation points, which add latency equal to the
+slowest worker in each stage. The benefit is that redundant work is eliminated
+rather than merely counted. In a measured local run, 18 search results
+collapsed to 5 unique pages — 13 fetches and 13 extraction calls avoided.
+
+### 3.2 Fan-in with `defer`
+
+```python
+graph.add_node("dedupe_sources", dedupe_sources, defer=True)
+```
+
+`defer=True` tells LangGraph to schedule the node only once every task writing
+to it has settled. The alternative is to track completions in state and
+re-check on each pass, which is a hand-written barrier with the usual race
+between the last worker's write and the checker's read.
+
+### 3.3 Two behaviours found by testing
+
+Neither appears in the documentation examples. Both were verified against
+LangGraph 1.2.x with standalone scripts before the design depended on them.
+
+**`error_handler` does not fire for `Send`-dispatched nodes.**
+
+```python
+graph.add_node("worker", worker, error_handler=handler)   # plain node: works
+# same registration, dispatched via Send: handler never runs, super-step dies
+```
+
+An exception escaping one parallel worker therefore destroys its siblings'
+completed work. Every worker in this engine catches its own exceptions and
+writes a `RunError` into state. This is not defensive padding — a real
+`httpx.ReadTimeout` from Ollama took out an entire extraction round during
+development, because the worker caught only `LLMError` and the router had
+mapped connection errors but not timeouts.
+
+**A conditional edge returning `[]` silently ends the graph.**
+
+```python
+def dispatch(state):
+    return [Send("worker", x) for x in items]   # items empty -> graph just stops
+```
+
+No error is raised; the downstream node never runs. Every dispatcher here
+returns an explicit fallback node name when it has nothing to send:
+
+```python
+def dispatch_searches(state):
+    queries = state.get("pending_queries", [])
+    if not queries:
+        return "assess_coverage"      # fall through rather than vanish
+    return [Send("search_worker", {"query": q}) for q in queries]
+```
+
+---
+
+## 4. State
+
+### 4.1 TypedDict, not a Pydantic model
+
+LangGraph merges *partial* updates. A node returns only the keys it touched,
+and each key is folded into the existing value by that channel's reducer. A
+`TypedDict` expresses this naturally; a Pydantic state model fights it, since
+every update looks like a full-object replacement.
+
+The values inside are Pydantic models, so validation still applies where it
+matters. Framework-shaped container, validated contents.
+
+### 4.2 Reducers
+
+```python
+class ResearchState(TypedDict, total=False):
+    sources: Annotated[list[SourceDocument], merge_sources]
+    evidence: Annotated[list[EvidenceItem], operator.add]
+    counters: Annotated[dict[str, int], sum_counters]
+    pending_queries: list[SearchQuery]          # single writer, plain replace
+```
+
+A channel needs a reducer exactly when more than one node — or more than one
+parallel copy of one node — writes to it.
+
+`merge_sources` is custom because a source is written twice: as a stub when
+its URL is deduplicated (which is where its `S<n>` id is assigned), then again
+with its text by whichever fetch worker handled it. Plain concatenation would
+leave two copies of every source and break citation lookup. Merging by id with
+last-write-wins is also what makes a node retry idempotent.
+
+### 4.3 Clearing an accumulating channel
+
+`round_results` accumulates across parallel search workers, and must be empty
+at the start of the next round. With an `operator.add` reducer there is no way
+to return "empty" — `[]` is the additive identity. LangGraph 1.x provides an
+explicit escape hatch:
+
+```python
+return {"round_results": Overwrite(value=[])}
+```
+
+### 4.4 State versus context
+
+```python
+@dataclass
+class RunContext:
+    settings: Settings
+    router: ModelRouter
+    search: SearchService     # holds an open httpx.AsyncClient
+    fetcher: PageFetcher      # holds semaphores
+    budget: RunBudget
+```
+
+State is checkpointed and must survive JSON. Context holds live objects that
+cannot be and must not be. LangGraph 1.x has a typed runtime context reached
+with `get_runtime(RunContext)`.
+
+Placing the semaphores here also fixes a subtler problem. A module-level
+`asyncio.Semaphore` binds to whichever event loop first awaits it and then
+leaks its limit across runs — which shows up as tests that pass alone and fail
+together.
+
+---
+
+## 5. Provenance
+
+Every link is stored, not inferred:
+
+```mermaid
+graph LR
+    Q[User question] --> A[QueryAnalysis]
+    A --> P[ResearchPlan]
+    P --> SQ["SubQuestion SQ2"]
+    SQ --> SE["SearchQuery Q5<br/>sub_question_id=SQ2"]
+    SE --> SR[SearchResult]
+    SR --> SD["SourceDocument S3<br/>found_by_queries=[Q5]"]
+    SD --> EV["EvidenceItem S3-e1<br/>source_id=S3<br/>sub_question_id=SQ2<br/>quote_verified=true"]
+    EV --> CL["Claim<br/>citation_ids=[S3]"]
+    CL --> CI["Citation [S3]"]
+```
+
+Given any sentence in the report you can walk backwards to the exact quoted
+span, the page it came from, the query that found it, and the sub-question
+that motivated the query. `outputs/<run_id>/evidence.json` contains the whole
+chain for offline inspection.
+
+### 5.1 Ids are assigned by the engine
+
+Source ids are allocated in the deduplication barrier — a single-writer node —
+not by workers and never by a model. Two reasons:
+
+- **Races.** Parallel workers allocating from a shared counter would collide.
+- **Hallucination.** A model permitted to mint source ids will eventually cite
+  `[S7]` in a run that retrieved four sources.
+
+Evidence ids are `f"{source_id}-e{n}"`, which is unique without coordination
+because exactly one worker owns a given source.
+
+### 5.2 Quote verification
+
+Every evidence item carries a `quote` that must genuinely appear in the source:
+
+```python
+def verify_quote(quote: str, source_text: str) -> bool:
+    # exact substring after normalising whitespace and smart punctuation,
+    # then a sliding-window similarity pass at 0.88
+```
+
+Tolerant of curly quotes and reflowed whitespace; intolerant of paraphrase.
+This is the check that stops a real URL being cited for a sentence the page
+never contained. Failures are flagged rather than dropped, so they surface in
+the metrics (`quote_fidelity`) instead of disappearing.
+
+---
+
+## 6. The research loop
+
+```python
+def route_after_coverage(state) -> str:
+    if coverage.sufficient:                                    return "synthesize"
+    if round_number >= budget.max_research_rounds:             return "synthesize"
+    if len(completed_queries) >= budget.max_search_queries:    return "synthesize"
+    if len(sources) >= budget.max_sources:                     return "synthesize"
+    if not coverage.recommended_followups and not missing:     return "synthesize"
+    return "generate_followups"
+```
+
+Four of the five conditions are independent of the critic's opinion. A model
+rigged to always demand more research still stops at the round cap — there is
+a test that does exactly that.
+
+### 6.1 Coverage is counted, then judged
+
+Splitting this was deliberate.
+
+**Counted mechanically:** verified evidence items per sub-question, distinct
+sources per sub-question, contradictions present, domain concentration.
+
+```
+covered = at least 2 verified items from at least 2 distinct sources
+coverage_ratio = covered sub-questions / total sub-questions
+```
+
+**Judged by a model:** whether evidence is on target, which angle nobody
+examined, what the disagreements are about.
+
+Asking a model to output "coverage: 0.72" yields a number with no definition
+that nonetheless looks authoritative in a metrics table. The ratio above has a
+definition you can state in one sentence, and the routing logic and the
+`evidence_coverage` evaluation metric use the same function — so the measure
+and the behaviour cannot drift apart.
+
+The sufficiency threshold is 0.7, not 1.0: insisting on full coverage would
+burn rounds chasing the one dimension the web has little to say about, when
+the report can simply state that gap.
+
+---
+
+## 7. Model routing
+
+```mermaid
+graph LR
+    CODE["router.get(ModelRole.SYNTHESIZER)"] --> R{ModelRouter}
+    R -->|LLM_MODE=cloud| C["openai:gpt-6-sol"]
+    R -->|LLM_MODE=local| L["ollama:qwen3:4b"]
+    R -->|LLM_MODE=hybrid| H{by role}
+    H -->|researcher| L
+    H -->|planner, critic,<br/>synthesizer, verifier| C
+```
+
+Application code asks for a **role**, never a provider. Five roles: planner,
+researcher, critic, synthesizer, verifier.
+
+### 7.1 The hybrid split rule
+
+A role goes local when its output is short, schema-constrained, and produced
+many times per run. It stays in the cloud when a wrong answer changes the
+final report.
+
+Evidence extraction is the clearest local candidate: it runs once per source
+(the highest-volume role by far) and its job is quotation, not judgement.
+Synthesis is the clearest cloud candidate: it runs once and it is what the
+user reads.
+
+### 7.2 One choke point
+
+Every model call goes through `RoleModel.structured`, which is the only place
+that reserves budget, records tokens and latency, repairs malformed output,
+and maps transport errors to domain errors. Adding a node cannot create an
+unmetered call, because there is no other way to call a model.
+
+### 7.3 Structured output and repair
+
+```python
+runnable = model.with_structured_output(schema, method="json_schema", include_raw=True)
+```
+
+`include_raw=True` is the important part. Without it a schema violation raises
+and the attempt is lost. With it, the failure comes back as data:
+
+- token usage from the failed attempt is still on the raw message, so a failed
+  call is still counted and still billed;
+- the validation error can be fed back to the model for one repair attempt.
+
+### 7.4 Fallback is off by default
+
+If a local model is missing, the run stops with the exact `ollama pull`
+command. It does **not** silently switch to a paid provider. Someone who chose
+`LLM_MODE=local` may have chosen it for cost or privacy reasons, and a
+fallback that quietly overrides that is a bad surprise either way.
+`ALLOW_CLOUD_FALLBACK=true` opts in.
+
+---
+
+## 8. What running on a 4B local model actually taught us
+
+Measured on `qwen3:4b`, same question, same sources.
+
+**Structured output works; prose instructions do not.** The synthesis prompt
+asked for citation markers like `[S3]` in claim text. The model produced a
+complete, well-organised report containing **zero** markers. Moving citations
+from a prose convention to a required `source_ids` schema field fixed it
+immediately:
+
+| | prose markers | schema field |
+|---|---|---|
+| Citations emitted | 0 | 9 |
+| Citation validity | n/a | 100% |
+
+The general rule, and the reason it is worth writing down: **if a model must
+produce something reliably, put it in the schema, not the instructions.**
+
+**Quotation is reliable; judgement is not.** The same model achieved 83% quote
+fidelity when extracting evidence — it can copy text accurately. Used as the
+*verifier*, it judged only 33% of its own claims as fully supported by their
+cited evidence, which says more about the model's calibration than about the
+claims. This is the empirical basis for putting extraction local and
+verification in the cloud in hybrid mode.
+
+**Local models do not parallelise.** Ollama serves one model largely
+serially. Fanning eight extraction calls at it produced queueing and read
+timeouts, not throughput. Hence `MAX_PARALLEL_LOCAL_LLM_CALLS`, defaulting to
+2, applied only to local providers. Cloud providers handle concurrency
+server-side and are gated by the stage semaphores instead.
+
+---
+
+## 9. Concurrency
+
+Three independent limits, because they protect three different things:
+
+| Limit | Protects | Default |
+|---|---|---|
+| `MAX_PARALLEL_SEARCHES` | the search provider's rate limit | 5 |
+| `MAX_PARALLEL_FETCHES` | our own network and memory | 8 |
+| per-host limit (2, in code) | individual origin servers | 2 |
+| `MAX_PARALLEL_LOCAL_LLM_CALLS` | a serially-served local model | 2 |
+
+The per-host limit exists because a research round routinely returns six
+results from one documentation site, and six simultaneous connections to one
+origin is both rude and a good way to get rate-limited mid-run.
+
+Retries use exponential backoff **with jitter**. Jitter is not decoration: a
+round fans out several queries at once, so without it they retry in lockstep
+and re-trigger the same rate limit.
+
+---
+
+## 10. Persistence
+
+SQLite via `AsyncSqliteSaver`, and nothing heavier.
+
+A research run is a single-process job lasting minutes whose state is a few
+hundred kilobytes. Postgres would add an operational dependency to make the
+architecture *sound* larger. `CHECKPOINT_BACKEND=memory` is used by tests, and
+`none` disables checkpointing for throwaway runs.
+
+Checkpointing earns its place for a real reason: a run that dies in synthesis
+has already paid for all the searching, fetching and extraction. With the
+checkpoint, that work survives.
+
+Separately, every run writes inspectable artifacts:
+
+```
+outputs/<run_id>/
+    report.md        rendered report
+    sources.json     every source, quality score and fetch status
+    evidence.json    every evidence item, quote and verification flag
+    metrics.json     the full metric set
+    run.json         plan, queries, coverage history, errors
+```
+
+---
+
+## 11. Error handling
+
+The principle: **a failure that affects one item degrades the run; it does not
+end it.**
+
+| Failure | Response |
+|---|---|
+| One search query fails | Retry with backoff, then record and continue |
+| Auth / out of credits | Fail that query immediately — retrying cannot help |
+| Page 404s, times out, is a PDF | Classify, mark the source unusable, continue |
+| Page is JavaScript-only | `EMPTY` status; not counted as evidence |
+| Extraction call fails | Record, continue with the other sources |
+| Structured output malformed | One repair attempt with the validation error |
+| Planning fails | Fall back to the question as a single dimension |
+| **Synthesis fails** | Emit the verified evidence as a list |
+| Local model missing | Stop with the `ollama pull` command, or fall back if allowed |
+| Budget exhausted | Stop research, still produce a report, state the limitation |
+
+The synthesis fallback matters more than it looks. A run that gathered forty
+verified findings should not return nothing because the last call failed — the
+evidence is the expensive part.
+
+---
+
+## 12. Evaluation
+
+No gold answers. Gold answers for open research questions are expensive,
+quickly stale, and mostly measure whether the model agrees with whoever wrote
+them.
+
+Instead every metric asks whether the system did what it claims to do:
+
+| Metric | Definition | Target |
+|---|---|---|
+| `citation_validity` | citations resolving to a retrieved source | 100% |
+| `citation_coverage` | factual claims carrying a citation | high |
+| `claim_support` | sampled claims entailed by their cited evidence | high |
+| `quote_fidelity` | quotes located in their source text | high |
+| `evidence_coverage` | sub-questions with adequate evidence | high |
+| `source_diversity` | 1 − share held by the largest domain | high |
+| `duplicate_avoidance` | results deduplicated before fetching | informational |
+| `unused_source_rate` | retrieved sources never cited | low |
+
+**`citation_validity` is the one that should always be 100%.** Anything less
+means the report cites a source the run never retrieved.
+
+**What this does not measure:** whether the report is *true*. The engine can
+score perfectly while faithfully reporting what a set of wrong pages said. It
+verifies faithfulness to retrieved sources, not correctness about the world.
+
+---
+
+## 13. Things deliberately not built
+
+- **A crawler.** The fetcher retrieves chosen URLs and stops. No link
+  discovery, no frontier, no cross-run crawl budget.
+- **PDF extraction.** PDFs are classified `UNSUPPORTED_TYPE` and skipped. A
+  real gap for academic sources, listed in the roadmap.
+- **Headless rendering.** JavaScript-only pages yield no text and are marked
+  `EMPTY`. Playwright would fix it and would roughly double install size.
+- **Semantic deduplication via embeddings.** URL plus content-hash plus
+  guarded title similarity catches the overwhelming majority at zero
+  additional cost.
+- **A vector store.** Evidence is tens of items scoped to one run, not a
+  corpus. A dict lookup is the right data structure; adding a vector database
+  here would be resume-driven development.

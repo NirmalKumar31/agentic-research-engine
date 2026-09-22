@@ -1,0 +1,17 @@
+.venv/
+.git/
+.github/
+outputs/
+checkpoints/
+evaluations/
+tests/
+docs/
+app/
+.env
+.env.*
+!.env.example
+**/__pycache__/
+*.sqlite
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

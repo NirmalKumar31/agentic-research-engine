@@ -90,7 +90,9 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "-q --strict-markers"
+# Default runs are hermetic and free: no network, no credentials, no local
+# server. Opt in with `pytest -m ollama` or `pytest -m integration`.
+addopts = "-q --strict-markers -m 'not integration and not ollama'"
 markers = [
     "integration: requires live API credentials; excluded from default runs",
     "ollama: requires a running local Ollama server",
