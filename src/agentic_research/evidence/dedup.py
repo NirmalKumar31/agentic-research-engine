@@ -16,6 +16,7 @@ unioned, so a page found by three sub-questions still records all three.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 
@@ -25,6 +26,11 @@ from agentic_research.retrieval.urls import canonicalize, domain_of
 # Near-duplicate titles on the same domain, e.g. a page reachable at both
 # /guide and /guide-v2. Set high because false merges lose real evidence.
 _TITLE_SIMILARITY_THRESHOLD = 0.92
+
+# Titles shorter than this are too easy to match by accident.
+_MIN_TITLE_LENGTH_FOR_MATCH = 20
+
+_DIGITS = re.compile(r"\d+")
 
 
 @dataclass
@@ -69,6 +75,21 @@ class Candidate:
 
 def _normalise_title(title: str) -> str:
     return " ".join(title.lower().split())
+
+
+def _titles_match(a: str, b: str) -> bool:
+    """Whether two same-domain titles denote the same document.
+
+    String similarity alone is not enough. "Part 1" and "Part 2", "Python 2"
+    and "Python 3", or the 2024 and 2025 editions of one report all score
+    above any useful threshold while being genuinely different documents, so
+    differing numbers veto a merge outright.
+    """
+    if len(a) < _MIN_TITLE_LENGTH_FOR_MATCH or len(b) < _MIN_TITLE_LENGTH_FOR_MATCH:
+        return False
+    if _DIGITS.findall(a) != _DIGITS.findall(b):
+        return False
+    return SequenceMatcher(None, a, b).ratio() >= _TITLE_SIMILARITY_THRESHOLD
 
 
 def dedupe_search_results(
@@ -154,11 +175,9 @@ def _collapse_similar_titles(candidates: list[Candidate], stats: DedupStats) -> 
         title = _normalise_title(candidate.title)
         match = None
         if title:
-            for peer in peers:
-                ratio = SequenceMatcher(None, title, _normalise_title(peer.title)).ratio()
-                if ratio >= _TITLE_SIMILARITY_THRESHOLD:
-                    match = peer
-                    break
+            match = next(
+                (p for p in peers if _titles_match(title, _normalise_title(p.title))), None
+            )
         if match is not None:
             stats.duplicate_titles += 1
             for query_id in candidate.found_by_queries:

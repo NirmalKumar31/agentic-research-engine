@@ -119,6 +119,35 @@ class TestPreFetchDeduplication:
         assert len(candidates) == 1
         assert stats.duplicate_titles == 1
 
+    @pytest.mark.parametrize(
+        ("title_a", "title_b"),
+        [
+            ("Deep Learning Tutorial Part 1", "Deep Learning Tutorial Part 2"),
+            ("State of AI Report 2024", "State of AI Report 2025"),
+            ("Result 0 for imbalanced data", "Result 1 for imbalanced data"),
+            ("Migrating to Python 2 Runtime", "Migrating to Python 3 Runtime"),
+        ],
+    )
+    def test_titles_differing_only_by_number_are_not_merged(
+        self, title_a: str, title_b: str
+    ) -> None:
+        """Numbers in a title are usually what distinguishes the documents.
+        String similarity alone rates these above any useful threshold."""
+        results = [
+            result("https://ex.com/a", query_id="Q1", title=title_a),
+            result("https://ex.com/b", query_id="Q2", title=title_b),
+        ]
+        candidates, _ = dedupe_search_results(results, {"Q1": "SQ1", "Q2": "SQ2"})
+        assert len(candidates) == 2
+
+    def test_very_short_titles_never_merge(self) -> None:
+        results = [
+            result("https://ex.com/a", query_id="Q1", title="Docs"),
+            result("https://ex.com/b", query_id="Q2", title="Docs"),
+        ]
+        candidates, _ = dedupe_search_results(results, {"Q1": "SQ1", "Q2": "SQ2"})
+        assert len(candidates) == 2
+
     def test_identical_titles_on_different_domains_do_not_merge(self) -> None:
         """Two sites can both publish 'Getting Started'; merging them would
         also destroy the independent-corroboration signal."""
