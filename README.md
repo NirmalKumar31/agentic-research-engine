@@ -243,26 +243,42 @@ agentic-research graph              # print the Mermaid diagram
 agentic-research evaluate -n 2      # run the benchmark (spends credits)
 ```
 
-Progress streams live as the graph executes:
+Progress streams live as the graph executes. This is a real transcript,
+lightly trimmed for width:
 
 ```
-Researching: Compare modern approaches for detecting fraud...
+Researching: Compare modern approaches for detecting fraud in highly
+             imbalanced transaction datasets, including how such models
+             should be evaluated.
 Analysing question...
   intent: compare technical approaches and their evaluation
 Research plan: 6 sub-questions
-  - What are the most effective algorithms for class imbalance in fraud detection?
-  - What evaluation metrics are appropriate under severe class imbalance?
-  - What are the hidden costs of oversampling techniques?
-  ...
+  - What are the most effective machine learning models for fraud detection
+    in highly imbalanced transaction datasets?
+  - What are the most appropriate evaluation metrics for fraud detection
+    models in highly imbalanced datasets?
+  - What are the hidden costs and challenges of implementing fraud detection
+    models in real-time transaction systems?
+  - What security risks and compliance requirements must be considered when
+    deploying fraud detection models in financial systems?
+  - What are the failure modes and edge cases that could cause fraud
+    detection models to miss critical fraud patterns?
+  - How does the maturity of fraud detection technologies vary across
+    different financial sectors and geographic regions?
+
 Round 1: searching 6 queries
-  18 results -> 5 unique (13 duplicate fetches avoided), retrieving 4
-  4 usable sources, extracting evidence from 4
+  48 results -> 46 unique (2 duplicate fetches avoided), retrieving 5
+  5 usable sources, extracting evidence from 5
   coverage 100% (6 covered, 0 weak, 0 missing) - sufficient
-Synthesising from 24 evidence items...
+Synthesising from 30 evidence items...
 Verifying citations...
-  9/9 citations resolve to retrieved sources
+  11/11 citations resolve to retrieved sources
 Complete (coverage judged sufficient)
 ```
+
+Note the third and fifth sub-questions: the planner is asked to include the
+dimension a naive answer would skip, and it produced hidden costs and failure
+modes unprompted.
 
 ### Web UI
 
@@ -384,14 +400,61 @@ round cap and still produces a report.
 
 ---
 
+## A measured run
+
+Every number below is from one real execution on 2026-09-22 — live Tavily
+search, `qwen3:4b` running locally, no cloud model involved. The artifacts it
+produced are the ones described in [Output artifacts](#output-artifacts).
+
+**Question:** *Compare modern approaches for detecting fraud in highly
+imbalanced transaction datasets, including how such models should be
+evaluated.*
+
+| | |
+|---|---|
+| Sub-questions planned | 6 |
+| Search queries / results | 6 / 48 |
+| Unique URLs after deduplication | 46 (2 duplicates collapsed) |
+| Sources retrieved | 5 (per-round cap), across **5 distinct domains** |
+| Separate page fetches | **0** — all five reused content Tavily already returned |
+| Evidence items | 30 |
+| **Quotes verified against source** | **30 / 30 (100%)** |
+| **Citation validity** | **11 / 11 (100%)** |
+| Citation coverage | 100% of factual claims |
+| Claims entailed by cited evidence | 60% (sampled) |
+| Sources retrieved but never cited | 0 |
+| Research rounds | 1 — stopped because coverage was judged sufficient |
+| Model calls | 20 (planner 2, researcher 6, critic 1, synthesizer 1, verifier 10) |
+| Tokens | 21,540 in / 6,046 out |
+| **Cost** | **$0.00** (entirely local) |
+| Wall clock | 638s |
+| Recoverable errors | 0 |
+
+Sources it selected included an arXiv paper and an MDPI journal article
+alongside two industry write-ups — domain concentration 0.20, meaning no
+single publisher dominated.
+
+Two things worth reading honestly rather than as marketing:
+
+- **Deduplication saved little here (2 of 48).** Six genuinely different
+  sub-questions return genuinely different pages. The barrier is cheap
+  insurance that pays off when sub-questions overlap; a unit test pins the
+  mechanism at 3 fetches for 9 results across 3 queries. Quoting the test
+  fixture's ratio as a headline number would be dishonest.
+- **60% entailment support is the weakest number here**, and it is the local
+  model judging its own report. That is a calibration limit of a 4B verifier,
+  which is exactly why hybrid mode keeps verification in the cloud.
+
 ## What running on a 4B local model taught us
 
-All measured on `qwen3:4b`, same question, same sources.
+All measured on `qwen3:4b`. These findings shaped the design rather than
+merely describing it.
 
 **Prose instructions do not survive a small model; schema fields do.** The
 synthesis prompt asked for citation markers like `[S3]` in the claim text. The
 model produced a complete, well-organised report containing **zero** markers.
-Moving citations into a required `source_ids` schema field fixed it outright:
+Moving citations into a required `source_ids` schema field fixed it outright,
+same model and same question:
 
 | | prose markers | schema field |
 |---|---|---|
@@ -401,11 +464,15 @@ Moving citations into a required `source_ids` schema field fixed it outright:
 > If a model must produce something reliably, put it in the schema, not the
 > instructions.
 
-**Quotation is reliable; judgement is not.** The same model reached **83%
-quote fidelity** extracting evidence — it copies text accurately. Used as the
-*verifier*, it judged only **33%** of its own claims as fully supported by
-their cited evidence. That gap is the empirical basis for hybrid mode putting
-extraction local and verification in the cloud.
+**Quotation is reliable; judgement is not.** Asked to extract verbatim
+quotes, the model is accurate — 83% quote fidelity on one run and 30/30
+(100%) on the live run above. Asked to *judge* whether evidence entails a
+claim, it is much weaker: 33% and 60% support rates on those same two runs,
+grading its own report. Copying text is easy for a small model; deciding
+whether one sentence establishes another is not.
+
+That gap is the empirical basis for the hybrid split — extraction local,
+verification in the cloud — rather than an assumption about model size.
 
 **Local models do not parallelise.** Ollama serves one model largely serially.
 Fanning eight extraction calls at it produced queueing and read timeouts, not
@@ -417,7 +484,7 @@ throughput — hence a separate concurrency limit for local providers.
 
 ```bash
 pip install -e ".[dev]"
-pytest                    # 191 tests, ~5s, no network, no credentials, no cost
+pytest                    # 199 tests, under 10s, no network, no credentials, no cost
 ```
 
 Default runs are hermetic. Every external boundary — models, search, page

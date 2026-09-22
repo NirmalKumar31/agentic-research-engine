@@ -132,8 +132,21 @@ once:
 
 The cost is two extra synchronisation points, which add latency equal to the
 slowest worker in each stage. The benefit is that redundant work is eliminated
-rather than merely counted. In a measured local run, 18 search results
-collapsed to 5 unique pages — 13 fetches and 13 extraction calls avoided.
+rather than merely counted.
+
+How much this saves depends entirely on how much the sub-questions overlap,
+and it is worth being precise about that rather than quoting a flattering
+number:
+
+- A unit test pins the *mechanism*: three queries returning the same three
+  URLs produce exactly three fetches, not nine.
+- On the live run recorded in the README, overlap was low — 48 real Tavily
+  results contained only 2 duplicate URLs (4%), because six genuinely
+  different sub-questions return genuinely different pages.
+
+So the barrier is cheap insurance rather than a large constant saving. It
+matters most where sub-questions are closely related, which is exactly the
+case where a per-researcher design would waste the most.
 
 ### 3.2 Fan-in with `defer`
 
@@ -418,12 +431,14 @@ immediately:
 The general rule, and the reason it is worth writing down: **if a model must
 produce something reliably, put it in the schema, not the instructions.**
 
-**Quotation is reliable; judgement is not.** The same model achieved 83% quote
-fidelity when extracting evidence — it can copy text accurately. Used as the
-*verifier*, it judged only 33% of its own claims as fully supported by their
-cited evidence, which says more about the model's calibration than about the
-claims. This is the empirical basis for putting extraction local and
-verification in the cloud in hybrid mode.
+**Quotation is reliable; judgement is not.** Extracting verbatim quotes, the
+model is accurate: 83% quote fidelity on one run and 30/30 (100%) on the live
+run recorded in the README. Judging whether evidence entails a claim, it is
+much weaker: 33% and 60% support rates on those same two runs, grading its own
+report. Copying text is easy for a small model; deciding whether one sentence
+establishes another is not. This is the empirical basis for putting extraction
+local and verification in the cloud in hybrid mode, rather than an assumption
+about parameter count.
 
 **Local models do not parallelise.** Ollama serves one model largely
 serially. Fanning eight extraction calls at it produced queueing and read

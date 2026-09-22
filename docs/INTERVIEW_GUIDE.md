@@ -120,9 +120,18 @@ Wikipedia page, and it gets downloaded three times and sent to a model three
 times, because no worker knows the others found it.
 
 Splitting at stage boundaries puts a deduplication barrier between search and
-fetch, where all results are visible at once. Measured on a real run: 18
-search results collapsed to 5 unique pages — 13 fetches and 13 extraction
-calls avoided.
+fetch, where all results are visible at once.
+
+Be precise about the payoff, because it varies. A unit test pins the
+mechanism: three queries returning the same three URLs produce three fetches,
+not nine. On the live run in the README, real overlap was low — 2 duplicates
+in 48 Tavily results — because six genuinely different sub-questions return
+genuinely different pages. So it is cheap insurance, and it matters most
+exactly where sub-questions are closely related, which is where the
+per-researcher design wastes the most.
+
+Volunteering that the saving was small on that particular run is worth more
+than quoting the flattering number from a test fixture.
 
 The cost is two extra synchronisation points, adding latency equal to the
 slowest worker per stage. I took that trade because it converts a token-cost
@@ -343,8 +352,9 @@ Signals that you think about this as engineering, not a demo:
 faithful to retrieved sources. Say it that precisely.
 
 **Do not call the parallelism a speedup you have not measured.** What is
-measured is duplicate work avoided (13 of 18 results) and that searches run
-concurrently. A wall-clock speedup number would need an A/B run.
+measured is that searches run concurrently (six live Tavily queries all
+returned within ~1s of each other) and that deduplication works. A wall-clock
+speedup number would need an A/B run, and I have not done one.
 
 **Do not oversell hybrid mode.** It routes by role with a stated rule and
 measured justification. It does not dynamically choose a model per token or
@@ -354,6 +364,14 @@ per difficulty.
 exactly where — that is the interesting part, and pretending otherwise
 invites the one follow-up you cannot answer.
 
-**Know your own numbers.** 13 of 18 duplicate fetches avoided. 0 → 9
-citations from the schema change. 83% quote fidelity, 33% support rate on a 4B
-model. 191 hermetic tests in about 5 seconds.
+**Know your own numbers**, from the live run in the README (real Tavily
+search, `qwen3:4b` running locally, zero API cost):
+
+- 6 sub-questions, 6 queries, 48 results, 5 sources, 5 distinct domains
+- 30 evidence items, **30/30 quotes verified**
+- 11 citations, **100% valid**, 100% coverage, 60% entailment-supported
+- 20 model calls, 21.5k in / 6.0k out tokens, $0.00, 638s
+- 0 separate page fetches — all five sources reused content the search
+  provider already returned
+- 0 → 9 citations from moving citations into the schema
+- 199 hermetic tests in under 10 seconds
