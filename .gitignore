@@ -26,6 +26,7 @@ htmlcov/
 
 # Runtime artifacts produced by research runs
 outputs/
+evaluations/
 checkpoints/
 *.sqlite
 *.sqlite3
