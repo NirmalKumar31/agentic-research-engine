@@ -1,0 +1,101 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-research-engine"
+version = "0.1.0"
+description = "A LangGraph deep-research engine with source-to-claim provenance, bounded iterative research loops, and hybrid cloud/local model routing."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Nirmal Kumar" }]
+keywords = ["langgraph", "agents", "research", "llm", "rag", "citations"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Version policy: LangGraph/LangChain moved to 1.x and renamed or removed a
+# large part of the 0.x surface, so the floors below are real requirements
+# rather than caution. Upper bounds stop at the next major only.
+dependencies = [
+    "langgraph>=1.2,<2",
+    "langgraph-checkpoint-sqlite>=3.1,<4",
+    "langchain-core>=1.6,<2",
+    "langchain-openai>=1.6,<2",
+    "langchain-ollama>=1.1,<2",
+    "pydantic>=2.13,<3",
+    "pydantic-settings>=2.15,<3",
+    "httpx>=0.28,<0.29",
+    "trafilatura>=2.2,<3",
+    "tenacity>=9.1,<10",
+    "structlog>=26,<27",
+    "typer>=0.27,<1",
+    "rich>=15,<16",
+]
+
+[project.optional-dependencies]
+ui = ["streamlit>=1.64,<2"]
+dev = [
+    "pytest>=9.1,<10",
+    "pytest-asyncio>=1.4,<2",
+    "pytest-cov>=7,<8",
+    "respx>=0.23,<0.24",
+    "ruff>=0.16,<0.17",
+    "mypy>=2.3,<3",
+]
+
+[project.scripts]
+agentic-research = "agentic_research.cli.main:app"
+
+[project.urls]
+Repository = "https://github.com/NirmalKumar31/agentic-research-engine"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_research"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "RUF", "ASYNC"]
+ignore = [
+    "B008",   # typer uses function calls (Option/Argument) in argument defaults
+    "RUF012", # ClassVar annotations not required on pydantic-style class attrs
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["agentic_research"]
+mypy_path = "src"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+check_untyped_defs = true
+
+# Third-party packages without bundled type information.
+[[tool.mypy.overrides]]
+module = ["trafilatura.*", "langgraph.*", "langchain_ollama.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q --strict-markers"
+markers = [
+    "integration: requires live API credentials; excluded from default runs",
+    "ollama: requires a running local Ollama server",
+]
+
+[tool.coverage.run]
+source = ["src/agentic_research"]
+branch = true
