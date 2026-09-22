@@ -18,8 +18,24 @@ from agentic_research.models import SearchQuery
 from agentic_research.schemas import AnalysisOut, ExtractionOut
 from agentic_research.search.service import SearchService, build_provider
 
-OLLAMA_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3:4b")
+
+def _env_settings() -> Settings:
+    """Settings as the application itself would load them.
+
+    Reads .env, not just the shell environment, so a contributor who put their
+    key in .env (as the README instructs) gets these tests to run rather than
+    silently skip.
+    """
+    try:
+        return Settings()
+    except Exception:
+        return Settings(llm_mode="local", _env_file=None)
+
+
+_ENV = _env_settings()
+OLLAMA_URL = os.environ.get("OLLAMA_BASE_URL", _ENV.ollama_base_url)
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", _ENV.ollama_model)
+TAVILY_KEY = _ENV.tavily_api_key
 
 
 def _ollama_running() -> bool:
@@ -31,7 +47,7 @@ def _ollama_running() -> bool:
 
 ollama = pytest.mark.skipif(not _ollama_running(), reason="Ollama is not reachable")
 tavily = pytest.mark.skipif(
-    not os.environ.get("TAVILY_API_KEY"), reason="TAVILY_API_KEY is not set"
+    TAVILY_KEY is None, reason="TAVILY_API_KEY is not set (checked env and .env)"
 )
 
 
@@ -125,7 +141,7 @@ class TestLiveSearch:
     async def test_search_returns_normalised_results(self) -> None:
         settings = Settings(
             llm_mode="local",
-            tavily_api_key=os.environ["TAVILY_API_KEY"],
+            tavily_api_key=TAVILY_KEY,
             max_search_results=5,
             _env_file=None,
         )
@@ -163,7 +179,7 @@ class TestEndToEnd:
             llm_mode="local",
             ollama_model=OLLAMA_MODEL,
             ollama_base_url=OLLAMA_URL,
-            tavily_api_key=os.environ["TAVILY_API_KEY"],
+            tavily_api_key=TAVILY_KEY,
             max_research_rounds=1,
             max_search_queries=4,
             max_sources=6,

@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from agentic_research.config import ModelRole, ModelSpec, Provider, Settings
-from agentic_research.llm.base import LLMError, UsageTracker
+from agentic_research.llm.base import LLMCallRecord, LLMError, UsageTracker
 from agentic_research.models import SearchQuery, SearchResult
 from agentic_research.retrieval.fetcher import FetchResult, FetchStats
 from agentic_research.schemas import (
@@ -56,12 +56,33 @@ class FakeRoleModel:
         self._owner.calls.append((self.role, schema.__name__))
         name = schema.__name__
         if name in self._owner.fail_schemas:
+            self._record(name, ok=False)
             raise LLMError(f"induced failure for {name}")
         await asyncio.sleep(0)  # yield, so concurrency is genuinely exercised
+        self._record(name, ok=True)
         builder = self._owner.responses.get(name)
         if builder is not None:
             return builder(user)
         return _DEFAULTS[name](user)
+
+    def _record(self, schema_name: str, *, ok: bool) -> None:
+        """Feed the real UsageTracker.
+
+        Without this the fake router reports zero calls and zero tokens, and
+        every metrics assertion silently passes against an empty tracker.
+        """
+        self._owner.tracker.record(
+            LLMCallRecord(
+                role=self.role,
+                provider=self._owner._spec.provider,
+                model=self._owner._spec.model,
+                schema=schema_name,
+                latency_s=0.01,
+                input_tokens=100,
+                output_tokens=40,
+                ok=ok,
+            )
+        )
 
 
 def _default_analysis(_: str) -> AnalysisOut:

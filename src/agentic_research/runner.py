@@ -145,7 +145,10 @@ async def stream_research(
                 initial_state(run_id, query),
                 config=config,
                 context=context,
-                stream_mode=("custom", "values"),
+                # Must be a list: LangGraph switches on isinstance(..., list)
+                # to decide whether to yield (mode, chunk) pairs. A tuple is
+                # accepted by the type checker and yields bare chunks instead.
+                stream_mode=["custom", "values"],
             ):
                 # With multiple stream modes the parts arrive as
                 # (mode, payload); the payload type varies per mode, so it is
