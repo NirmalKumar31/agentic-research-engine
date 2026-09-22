@@ -12,7 +12,7 @@ All runtime knobs live here so that the graph, providers and CLI never read
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 
@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field, SecretStr, field_validator, model_validat
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class LLMMode(str, Enum):
+class LLMMode(StrEnum):
     """Where work runs by default."""
 
     CLOUD = "cloud"
@@ -28,12 +28,12 @@ class LLMMode(str, Enum):
     HYBRID = "hybrid"
 
 
-class Provider(str, Enum):
+class Provider(StrEnum):
     OPENAI = "openai"
     OLLAMA = "ollama"
 
 
-class ModelRole(str, Enum):
+class ModelRole(StrEnum):
     """Logical jobs a model can be asked to do.
 
     Roles are deliberately coarse. Finer roles would give more routing control
@@ -262,9 +262,7 @@ class Settings(BaseSettings):
         """Final role → model mapping, overrides applied."""
         resolved: dict[ModelRole, ModelSpec] = {}
         for role, override in self._role_overrides().items():
-            resolved[role] = (
-                ModelSpec.parse(override) if override else self._default_spec(role)
-            )
+            resolved[role] = ModelSpec.parse(override) if override else self._default_spec(role)
         return resolved
 
     @property

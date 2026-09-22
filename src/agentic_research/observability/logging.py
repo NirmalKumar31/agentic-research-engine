@@ -24,9 +24,7 @@ _SECRET_KEYS = frozenset(
 )
 
 
-def _redact_secrets(
-    _logger: Any, _method: str, event_dict: dict[str, Any]
-) -> dict[str, Any]:
+def _redact_secrets(_logger: Any, _method: str, event_dict: dict[str, Any]) -> dict[str, Any]:
     """Defence in depth: keys are held in ``SecretStr``, but a careless
     ``log.info("x", api_key=...)`` should still not leak."""
     for key in list(event_dict):
@@ -62,15 +60,17 @@ def configure_logging(level: str = "INFO", fmt: str = "console") -> None:
     )
     # Third-party libraries log through stdlib; keep them from drowning the run.
     logging.basicConfig(level=logging.WARNING, stream=sys.stderr, force=True)
-    for noisy in ("httpx", "httpcore", "urllib3", "trafilatura", "openai"):
+    for noisy in ("httpx", "httpcore", "urllib3", "openai"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
+    # trafilatura warns on every page it cannot parse, which is routine here.
+    logging.getLogger("trafilatura").setLevel(logging.ERROR)
     _configured = True
 
 
 def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     if not _configured:
         configure_logging()
-    return structlog.get_logger(name)  # type: ignore[no-any-return]
+    return structlog.get_logger(name)
 
 
 def bind_run(run_id: str, **extra: Any) -> None:

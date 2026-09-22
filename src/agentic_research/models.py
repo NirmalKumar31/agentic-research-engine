@@ -17,16 +17,16 @@ from __future__ import annotations
 
 import hashlib
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 
-from pydantic import BaseModel, Field, HttpUrl, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 def _utcnow() -> datetime:
     return datetime.now(UTC)
 
 
-class Stance(str, Enum):
+class Stance(StrEnum):
     """How a piece of evidence relates to the sub-question it was gathered for.
 
     Contradictions are first-class. Collapsing disagreeing sources into one
@@ -39,7 +39,7 @@ class Stance(str, Enum):
     NEUTRAL = "neutral"
 
 
-class SourceType(str, Enum):
+class SourceType(StrEnum):
     """Coarse provenance class, used as one input to source quality.
 
     Deliberately coarse: this is a heuristic about *what kind of thing* a page
@@ -56,7 +56,7 @@ class SourceType(str, Enum):
     OTHER = "other"
 
 
-class OutputFormat(str, Enum):
+class OutputFormat(StrEnum):
     COMPARISON = "comparison"
     OVERVIEW = "overview"
     HOWTO = "howto"
@@ -152,7 +152,7 @@ class SearchResult(BaseModel):
         return v or ""
 
 
-class FetchStatus(str, Enum):
+class FetchStatus(StrEnum):
     OK = "ok"
     PROVIDER_CONTENT = "provider_content"
     """Content came from the search provider; no separate fetch was needed."""
@@ -319,7 +319,7 @@ class ResearchReport(BaseModel):
         return {cid for claim in self.all_claims() for cid in claim.citation_ids}
 
 
-class CitationIssueType(str, Enum):
+class CitationIssueType(StrEnum):
     UNKNOWN_SOURCE = "unknown_source"
     """Cited an ID that was never retrieved. Hard failure."""
     UNSUPPORTED_CLAIM = "unsupported_claim"
@@ -362,9 +362,7 @@ class CitationVerification(BaseModel):
         """Share of factual claims carrying at least one citation."""
         if self.factual_claims == 0:
             return 1.0
-        uncited = sum(
-            1 for i in self.issues if i.type is CitationIssueType.UNCITED_CLAIM
-        )
+        uncited = sum(1 for i in self.issues if i.type is CitationIssueType.UNCITED_CLAIM)
         return round(max(0, self.factual_claims - uncited) / self.factual_claims, 4)
 
     @property

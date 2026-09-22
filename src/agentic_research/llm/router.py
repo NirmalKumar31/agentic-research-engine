@@ -13,7 +13,7 @@ retry malformed output and handle a provider being down.
 from __future__ import annotations
 
 import time
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 import httpx
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -98,12 +98,20 @@ class RoleModel:
         while attempts < max_attempts:
             attempts += 1
             try:
-                result = await runnable.ainvoke(messages)
-            except Exception as exc:  # noqa: BLE001 - normalised below
+                # include_raw=True always yields the {raw, parsed, parsing_error}
+                # envelope, but the return type is declared as the union of both
+                # modes, so the narrowing has to be stated here.
+                result = cast("dict[str, Any]", await runnable.ainvoke(messages))
+            except Exception as exc:
                 last_error = f"{type(exc).__name__}: {exc}"
                 self._finish(
-                    schema.__name__, started, input_tokens, output_tokens, attempts,
-                    ok=False, error=last_error,
+                    schema.__name__,
+                    started,
+                    input_tokens,
+                    output_tokens,
+                    attempts,
+                    ok=False,
+                    error=last_error,
                 )
                 raise self._as_domain_error(exc) from exc
 
@@ -118,7 +126,7 @@ class RoleModel:
                 self._finish(
                     schema.__name__, started, input_tokens, output_tokens, attempts, ok=True
                 )
-                return parsed  # type: ignore[return-value]
+                return cast("SchemaT", parsed)
 
             last_error = str(parse_error) if parse_error else "model returned no parsable object"
             log.warning(
@@ -135,8 +143,13 @@ class RoleModel:
                 messages.append(HumanMessage(content=_REPAIR_TEMPLATE.format(error=last_error)))
 
         self._finish(
-            schema.__name__, started, input_tokens, output_tokens, attempts,
-            ok=False, error=last_error,
+            schema.__name__,
+            started,
+            input_tokens,
+            output_tokens,
+            attempts,
+            ok=False,
+            error=last_error,
         )
         raise StructuredOutputError(self.spec, schema.__name__, attempts, last_error)
 
@@ -200,9 +213,7 @@ class ModelRouter:
 
     def assignments(self) -> dict[ModelRole, ModelSpec]:
         """Effective role → model map, including any fallbacks applied."""
-        return {
-            role: self._fallbacks.get(role, spec) for role, spec in self._assignments.items()
-        }
+        return {role: self._fallbacks.get(role, spec) for role, spec in self._assignments.items()}
 
     def describe(self) -> dict[str, str]:
         return {role.value: str(spec) for role, spec in self.assignments().items()}
@@ -217,9 +228,7 @@ class ModelRouter:
         Returns human-readable warnings for degradations that were tolerated.
         """
         warnings: list[str] = []
-        ollama_roles = [
-            r for r, s in self._assignments.items() if s.provider is Provider.OLLAMA
-        ]
+        ollama_roles = [r for r, s in self._assignments.items() if s.provider is Provider.OLLAMA]
         if ollama_roles:
             available, detail = await self._ollama_status()
             for role in ollama_roles:
@@ -331,9 +340,7 @@ class ModelRouter:
 
 def build_router(settings: Settings) -> ModelRouter:
     router = ModelRouter(settings)
-    log.info(
-        "model_routing_resolved", mode=settings.llm_mode.value, assignments=router.describe()
-    )
+    log.info("model_routing_resolved", mode=settings.llm_mode.value, assignments=router.describe())
     return router
 
 

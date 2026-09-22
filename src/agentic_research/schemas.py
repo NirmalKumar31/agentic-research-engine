@@ -34,9 +34,9 @@ class AnalysisOut(BaseModel):
         default_factory=list,
         description="Explicit scope limits stated by the user, such as a domain or time period",
     )
-    output_format: Literal[
-        "comparison", "overview", "howto", "timeline", "decision_support"
-    ] = Field(description="The shape of answer this question calls for")
+    output_format: Literal["comparison", "overview", "howto", "timeline", "decision_support"] = (
+        Field(description="The shape of answer this question calls for")
+    )
     time_sensitive: bool = Field(
         description="True if the correct answer depends on recent developments"
     )

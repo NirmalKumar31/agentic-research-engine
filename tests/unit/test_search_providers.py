@@ -10,6 +10,7 @@ import httpx
 import pytest
 import respx
 
+from agentic_research.config import Settings
 from agentic_research.models import SearchQuery
 from agentic_research.search import (
     BraveProvider,
@@ -78,9 +79,7 @@ class TestTavilyNormalisation:
     async def test_requests_markdown_content_and_correct_depth(
         self, options: SearchOptions
     ) -> None:
-        route = respx.post(TAVILY_URL).mock(
-            return_value=httpx.Response(200, json={"results": []})
-        )
+        route = respx.post(TAVILY_URL).mock(return_value=httpx.Response(200, json={"results": []}))
         provider = TavilyProvider("tvly-x")
         async with httpx.AsyncClient() as client:
             await provider.search(client, "q", SearchOptions(depth="advanced"), query_id="Q1")
@@ -179,7 +178,7 @@ class TestSearchServiceResilience:
     """One bad query must not be able to end a research round."""
 
     @respx.mock
-    async def test_retries_then_succeeds(self, settings) -> None:  # noqa: ANN001
+    async def test_retries_then_succeeds(self, settings: Settings) -> None:
         respx.post(TAVILY_URL).mock(
             side_effect=[
                 httpx.Response(500, text="server error"),
@@ -196,7 +195,7 @@ class TestSearchServiceResilience:
         assert service.stats.calls == 1
 
     @respx.mock
-    async def test_exhausted_retries_return_error_not_raise(self, settings) -> None:  # noqa: ANN001
+    async def test_exhausted_retries_return_error_not_raise(self, settings: Settings) -> None:
         respx.post(TAVILY_URL).mock(return_value=httpx.Response(500, text="down"))
         service = SearchService(TavilyProvider("tvly-x"), settings, max_attempts=2)
         async with service:
@@ -208,7 +207,7 @@ class TestSearchServiceResilience:
         assert service.stats.failures == 1
 
     @respx.mock
-    async def test_auth_error_is_not_retried(self, settings) -> None:  # noqa: ANN001
+    async def test_auth_error_is_not_retried(self, settings: Settings) -> None:
         route = respx.post(TAVILY_URL).mock(return_value=httpx.Response(401, text="bad key"))
         service = SearchService(TavilyProvider("tvly-x"), settings, max_attempts=3)
         async with service:
@@ -219,10 +218,8 @@ class TestSearchServiceResilience:
         assert route.call_count == 1, "auth failures must not burn retries"
 
     @respx.mock
-    async def test_followup_round_escalates_search_depth(self, settings) -> None:  # noqa: ANN001
-        route = respx.post(TAVILY_URL).mock(
-            return_value=httpx.Response(200, json={"results": []})
-        )
+    async def test_followup_round_escalates_search_depth(self, settings: Settings) -> None:
+        route = respx.post(TAVILY_URL).mock(return_value=httpx.Response(200, json={"results": []}))
         service = SearchService(TavilyProvider("tvly-x"), settings)
         async with service:
             await service.run_query(
@@ -235,7 +232,7 @@ class TestSearchServiceResilience:
         assert '"search_depth":"basic"' in bodies[0]
         assert '"search_depth":"advanced"' in bodies[1], "round 2 should escalate depth"
 
-    async def test_requires_context_manager(self, settings) -> None:  # noqa: ANN001
+    async def test_requires_context_manager(self, settings: Settings) -> None:
         service = SearchService(TavilyProvider("tvly-x"), settings)
         with pytest.raises(RuntimeError, match="context manager"):
             await service.run_query(

@@ -84,7 +84,7 @@ check_untyped_defs = true
 
 # Third-party packages without bundled type information.
 [[tool.mypy.overrides]]
-module = ["trafilatura.*", "langgraph.*", "langchain_ollama.*"]
+module = ["trafilatura.*", "langchain_ollama.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

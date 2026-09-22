@@ -91,7 +91,9 @@ class BraveProvider(SearchProvider):
         except SearchError:
             raise
         except httpx.TimeoutException as exc:
-            raise SearchError(self.name, f"timed out after {self._timeout}s", retryable=True) from exc
+            raise SearchError(
+                self.name, f"timed out after {self._timeout}s", retryable=True
+            ) from exc
         except httpx.HTTPError as exc:
             raise SearchError(self.name, f"transport error: {exc}", retryable=True) from exc
         except ValueError as exc:
