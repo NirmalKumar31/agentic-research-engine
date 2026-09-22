@@ -81,7 +81,11 @@ def verify_structure(report: ResearchReport, known_source_ids: set[str]) -> Cita
 
     for claim in report.all_claims():
         result.total_claims += 1
-        markers = extract_markers(claim.text)
+        # Citations may arrive as a schema field, as prose markers, or both.
+        markers = list(claim.citation_ids)
+        for marker in extract_markers(claim.text):
+            if marker not in markers:
+                markers.append(marker)
         claim.citation_ids = markers
         factual = looks_factual(claim)
         if factual:
@@ -156,7 +160,10 @@ def repair_report(report: ResearchReport, known_source_ids: set[str]) -> tuple[R
 
     def fix(claim: Claim) -> Claim:
         nonlocal repaired
-        bad = [cid for cid in extract_markers(claim.text) if cid not in known_source_ids]
+        present = list(claim.citation_ids) + [
+            m for m in extract_markers(claim.text) if m not in claim.citation_ids
+        ]
+        bad = [cid for cid in present if cid not in known_source_ids]
         if not bad:
             return claim
         text = claim.text
@@ -173,12 +180,8 @@ def repair_report(report: ResearchReport, known_source_ids: set[str]) -> tuple[R
             )
             repaired += 1
         text = re.sub(r"\s{2,}", " ", text).replace(" .", ".").strip()
-        return claim.model_copy(
-            update={
-                "text": text,
-                "citation_ids": [c for c in extract_markers(text) if c in known_source_ids],
-            }
-        )
+        kept = [c for c in present if c in known_source_ids]
+        return claim.model_copy(update={"text": text, "citation_ids": kept})
 
     fixed = report.model_copy(
         update={

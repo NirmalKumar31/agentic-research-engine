@@ -31,7 +31,7 @@ from agentic_research.graph.state import (
     ResearchState,
     SearchTask,
 )
-from agentic_research.llm.base import BudgetExceededError, LLMError
+from agentic_research.llm.base import BudgetExceededError
 from agentic_research.models import (
     EvidenceItem,
     FetchStatus,
@@ -64,7 +64,16 @@ async def search_worker(state: SearchTask) -> ResearchState:
     query = state["query"]
     context = ctx()
 
-    response = await context.search.run_query(query)
+    try:
+        response = await context.search.run_query(query)
+    except Exception as exc:
+        log.warning("search_worker_crashed", query_id=query.id, error=str(exc)[:200])
+        return {
+            "round_results": [],
+            "errors": [error_from("search", exc, f"{query.id}: {query.text}")],
+            "counters": {"searches_failed": 1},
+        }
+
     if not response.ok:
         emit("search_failed", query_id=query.id, query=query.text)
         return {
@@ -203,7 +212,20 @@ async def fetch_worker(state: FetchTask) -> ResearchState:
         if text.strip():
             return _finalise_source(source, text, FetchStatus.PROVIDER_CONTENT, reused=True)
 
-    result = await ctx().fetcher.fetch(source.url)
+    try:
+        result = await ctx().fetcher.fetch(source.url)
+    except Exception as exc:
+        log.warning("fetch_worker_crashed", source_id=source.id, error=str(exc)[:200])
+        return {
+            "sources": [
+                source.model_copy(
+                    update={"fetch_status": FetchStatus.ERROR, "fetch_error": str(exc)[:200]}
+                )
+            ],
+            "errors": [error_from("fetch", exc, source.url)],
+            "counters": {"fetch_failed": 1},
+        }
+
     if not result.ok:
         emit("source_failed", source_id=source.id, status=result.status.value)
         return {
@@ -352,7 +374,11 @@ async def extract_worker(state: ExtractTask) -> ResearchState:
             "errors": [error_from("extract", exc, source.id)],
             "counters": {"extraction_skipped": 1},
         }
-    except LLMError as exc:
+    except Exception as exc:
+        # Deliberately broad. A Send-dispatched worker has no node-level error
+        # handler, so anything escaping here aborts every sibling in the
+        # super-step. A transport error that was not mapped to an LLMError has
+        # already caused exactly that once.
         log.warning("extraction_failed", source_id=source.id, error=str(exc)[:200])
         return {
             "evidence": [],

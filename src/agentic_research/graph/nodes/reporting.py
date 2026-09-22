@@ -83,19 +83,13 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                 sections=[
                     ReportSection(
                         heading=section.heading,
-                        claims=[
-                            Claim(text=c.text, is_interpretation=c.is_interpretation)
-                            for c in section.claims
-                        ],
+                        claims=[_to_claim(c) for c in section.claims],
                     )
                     for section in out.sections
                 ],
-                key_findings=[
-                    Claim(text=c.text, is_interpretation=c.is_interpretation)
-                    for c in out.key_findings
-                ],
+                key_findings=[_to_claim(c) for c in out.key_findings],
                 contradictions=list(out.contradictions),
-                limitations=list(out.limitations) + gaps,
+                limitations=_dedupe_limitations(list(out.limitations) + gaps),
             )
         except LLMError as exc:
             log.error("synthesis_failed", error=str(exc)[:300])
@@ -113,6 +107,41 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
     return {"report": report, "stage_timings": [timing], "errors": errors}
 
 
+def _to_claim(out: object) -> Claim:
+    """Build a domain Claim from a model-produced one.
+
+    Accepts citations from either the ``source_ids`` field or markers left in
+    the prose, because some models do both and some do neither. Unknown ids
+    are not filtered here; verification catches them, which keeps the
+    hallucination visible in the report instead of silently swallowed.
+    """
+    from agentic_research.citations.verifier import extract_markers, strip_markers
+
+    text = getattr(out, "text", "")
+    ids = list(getattr(out, "source_ids", []) or [])
+    for marker in extract_markers(text):
+        if marker not in ids:
+            ids.append(marker)
+    return Claim(
+        text=strip_markers(text) if ids else text.strip(),
+        citation_ids=ids,
+        is_interpretation=bool(getattr(out, "is_interpretation", False)),
+    )
+
+
+def _dedupe_limitations(items: list[str]) -> list[str]:
+    """Drop near-duplicates, which appear when the model restates a gap we
+    also appended from the coverage assessment."""
+    seen: set[str] = set()
+    kept: list[str] = []
+    for item in items:
+        key = " ".join(item.lower().split()).rstrip(".")
+        if key and key not in seen:
+            seen.add(key)
+            kept.append(item.strip())
+    return kept
+
+
 def _fallback_report(
     question: str, store: EvidenceStore, gaps: list[str], error: str
 ) -> ResearchReport:
@@ -123,7 +152,7 @@ def _fallback_report(
     it unsynthesised is degraded but genuinely useful.
     """
     findings = [
-        Claim(text=f"{item.claim} [{item.source_id}]")
+        Claim(text=item.claim, citation_ids=[item.source_id])
         for item in sorted(store.evidence, key=lambda e: -e.confidence)[:12]
         if item.quote_verified
     ]

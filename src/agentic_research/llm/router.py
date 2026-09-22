@@ -12,6 +12,7 @@ retry malformed output and handle a provider being down.
 
 from __future__ import annotations
 
+import asyncio
 import time
 from typing import Any, TypeVar, cast
 
@@ -23,6 +24,7 @@ from pydantic import BaseModel
 from agentic_research.config import LLMMode, ModelRole, ModelSpec, Provider, Settings
 from agentic_research.llm.base import (
     LLMCallRecord,
+    ModelTimeoutError,
     ModelUnavailableError,
     StructuredOutputError,
     UsageTracker,
@@ -59,6 +61,7 @@ class RoleModel:
         *,
         fell_back: bool = False,
         repair_attempts: int = 1,
+        gate: asyncio.Semaphore | None = None,
     ) -> None:
         self.role = role
         self.spec = spec
@@ -66,6 +69,7 @@ class RoleModel:
         self._tracker = tracker
         self._fell_back = fell_back
         self._repair_attempts = repair_attempts
+        self._gate = gate
 
     async def structured(
         self,
@@ -84,6 +88,14 @@ class RoleModel:
         error back to the model instead of losing the attempt.
         """
         await self._tracker.reserve()
+        if self._gate is not None:
+            async with self._gate:
+                return await self._invoke(schema, system, user, repair=repair)
+        return await self._invoke(schema, system, user, repair=repair)
+
+    async def _invoke(
+        self, schema: type[SchemaT], system: str, user: str, *, repair: bool
+    ) -> SchemaT:
         runnable = self._model.with_structured_output(
             schema, method="json_schema", include_raw=True
         )
@@ -181,7 +193,21 @@ class RoleModel:
         )
 
     def _as_domain_error(self, exc: Exception) -> Exception:
-        """Turn a transport-level failure into something actionable."""
+        """Turn a transport-level failure into an actionable domain error.
+
+        Everything a caller might reasonably catch must end up as an
+        ``LLMError``. A raw ``httpx.ReadTimeout`` leaking out of here escaped a
+        parallel worker's `except LLMError` and took down the whole super-step,
+        which is precisely the failure the worker design exists to prevent.
+        """
+        if isinstance(exc, httpx.TimeoutException):
+            hint = (
+                "Raise LLM_TIMEOUT_SECONDS, lower MAX_PARALLEL_LOCAL_LLM_CALLS, "
+                "or use a smaller local model"
+                if self.spec.provider is Provider.OLLAMA
+                else "Raise LLM_TIMEOUT_SECONDS"
+            )
+            return ModelTimeoutError(f"{self.spec} timed out. {hint}")
         text = str(exc).lower()
         if isinstance(exc, httpx.ConnectError) or "connection" in text or "refused" in text:
             hint = (
@@ -190,6 +216,8 @@ class RoleModel:
                 else "Check network access and OPENAI_API_KEY"
             )
             return ModelUnavailableError(self.spec, "connection failed", hint)
+        if isinstance(exc, httpx.HTTPError):
+            return ModelUnavailableError(self.spec, f"transport error: {exc}")
         return exc
 
 
@@ -208,6 +236,9 @@ class ModelRouter:
         self._clients: dict[str, BaseChatModel] = {}
         self._fallbacks: dict[ModelRole, ModelSpec] = {}
         self._preflighted = False
+        # Created lazily so it binds to the running loop rather than whichever
+        # loop happened to construct the router.
+        self._local_gate: asyncio.Semaphore | None = None
 
     # -- introspection ----------------------------------------------------
 
@@ -296,7 +327,23 @@ class ModelRouter:
             tracker=self.tracker,
             fell_back=role in self._fallbacks,
             repair_attempts=1,
+            gate=self._gate_for(spec),
         )
+
+    def _gate_for(self, spec: ModelSpec) -> asyncio.Semaphore | None:
+        """Concurrency limit for local models.
+
+        Ollama serves a model largely serially: concurrent requests queue
+        rather than overlap, so fanning eight extraction calls at one local
+        model buys no speedup and pushes the later ones past their read
+        timeout. Cloud providers handle concurrency server-side and are gated
+        by the stage semaphores instead.
+        """
+        if spec.provider is not Provider.OLLAMA:
+            return None
+        if self._local_gate is None:
+            self._local_gate = asyncio.Semaphore(self.settings.max_parallel_local_llm_calls)
+        return self._local_gate
 
     def _client_for(self, spec: ModelSpec) -> BaseChatModel:
         cached = self._clients.get(str(spec))

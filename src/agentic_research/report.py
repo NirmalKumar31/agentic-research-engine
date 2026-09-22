@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from agentic_research.metrics import RunMetrics
 from agentic_research.models import (
     CitationVerification,
+    Claim,
     ResearchReport,
     SourceDocument,
 )
@@ -33,15 +34,13 @@ def render_markdown(
     if report.key_findings:
         lines += ["## Key findings", ""]
         for claim in report.key_findings:
-            marker = " *(interpretation)*" if claim.is_interpretation else ""
-            lines.append(f"- {claim.text.strip()}{marker}")
+            lines.append(f"- {_claim_text(claim)}")
         lines.append("")
 
     for section in report.sections:
         lines += [f"## {section.heading}", ""]
         for claim in section.claims:
-            marker = " *(interpretation)*" if claim.is_interpretation else ""
-            lines.append(f"{claim.text.strip()}{marker}")
+            lines.append(_claim_text(claim))
             lines.append("")
 
     if report.contradictions:
@@ -85,6 +84,22 @@ def render_markdown(
         f"{datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}._",
     ]
     return "\n".join(lines).rstrip() + "\n"
+
+
+def _claim_text(claim: Claim) -> str:
+    """Render a claim with its citation markers appended.
+
+    Markers are generated here from ``citation_ids`` rather than taken from
+    the model's prose, so what the reader sees is exactly what verification
+    checked.
+    """
+    text = claim.text.strip()
+    markers = "".join(f"[{cid}]" for cid in claim.citation_ids)
+    if markers:
+        text = f"{text.rstrip('.')}. {markers}" if not text.endswith(markers) else text
+    if claim.is_interpretation:
+        text = f"{text} *(interpretation)*"
+    return text
 
 
 def _source_order(source: SourceDocument) -> tuple[int, str]:

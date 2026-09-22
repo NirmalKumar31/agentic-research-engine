@@ -155,10 +155,12 @@ source of information, and anything you add from general knowledge is an \
 error, not a helpful extra.
 
 Citations:
-- Every factual claim ends with one or more markers such as [S3] or [S1][S4].
-- Use only source ids that appear in the evidence below. A marker pointing at \
-anything else is a failure.
-- Cite the source whose evidence actually supports that specific claim.
+- Every factual claim must list its supporting sources in its source_ids field.
+- Use only source ids that appear in the evidence below. An id that appears \
+nowhere in the evidence is a failure.
+- List the source whose evidence actually supports that specific claim, not \
+every source you read.
+- Write the claim text itself as plain prose with no bracketed markers.
 
 When sources disagree, report the disagreement rather than resolving it. \
 Name both sides: "[S2] reports X, while [S5] found Y."

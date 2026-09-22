@@ -337,3 +337,54 @@ class TestLoopTermination:
 
         assert state["report"] is not None, "graph must not end at an empty round"
         assert any(e["event"] == "completed" for e in events)
+
+
+class TestWorkersNeverRaise:
+    """LangGraph's node-level error_handler does not fire for Send-dispatched
+    nodes, so an exception escaping a worker aborts every sibling in the same
+    super-step. These tests pin the contract that workers swallow their own
+    failures. A real Ollama read timeout escaped this way once."""
+
+    async def test_search_worker_survives_an_unexpected_exception(self, settings: Settings) -> None:
+        class ExplodingSearch(FakeSearchService):
+            async def run_query(self, query):
+                raise RuntimeError("transport blew up")
+
+        context = make_context(settings, search=ExplodingSearch())
+        state, _ = await run_graph(settings, context)
+        assert state["report"] is not None
+        assert any(e.stage == "search" for e in state["errors"])
+
+    async def test_fetch_worker_survives_an_unexpected_exception(self, settings: Settings) -> None:
+        class ExplodingFetcher(FakeFetcher):
+            async def fetch(self, url: str):
+                raise RuntimeError("socket exploded")
+
+        context = make_context(settings, fetcher=ExplodingFetcher())
+        state, _ = await run_graph(settings, context)
+        assert state["report"] is not None
+        assert any(e.stage == "fetch" for e in state["errors"])
+
+    async def test_extract_worker_survives_a_non_llm_exception(self, settings: Settings) -> None:
+        """Regression: an httpx.ReadTimeout is not an LLMError, so a worker
+        catching only LLMError let it escape and kill the super-step."""
+        import httpx
+
+        from fakes import FakeRoleModel
+
+        unpatched = FakeRoleModel.structured
+
+        async def timeout_on_extraction(self, schema, system, user, **kw):
+            if schema.__name__ == "ExtractionOut":
+                raise httpx.ReadTimeout("local model timed out")
+            return await unpatched(self, schema, system, user, **kw)
+
+        FakeRoleModel.structured = timeout_on_extraction
+        try:
+            context = make_context(settings)
+            state, _ = await run_graph(settings, context)
+        finally:
+            FakeRoleModel.structured = unpatched
+
+        assert state["report"] is not None, "a model timeout must not end the run"
+        assert any(e.stage == "extract" for e in state["errors"])

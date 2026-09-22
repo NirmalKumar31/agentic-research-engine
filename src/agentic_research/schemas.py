@@ -152,12 +152,28 @@ class FollowupsOut(BaseModel):
 
 
 class ClaimOut(BaseModel):
+    """One assertion in the report.
+
+    Citations are a schema field rather than markers embedded in prose. That
+    is not a style preference: a 4B local model asked in the prompt to append
+    "[S3]" produced a full report with zero markers, while the same model
+    fills a required list field reliably. If a model must produce something
+    dependably, make it part of the schema, not part of the instructions.
+    """
+
     text: str = Field(
         description=(
-            "One assertion. If it states a fact drawn from sources, end it with citation "
-            "markers in square brackets such as [S3] or [S1][S4]. Use only IDs from the "
-            "supplied evidence."
+            "One assertion, stated plainly. Do NOT put citation markers in this text; "
+            "list the supporting sources in source_ids instead."
         )
+    )
+    source_ids: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Ids of the sources that support this claim, such as ['S3', 'S1']. Use only "
+            "ids that appear in the supplied evidence. Leave empty only when the claim is "
+            "your own interpretation across sources."
+        ),
     )
     is_interpretation: bool = Field(
         description="True if this is your own synthesis rather than a source-attributable fact"
@@ -174,13 +190,14 @@ class ReportOut(BaseModel):
 
     title: str
     executive_summary: str = Field(
-        description="3-5 sentences answering the question directly, with citation markers"
+        description="3-5 sentences answering the question directly, in plain prose"
     )
     sections: list[SectionOut] = Field(
         description="Body sections organised by research dimension", max_length=8
     )
     key_findings: list[ClaimOut] = Field(
-        description="The most important takeaways, each with citation markers", max_length=8
+        description="The most important takeaways, each with its supporting source_ids",
+        max_length=8,
     )
     contradictions: list[str] = Field(
         default_factory=list,

@@ -146,8 +146,15 @@ class Settings(BaseSettings):
     allow_cloud_fallback: bool = False
 
     llm_temperature: float = Field(default=0.2, ge=0.0, le=2.0)
-    llm_timeout_seconds: float = Field(default=120.0, gt=0)
+    llm_timeout_seconds: float = Field(default=180.0, gt=0)
     llm_max_retries: int = Field(default=2, ge=0, le=5)
+    max_parallel_local_llm_calls: int = Field(
+        default=2,
+        ge=1,
+        le=16,
+        description="Concurrent requests to a local model. Ollama serialises per model, "
+        "so a high value adds queueing latency rather than throughput.",
+    )
     local_num_ctx: int = Field(default=8192, ge=2048)
 
     # --- Search ------------------------------------------------------------

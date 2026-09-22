@@ -36,6 +36,15 @@ class ModelUnavailableError(LLMError):
         super().__init__(message)
 
 
+class ModelTimeoutError(LLMError):
+    """A model did not respond within the configured timeout.
+
+    Distinct from ModelUnavailableError: the server is up and answering, it is
+    just slow. Common with local models, where several concurrent requests to
+    one Ollama instance queue behind each other.
+    """
+
+
 class StructuredOutputError(LLMError):
     """A model could not be coaxed into producing schema-valid output."""
 
