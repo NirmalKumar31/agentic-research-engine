@@ -549,6 +549,43 @@ it claims:
 
 `citation_validity` is the one that should always be 100%.
 
+### Measured results
+
+Three benchmark questions, `qwen3:4b` running locally with live Tavily
+search, 2026-09-22. 3/3 runs succeeded, 58 model calls, 15 sources, $0.00,
+mean 971s per question.
+
+| Metric | Mean | B1 | B2 | B3 |
+|---|---|---|---|---|
+| `citation_validity` | **100%** | 100% | 100% | 100% |
+| `citation_coverage` | 100% | 100% | 100% | 100% |
+| `evidence_coverage` | 100% | 100% | 100% | 100% |
+| `quote_fidelity` | 86.4% | 83% | 76% | 100% |
+| `claim_support` | 70.0% | 80% | 70% | 60% |
+| `source_diversity` | 68.9% | — | — | — |
+| `duplicate_avoidance` | 13.1% | — | — | — |
+| `unused_source_rate` | 6.7% | — | — | — |
+
+Reading these honestly:
+
+- **`citation_validity` held at 100% across all three.** No run cited a source
+  it had not retrieved. That is the property the citation subsystem exists to
+  guarantee, and it is the only one that should never degrade.
+- **`quote_fidelity` at 86% means roughly one extracted quote in seven could
+  not be located in its source.** Those items are flagged, excluded from
+  coverage counting, and down-weighted in confidence — but a larger model
+  would do better here, and the number is a property of the 4B model, not of
+  the pipeline.
+- **`claim_support` at 70% is the weakest figure**, and it is the same local
+  model grading its own report. It is a calibration limit as much as a quality
+  signal, which is exactly why hybrid mode keeps verification in the cloud.
+- **`duplicate_avoidance` at 13% is low**, as expected: distinct sub-questions
+  return distinct pages, so the dedup barrier is cheap insurance rather than a
+  large saving on these questions.
+
+Reproduce with `agentic-research evaluate -n 3`. Numbers will vary between
+runs — the web moves, and the model is sampling.
+
 ---
 
 ## Limitations

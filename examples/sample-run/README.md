@@ -28,3 +28,13 @@ Worth noticing:
 - **2 duplicate URLs out of 48 results.** Real overlap between genuinely
   different sub-questions is low; deduplication is cheap insurance rather
   than a large constant saving.
+
+## Benchmark
+
+`benchmark-local.json` is the output of `agentic-research evaluate -n 3` from
+the same session: three benchmark questions, same local model, same live
+search. 3/3 succeeded, 58 model calls, $0.00, mean 971s per question.
+
+Citation validity was 100% on all three. Quote fidelity averaged 86% and
+claim support 70% — both properties of a 4B model rather than of the
+pipeline, and both are why hybrid mode exists.
