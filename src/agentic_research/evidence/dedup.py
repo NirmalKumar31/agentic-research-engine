@@ -20,7 +20,7 @@ import re
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 
-from agentic_research.models import SearchResult, SourceDocument
+from agentic_research.models import DiscoveryRef, SearchResult, SourceDocument
 from agentic_research.retrieval.urls import canonicalize, domain_of
 
 # Near-duplicate titles on the same domain, e.g. a page reachable at both
@@ -69,8 +69,17 @@ class Candidate:
     best_score: float | None = None
     provider_content: str | None = None
     published_date: object | None = None
-    found_by_queries: list[str] = field(default_factory=list)
-    sub_question_ids: list[str] = field(default_factory=list)
+    discovered_by: list[DiscoveryRef] = field(default_factory=list)
+    """Every (query, sub-question) path that surfaced this URL. Kept as pairs
+    rather than two parallel lists so the relationship survives the merge."""
+
+    @property
+    def found_by_queries(self) -> list[str]:
+        return list(dict.fromkeys(d.query_id for d in self.discovered_by))
+
+    @property
+    def sub_question_ids(self) -> list[str]:
+        return list(dict.fromkeys(d.sub_question_id for d in self.discovered_by))
 
 
 def _normalise_title(title: str) -> str:
@@ -132,8 +141,11 @@ def dedupe_search_results(
             best_score=result.score,
             provider_content=result.raw_content,
             published_date=result.published_date,
-            found_by_queries=[result.query_id] if result.query_id else [],
-            sub_question_ids=[sub_question_id] if sub_question_id else [],
+            discovered_by=(
+                [DiscoveryRef(query_id=result.query_id, sub_question_id=sub_question_id)]
+                if result.query_id and sub_question_id
+                else []
+            ),
         )
 
     candidates = _collapse_similar_titles(list(by_url.values()), stats)
@@ -143,10 +155,10 @@ def dedupe_search_results(
 
 def _merge_into(candidate: Candidate, result: SearchResult, sub_question_id: str) -> None:
     """Fold a duplicate result into the candidate that already holds its URL."""
-    if result.query_id and result.query_id not in candidate.found_by_queries:
-        candidate.found_by_queries.append(result.query_id)
-    if sub_question_id and sub_question_id not in candidate.sub_question_ids:
-        candidate.sub_question_ids.append(sub_question_id)
+    if result.query_id and sub_question_id:
+        ref = DiscoveryRef(query_id=result.query_id, sub_question_id=sub_question_id)
+        if ref not in candidate.discovered_by:
+            candidate.discovered_by.append(ref)
     # Keep the strongest relevance signal any query produced for this page.
     if result.score is not None and (
         candidate.best_score is None or result.score > candidate.best_score
@@ -180,12 +192,9 @@ def _collapse_similar_titles(candidates: list[Candidate], stats: DedupStats) -> 
             )
         if match is not None:
             stats.duplicate_titles += 1
-            for query_id in candidate.found_by_queries:
-                if query_id not in match.found_by_queries:
-                    match.found_by_queries.append(query_id)
-            for sub_question_id in candidate.sub_question_ids:
-                if sub_question_id not in match.sub_question_ids:
-                    match.sub_question_ids.append(sub_question_id)
+            for ref in candidate.discovered_by:
+                if ref not in match.discovered_by:
+                    match.discovered_by.append(ref)
             continue
         peers.append(candidate)
         kept.append(candidate)
@@ -215,12 +224,9 @@ def dedupe_by_content(sources: list[SourceDocument]) -> tuple[list[SourceDocumen
             unique.append(source)
             continue
         duplicates += 1
-        for query_id in source.found_by_queries:
-            if query_id not in original.found_by_queries:
-                original.found_by_queries.append(query_id)
-        for sub_question_id in source.answers_sub_questions:
-            if sub_question_id not in original.answers_sub_questions:
-                original.answers_sub_questions.append(sub_question_id)
+        for ref in source.discovered_by:
+            if ref not in original.discovered_by:
+                original.discovered_by.append(ref)
         unique.append(source.model_copy(update={"duplicate_of": original.id}))
 
     return unique, duplicates

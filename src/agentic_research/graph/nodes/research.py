@@ -22,7 +22,7 @@ from agentic_research.evidence.dedup import (
     dedupe_search_results,
 )
 from agentic_research.evidence.quality import classify_source, score_source
-from agentic_research.evidence.store import verify_quote
+from agentic_research.evidence.store import classify_quote
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import EXTRACTOR_SYSTEM, extractor_user
 from agentic_research.graph.state import (
@@ -33,8 +33,10 @@ from agentic_research.graph.state import (
 )
 from agentic_research.llm.base import BudgetExceededError
 from agentic_research.models import (
+    ContentOrigin,
     EvidenceItem,
     FetchStatus,
+    QuoteMatch,
     SourceDocument,
     Stance,
 )
@@ -151,8 +153,7 @@ async def dedupe_sources(state: ResearchState) -> ResearchState:
                     source_type=source_type,
                     published_date=candidate.published_date,  # type: ignore[arg-type]
                     search_score=candidate.best_score,
-                    found_by_queries=list(candidate.found_by_queries),
-                    answers_sub_questions=list(candidate.sub_question_ids),
+                    discovered_by=list(candidate.discovered_by),
                 )
             )
         timing["candidates"] = len(candidates)
@@ -210,7 +211,13 @@ async def fetch_worker(state: FetchTask) -> ResearchState:
     if candidate.provider_content and len(candidate.provider_content.strip()) > 200:
         text = truncate(markdown_to_text(candidate.provider_content), settings.max_extract_chars)
         if text.strip():
-            return _finalise_source(source, text, FetchStatus.PROVIDER_CONTENT, reused=True)
+            return _finalise_source(
+                source,
+                text,
+                FetchStatus.PROVIDER_CONTENT,
+                ContentOrigin.PROVIDER_RAW,
+                reused=True,
+            )
 
     try:
         result = await ctx().fetcher.fetch(source.url)
@@ -239,21 +246,44 @@ async def fetch_worker(state: FetchTask) -> ResearchState:
 
     text = truncate(result.text, settings.max_extract_chars)
     emit("source_retrieved", source_id=source.id, title=source.title[:70])
-    return _finalise_source(source, text, FetchStatus.OK, reused=False)
+    origin = (
+        ContentOrigin.PDF_EXTRACT
+        if result.content_origin is ContentOrigin.PDF_EXTRACT
+        else ContentOrigin.HTML_FETCH
+    )
+    return _finalise_source(
+        source, text, FetchStatus.OK, origin, reused=False, page_offsets=result.page_offsets
+    )
 
 
 def _finalise_source(
-    source: SourceDocument, text: str, status: FetchStatus, *, reused: bool
+    source: SourceDocument,
+    text: str,
+    status: FetchStatus,
+    origin: ContentOrigin,
+    *,
+    reused: bool,
+    page_offsets: list[int] | None = None,
 ) -> ResearchState:
+    """Attach retrieved text plus where it came from.
+
+    Recording the origin matters for reading quote fidelity honestly: a quote
+    aligned against provider-returned content is aligned against *that* text,
+    not an independently re-fetched origin page.
+    """
     words = word_count(text)
+    offsets = page_offsets or []
     return {
         "sources": [
             source.model_copy(
                 update={
                     "text": text,
                     "fetch_status": status,
+                    "content_origin": origin,
                     "content_hash": SourceDocument.hash_text(text),
                     "word_count": words,
+                    "page_offsets": offsets,
+                    "page_count": len(offsets) or None,
                 }
             )
         ],
@@ -396,21 +426,33 @@ async def extract_worker(state: ExtractTask) -> ResearchState:
         sub_question_id = (
             finding.sub_question_id if finding.sub_question_id in valid_ids else sub_questions[0].id
         )
-        verified = verify_quote(finding.quote, source.text)
-        if not verified:
+        match, offset = classify_quote(finding.quote, source.text)
+        if match is not QuoteMatch.EXACT_NORMALIZED:
             unverified += 1
+
+        # Discovery provenance must be a real path, not the first query that
+        # happened to find this source. A source surfaced by Q2 (serving SQ1)
+        # and Q7 (serving SQ4) has two distinct paths; a finding about SQ4
+        # belongs to Q7. When no query retrieved this source on behalf of the
+        # sub-question the finding addresses, say so rather than inventing a
+        # relationship.
+        discovery = source.discovery_for(sub_question_id)
+        page = source.page_of_offset(offset) if offset is not None else None
+
         items.append(
             EvidenceItem(
                 # Unique without coordination: exactly one worker owns S<n>.
                 id=f"{source.id}-e{index}",
                 source_id=source.id,
                 sub_question_id=sub_question_id,
-                query_id=source.found_by_queries[0] if source.found_by_queries else "",
+                discovery=discovery,
+                cross_attributed=discovery is None,
                 claim=finding.claim.strip(),
                 quote=finding.quote.strip(),
+                quote_match=match,
+                page=page,
                 stance=Stance(finding.stance),
                 relevance=min(max(finding.relevance, 0.0), 1.0),
-                quote_verified=verified,
             )
         )
 
@@ -425,7 +467,10 @@ async def extract_worker(state: ExtractTask) -> ResearchState:
         "evidence": items,
         "counters": {
             "evidence_items": len(items),
-            "unverified_quotes": unverified,
+            "exact_quotes": sum(1 for i in items if i.quote_match is QuoteMatch.EXACT_NORMALIZED),
+            "fuzzy_quotes": sum(1 for i in items if i.quote_match is QuoteMatch.FUZZY),
+            "unmatched_quotes": sum(1 for i in items if i.quote_match is QuoteMatch.NONE),
+            "cross_attributed_evidence": sum(1 for i in items if i.cross_attributed),
             "sources_extracted": 1,
         },
     }

@@ -14,7 +14,12 @@ from pydantic import BaseModel, Field
 
 from agentic_research.evidence.quality import domain_concentration
 from agentic_research.llm.base import UsageTracker
-from agentic_research.models import EvidenceItem, SourceDocument
+from agentic_research.models import (
+    CitationVerification,
+    EvidenceItem,
+    QuoteMatch,
+    SourceDocument,
+)
 from agentic_research.retrieval.fetcher import FetchStats
 from agentic_research.search.service import SearchStats
 
@@ -57,8 +62,12 @@ class RunMetrics(BaseModel):
     unique_sources: int = 0
     usable_sources: int = 0
     evidence_items: int = 0
-    verified_quotes: int = 0
-    unverified_quotes: int = 0
+    exact_quotes: int = 0
+    fuzzy_quotes: int = 0
+    unmatched_quotes: int = 0
+    citable_evidence: int = 0
+    cross_attributed_evidence: int = 0
+    content_origins: dict[str, int] = Field(default_factory=dict)
     domain_concentration: float = 0.0
     distinct_domains: int = 0
 
@@ -73,11 +82,19 @@ class RunMetrics(BaseModel):
     cost_is_complete: bool = True
     unpriced_calls: int = 0
 
-    # Citations
-    citation_validity_rate: float | None = None
+    # Citations and claim support. Names are literal: integrity means the
+    # reference resolved, not that the source supports the claim.
+    citation_integrity_rate: float | None = None
+    evidence_integrity_rate: float | None = None
     citation_coverage_rate: float | None = None
-    citation_support_rate: float | None = None
+    claim_support_rate: float | None = None
+    partial_support_rate: float | None = None
+    support_breakdown: dict[str, int] = Field(default_factory=dict)
+    entailment_exhaustive: bool = False
     citations_total: int = 0
+    evidence_refs_total: int = 0
+    contradictions_total: int = 0
+    contradictions_auditable: int = 0
     unused_sources: int = 0
     citations_repaired: bool = False
 
@@ -87,9 +104,27 @@ class RunMetrics(BaseModel):
     error_kinds: dict[str, int] = Field(default_factory=dict)
 
     @property
+    def quote_fidelity_rate(self) -> float:
+        """Share of extracted quotes found verbatim in their source.
+
+        Exact-normalised matches only: whitespace and smart punctuation may
+        differ, words may not. Fuzzy matches are counted separately and are
+        never citable.
+        """
+        if not self.evidence_items:
+            return 0.0
+        return round(self.exact_quotes / self.evidence_items, 4)
+
+    @property
+    def fuzzy_quote_rate(self) -> float:
+        if not self.evidence_items:
+            return 0.0
+        return round(self.fuzzy_quotes / self.evidence_items, 4)
+
+    @property
     def quote_verification_rate(self) -> float:
-        total = self.verified_quotes + self.unverified_quotes
-        return round(self.verified_quotes / total, 4) if total else 0.0
+        """Deprecated alias of :attr:`quote_fidelity_rate`."""
+        return self.quote_fidelity_rate
 
     @property
     def cost_display(self) -> str:
@@ -154,8 +189,12 @@ def build_metrics(
         unique_sources=len(sources),
         usable_sources=len(usable),
         evidence_items=len(evidence),
-        verified_quotes=sum(1 for e in evidence if e.quote_verified),
-        unverified_quotes=sum(1 for e in evidence if not e.quote_verified),
+        exact_quotes=sum(1 for e in evidence if e.quote_match is QuoteMatch.EXACT_NORMALIZED),
+        fuzzy_quotes=sum(1 for e in evidence if e.quote_match is QuoteMatch.FUZZY),
+        unmatched_quotes=sum(1 for e in evidence if e.quote_match is QuoteMatch.NONE),
+        citable_evidence=sum(1 for e in evidence if e.is_citable),
+        cross_attributed_evidence=sum(1 for e in evidence if e.cross_attributed),
+        content_origins=_count_origins(usable),
         domain_concentration=domain_concentration(domains),
         distinct_domains=len(set(domains)),
         llm_calls=totals.calls,
@@ -173,25 +212,36 @@ def build_metrics(
     )
 
     if verification:
-        metrics.citations_total = int(verification.get("total_citations", 0))
-        metrics.unused_sources = len(verification.get("unused_source_ids", []) or [])
-        metrics.citations_repaired = bool(verification.get("repaired", False))
-        total_citations = metrics.citations_total
-        valid = int(verification.get("valid_citations", 0))
-        metrics.citation_validity_rate = (
-            round(valid / total_citations, 4) if total_citations else 1.0
+        # Rehydrate so the derived properties define the rates in one place
+        # rather than being recomputed (and drifting) here.
+        parsed = CitationVerification.model_validate(verification)
+        metrics.citations_total = parsed.total_citations
+        metrics.evidence_refs_total = parsed.total_evidence_refs
+        metrics.unused_sources = len(parsed.unused_source_ids)
+        metrics.citations_repaired = parsed.repaired
+        metrics.citation_integrity_rate = parsed.citation_integrity_rate
+        metrics.evidence_integrity_rate = parsed.evidence_integrity_rate
+        metrics.citation_coverage_rate = parsed.citation_coverage_rate
+        metrics.claim_support_rate = parsed.claim_support_rate if parsed.checked_claims else None
+        metrics.partial_support_rate = (
+            parsed.partial_support_rate if parsed.checked_claims else None
         )
-        factual = int(verification.get("factual_claims", 0))
-        uncited = sum(
-            1
-            for issue in verification.get("issues", []) or []
-            if issue.get("type") == "uncited_claim"
-        )
-        metrics.citation_coverage_rate = (
-            round(max(0, factual - uncited) / factual, 4) if factual else 1.0
-        )
-        checked = int(verification.get("checked_claims", 0))
-        supported = int(verification.get("supported_claims", 0))
-        metrics.citation_support_rate = round(supported / checked, 4) if checked else None
+        metrics.support_breakdown = parsed.support_breakdown
+        metrics.entailment_exhaustive = parsed.entailment_exhaustive
+        metrics.contradictions_total = parsed.contradictions_total
+        metrics.contradictions_auditable = parsed.contradictions_auditable
 
     return metrics
+
+
+def _count_origins(sources: list[SourceDocument]) -> dict[str, int]:
+    """Where each source's text came from.
+
+    Reported because quote fidelity against provider-returned content is a
+    different guarantee from fidelity against an independently fetched page.
+    """
+    counts: dict[str, int] = {}
+    for source in sources:
+        key = source.content_origin.value
+        counts[key] = counts.get(key, 0) + 1
+    return counts

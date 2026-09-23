@@ -205,7 +205,8 @@ class TestEndToEnd:
 
         # Every citation must resolve to a source actually retrieved. This is
         # the property the citation subsystem exists to guarantee.
-        assert result.metrics.citation_validity_rate == 1.0
+        assert result.metrics.citation_integrity_rate == 1.0
+        assert result.metrics.evidence_integrity_rate == 1.0
 
         source_ids = {s.id for s in result.state["sources"]}
         for item in result.state["evidence"]:

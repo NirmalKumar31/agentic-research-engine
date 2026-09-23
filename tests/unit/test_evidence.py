@@ -8,6 +8,7 @@ import pytest
 
 from agentic_research.evidence import (
     EvidenceStore,
+    classify_quote,
     classify_source,
     dedupe_by_content,
     dedupe_search_results,
@@ -17,6 +18,7 @@ from agentic_research.evidence import (
 )
 from agentic_research.models import (
     EvidenceItem,
+    QuoteMatch,
     SearchResult,
     SourceDocument,
     SourceType,
@@ -70,7 +72,7 @@ def evidence(
         quote=f"quote for {eid}",
         stance=stance,
         relevance=relevance,
-        quote_verified=verified,
+        quote_match=QuoteMatch.EXACT_NORMALIZED if verified else QuoteMatch.NONE,
     )
 
 
@@ -267,9 +269,24 @@ class TestQuoteVerification:
     def test_exact_quote_accepted(self) -> None:
         assert verify_quote("severely imbalanced, with positive cases often well under", self.SRC)
 
-    def test_whitespace_and_smart_quotes_tolerated(self) -> None:
+    def test_whitespace_is_tolerated(self) -> None:
         assert verify_quote("severely    imbalanced,\nwith positive cases often well", self.SRC)
-        assert verify_quote("datasets are “severely imbalanced”, with positive cases", self.SRC)
+
+    def test_smart_punctuation_in_the_source_is_normalised(self) -> None:
+        source = "The authors call this the “imbalance problem” and note it harms recall."
+        assert verify_quote('call this the "imbalance problem" and note it harms recall', source)
+
+    def test_a_reworded_quote_is_fuzzy_not_verbatim(self) -> None:
+        """A 0.88 similarity match was previously reported as verbatim."""
+        reworded = "severely imbalanced, with positive examples often well under"
+        match, _ = classify_quote(reworded, self.SRC)
+        assert match is QuoteMatch.FUZZY
+        assert not verify_quote(reworded, self.SRC)
+
+    def test_exact_match_reports_its_offset(self) -> None:
+        match, offset = classify_quote("severely imbalanced, with positive cases", self.SRC)
+        assert match is QuoteMatch.EXACT_NORMALIZED
+        assert offset is not None and self.SRC[offset:].startswith("severely imbalanced")
 
     def test_paraphrase_rejected(self) -> None:
         assert not verify_quote("these datasets tend to be rather unbalanced in practice", self.SRC)
@@ -337,10 +354,13 @@ class TestEvidenceStore:
         )
         package = store.build_package(sqs)
         assert "SQ1: first" in package.text and "SQ2: second" in package.text
-        assert "[S1]" in package.text and "[S2]" in package.text
+        # Evidence ids, not source ids: the synthesiser references evidence
+        # and the engine resolves the source.
+        assert "S1-e1" in package.text and "S2-e1" in package.text
         assert "### Sources" in package.text
         assert package.evidence_count == 2
         assert set(package.source_ids) == {"S1", "S2"}
+        assert set(package.evidence_ids) == {"S1-e1", "S2-e1"}
 
     def test_package_drops_low_confidence_items(self) -> None:
         sqs = [SubQuestion(id="SQ1", text="q", rationale="r")]
@@ -351,6 +371,31 @@ class TestEvidenceStore:
         package = store.build_package(sqs, min_confidence=0.25)
         assert package.evidence_count == 0
         assert package.dropped_low_confidence == 1
+
+    def test_unverified_evidence_never_reaches_synthesis(self) -> None:
+        """Isolates the citability gate from the confidence floor.
+
+        A fuzzy quote at relevance 0.9 scores 0.36, comfortably above the 0.25
+        floor, so under the old design it reached synthesis and could ground a
+        citation. It must now be excluded for being uncitable, while staying
+        visible to diagnostic callers.
+        """
+        sqs = [SubQuestion(id="SQ1", text="q", rationale="r")]
+        item = evidence("S1-e1", "S1", "SQ1", relevance=0.9).model_copy(
+            update={"quote_match": QuoteMatch.FUZZY}
+        )
+        assert item.confidence > 0.25, "precondition: clears the confidence floor"
+
+        store = EvidenceStore([source("S1")], [item])
+        assert store.build_package(sqs).evidence_count == 0
+        assert store.build_package(sqs, citable_only=False).evidence_count == 1
+
+    def test_fuzzy_evidence_is_not_citable(self) -> None:
+        sqs = [SubQuestion(id="SQ1", text="q", rationale="r")]
+        item = evidence("S1-e1", "S1", "SQ1").model_copy(update={"quote_match": QuoteMatch.FUZZY})
+        store = EvidenceStore([source("S1")], [item])
+        assert store.build_package(sqs).evidence_count == 0
+        assert store.citable_evidence() == []
 
     def test_contradictions_survive_the_per_question_cap(self) -> None:
         """A cap that silently drops disagreement would defeat the purpose of

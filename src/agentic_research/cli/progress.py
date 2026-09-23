@@ -149,22 +149,38 @@ def metrics_table(metrics: RunMetrics) -> Table:
         ("Distinct domains", str(metrics.distinct_domains)),
         ("Duplicate fetches avoided", str(metrics.fetches_avoided)),
         ("Evidence items", str(metrics.evidence_items)),
-        ("Quotes verified", f"{metrics.quote_verification_rate:.0%}"),
+        ("Quotes verbatim (exact)", f"{metrics.quote_fidelity_rate:.0%}"),
+        ("Quotes fuzzy (not citable)", f"{metrics.fuzzy_quote_rate:.0%}"),
         ("LLM calls", str(metrics.llm_calls)),
         ("Tokens in/out", f"{metrics.input_tokens:,} / {metrics.output_tokens:,}"),
         ("Estimated cost", metrics.cost_display),
         ("Duration", f"{metrics.duration_s:.1f}s"),
     ]
-    if metrics.citation_validity_rate is not None:
+    if metrics.evidence_integrity_rate is not None:
         rows.insert(
             9,
             (
-                "Citation validity",
-                f"{metrics.citation_validity_rate:.0%} of {metrics.citations_total}",
+                "Evidence integrity",
+                f"{metrics.evidence_integrity_rate:.0%} of "
+                f"{metrics.evidence_refs_total} references resolved",
             ),
         )
-    if metrics.citation_support_rate is not None:
-        rows.insert(10, ("Claims entailed by evidence", f"{metrics.citation_support_rate:.0%}"))
+    if metrics.claim_support_rate is not None:
+        breakdown = metrics.support_breakdown
+        scope = "exhaustive" if metrics.entailment_exhaustive else "sampled"
+        rows.insert(
+            10,
+            (
+                f"Claim support ({scope})",
+                f"{breakdown.get('supported', 0)} supported / "
+                f"{breakdown.get('partially_supported', 0)} partial / "
+                f"{breakdown.get('unsupported', 0)} unsupported / "
+                f"{breakdown.get('not_checked', 0)} unchecked",
+            ),
+        )
+    if metrics.content_origins:
+        origins = ", ".join(f"{k}={v}" for k, v in sorted(metrics.content_origins.items()))
+        rows.append(("Content origin", origins))
     if metrics.errors:
         rows.append(("Recoverable errors", str(metrics.errors)))
 

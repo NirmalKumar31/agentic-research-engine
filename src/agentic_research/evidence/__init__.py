@@ -9,13 +9,19 @@ from agentic_research.evidence.quality import (
     domain_concentration,
     score_source,
 )
-from agentic_research.evidence.store import EvidencePackage, EvidenceStore, verify_quote
+from agentic_research.evidence.store import (
+    EvidencePackage,
+    EvidenceStore,
+    classify_quote,
+    verify_quote,
+)
 
 __all__ = [
     "Candidate",
     "DedupStats",
     "EvidencePackage",
     "EvidenceStore",
+    "classify_quote",
     "classify_source",
     "dedupe_by_content",
     "dedupe_search_results",

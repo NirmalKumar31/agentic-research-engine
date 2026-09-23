@@ -59,8 +59,10 @@ class TestHappyPath:
 
         verification = state["verification"]
         assert verification is not None
-        # The fake report cites only [S1], which is genuinely retrieved.
-        assert verification["valid_citations"] == verification["total_citations"]
+        # Every evidence reference the synthesiser made resolved, so nothing
+        # was dropped and no error-level issue was raised.
+        assert verification["resolvable_evidence_refs"] == verification["total_evidence_refs"]
+        assert verification["resolvable_citations"] == verification["total_citations"]
         assert not any(i["severity"] == "error" for i in verification["issues"])
 
     async def test_graph_terminates_and_does_not_loop_after_finalize(
@@ -108,8 +110,15 @@ class TestHappyPath:
         for item in state["evidence"]:
             assert item.source_id in source_ids
             assert item.sub_question_id in sub_question_ids
-            if item.query_id:
-                assert item.query_id in query_ids
+            if item.discovery is not None:
+                # A recorded discovery path must be real on both halves.
+                assert item.discovery.query_id in query_ids
+                assert item.discovery.sub_question_id == item.sub_question_id
+                assert not item.cross_attributed
+            else:
+                # No path is represented honestly, not with a borrowed query.
+                assert item.cross_attributed
+                assert item.query_id == ""
 
 
 class TestDeduplication:

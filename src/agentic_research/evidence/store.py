@@ -15,6 +15,7 @@ from difflib import SequenceMatcher
 
 from agentic_research.models import (
     EvidenceItem,
+    QuoteMatch,
     SourceDocument,
     Stance,
     SubQuestion,
@@ -22,9 +23,13 @@ from agentic_research.models import (
 )
 from agentic_research.retrieval.urls import domain_of
 
-# Below this, a "verbatim" quote is treated as not present in the source.
-# Set to tolerate whitespace and punctuation drift but not paraphrase.
-_QUOTE_MATCH_THRESHOLD = 0.88
+# Similarity at or above which a non-exact quote is recorded as FUZZY.
+# Fuzzy matches are diagnostic only: they are never citable, so this threshold
+# controls what gets *reported* as drift, not what gets trusted.
+_FUZZY_THRESHOLD = 0.88
+
+# Shorter spans match by coincidence and prove nothing.
+_MIN_QUOTE_CHARS = 12
 
 # Smart punctuation is normalised before matching: models routinely retype a
 # quote with straight quotes when the page used curly ones, and that should
@@ -47,40 +52,80 @@ def _normalise_for_match(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def verify_quote(quote: str, source_text: str) -> bool:
-    """Check that ``quote`` genuinely appears in ``source_text``.
+def classify_quote(quote: str, source_text: str) -> tuple[QuoteMatch, int | None]:
+    """Classify how well a quote aligns with its source, and where.
 
-    This is the engine's main defence against a plausible-sounding sentence
-    that the page never contained. Models paraphrase when asked to quote, so
-    exact matching alone rejects too much; the fallback compares the quote
-    against same-length windows of the source and accepts only a very close
-    match.
+    Returns the match class and the character offset of the match in the
+    source (used to recover a PDF page number), or ``None`` when unlocated.
+
+    Three classes rather than a boolean, because the previous single flag
+    accepted a 0.88 similarity match and the result was described as
+    "verbatim". It is not. ``EXACT_NORMALIZED`` permits whitespace and
+    smart-punctuation normalisation and nothing else; anything looser is
+    ``FUZZY``, kept for diagnostics but never citable.
     """
     if not quote.strip() or not source_text.strip():
-        return False
+        return QuoteMatch.NONE, None
 
     needle = _normalise_for_match(quote)
     haystack = _normalise_for_match(source_text)
-    if len(needle) < 12:
-        return False
-    if needle in haystack:
-        return True
+    if len(needle) < _MIN_QUOTE_CHARS:
+        # Too short to be evidence of anything; a common word would match.
+        return QuoteMatch.NONE, None
+
+    exact_at = haystack.find(needle)
+    if exact_at >= 0:
+        return QuoteMatch.EXACT_NORMALIZED, _offset_in_original(source_text, exact_at)
+
+    window = len(needle)
+    if window > len(haystack):
+        ratio = SequenceMatcher(None, needle, haystack).ratio()
+        return (QuoteMatch.FUZZY if ratio >= _FUZZY_THRESHOLD else QuoteMatch.NONE), None
 
     # Sliding comparison, stepped at a quarter of the quote length. Cheap
     # enough for page-sized text and tolerant of small edits.
-    window = len(needle)
-    if window > len(haystack):
-        return SequenceMatcher(None, needle, haystack).ratio() >= _QUOTE_MATCH_THRESHOLD
     step = max(1, window // 4)
     matcher = SequenceMatcher()
     matcher.set_seq2(needle)
-    for start in range(0, len(haystack) - window + 1, step):
-        matcher.set_seq1(haystack[start : start + window])
-        if matcher.quick_ratio() < _QUOTE_MATCH_THRESHOLD:
+    for start_at in range(0, len(haystack) - window + 1, step):
+        matcher.set_seq1(haystack[start_at : start_at + window])
+        if matcher.quick_ratio() < _FUZZY_THRESHOLD:
             continue
-        if matcher.ratio() >= _QUOTE_MATCH_THRESHOLD:
-            return True
-    return False
+        if matcher.ratio() >= _FUZZY_THRESHOLD:
+            return QuoteMatch.FUZZY, _offset_in_original(source_text, start_at)
+    return QuoteMatch.NONE, None
+
+
+def _offset_in_original(source_text: str, normalised_offset: int) -> int:
+    """Map an offset in the normalised text back to the original.
+
+    Normalisation only collapses whitespace, so walking both strings in step
+    recovers the original position closely enough to identify a PDF page.
+    """
+    original = 0
+    normalised = 0
+    previous_space = False
+    for character in source_text:
+        if normalised >= normalised_offset:
+            break
+        is_space = character.isspace()
+        if is_space and previous_space:
+            original += 1
+            continue
+        normalised += 1
+        original += 1
+        previous_space = is_space
+    return original
+
+
+def verify_quote(quote: str, source_text: str) -> bool:
+    """Whether a quote is genuinely present in the source.
+
+    Exact-normalised only. Kept as a convenience wrapper over
+    :func:`classify_quote` for call sites that only need the boolean.
+    """
+    match, _ = classify_quote(quote, source_text)
+    return match is QuoteMatch.EXACT_NORMALIZED
 
 
 @dataclass
@@ -95,6 +140,7 @@ class EvidencePackage:
 
     text: str
     source_ids: list[str]
+    evidence_ids: list[str]
     evidence_count: int
     dropped_low_confidence: int
 
@@ -106,6 +152,7 @@ class EvidenceStore:
         self._sources = sources
         self._evidence = evidence
         self._by_source_id = {s.id: s for s in sources}
+        self._by_evidence_id = {e.id: e for e in evidence}
 
     # -- lookups -----------------------------------------------------------
 
@@ -119,6 +166,27 @@ class EvidenceStore:
 
     def source(self, source_id: str) -> SourceDocument | None:
         return self._by_source_id.get(source_id)
+
+    def evidence_by_id(self, evidence_id: str) -> EvidenceItem | None:
+        """Resolve an evidence id. The engine's half of claim provenance."""
+        return self._by_evidence_id.get(evidence_id)
+
+    def citable_evidence(self) -> list[EvidenceItem]:
+        """Evidence eligible to ground a claim in the final report."""
+        return [e for e in self._evidence if e.is_citable]
+
+    def resolve_citations(self, evidence_ids: list[str]) -> list[str]:
+        """Derive source ids from evidence ids, preserving order.
+
+        This is the engine performing the evidence -> source resolution that
+        a model must not be trusted to do for itself; letting the model emit
+        both invites the two to disagree."""
+        sources: list[str] = []
+        for evidence_id in evidence_ids:
+            item = self._by_evidence_id.get(evidence_id)
+            if item is not None and item.source_id not in sources:
+                sources.append(item.source_id)
+        return sources
 
     def usable_sources(self) -> list[SourceDocument]:
         return [s for s in self._sources if s.is_usable and not s.duplicate_of]
@@ -177,10 +245,20 @@ class EvidenceStore:
         max_items_per_question: int = 8,
         min_confidence: float = 0.25,
         max_quote_chars: int = 400,
+        citable_only: bool = True,
     ) -> EvidencePackage:
-        """Render the evidence into the prompt block used for synthesis."""
+        """Render the evidence into the prompt block used for synthesis.
+
+        ``citable_only`` defaults to True: synthesis sees only evidence whose
+        quote was located in the source. Previously a fuzzy or unlocatable
+        quote could still clear the confidence floor (0.7 relevance x 0.4
+        penalty = 0.28 > 0.25) and go on to ground a citation, meaning a claim
+        could rest entirely on text nobody could find in the page. Diagnostic
+        callers pass False to inspect everything that was extracted.
+        """
         lines: list[str] = []
         used_source_ids: list[str] = []
+        used_evidence_ids: list[str] = []
         included = 0
         dropped = 0
 
@@ -188,7 +266,8 @@ class EvidenceStore:
             items = self.for_sub_question(sub_question.id)
             if not items:
                 continue
-            kept = [e for e in items if e.confidence >= min_confidence]
+            eligible = [e for e in items if e.is_citable] if citable_only else items
+            kept = [e for e in eligible if e.confidence >= min_confidence]
             dropped += len(items) - len(kept)
             if not kept:
                 continue
@@ -204,13 +283,16 @@ class EvidenceStore:
                     continue
                 if item.source_id not in used_source_ids:
                     used_source_ids.append(item.source_id)
+                used_evidence_ids.append(item.id)
                 quote = item.quote.strip()
                 if len(quote) > max_quote_chars:
                     quote = quote[:max_quote_chars].rstrip() + "..."
-                marker = "" if item.quote_verified else " (quote unverified)"
+                page = f", p. {item.page}" if item.page else ""
+                # The evidence id is what the synthesiser must reference.
+                # Showing the source id here would invite it to cite sources
+                # directly and reintroduce the ambiguity this design removes.
                 lines.append(
-                    f"- [{item.source_id}] ({item.stance.value}{marker}) {item.claim}\n"
-                    f'  quote: "{quote}"'
+                    f'- {item.id} ({item.stance.value}{page}) {item.claim}\n  quote: "{quote}"'
                 )
                 included += 1
 
@@ -229,6 +311,7 @@ class EvidenceStore:
         return EvidencePackage(
             text="\n".join(lines).strip(),
             source_ids=used_source_ids,
+            evidence_ids=used_evidence_ids,
             evidence_count=included,
             dropped_low_confidence=dropped,
         )

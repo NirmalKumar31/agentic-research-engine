@@ -107,7 +107,8 @@ class TestResult:
         assert metrics.llm_calls > 0
         assert metrics.search_queries > 0
         assert metrics.duration_s > 0
-        assert metrics.citation_validity_rate == 1.0
+        assert metrics.citation_integrity_rate == 1.0
+        assert metrics.evidence_integrity_rate == 1.0
 
     async def test_progress_callback_receives_events(self, run_settings: Settings) -> None:
         seen: list[str] = []

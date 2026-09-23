@@ -163,25 +163,46 @@ def _default_followups(_: str) -> FollowupsOut:
     return FollowupsOut(followups=[FollowupOut(text="What are the deployment costs?", gap="cost")])
 
 
-def _default_report(_: str) -> ReportOut:
+def _default_report(user: str) -> ReportOut:
+    """Reference whatever evidence ids the package actually offered.
+
+    A fake that hard-coded ids would keep passing while real resolution broke,
+    which is exactly the failure the evidence-first design exists to catch.
+    """
+    offered = re.findall(r"^- (S\d+-e\d+)", user, flags=re.MULTILINE)
+    primary = offered[:1]
+    secondary = offered[1:2] or primary
     return ReportOut(
         title="Fraud detection on imbalanced data",
-        executive_summary="Resampling and cost-sensitive learning are the main approaches [S1].",
+        summary_claims=[
+            ClaimOut(
+                text="Resampling and cost-sensitive learning are the main approaches",
+                evidence_ids=primary,
+                kind="factual",
+            )
+        ],
         sections=[
             SectionOut(
                 heading="Approaches",
                 claims=[
                     ClaimOut(
-                        text="Datasets are severely imbalanced, under one percent positive [S1].",
-                        is_interpretation=False,
-                    )
+                        text="Datasets are severely imbalanced, under one percent positive",
+                        evidence_ids=primary,
+                        kind="factual",
+                    ),
+                    ClaimOut(
+                        text="This section compares the approaches.",
+                        evidence_ids=[],
+                        kind="framing",
+                    ),
                 ],
             )
         ],
         key_findings=[
             ClaimOut(
-                text="Precision-recall is more informative than ROC AUC [S1].",
-                is_interpretation=False,
+                text="Precision-recall is more informative than ROC AUC",
+                evidence_ids=secondary,
+                kind="factual",
             )
         ],
         contradictions=[],

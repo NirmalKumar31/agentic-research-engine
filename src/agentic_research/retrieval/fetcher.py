@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 import httpx
 
 from agentic_research.config import Settings
-from agentic_research.models import FetchStatus
+from agentic_research.models import ContentOrigin, FetchStatus
 from agentic_research.observability import get_logger
 from agentic_research.retrieval.parser import extract_main_text
 from agentic_research.retrieval.urls import domain_of
@@ -41,6 +41,9 @@ class FetchResult:
     error: str | None = None
     latency_s: float = 0.0
     bytes_read: int = 0
+    content_origin: ContentOrigin = ContentOrigin.HTML_FETCH
+    page_offsets: list[int] = field(default_factory=list)
+    """For PDFs: character offset in ``text`` where each page begins."""
 
     @property
     def ok(self) -> bool:

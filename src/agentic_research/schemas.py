@@ -154,29 +154,52 @@ class FollowupsOut(BaseModel):
 class ClaimOut(BaseModel):
     """One assertion in the report.
 
-    Citations are a schema field rather than markers embedded in prose. That
-    is not a style preference: a 4B local model asked in the prompt to append
-    "[S3]" produced a full report with zero markers, while the same model
-    fills a required list field reliably. If a model must produce something
-    dependably, make it part of the schema, not part of the instructions.
+    The model supplies ``evidence_ids`` only. It never names a source: the
+    engine resolves evidence -> source itself. Asking a model for both invites
+    the two to disagree, and the earlier design — where the model emitted
+    source ids directly — made "which evidence supports this sentence?"
+    unanswerable, so verification had to guess by sampling arbitrary evidence
+    belonging to the cited source.
     """
 
     text: str = Field(
         description=(
-            "One assertion, stated plainly. Do NOT put citation markers in this text; "
-            "list the supporting sources in source_ids instead."
+            "One assertion, in plain prose. Do not put citation markers or "
+            "brackets in this text; list the evidence ids in evidence_ids."
         )
     )
-    source_ids: list[str] = Field(
+    evidence_ids: list[str] = Field(
         default_factory=list,
         description=(
-            "Ids of the sources that support this claim, such as ['S3', 'S1']. Use only "
-            "ids that appear in the supplied evidence. Leave empty only when the claim is "
-            "your own interpretation across sources."
+            "Ids of the specific evidence items this claim rests on, copied "
+            "exactly from the evidence list, e.g. ['S3-e2', 'S7-e1']. Cite the "
+            "evidence you actually used, not everything about the topic. "
+            "Required unless kind is 'framing'."
         ),
     )
-    is_interpretation: bool = Field(
-        description="True if this is your own synthesis rather than a source-attributable fact"
+    kind: Literal["factual", "synthesis", "framing"] = Field(
+        description=(
+            "'factual' = states something one evidence item establishes. "
+            "'synthesis' = a conclusion drawn across several evidence items; "
+            "still requires evidence_ids, usually more than one. "
+            "'framing' = non-substantive connective text such as 'This section "
+            "compares the three approaches'; asserts nothing and needs no "
+            "evidence. Do not use 'framing' to avoid citing an assertion."
+        )
+    )
+
+
+class ContradictionOut(BaseModel):
+    """A disagreement between sources, with evidence on both sides."""
+
+    topic: str = Field(description="What the sources disagree about, in a few words")
+    left_summary: str = Field(description="What one side reports")
+    left_evidence_ids: list[str] = Field(
+        description="Evidence ids supporting the first position", min_length=1
+    )
+    right_summary: str = Field(description="What the other side reports")
+    right_evidence_ids: list[str] = Field(
+        description="Evidence ids supporting the second position", min_length=1
     )
 
 
@@ -189,22 +212,29 @@ class ReportOut(BaseModel):
     """The final report, before citation verification."""
 
     title: str
-    executive_summary: str = Field(
-        description="3-5 sentences answering the question directly, in plain prose"
+    summary_claims: list[ClaimOut] = Field(
+        description=(
+            "3-5 claims answering the question directly. These are the most "
+            "prominent statements in the report and carry evidence ids exactly "
+            "like body claims do."
+        ),
+        min_length=1,
+        max_length=6,
     )
     sections: list[SectionOut] = Field(
         description="Body sections organised by research dimension", max_length=8
     )
     key_findings: list[ClaimOut] = Field(
-        description="The most important takeaways, each with its supporting source_ids",
+        description="The most important takeaways, each with its evidence ids",
         max_length=8,
     )
-    contradictions: list[str] = Field(
+    contradictions: list[ContradictionOut] = Field(
         default_factory=list,
         description=(
-            "Where sources disagree, stated as disagreements rather than resolved. "
-            "Name both sides, e.g. '[S2] reports X while [S5] reports Y'."
+            "Where sources genuinely disagree. Report the disagreement rather "
+            "than resolving it. Both sides need evidence ids."
         ),
+        max_length=6,
     )
     limitations: list[str] = Field(
         default_factory=list,
@@ -228,6 +258,7 @@ class EntailmentOut(BaseModel):
 __all__ = [
     "AnalysisOut",
     "ClaimOut",
+    "ContradictionOut",
     "CoverageOut",
     "EntailmentOut",
     "EvidenceOut",

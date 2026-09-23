@@ -7,12 +7,16 @@ artifacts without re-running any model.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
 
+from agentic_research.evidence.store import EvidenceStore
 from agentic_research.metrics import RunMetrics
 from agentic_research.models import (
     CitationVerification,
     Claim,
+    ClaimKind,
+    EvidenceItem,
     ResearchReport,
     SourceDocument,
 )
@@ -23,24 +27,30 @@ def render_markdown(
     sources: list[SourceDocument],
     verification: CitationVerification | None,
     metrics: RunMetrics | None = None,
+    evidence: Sequence[EvidenceItem] | None = None,
 ) -> str:
     """Render the report, its sources, and an honest verification footer."""
+    store = EvidenceStore(sources, list(evidence or []))
     cited = report.cited_ids()
     lines: list[str] = [f"# {report.title}", ""]
 
-    if report.executive_summary:
-        lines += ["## Summary", "", report.executive_summary.strip(), ""]
+    if report.summary_claims:
+        lines += ["## Summary", ""]
+        # Rendered as prose, but each sentence is a verified Claim carrying
+        # its own evidence, not an unchecked blob.
+        lines.append(" ".join(_claim_text(c, store) for c in report.summary_claims))
+        lines.append("")
 
     if report.key_findings:
         lines += ["## Key findings", ""]
         for claim in report.key_findings:
-            lines.append(f"- {_claim_text(claim)}")
+            lines.append(f"- {_claim_text(claim, store)}")
         lines.append("")
 
     for section in report.sections:
         lines += [f"## {section.heading}", ""]
         for claim in section.claims:
-            lines.append(_claim_text(claim))
+            lines.append(_claim_text(claim, store))
             lines.append("")
 
     if report.contradictions:
@@ -50,7 +60,14 @@ def render_markdown(
             "_Preserved rather than resolved; the underlying sources genuinely differ._",
             "",
         ]
-        lines += [f"- {item}" for item in report.contradictions]
+        for contradiction in report.contradictions:
+            left = _markers(contradiction.left_citation_ids)
+            right = _markers(contradiction.right_citation_ids)
+            flag = "" if contradiction.is_auditable else " _(one side unevidenced)_"
+            lines.append(
+                f"- **{contradiction.topic}** — {contradiction.left_summary.rstrip('.')}"
+                f" {left}, while {contradiction.right_summary.rstrip('.')} {right}.{flag}"
+            )
         lines.append("")
 
     if report.limitations:
@@ -86,19 +103,35 @@ def render_markdown(
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _claim_text(claim: Claim) -> str:
-    """Render a claim with its citation markers appended.
+def _markers(citation_ids: list[str], pages: dict[str, int] | None = None) -> str:
+    """Render citation markers, with page numbers where genuinely known."""
+    pages = pages or {}
+    parts = []
+    for cid in citation_ids:
+        page = pages.get(cid)
+        parts.append(f"[{cid}, p. {page}]" if page else f"[{cid}]")
+    return "".join(parts)
 
-    Markers are generated here from ``citation_ids`` rather than taken from
-    the model's prose, so what the reader sees is exactly what verification
-    checked.
+
+def _claim_text(claim: Claim, store: EvidenceStore | None = None) -> str:
+    """Render a claim with markers derived from its resolved citations.
+
+    Markers are generated from ``citation_ids``, which the engine derived from
+    ``evidence_ids``. Nothing bracket-shaped that a model typed into the prose
+    survives to this point, so every marker a reader sees was verified.
     """
     text = claim.text.strip()
-    markers = "".join(f"[{cid}]" for cid in claim.citation_ids)
+    pages: dict[str, int] = {}
+    if store is not None:
+        for evidence_id in claim.evidence_ids:
+            item = store.evidence_by_id(evidence_id)
+            if item is not None and item.page:
+                pages.setdefault(item.source_id, item.page)
+    markers = _markers(claim.citation_ids, pages)
     if markers:
-        text = f"{text.rstrip('.')}. {markers}" if not text.endswith(markers) else text
-    if claim.is_interpretation:
-        text = f"{text} *(interpretation)*"
+        text = f"{text.rstrip('.')}. {markers}"
+    if claim.kind is ClaimKind.SYNTHESIS:
+        text = f"{text} *(synthesis)*"
     return text
 
 
@@ -110,23 +143,41 @@ def _source_order(source: SourceDocument) -> tuple[int, str]:
 def _verification_section(verification: CitationVerification) -> list[str]:
     lines = ["## Citation verification", ""]
     lines.append(
-        f"- Citations: {verification.total_citations}, "
-        f"{verification.valid_citations} resolve to a retrieved source "
-        f"({verification.citation_validity_rate:.0%})"
+        f"- Evidence references: {verification.total_evidence_refs}, "
+        f"{verification.resolvable_evidence_refs} resolved to citable evidence "
+        f"({verification.evidence_integrity_rate:.0%}). "
+        "Citation markers are derived from those references by the engine, so "
+        "citation integrity is a structural invariant rather than a measurement."
     )
     lines.append(
-        f"- Factual claims carrying a citation: "
-        f"{verification.citation_coverage_rate:.0%} of {verification.factual_claims}"
+        f"- Evidence-owing claims carrying a citation: "
+        f"{verification.citation_coverage_rate:.0%} of {verification.substantive_claims}"
     )
     if verification.checked_claims:
+        breakdown = verification.support_breakdown
+        scope = (
+            "every eligible claim"
+            if verification.entailment_exhaustive
+            else (
+                f"a sample of {verification.checked_claims} of "
+                f"{verification.checkable_claims} eligible claims"
+            )
+        )
         lines.append(
-            f"- Entailment-checked claims: {verification.supported_claims}"
-            f"/{verification.checked_claims} judged supported by their cited evidence "
-            f"({verification.support_rate:.0%})"
+            f"- Entailment checked against each claim's own evidence, over {scope}: "
+            f"{breakdown['supported']} supported, "
+            f"{breakdown['partially_supported']} partially supported, "
+            f"{breakdown['unsupported']} unsupported, "
+            f"{breakdown['not_checked']} not checked"
+        )
+    if verification.contradictions_total:
+        lines.append(
+            f"- Contradictions: {verification.contradictions_auditable} of "
+            f"{verification.contradictions_total} have citable evidence on both sides"
         )
     if verification.repaired:
         lines.append(
-            "- Citations pointing at sources that were never retrieved were removed "
+            "- References to nonexistent or unverifiable evidence were removed "
             "automatically; the affected sentences now appear without a citation."
         )
     if verification.unused_source_ids:
@@ -153,7 +204,8 @@ def _metrics_section(metrics: RunMetrics) -> list[str]:
         ("Distinct domains", metrics.distinct_domains),
         ("Fetches avoided by dedup", metrics.fetches_avoided),
         ("Evidence items", metrics.evidence_items),
-        ("Quote verification rate", f"{metrics.quote_verification_rate:.0%}"),
+        ("Quotes verbatim (exact-normalised)", f"{metrics.quote_fidelity_rate:.0%}"),
+        ("Quotes fuzzy (excluded from citation)", f"{metrics.fuzzy_quote_rate:.0%}"),
         ("LLM calls", metrics.llm_calls),
         ("Tokens (in/out)", f"{metrics.input_tokens:,} / {metrics.output_tokens:,}"),
         ("Estimated cost", metrics.cost_display),

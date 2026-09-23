@@ -227,7 +227,13 @@ def _render(state: dict[str, Any], metrics: RunMetrics) -> str:
         return "# Research failed\n\nNo report was produced.\n"
     raw = state.get("verification")
     verification = CitationVerification.model_validate(raw) if raw else None
-    return render_markdown(report, state.get("sources", []), verification, metrics)
+    return render_markdown(
+        report,
+        state.get("sources", []),
+        verification,
+        metrics,
+        evidence=state.get("evidence", []),
+    )
 
 
 def _write_artifacts(

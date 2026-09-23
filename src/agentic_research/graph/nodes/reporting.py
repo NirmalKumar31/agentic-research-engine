@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from agentic_research.citations.verifier import (
-    repair_report,
+    resolve_report,
     strip_markers,
     verify_structure,
 )
@@ -21,7 +21,10 @@ from agentic_research.llm.base import LLMError
 from agentic_research.models import (
     CitationIssue,
     CitationIssueType,
+    CitationVerification,
     Claim,
+    ClaimKind,
+    Contradiction,
     ReportSection,
     ResearchReport,
 )
@@ -30,17 +33,19 @@ from agentic_research.schemas import EntailmentOut, ReportOut
 
 log = get_logger(__name__)
 
-# Entailment checking costs one model call per claim, so it is sampled rather
-# than exhaustive. Claims are prioritised by how much a wrong one would matter.
-_MAX_ENTAILMENT_CHECKS = 10
+# Entailment costs one model call per claim. Interactive runs sample; the
+# benchmark checks everything, because a sampled number reported as if it were
+# exhaustive is the kind of metric this project exists not to publish.
+_DEFAULT_ENTAILMENT_SAMPLE = 10
 
 
 async def synthesize_report(state: ResearchState) -> ResearchState:
     """Write the report from the curated evidence package.
 
-    The synthesiser never sees raw page text. It sees verified, attributed,
-    deduplicated findings grouped by sub-question, which keeps the prompt
-    affordable and makes a citable claim the path of least resistance.
+    The synthesiser never sees raw page text. It sees citable, attributed,
+    deduplicated findings grouped by sub-question, each labelled with its
+    evidence id, and it references those ids. The engine resolves them to
+    sources afterwards.
     """
     sub_questions = state.get("sub_questions", [])
     sources = state.get("sources", [])
@@ -53,13 +58,20 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
     store = EvidenceStore(sources, evidence)
 
     with stage("synthesize") as timing:
-        package = store.build_package(sub_questions)
+        # citable_only: a claim must never rest on a quote we could not find.
+        package = store.build_package(sub_questions, citable_only=True)
         gaps: list[str] = []
         if coverage:
             gaps = [f"no evidence for {sq_id}" for sq_id in coverage.missing[:5]]
             gaps += [f"thin evidence for {sq_id}" for sq_id in coverage.weak[:5]]
         if state.get("stop_reason"):
             gaps.append(f"research stopped early: {state['stop_reason']}")
+        uncitable = len(evidence) - len(store.citable_evidence())
+        if uncitable:
+            gaps.append(
+                f"{uncitable} extracted finding(s) were excluded because their "
+                "quotes could not be located in the source text"
+            )
 
         errors = []
         try:
@@ -72,14 +84,14 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                     synthesizer_user(
                         question,
                         analysis.output_format.value if analysis else "overview",
-                        package.text or "(no evidence was gathered)",
+                        package.text or "(no citable evidence was gathered)",
                         "\n".join(f"- {g}" for g in gaps),
                     ),
                 )
             )
             report = ResearchReport(
                 title=out.title.strip() or question[:120],
-                executive_summary=out.executive_summary.strip(),
+                summary_claims=[_to_claim(c) for c in out.summary_claims],
                 sections=[
                     ReportSection(
                         heading=section.heading,
@@ -88,7 +100,16 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                     for section in out.sections
                 ],
                 key_findings=[_to_claim(c) for c in out.key_findings],
-                contradictions=list(out.contradictions),
+                contradictions=[
+                    Contradiction(
+                        topic=c.topic,
+                        left_summary=c.left_summary,
+                        left_evidence_ids=list(c.left_evidence_ids),
+                        right_summary=c.right_summary,
+                        right_evidence_ids=list(c.right_evidence_ids),
+                    )
+                    for c in out.contradictions
+                ],
                 limitations=_dedupe_limitations(list(out.limitations) + gaps),
             )
         except LLMError as exc:
@@ -100,8 +121,9 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
     log.info(
         "synthesis_completed",
         sections=len(report.sections),
+        summary_claims=len(report.summary_claims),
         findings=len(report.key_findings),
-        evidence_used=package.evidence_count,
+        evidence_offered=package.evidence_count,
     )
     emit("synthesized", sections=len(report.sections), findings=len(report.key_findings))
     return {"report": report, "stage_timings": [timing], "errors": errors}
@@ -110,22 +132,21 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
 def _to_claim(out: object) -> Claim:
     """Build a domain Claim from a model-produced one.
 
-    Accepts citations from either the ``source_ids`` field or markers left in
-    the prose, because some models do both and some do neither. Unknown ids
-    are not filtered here; verification catches them, which keeps the
-    hallucination visible in the report instead of silently swallowed.
+    Citation ids are deliberately left empty here; the engine fills them in
+    during resolution by looking each evidence id up. Anything bracket-shaped
+    the model left in the prose is stripped at that point too, so an invented
+    marker cannot masquerade as a verified citation.
     """
-    from agentic_research.citations.verifier import extract_markers, strip_markers
-
-    text = getattr(out, "text", "")
-    ids = list(getattr(out, "source_ids", []) or [])
-    for marker in extract_markers(text):
-        if marker not in ids:
-            ids.append(marker)
+    kind_value = getattr(out, "kind", "factual")
+    try:
+        kind = ClaimKind(kind_value)
+    except ValueError:
+        kind = ClaimKind.FACTUAL
     return Claim(
-        text=strip_markers(text) if ids else text.strip(),
-        citation_ids=ids,
-        is_interpretation=bool(getattr(out, "is_interpretation", False)),
+        text=str(getattr(out, "text", "")).strip(),
+        evidence_ids=list(getattr(out, "evidence_ids", []) or []),
+        citation_ids=[],
+        kind=kind,
     )
 
 
@@ -145,30 +166,35 @@ def _dedupe_limitations(items: list[str]) -> list[str]:
 def _fallback_report(
     question: str, store: EvidenceStore, gaps: list[str], error: str
 ) -> ResearchReport:
-    """Emit the evidence directly when synthesis fails.
+    """Emit the citable evidence directly when synthesis fails.
 
     A run that gathered forty verified findings should not return nothing
     because the final call failed. The evidence is the expensive part; listing
-    it unsynthesised is degraded but genuinely useful.
+    it unsynthesised is degraded but genuinely useful — and it is still fully
+    provenanced, because each listed finding carries its own evidence id.
     """
     findings = [
-        Claim(text=item.claim, citation_ids=[item.source_id])
-        for item in sorted(store.evidence, key=lambda e: -e.confidence)[:12]
-        if item.quote_verified
+        Claim(text=item.claim, evidence_ids=[item.id], kind=ClaimKind.FACTUAL)
+        for item in sorted(store.citable_evidence(), key=lambda e: -e.confidence)[:12]
     ]
     return ResearchReport(
         title=f"Evidence summary: {question[:100]}",
-        executive_summary=(
-            "Report synthesis failed, so this document lists the verified evidence "
-            "gathered during the run without narrative synthesis."
-        ),
+        summary_claims=[
+            Claim(
+                text=(
+                    "Report synthesis failed, so this document lists the verified "
+                    "evidence gathered during the run without narrative synthesis."
+                ),
+                kind=ClaimKind.FRAMING,
+            )
+        ],
         key_findings=findings,
         limitations=[f"synthesis step failed: {error[:200]}", *gaps],
     )
 
 
 async def verify_citations(state: ResearchState) -> ResearchState:
-    """Validate the report's citations, then repair what can be repaired."""
+    """Resolve the report's provenance, validate it, then check entailment."""
     report = state.get("report")
     sources = state.get("sources", [])
     evidence = state.get("evidence", [])
@@ -176,41 +202,34 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         return {"verification": None}
 
     store = EvidenceStore(sources, evidence)
-    known = {s.id for s in store.usable_sources()}
     emit("verifying_citations")
 
     with stage("verify_citations") as timing:
-        result = verify_structure(report, known)
+        # Resolution rewrites the report, so what the reader sees and what the
+        # verifier measures are the same object.
+        report, resolution_issues = resolve_report(report, store)
+        result = verify_structure(report, store, resolution_issues=resolution_issues)
+        result.repaired = bool(resolution_issues)
 
-        # Repair before entailment: no point paying to check a claim whose
-        # citation is about to be stripped.
-        repaired_count = 0
-        if any(i.type is CitationIssueType.UNKNOWN_SOURCE for i in result.issues):
-            report, repaired_count = repair_report(report, known)
-            result = verify_structure(report, known)
-            result.repaired = True
-            log.warning("citations_repaired", removed_markers=repaired_count)
-
-        errors = await _check_entailment(report, store, result)
+        errors = await _check_entailment(report, store, result, state)
         timing["citations"] = result.total_citations
 
     log.info(
         "citation_verification_completed",
         citations=result.total_citations,
-        validity_rate=result.citation_validity_rate,
+        citation_integrity=result.citation_integrity_rate,
+        evidence_integrity=result.evidence_integrity_rate,
         coverage_rate=result.citation_coverage_rate,
-        support_rate=result.support_rate,
-        checked=result.checked_claims,
+        support=result.support_breakdown,
+        exhaustive=result.entailment_exhaustive,
         unused_sources=len(result.unused_source_ids),
-        repaired=result.repaired,
     )
     emit(
         "citations_verified",
         total=result.total_citations,
-        valid=result.valid_citations,
-        validity_rate=result.citation_validity_rate,
-        support_rate=result.support_rate,
-        repaired=result.repaired,
+        evidence_integrity=result.evidence_integrity_rate,
+        support=result.support_breakdown,
+        exhaustive=result.entailment_exhaustive,
     )
     return {
         "report": report,
@@ -220,32 +239,39 @@ async def verify_citations(state: ResearchState) -> ResearchState:
     }
 
 
-async def _check_entailment(report: ResearchReport, store: EvidenceStore, result: object) -> list:
-    """Ask the verifier model whether cited evidence supports each claim.
+async def _check_entailment(
+    report: ResearchReport,
+    store: EvidenceStore,
+    result: CitationVerification,
+    state: ResearchState,
+) -> list:
+    """Ask the verifier model whether a claim's own evidence supports it.
 
-    Sampled, not exhaustive. Key findings go first because they are what a
-    reader takes away, and a wrong headline claim matters more than a wrong
-    aside in section four.
+    The evidence shown is exactly the evidence the claim references. The
+    previous implementation sampled up to three items belonging to a cited
+    *source*, which frequently meant judging a claim against text that played
+    no part in producing it.
     """
-    from agentic_research.models import CitationVerification
-
-    assert isinstance(result, CitationVerification)
-
-    candidates = [c for c in report.key_findings if c.citation_ids and not c.is_interpretation]
-    candidates += [
-        c
-        for section in report.sections
-        for c in section.claims
-        if c.citation_ids and not c.is_interpretation
-    ]
-    candidates = candidates[:_MAX_ENTAILMENT_CHECKS]
+    candidates = [c for c in report.substantive_claims() if c.evidence_ids]
+    result.checkable_claims = len(candidates)
     if not candidates:
         return []
 
+    exhaustive = bool(state.get("exhaustive_verification"))
+    if exhaustive:
+        selected = candidates
+    else:
+        # Summary and key findings first: they are what a reader takes away.
+        prominent = [c for c in report.summary_claims if c in candidates]
+        prominent += [c for c in report.key_findings if c in candidates]
+        rest = [c for c in candidates if c not in prominent]
+        selected = (prominent + rest)[:_DEFAULT_ENTAILMENT_SAMPLE]
+    result.entailment_exhaustive = len(selected) == len(candidates)
+
     errors = []
     model = ctx().router.get(ModelRole.VERIFIER)
-    for claim in candidates:
-        block = _evidence_block(claim.citation_ids, store)
+    for claim in selected:
+        block = _evidence_block(claim.evidence_ids, store)
         if not block:
             continue
         try:
@@ -257,33 +283,46 @@ async def _check_entailment(report: ResearchReport, store: EvidenceStore, result
             # report how many claims were actually checked.
             log.warning("entailment_check_failed", error=str(exc)[:200])
             errors.append(error_from("verify_citations", exc, "entailment sampling stopped"))
+            result.entailment_exhaustive = False
             break
 
         result.checked_claims += 1
         if out.verdict == "supported":
             result.supported_claims += 1
-        elif out.verdict == "unsupported":
+        elif out.verdict == "partially_supported":
+            result.partially_supported_claims += 1
+            result.issues.append(
+                CitationIssue(
+                    type=CitationIssueType.PARTIALLY_SUPPORTED_CLAIM,
+                    severity="warning",
+                    claim_text=claim.text[:200],
+                    evidence_id=",".join(claim.evidence_ids),
+                    detail=out.reason[:200],
+                )
+            )
+        else:
+            result.unsupported_claims += 1
             result.issues.append(
                 CitationIssue(
                     type=CitationIssueType.UNSUPPORTED_CLAIM,
                     severity="warning",
                     claim_text=claim.text[:200],
-                    citation_id=",".join(claim.citation_ids),
+                    evidence_id=",".join(claim.evidence_ids),
                     detail=out.reason[:200],
                 )
             )
     return errors
 
 
-def _evidence_block(source_ids: list[str], store: EvidenceStore) -> str:
+def _evidence_block(evidence_ids: list[str], store: EvidenceStore) -> str:
+    """Render exactly the evidence a claim references."""
     lines = []
-    for source_id in source_ids[:4]:
-        source = store.source(source_id)
-        if source is None:
+    for evidence_id in evidence_ids[:6]:
+        item = store.evidence_by_id(evidence_id)
+        if item is None:
             continue
-        items = [e for e in store.evidence if e.source_id == source_id][:3]
-        for item in items:
-            lines.append(f'[{source_id}] "{item.quote[:300]}"')
+        page = f" (p. {item.page})" if item.page else ""
+        lines.append(f'{item.id}{page}: "{item.quote[:300]}"')
     return "\n".join(lines)
 
 
@@ -301,7 +340,9 @@ async def finalize(state: ResearchState) -> ResearchState:
     verification = (
         CitationVerification.model_validate(raw_verification) if raw_verification else None
     )
-    markdown = render_markdown(report, state.get("sources", []), verification)
+    markdown = render_markdown(
+        report, state.get("sources", []), verification, evidence=state.get("evidence", [])
+    )
     reason = stop_reason_for(state)
 
     log.info("research_completed", stop_reason=reason, sources=len(state.get("sources", [])))

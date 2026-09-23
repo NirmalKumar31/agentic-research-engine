@@ -19,7 +19,7 @@ import hashlib
 from datetime import UTC, datetime
 from enum import StrEnum
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, computed_field, field_validator
 
 
 def _utcnow() -> datetime:
@@ -54,6 +54,63 @@ class SourceType(StrEnum):
     BLOG = "blog"
     FORUM = "forum"
     OTHER = "other"
+
+
+class ContentOrigin(StrEnum):
+    """Where a source's text actually came from.
+
+    This matters for interpreting quote fidelity. A quote aligned against
+    text the search provider handed us is aligned against *that* text, not
+    against an independently re-fetched origin page. Reporting the two as the
+    same measurement would overstate what was verified.
+    """
+
+    PROVIDER_RAW = "provider_raw"
+    """Returned by the search provider alongside the result."""
+    HTML_FETCH = "html_fetch"
+    """Fetched over HTTP by this engine and extracted from HTML."""
+    PDF_EXTRACT = "pdf_extract"
+    """Fetched over HTTP and extracted from a PDF."""
+    NONE = "none"
+    """No usable text was obtained."""
+
+
+class QuoteMatch(StrEnum):
+    """How closely an extracted quote aligns with its source text.
+
+    A single boolean conflated two very different situations, and "verbatim"
+    was being claimed for a 0.88 similarity match. Only ``EXACT_NORMALIZED``
+    is honestly verbatim: it permits whitespace and smart-punctuation
+    normalisation and nothing else.
+    """
+
+    EXACT_NORMALIZED = "exact_normalized"
+    """Found in the source after normalising whitespace and punctuation."""
+    FUZZY = "fuzzy"
+    """Close but not identical. Retained for diagnostics; not citable."""
+    NONE = "none"
+    """Could not be aligned with the source at all."""
+
+
+class ClaimKind(StrEnum):
+    """What kind of assertion a claim is, and therefore what it owes.
+
+    Replaces the old ``is_interpretation`` boolean, which acted as a blanket
+    exemption from citation: marking a claim as interpretation removed it from
+    verification entirely. Synthesis is *more* evidence-dependent than a single
+    fact, not less, so it carries evidence too.
+    """
+
+    FACTUAL = "factual"
+    """States something a single source establishes. Requires evidence."""
+    SYNTHESIS = "synthesis"
+    """Draws a conclusion across sources. Requires evidence, usually several."""
+    FRAMING = "framing"
+    """Non-substantive connective or structural text. Requires none."""
+
+    @property
+    def requires_evidence(self) -> bool:
+        return self is not ClaimKind.FRAMING
 
 
 class OutputFormat(StrEnum):
@@ -107,6 +164,22 @@ class ResearchPlan(BaseModel):
 
     def by_id(self, sub_question_id: str) -> SubQuestion | None:
         return next((q for q in self.sub_questions if q.id == sub_question_id), None)
+
+
+class DiscoveryRef(BaseModel):
+    """One concrete path by which a source was discovered.
+
+    Previously a source held ``found_by_queries`` and ``answers_sub_questions``
+    as two independent lists, which lost the relationship between them: given
+    a source found by Q2 (serving SQ1) and Q7 (serving SQ4), nothing recorded
+    which query belonged to which sub-question. Evidence then borrowed
+    ``found_by_queries[0]``, which is right only by luck.
+    """
+
+    model_config = {"frozen": True}
+
+    query_id: str
+    sub_question_id: str
 
 
 class SearchQuery(BaseModel):
@@ -186,11 +259,55 @@ class SourceDocument(BaseModel):
     quality_score: float = Field(default=0.0, ge=0.0, le=1.0)
     quality_reasons: list[str] = Field(default_factory=list)
     search_score: float | None = None
-    found_by_queries: list[str] = Field(default_factory=list)
-    answers_sub_questions: list[str] = Field(default_factory=list)
+    discovered_by: list[DiscoveryRef] = Field(
+        default_factory=list,
+        description="Every (query, sub-question) path that surfaced this source",
+    )
+    content_origin: ContentOrigin = ContentOrigin.NONE
+    page_count: int | None = Field(default=None, description="For PDFs: pages extracted")
+    page_offsets: list[int] = Field(
+        default_factory=list,
+        description=(
+            "For PDFs: character offset in `text` where each page begins, so a "
+            "quote's location can be mapped back to a page number."
+        ),
+    )
     duplicate_of: str | None = None
     retrieved_at: datetime = Field(default_factory=_utcnow)
     word_count: int = 0
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def found_by_queries(self) -> list[str]:
+        """Distinct query ids that surfaced this source, in discovery order."""
+        return list(dict.fromkeys(d.query_id for d in self.discovered_by))
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def answers_sub_questions(self) -> list[str]:
+        """Distinct sub-questions whose queries surfaced this source."""
+        return list(dict.fromkeys(d.sub_question_id for d in self.discovered_by))
+
+    def discovery_for(self, sub_question_id: str) -> DiscoveryRef | None:
+        """The discovery path belonging to a given sub-question, if any.
+
+        Returns ``None`` when this source was never retrieved on behalf of that
+        sub-question. Callers must represent that honestly rather than
+        substituting an unrelated query.
+        """
+        return next((d for d in self.discovered_by if d.sub_question_id == sub_question_id), None)
+
+    def page_of_offset(self, offset: int) -> int | None:
+        """1-based page containing a character offset, for PDF sources."""
+        if not self.page_offsets or offset < 0:
+            return None
+        page = 0
+        for index, start in enumerate(self.page_offsets):
+            if start <= offset:
+                page = index + 1
+            else:
+                break
+        return page or None
 
     @property
     def is_usable(self) -> bool:
@@ -221,25 +338,76 @@ class EvidenceItem(BaseModel):
     id: str = Field(description="e.g. S3-e1 — unique because one worker owns one source")
     source_id: str
     sub_question_id: str
-    query_id: str = ""
+    discovery: DiscoveryRef | None = Field(
+        default=None,
+        description=(
+            "The actual (query, sub-question) path that retrieved this item's "
+            "source on behalf of this item's sub-question. None when the source "
+            "was retrieved for a different sub-question and this finding was "
+            "noticed in passing."
+        ),
+    )
+    cross_attributed: bool = Field(
+        default=False,
+        description=(
+            "True when this item answers a sub-question that no query "
+            "retrieving this source was serving. Recorded rather than papered "
+            "over with an unrelated query id."
+        ),
+    )
     claim: str = Field(description="The finding, stated in one sentence")
-    quote: str = Field(description="Verbatim supporting span from the source")
+    quote: str = Field(description="Supporting span copied from the source")
+    quote_match: QuoteMatch = QuoteMatch.NONE
+    page: int | None = Field(default=None, description="1-based page number for PDF sources")
     stance: Stance = Stance.NEUTRAL
     relevance: float = Field(default=0.5, ge=0.0, le=1.0)
-    quote_verified: bool = Field(
-        default=False, description="Whether the quote was located in the source text"
-    )
     extracted_at: datetime = Field(default_factory=_utcnow)
 
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def query_id(self) -> str:
+        """Query that retrieved this item's source for its sub-question.
+
+        Empty when the finding was cross-attributed; see ``cross_attributed``.
+        """
+        return self.discovery.query_id if self.discovery else ""
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def quote_verified(self) -> bool:
+        """Whether the quote is genuinely present in the source.
+
+        Only an exact-normalised match counts. A fuzzy match means the model
+        rewrote the span, which is precisely the drift this check exists to
+        catch.
+        """
+        return self.quote_match is QuoteMatch.EXACT_NORMALIZED
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def is_citable(self) -> bool:
+        """Whether this item may ground a claim in the final report.
+
+        Fuzzy and unmatched quotes are kept for diagnostics but must never
+        become the basis of a citation.
+        """
+        return self.quote_verified
+
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def confidence(self) -> float:
         """Confidence that this item is a faithful reading of its source.
 
         Explicitly *not* a probability that the claim is true in the world.
-        An unverifiable quote is the strongest available signal of extraction
-        drift, so it dominates the score.
+        Quote alignment dominates, because an unlocatable quote is the
+        strongest available signal of extraction drift.
         """
-        return round(self.relevance * (1.0 if self.quote_verified else 0.4), 3)
+        weight = {
+            QuoteMatch.EXACT_NORMALIZED: 1.0,
+            QuoteMatch.FUZZY: 0.4,
+            QuoteMatch.NONE: 0.15,
+        }[self.quote_match]
+        return round(self.relevance * weight, 3)
 
 
 # ---------------------------------------------------------------------------
@@ -285,14 +453,61 @@ class CoverageAssessment(BaseModel):
 
 
 class Claim(BaseModel):
-    """One assertion in the report, with the sources it rests on."""
+    """One assertion in the report, anchored to the exact evidence behind it.
+
+    ``evidence_ids`` is the primary link and the only one a model supplies.
+    ``citation_ids`` is *derived* by the engine by resolving each evidence id
+    to its source. Letting a model emit both invites the two to disagree, and
+    makes "which evidence supports this sentence?" unanswerable — which is
+    what the earlier design got wrong: verification had to guess by pulling
+    arbitrary evidence belonging to a cited source.
+    """
 
     text: str
-    citation_ids: list[str] = Field(default_factory=list)
-    is_interpretation: bool = Field(
-        default=False,
-        description="Author-level synthesis rather than a source-attributable fact",
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Exact EvidenceItem ids supporting this claim, e.g. ['S3-e2']",
     )
+    citation_ids: list[str] = Field(
+        default_factory=list,
+        description="Source ids, derived from evidence_ids by the engine",
+    )
+    kind: ClaimKind = ClaimKind.FACTUAL
+
+    @property
+    def requires_evidence(self) -> bool:
+        return self.kind.requires_evidence
+
+    @property
+    def is_grounded(self) -> bool:
+        return bool(self.evidence_ids) or not self.requires_evidence
+
+
+class Contradiction(BaseModel):
+    """A disagreement between sources, auditable on both sides.
+
+    Free-form prose could name a disagreement without either side being
+    checkable, and bracketed text inside it bypassed citation verification
+    entirely. Both sides now carry evidence ids and go through the same
+    resolution and verification path as any other claim.
+    """
+
+    topic: str = Field(description="What the sources disagree about, in a few words")
+    left_summary: str
+    left_evidence_ids: list[str] = Field(default_factory=list)
+    right_summary: str
+    right_evidence_ids: list[str] = Field(default_factory=list)
+    left_citation_ids: list[str] = Field(default_factory=list)
+    right_citation_ids: list[str] = Field(default_factory=list)
+
+    @property
+    def evidence_ids(self) -> list[str]:
+        return [*self.left_evidence_ids, *self.right_evidence_ids]
+
+    @property
+    def is_auditable(self) -> bool:
+        """Both sides must be traceable, or it is an assertion, not a finding."""
+        return bool(self.left_evidence_ids) and bool(self.right_evidence_ids)
 
 
 class ReportSection(BaseModel):
@@ -302,33 +517,78 @@ class ReportSection(BaseModel):
 
 
 class ResearchReport(BaseModel):
+    """The final report.
+
+    The executive summary is a list of claims rather than a prose blob. It is
+    the most prominent text in the output, so excluding it from citation
+    coverage and entailment checking — as a plain string necessarily did —
+    meant the least verified content was the most read.
+    """
+
     title: str
-    executive_summary: str
+    summary_claims: list[Claim] = Field(default_factory=list)
     sections: list[ReportSection] = Field(default_factory=list)
     key_findings: list[Claim] = Field(default_factory=list)
-    contradictions: list[str] = Field(default_factory=list)
+    contradictions: list[Contradiction] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
 
+    @property
+    def executive_summary(self) -> str:
+        """The summary rendered as prose, for display and back-compatibility."""
+        return " ".join(c.text.strip() for c in self.summary_claims if c.text.strip())
+
     def all_claims(self) -> list[Claim]:
-        claims = list(self.key_findings)
+        """Every claim subject to verification, summary included."""
+        claims = [*self.summary_claims, *self.key_findings]
         for section in self.sections:
             claims.extend(section.claims)
         return claims
 
+    def substantive_claims(self) -> list[Claim]:
+        """Claims that owe evidence. Framing text is excluded by kind, not by
+        a keyword heuristic guessing at whether a sentence sounds factual."""
+        return [c for c in self.all_claims() if c.requires_evidence]
+
+    def all_evidence_ids(self) -> set[str]:
+        ids = {eid for claim in self.all_claims() for eid in claim.evidence_ids}
+        for contradiction in self.contradictions:
+            ids.update(contradiction.evidence_ids)
+        return ids
+
     def cited_ids(self) -> set[str]:
-        return {cid for claim in self.all_claims() for cid in claim.citation_ids}
+        ids = {cid for claim in self.all_claims() for cid in claim.citation_ids}
+        for contradiction in self.contradictions:
+            ids.update(contradiction.left_citation_ids)
+            ids.update(contradiction.right_citation_ids)
+        return ids
 
 
 class CitationIssueType(StrEnum):
+    UNKNOWN_EVIDENCE = "unknown_evidence"
+    """Claim referenced an evidence id that does not exist. Hard failure."""
+    UNCITABLE_EVIDENCE = "uncitable_evidence"
+    """Evidence exists but its quote never aligned to the source. Hard failure:
+    a claim must not rest on text we could not find in the page."""
     UNKNOWN_SOURCE = "unknown_source"
-    """Cited an ID that was never retrieved. Hard failure."""
+    """Resolved to a source that was never retrieved. Hard failure."""
     UNSUPPORTED_CLAIM = "unsupported_claim"
-    """Cited source exists but does not support the claim."""
+    """Cited evidence exists but does not establish the claim."""
+    PARTIALLY_SUPPORTED_CLAIM = "partially_supported_claim"
+    """Cited evidence is related but weaker or narrower than the claim."""
     UNCITED_CLAIM = "uncited_claim"
-    """A factual assertion with no citation at all."""
+    """A claim that owes evidence and carries none."""
+    UNAUDITABLE_CONTRADICTION = "unauditable_contradiction"
+    """A reported disagreement without evidence on both sides."""
     UNUSED_SOURCE = "unused_source"
     """Retrieved and paid for, never referenced. Informational only."""
     REDUNDANT_CITATION = "redundant_citation"
+
+
+class SupportVerdict(StrEnum):
+    SUPPORTED = "supported"
+    PARTIALLY_SUPPORTED = "partially_supported"
+    UNSUPPORTED = "unsupported"
+    NOT_CHECKED = "not_checked"
 
 
 class CitationIssue(BaseModel):
@@ -336,41 +596,116 @@ class CitationIssue(BaseModel):
     severity: str = Field(default="warning", description="error | warning | info")
     claim_text: str = ""
     citation_id: str = ""
+    evidence_id: str = ""
     detail: str = ""
 
 
 class CitationVerification(BaseModel):
+    """Outcome of verifying a report's citations.
+
+    Metric names here are deliberately literal. The old name
+    ``citation_validity`` implied a source supported its claim, when all it
+    measured was that the id resolved to something retrieved. Those are very
+    different guarantees and only one of them was being made.
+    """
+
     total_claims: int = 0
-    factual_claims: int = 0
+    substantive_claims: int = 0
+    """Claims that owe evidence (factual or synthesis), by declared kind."""
     total_citations: int = 0
-    valid_citations: int = 0
+    resolvable_citations: int = 0
+    total_evidence_refs: int = 0
+    resolvable_evidence_refs: int = 0
+
     supported_claims: int = 0
+    partially_supported_claims: int = 0
+    unsupported_claims: int = 0
     checked_claims: int = 0
+    """Claims actually put through entailment checking."""
+    checkable_claims: int = 0
+    """Claims eligible for entailment checking, whether or not sampled."""
+    entailment_exhaustive: bool = False
+    """True when every eligible claim was checked (benchmark mode)."""
+
+    contradictions_total: int = 0
+    contradictions_auditable: int = 0
+
     issues: list[CitationIssue] = Field(default_factory=list)
     unused_source_ids: list[str] = Field(default_factory=list)
     repaired: bool = False
 
+    # -- integrity ---------------------------------------------------------
+
     @property
-    def citation_validity_rate(self) -> float:
-        """Share of citation markers pointing at a genuinely retrieved source."""
+    def citation_integrity_rate(self) -> float:
+        """Share of citations resolving to a source retrieved in this run.
+
+        Says nothing about whether the source supports the claim. That is
+        ``claim_support_rate``.
+        """
         if self.total_citations == 0:
             return 1.0
-        return round(self.valid_citations / self.total_citations, 4)
+        return round(self.resolvable_citations / self.total_citations, 4)
+
+    @property
+    def evidence_integrity_rate(self) -> float:
+        """Share of evidence references resolving to citable evidence."""
+        if self.total_evidence_refs == 0:
+            return 1.0
+        return round(self.resolvable_evidence_refs / self.total_evidence_refs, 4)
+
+    @property
+    def citation_validity_rate(self) -> float:
+        """Deprecated alias of :attr:`citation_integrity_rate`.
+
+        Retained so older artifacts and readers still resolve, but no longer
+        published under this name.
+        """
+        return self.citation_integrity_rate
+
+    # -- coverage ----------------------------------------------------------
 
     @property
     def citation_coverage_rate(self) -> float:
-        """Share of factual claims carrying at least one citation."""
-        if self.factual_claims == 0:
+        """Share of evidence-owing claims carrying at least one citation."""
+        if self.substantive_claims == 0:
             return 1.0
         uncited = sum(1 for i in self.issues if i.type is CitationIssueType.UNCITED_CLAIM)
-        return round(max(0, self.factual_claims - uncited) / self.factual_claims, 4)
+        return round(max(0, self.substantive_claims - uncited) / self.substantive_claims, 4)
+
+    # -- support -----------------------------------------------------------
 
     @property
-    def support_rate(self) -> float:
-        """Share of entailment-checked claims judged supported by their sources."""
+    def claim_support_rate(self) -> float:
+        """Share of *checked* claims judged fully supported.
+
+        Partial support is excluded from the numerator and reported
+        separately rather than folded silently into either bucket.
+        """
         if self.checked_claims == 0:
             return 0.0
         return round(self.supported_claims / self.checked_claims, 4)
+
+    @property
+    def partial_support_rate(self) -> float:
+        if self.checked_claims == 0:
+            return 0.0
+        return round(self.partially_supported_claims / self.checked_claims, 4)
+
+    @property
+    def support_breakdown(self) -> dict[str, int]:
+        not_checked = max(0, self.checkable_claims - self.checked_claims)
+        return {
+            SupportVerdict.SUPPORTED.value: self.supported_claims,
+            SupportVerdict.PARTIALLY_SUPPORTED.value: self.partially_supported_claims,
+            SupportVerdict.UNSUPPORTED.value: self.unsupported_claims,
+            SupportVerdict.NOT_CHECKED.value: not_checked,
+        }
+
+    @property
+    def support_rate(self) -> float:
+        """Deprecated alias of :attr:`claim_support_rate`."""
+        return self.claim_support_rate
 
     @property
     def has_errors(self) -> bool:
@@ -396,11 +731,16 @@ __all__ = [
     "CitationIssueType",
     "CitationVerification",
     "Claim",
+    "ClaimKind",
+    "ContentOrigin",
+    "Contradiction",
     "CoverageAssessment",
+    "DiscoveryRef",
     "EvidenceItem",
     "FetchStatus",
     "OutputFormat",
     "QueryAnalysis",
+    "QuoteMatch",
     "ReportSection",
     "ResearchPlan",
     "ResearchReport",
@@ -412,4 +752,5 @@ __all__ = [
     "Stance",
     "SubQuestion",
     "SubQuestionCoverage",
+    "SupportVerdict",
 ]
