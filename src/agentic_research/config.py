@@ -241,6 +241,16 @@ class Settings(BaseSettings):
     cors_origins: str = Field(
         default="", description="Comma-separated allowed origins; empty disables CORS"
     )
+    demo_max_runtime_seconds: float = Field(
+        default=240.0,
+        gt=0,
+        description=(
+            "Wall-clock ceiling for a hosted run. 240s suits a cloud model; a "
+            "local 4B model needs far longer and is not viable for a public demo."
+        ),
+    )
+    demo_runs_per_hour: int = Field(default=3, ge=1)
+    demo_max_concurrent_runs: int = Field(default=2, ge=1)
 
     # --- Observability -----------------------------------------------------
     log_level: str = "INFO"

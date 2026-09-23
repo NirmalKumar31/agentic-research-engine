@@ -41,6 +41,20 @@ class DemoLimits:
     max_search_credits: float = 8.0
 
 
+def limits_from_settings(settings: Settings) -> DemoLimits:
+    """Build the demo ceilings, honouring the few that are configurable.
+
+    Runtime in particular has to be tunable: 240s is right for a cloud
+    model and nowhere near enough for a local one, and hard-coding it would
+    make the web path untestable against Ollama.
+    """
+    return DemoLimits(
+        max_runtime_seconds=settings.demo_max_runtime_seconds,
+        runs_per_ip_per_hour=settings.demo_runs_per_hour,
+        max_concurrent_runs=settings.demo_max_concurrent_runs,
+    )
+
+
 def apply_demo_limits(settings: Settings, limits: DemoLimits) -> Settings:
     """Clamp settings to the demo ceilings.
 

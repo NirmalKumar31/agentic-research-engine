@@ -35,6 +35,7 @@ from agentic_research.web.limits import (
     RateLimiter,
     apply_demo_limits,
     demo_mode_summary,
+    limits_from_settings,
     validate_query,
 )
 
@@ -185,7 +186,7 @@ def _serialise_result(result: RunResult) -> dict[str, Any]:
 def create_app(settings: Settings | None = None) -> FastAPI:
     resolved = settings or get_settings()
     configure_logging(resolved.log_level, resolved.log_format)
-    limits = DemoLimits()
+    limits = limits_from_settings(resolved)
     state = AppState(
         settings=resolved,
         limits=limits,

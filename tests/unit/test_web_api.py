@@ -145,8 +145,16 @@ class TestHealthAndConfig:
             assert forbidden not in response.text.lower()
 
     def test_interactive_docs_are_disabled_in_demo_mode(self) -> None:
+        """The Swagger UI invites poking at an endpoint that spends money.
+
+        When the built frontend is present the SPA catch-all answers /docs
+        with the app shell, so the assertion is on the absence of the docs
+        UI rather than on a 404.
+        """
         with TestClient(create_app(demo_settings())) as client:
-            assert client.get("/docs").status_code in (404, 405)
+            response = client.get("/docs")
+        assert "swagger" not in response.text.lower()
+        assert "redoc" not in response.text.lower()
 
 
 class TestInputValidation:
