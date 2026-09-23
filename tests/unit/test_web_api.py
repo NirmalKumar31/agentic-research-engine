@@ -32,7 +32,8 @@ def demo_settings(**overrides: Any) -> Settings:
     base = {
         "llm_mode": "local",
         "demo_mode": True,
-        "tavily_api_key": "tvly-secret-value-for-testing-only",
+        # Deliberately secret-shaped, and allowlisted in .gitleaks.toml.
+        "tavily_api_key": "tvly-test-key",
         "max_research_rounds": 9,
         "max_sources": 99,
         "_env_file": None,

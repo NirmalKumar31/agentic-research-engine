@@ -31,6 +31,12 @@ regexes = [
   # Test fixtures. One exists specifically to assert that a secret is
   # redacted in logs, which requires a secret-shaped literal to exist.
   '''tvly-test-key''',
+  # Present in commit e06b508 only: a test fixture asserting the API does
+  # not echo a key back to the client. Never a real credential, so nothing
+  # to rotate. The current tests use tvly-test-key instead, and this entry
+  # exists solely so the history scan stays clean without rewriting shared
+  # history over a string that was always fake.
+  '''tvly-secret-value-for-testing-only''',
   '''tvly-supersecret''',
   '''tvly-x''',
   '''sk-test''',
