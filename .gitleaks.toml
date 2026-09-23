@@ -20,14 +20,21 @@ description = "OpenAI API key (project or legacy form)"
 regex = '''sk-(proj-|svcacct-)?[A-Za-z0-9_-]{32,}'''
 keywords = ["sk-"]
 
-[allowlist]
-regexTarget = "match"
-description = "Paths and literals that are intentionally secret-shaped"
+# Uses [[allowlists]] rather than the singular [allowlist]. The two cannot
+# coexist -- gitleaks fails to load the config entirely, which surfaces as
+# a scan that appears to run and reports whatever it likes. Worth knowing:
+# a broken config does not look like a broken config.
+
+[[allowlists]]
+description = "Paths that are intentionally secret-shaped"
 paths = [
   '''\.venv/''',
   '''\.env\.example$''',
   '''\.gitleaks\.toml$''',
 ]
+
+[[allowlists]]
+description = "Fake literals in test fixtures and historical commits"
 regexes = [
   # Test fixtures. One exists specifically to assert that a secret is
   # redacted in logs, which requires a secret-shaped literal to exist.
@@ -43,16 +50,30 @@ regexes = [
   '''sk-test''',
   '''sk-x''',
   '''brave-key''',
-  # Present in commit c1f354e only: parametrised fixtures asserting that the
-  # recording loader rejects credential-*shaped* values, which required
-  # credential-shaped literals to exist. Always fake, nothing to rotate.
-  # tests/unit/test_replay_mode.py now assembles these from fragments at
-  # runtime so no further literal enters history; these two entries keep the
-  # history scan clean without rewriting shared history over strings that
-  # were never real.
-  # Matched on the distinctive body rather than the whole literal: the rule
-  # captures a slightly wider span than the string itself, so an exact-
-  # literal entry silently failed to suppress it.
+]
+
+# Scoped to one file, and deliberately NOT a global entry.
+#
+# Commit c1f354e added parametrised fixtures asserting that the recording
+# loader rejects credential-*shaped* values, which required such literals
+# to exist. They were copied from this repository's own CI canary -- so
+# allowlisting them globally made the canary's planted secrets invisible
+# and silently disabled the positive control. The scan then reported "no
+# leaks found" on a file full of planted credentials.
+#
+# condition = "AND" means a finding is ignored only when it is both one of
+# these strings *and* in that test file. The canary writes planted.py, so
+# it stays detectable. regexTarget = "match" is required because the rule's
+# span includes the surrounding quotes; a secret-targeted entry matches
+# nothing while looking correct.
+#
+# Nothing here was ever a real credential, so there is nothing to rotate.
+[[allowlists]]
+description = "Fake credential shapes committed in c1f354e's loader tests"
+condition = "AND"
+regexTarget = "match"
+paths = ['''tests/unit/test_replay_mode\.py''']
+regexes = [
   '''AbCdEfGhIjKlMnOpQrStUvWxYz0123456789''',
   '''tvly-AbCdEfGh01234567890123456789''',
 ]

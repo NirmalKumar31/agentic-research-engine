@@ -128,12 +128,19 @@ jobs:
         # Without this, "no leaks found" could equally mean the ruleset is
         # broken. An earlier positive control passed silently because it
         # used an example key that gitleaks allowlists.
+        #
+        # The bodies are generated fresh each run rather than hard-coded.
+        # A fixed canary value can be allowlisted -- which happened: test
+        # fixtures copied these exact strings, an allowlist entry for them
+        # made the planted secrets invisible, and the control was disabled
+        # by a change that looked unrelated. A random body cannot be
+        # allowlisted in advance by anyone, including us.
         run: |
           mkdir -p /tmp/canary && cd /tmp/canary && git init -q
           cp "$GITHUB_WORKSPACE/.gitleaks.toml" .
           printf 'K="tvly-%s"\nO="sk-proj-%s"\n' \
-            "AbCdEfGh01234567890123456789" \
-            "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789" > planted.py
+            "$(openssl rand -hex 16)" \
+            "$(openssl rand -hex 20)" > planted.py
           git add -A && git -c user.email=t@t -c user.name=t commit -qm canary
           if gitleaks git --no-banner -c .gitleaks.toml --exit-code 1 . ; then
             echo "::error::secret scanner failed to detect planted credentials"
