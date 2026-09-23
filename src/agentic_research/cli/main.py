@@ -279,6 +279,114 @@ def evaluate(
     console.print(f"[dim]Written to {path}[/dim]")
 
 
+@app.command("freeze")
+def freeze_corpus(
+    question: Annotated[str, typer.Argument(help="Question to research and freeze.")],
+    output: Annotated[
+        Path, typer.Option("--output", "-o", help="Where to write the corpus.")
+    ] = Path("evaluations/corpus.json"),
+    mode: Annotated[LLMMode | None, typer.Option("--mode", "-m")] = None,
+) -> None:
+    """Run research once and freeze its evidence for controlled comparison.
+
+    Replaying synthesis against a frozen corpus is what makes a model
+    comparison valid: both arms then see identical evidence, so the
+    difference is the model rather than the search results having moved.
+    """
+    from agentic_research.evaluation.ab import EvidenceCorpus
+    from agentic_research.runner import run_research
+
+    settings = _load_settings(llm_mode=mode)
+    configure_logging(settings.log_level, settings.log_format)
+    console.print(f"Researching to build a corpus: [bold]{question}[/bold]")
+
+    result = asyncio.run(run_research(question, settings))
+    corpus = EvidenceCorpus.from_result(question, result)
+    corpus.save(output)
+    console.print(f"Frozen: {corpus.summary()}")
+    console.print(f"[dim]Written to {output}[/dim]")
+
+
+@app.command("compare")
+def compare_models(
+    corpus_path: Annotated[Path, typer.Argument(help="Corpus produced by `freeze`.")] = Path(
+        "evaluations/corpus.json"
+    ),
+    arm: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--arm",
+            "-a",
+            help="label=provider:model, repeatable. e.g. -a local=ollama:qwen3:4b",
+        ),
+    ] = None,
+    output: Annotated[Path, typer.Option("--output", "-o")] = Path("evaluations/comparison.json"),
+) -> None:
+    """Synthesise the same frozen corpus with different models and compare.
+
+    Spends real credits for any cloud arm. Verification is exhaustive.
+    """
+    from agentic_research.evaluation.ab import EvidenceCorpus, all_roles, compare
+
+    if not corpus_path.is_file():
+        _fail(f"No corpus at {corpus_path}", "Create one with `agentic-research freeze`.")
+        return
+    if not arm:
+        _fail("At least one --arm is required, e.g. -a local=ollama:qwen3:4b")
+        return
+
+    arms: dict[str, dict] = {}
+    for entry in arm:
+        if "=" not in entry:
+            _fail(f"Malformed --arm {entry!r}; expected label=provider:model")
+            return
+        label, spec = entry.split("=", 1)
+        try:
+            arms[label.strip()] = all_roles(spec.strip())
+        except ValueError as exc:
+            _fail(str(exc))
+            return
+
+    settings = _load_settings()
+    configure_logging("WARNING", settings.log_format)
+    corpus = EvidenceCorpus.load(corpus_path)
+    console.print(f"Corpus: {corpus.summary()}")
+    console.print(f"Question: {corpus.question}\n")
+
+    comparison = asyncio.run(compare(corpus, settings, arms))
+
+    table = Table(title="Controlled comparison (identical evidence)", show_header=True)
+    table.add_column("Metric")
+    for result in comparison.arms:
+        table.add_column(result.label, justify="right")
+
+    names: list[str] = []
+    for result in comparison.arms:
+        for metric in result.metrics:
+            if metric.name not in names:
+                names.append(metric.name)
+    for name in names:
+        row = [name]
+        for result in comparison.arms:
+            value = result.value(name)
+            row.append("n/a" if value is None else f"{value:.1%}")
+        table.add_row(*row)
+
+    for label, getter in (
+        ("duration_s", lambda a: f"{a.duration_s:.1f}"),
+        ("llm_calls", lambda a: str(a.llm_calls)),
+        ("input_tokens", lambda a: f"{a.input_tokens:,}"),
+        ("output_tokens", lambda a: f"{a.output_tokens:,}"),
+        ("cost_usd", lambda a: f"${a.known_cost_usd:.4f}"),
+    ):
+        table.add_row(label, *[getter(a) for a in comparison.arms])
+
+    console.print(table)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(comparison.to_dict(), indent=2, default=str), encoding="utf-8")
+    console.print(f"[dim]Written to {output}[/dim]")
+
+
 @app.command("graph")
 def show_graph(
     output: Annotated[
