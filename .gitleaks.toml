@@ -1,0 +1,39 @@
+# gitleaks configuration.
+#
+# Extends the default ruleset rather than replacing it, and adds rules for
+# the providers this project actually uses. gitleaks ships no Tavily rule,
+# so without the first rule below an accidentally committed search key would
+# pass a "clean" scan.
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "tavily-api-key"
+description = "Tavily API key"
+regex = '''tvly-[A-Za-z0-9_-]{24,}'''
+keywords = ["tvly-"]
+
+[[rules]]
+id = "openai-api-key-broad"
+description = "OpenAI API key (project or legacy form)"
+regex = '''sk-(proj-|svcacct-)?[A-Za-z0-9_-]{32,}'''
+keywords = ["sk-"]
+
+[allowlist]
+description = "Paths and literals that are intentionally secret-shaped"
+paths = [
+  '''\.venv/''',
+  '''\.env\.example$''',
+  '''\.gitleaks\.toml$''',
+]
+regexes = [
+  # Test fixtures. One exists specifically to assert that a secret is
+  # redacted in logs, which requires a secret-shaped literal to exist.
+  '''tvly-test-key''',
+  '''tvly-supersecret''',
+  '''tvly-x''',
+  '''sk-test''',
+  '''sk-x''',
+  '''brave-key''',
+]

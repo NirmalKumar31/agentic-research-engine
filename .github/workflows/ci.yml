@@ -95,3 +95,35 @@ jobs:
           docker run --rm agentic-research:ci --help
           docker run --rm -e LLM_MODE=local agentic-research:ci graph | head -5
           docker run --rm -e LLM_MODE=local agentic-research:ci check
+
+  secrets:
+    name: Secret scan (full history)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Full history: a key removed in a later commit is still a leaked
+          # key, and a shallow clone would not see it.
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  dependencies:
+    name: Dependency vulnerability audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pip-audit
+      - name: Audit
+        # Skips the local package itself, which is not on PyPI.
+        run: pip-audit --progress-spinner off --skip-editable
