@@ -130,3 +130,53 @@ jobs:
       - name: Audit
         # Skips the local package itself, which is not on PyPI.
         run: pip-audit --progress-spinner off --skip-editable
+
+  frontend:
+    name: Build the frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        working-directory: web
+        run: npm ci --no-audit --no-fund
+
+      - name: Type check
+        working-directory: web
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: web
+        run: npm run build
+
+  web-image:
+    name: Build the web image and probe its health endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build
+        run: docker build -f Dockerfile.web -t agentic-research-web:ci .
+
+      # Starts the service exactly as the host will and waits for /api/health.
+      # A container that builds but cannot serve fails here rather than on
+      # the deployed URL. No credentials, so demo mode runs with none.
+      - name: Probe /api/health
+        run: |
+          docker run -d --name web -p 8000:8000 \
+            -e DEMO_MODE=true -e LLM_MODE=local \
+            agentic-research-web:ci
+          for i in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:8000/api/health > /tmp/health.json; then
+              cat /tmp/health.json; break
+            fi
+            sleep 2
+          done
+          test -s /tmp/health.json || { docker logs web; exit 1; }
+          curl -sf http://127.0.0.1:8000/ | head -c 200
+          docker rm -f web

@@ -1,0 +1,78 @@
+# Render blueprint for the hosted demo.
+#
+# Secrets are NOT in this file. TAVILY_API_KEY and OPENAI_API_KEY are set as
+# secret environment variables in the Render dashboard; sync:false below
+# tells Render to prompt for them rather than expecting a value here.
+#
+# Free instances have limited CPU and RAM, spin down when idle and use an
+# ephemeral filesystem. This is configured as a portfolio demo, not
+# production infrastructure: no persistence, in-memory checkpointing, and
+# no local model server.
+
+services:
+  - type: web
+    name: agentic-research-engine
+    runtime: docker
+    dockerfilePath: ./Dockerfile.web
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    autoDeploy: false
+
+    envVars:
+      # --- secrets: set in the dashboard, never committed ---------------
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+      # --- hosted demo posture ------------------------------------------
+      - key: DEMO_MODE
+        value: "true"
+      # Cloud-only: there is no Ollama on a free instance, and pretending
+      # otherwise would fail preflight on the first request.
+      - key: LLM_MODE
+        value: cloud
+      # Start on the cheap model. Validate cost before considering Sol.
+      - key: OPENAI_MODEL
+        value: gpt-6-luna
+      - key: OPENAI_FAST_MODEL
+        value: gpt-6-luna
+      - key: ALLOW_CLOUD_FALLBACK
+        value: "false"
+
+      # --- spend ceilings, enforced before dispatch ----------------------
+      - key: MAX_CLOUD_COST_USD
+        value: "0.05"
+      - key: MAX_CLOUD_CALLS
+        value: "20"
+      - key: MAX_CLOUD_INPUT_TOKENS
+        value: "120000"
+      - key: MAX_CLOUD_OUTPUT_TOKENS
+        value: "20000"
+      - key: MAX_SEARCH_CREDITS
+        value: "8"
+
+      # --- run shape -----------------------------------------------------
+      - key: MAX_RESEARCH_ROUNDS
+        value: "1"
+      - key: MAX_SOURCES
+        value: "6"
+      - key: MAX_SOURCES_PER_ROUND
+        value: "6"
+      - key: MAX_SEARCH_QUERIES
+        value: "6"
+      - key: MAX_LLM_CALLS
+        value: "20"
+      - key: SEARCH_DEPTH
+        value: basic
+
+      # --- ephemeral by design -------------------------------------------
+      - key: PERSIST_RUNS
+        value: "false"
+      - key: CHECKPOINT_BACKEND
+        value: memory
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_FORMAT
+        value: json
