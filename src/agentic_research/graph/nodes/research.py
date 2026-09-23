@@ -243,7 +243,15 @@ async def fetch_worker(state: FetchTask) -> ResearchState:
         """
         if not provider_text.strip():
             return None
-        log.info("pdf_fetch_fell_back_to_provider", source_id=source.id, reason=reason)
+        # Warning, not info: the source survives but its page numbers do
+        # not, and a silent downgrade of a documented capability is how
+        # this went unnoticed in the first place.
+        log.warning(
+            "pdf_fetch_fell_back_to_provider",
+            source_id=source.id,
+            url=source.url[:120],
+            reason=reason,
+        )
         return _finalise_source(
             source,
             provider_text,
