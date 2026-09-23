@@ -5,8 +5,9 @@ decomposes the question into sub-questions, runs web searches in parallel,
 deduplicates results before spending a single page fetch, extracts evidence as
 verbatim quotes checked against the source text, assesses its own coverage,
 and researches again if there are gaps — under hard budgets. It then writes a
-report in which every claim carries citations, and verifies that each citation
-resolves to a source the run actually retrieved.
+report in which **every evidence-owing claim** carries engine-derived
+citations, and verifies that each one resolves to evidence the run actually
+gathered. Framing sentences are marked as such and deliberately carry none.
 
 It runs entirely on OpenAI, entirely on local Ollama models, or in a hybrid
 split where high-volume mechanical work runs locally and reasoning runs in the
@@ -102,23 +103,37 @@ back-edge, and it is budget-guarded.
 
 ### Provenance chain
 
-Every link is stored, not inferred — so any sentence in the report can be
-traced back to the exact span of text it came from.
+Every link is stored rather than inferred. The chain has two halves, and
+they carry different strengths of guarantee — conflating them would
+overstate what the system knows.
 
 ```mermaid
 graph LR
-    Q[Question] --> SQ[SubQuestion SQ2]
-    SQ --> SE[SearchQuery Q5]
-    SE --> SR[SearchResult]
-    SR --> SD[SourceDocument S3]
-    SD -- DiscoveryRef --> EV["EvidenceItem S3-e1<br/>quote + page<br/>quote_match=exact"]
-    EV --> CL["Claim<br/>evidence_ids=[S3-e1]"]
-    CL -- derived by engine --> CI["Citation [S3, p. 14]"]
+    subgraph conditional["Conditional — only when the source was retrieved FOR this sub-question"]
+        SQ[SubQuestion SQ2] --> SE[SearchQuery Q5]
+        SE --> SR[SearchResult]
+    end
+    subgraph guaranteed["Guaranteed for every citation"]
+        SD[SourceDocument S3] --> EV["EvidenceItem S3-e1<br/>verbatim quote + page<br/>quote_match=exact"]
+        EV --> CL["Claim<br/>evidence_ids=[S3-e1]"]
+        CL -- derived by engine --> CI["Citation [S3, p. 14]"]
+    end
+    SR -. DiscoveryRef .-> SD
 ```
 
-Read it right to left: given any sentence, the engine can name the exact
-evidence item, its verbatim quote and page, the source, the query that
-found it, and the sub-question that motivated the query.
+**Guaranteed.** Every citation resolves to an exact `EvidenceItem`, its
+verbatim quote, its page where the source was a PDF, and the
+`SourceDocument` it came from. This holds unconditionally: an evidence id
+that does not resolve is dropped and reported as an error, so a citation
+the reader sees has always been checked.
+
+**Conditional.** The link back to the query and sub-question exists only
+when that source was genuinely retrieved on behalf of the sub-question the
+evidence answers. Each source is offered to every open sub-question during
+extraction, so a finding often addresses a question whose queries never
+surfaced that page — **78% of evidence in the last measured run**. Those
+items are flagged `cross_attributed` and carry no query id, rather than
+borrowing an unrelated one to make the chain look complete.
 
 ### Model routing
 
@@ -307,9 +322,12 @@ corresponds to a node that actually ran.
 
 The part worth looking at is the **claim drill-down** — click any citation
 marker and it expands the exact evidence behind that sentence: the verbatim
-quote, its match class, the page for PDFs, the sub-question it answers, the
-query that found it, and a link to the source. That is only possible
-because provenance is evidence-level rather than source-level.
+quote, its match class, the page for PDFs, the sub-question it answers, and
+a link to the source. Where that source was genuinely retrieved *for* that
+sub-question it also shows the query that found it; where it was not, the
+item is marked cross-attributed rather than shown a borrowed query. That is
+only possible because provenance is evidence-level rather than
+source-level.
 
 It also surfaces what is weak rather than hiding it: uncited claims, fuzzy
 quotes marked not-citable, contradictions flagged when one side lacks
@@ -683,7 +701,11 @@ address filtering, which on a public deployment means fetching
 non-web ports refused, and loopback, private, link-local, multicast,
 reserved and unspecified ranges blocked across IPv4 and IPv6, including
 IPv4-mapped IPv6 forms. Every resolved address must be safe, not merely one
-of them. Redirects are followed manually so each hop is revalidated.
+of them. Redirects are followed manually so each hop is revalidated. The
+connection then goes to the address that was validated rather than to the
+name, which closes the rebinding window. Pinning must not weaken TLS, so
+that is tested directly: against a real certificate, a wrong SNI is
+refused.
 
 **Prompt injection.** Retrieved text is framed as untrusted data in both the
 system prompt and around the content, and a document cannot forge the
@@ -704,12 +726,18 @@ never returns a key, an environment value, or a raw exception string.
 
 ```bash
 pip install -e ".[dev]"
-pytest                    # 202 tests, under 10s, no network, no credentials, no cost
+pytest                    # hermetic: no network, no credentials, no cost
 ```
+
+**478 tests passing, 86% line coverage**, measured on 2026-09-23 against
+the tree that became `dd5da5b`. The figure is restated only when it has
+been re-run, never estimated from a diff.
 
 Default runs are hermetic. Every external boundary — models, search, page
 fetching — is faked or mocked, while the real state machine, reducers,
-deduplication and citation verification all execute.
+deduplication and citation verification all execute. The TLS tests run a
+real local HTTPS server with a real certificate from an in-process CA,
+because certificate verification cannot be asserted against a mock.
 
 ```bash
 pytest -m ollama          # against a real local model (free, needs `ollama serve`)
@@ -734,6 +762,7 @@ What the suite actually pins down, beyond the obvious:
 agentic-research evaluate -n 3       # first 3 questions; checks every claim
 agentic-research freeze "question"   # capture an evidence corpus
 agentic-research compare -a local=ollama:qwen3:4b -a cloud=openai:gpt-6-luna
+agentic-research attribution -r 3    # what narrowing extraction would cost
 ```
 
 The suite holds **12 questions across 8 categories** — technical
@@ -750,6 +779,24 @@ money; nothing here runs automatically.
 No gold answers. They are expensive, go stale, and mostly measure whether
 the model agrees with whoever wrote them. Every metric instead asks whether
 the system did what it claims.
+
+### The cross-attribution experiment
+
+`attribution` answers the one question the 78% figure raises: what would it
+cost to stop showing every source every open sub-question? It re-extracts
+from a frozen corpus under three strategies — every open sub-question
+(today's default), only the sub-questions a query retrieved that source for,
+and the second plus the *k* lexically nearest others — and reports citable
+evidence, evidence coverage, source utilisation and spend for each.
+
+Narrowing drives cross-attribution to 0% **by construction**, so that is not
+the result; the harness asserts it as an invariant and refuses to publish a
+table if it fails. The measurement is what gets lost. Free on a local model,
+and it refuses to run against a cloud one without `--allow-cloud`, because
+one pass is one call per source and three strategies multiply that quietly.
+
+> **Written, not yet run.** The strategy stays as it is until there is a
+> measurement to argue against it.
 
 ### Metric definitions
 
@@ -803,12 +850,14 @@ not have them.
   sub-question whose queries never retrieved that page. Provenance to the
   source is complete; the evidence→query link only exists for the rest.
   Recorded as `cross_attributed=True` rather than filled in with an
-  unrelated query.
+  unrelated query. `agentic-research attribution` exists to measure what
+  narrowing would cost; it has not been run, so nothing has changed.
 - **Entailment is judged by a model**, and in local mode by the same model
   that wrote the report. Treat the support figure as weak evidence.
-- **SSRF protection does not close DNS rebinding.** Addresses are validated
-  before connecting, but a name could resolve differently at connect time.
-  Closing it means pinning the validated IP into the connection.
+- **DNS-rebinding protection is proven against a test CA, not the real
+  web.** The wrong-SNI refusal is demonstrated against a real TLS server
+  with a real certificate, so the mechanism holds; it has not been
+  exercised against the internet's actual certificate ecosystem.
 - **Rate limiting is in-memory**, so it is per-process. Behind replicas the
   real bound is the per-run cloud spend ceiling.
 - **No OCR.** A scanned PDF is detected and reported as such, not read.
@@ -823,7 +872,8 @@ not have them.
 
 ## Roadmap
 
-- Pin the validated IP into the connection to close DNS rebinding
+- Execute the TLS and rebinding suites, and publish the result either way
+- Run the cross-attribution experiment and act on what it says
 - OCR for scanned PDFs
 - Content cache keyed by canonical URL, shared across runs
 - Cross-encoder reranking of evidence before synthesis

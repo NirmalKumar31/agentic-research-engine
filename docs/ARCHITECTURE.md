@@ -678,9 +678,42 @@ Redirects are followed manually, revalidating each hop. DNS failure is
 reported as a network error rather than a policy block, so the blocked
 count stays a meaningful signal rather than being diluted by typos.
 
-**Not solved:** DNS rebinding. The address is validated before connecting,
-but a name could resolve differently at connect time. Closing it means
-pinning the validated IP into the connection.
+**DNS rebinding — closed by pinning.** Validating a *name* and then
+connecting by *name* leaves a window: the attacker answers the validation
+lookup with a public address and the connection lookup with a private one.
+The connection is therefore made to the address that was actually
+validated:
+
+```python
+target = validate_url(current)            # resolves and checks every address
+url, headers, ext = target.pinned_request()
+# url     -> https://93.184.216.34/path      (the checked address)
+# headers -> {"Host": "example.com"}         (virtual hosting still works)
+# ext     -> {"sni_hostname": "example.com"} (certificate still verified)
+```
+
+Three properties make this safe rather than merely different:
+
+* **Certificate verification is preserved, not bypassed.** TLS still
+  presents and validates the original hostname via SNI. Pinning that
+  silently disabled hostname checking would be worse than the hole it
+  closes, so the test suite asserts both directions — correct SNI
+  connects, wrong SNI is refused — against a real local TLS server with a
+  real certificate. `verify=False` appears nowhere.
+* **Fail closed.** A target with no validated address raises
+  `UnpinnedTargetError` rather than falling back to hostname connection,
+  which would quietly restore the window.
+* **Failover never re-resolves.** If the first address is unreachable the
+  fetcher tries the others *from the same validated resolution*. Looking
+  up a fresh alternative would hand back the second lookup this removes.
+
+Each redirect hop is revalidated and re-pinned, and a relative `Location`
+is resolved against the logical URL so it cannot inherit the pinned
+address.
+
+**Still not solved:** the process-level limits below, and the fact that
+this protects our own fetcher only — content the search provider returns
+was fetched by them, under their policy, not ours.
 
 ### 13.2 Prompt injection
 

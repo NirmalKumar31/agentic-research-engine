@@ -19,10 +19,13 @@ than a guess, and interviewers can tell the difference.
 >
 > The part I would point at is the provenance. A claim references *exact
 > evidence ids*, not source ids, and the engine resolves those to sources
-> itself. So any sentence in the report opens up to the specific quote
-> behind it, the page if it came from a PDF, the query that found it, and
-> the sub-question that motivated the query. The web UI makes that
-> clickable.
+> itself. So any sentence opens up to the specific quote behind it, its
+> page if it came from a PDF, and the source — guaranteed, for every
+> citation. The link further back to the query is conditional: it exists
+> only when that source was actually retrieved for that sub-question, and
+> about three quarters of evidence is reused across questions, so those
+> items are marked cross-attributed rather than given a borrowed query.
+> The web UI makes all of it clickable.
 >
 > The other half is honesty about measurement. It reports what it could
 > not verify, and when I tightened the definitions several headline numbers
@@ -444,15 +447,21 @@ are withdrawn: the provenance model changed and several metrics were
 renamed, so republishing them would be comparing different measurements.
 Quote the ones that still hold, and say which are pending a re-run:
 
-- 357 hermetic tests, under 10 seconds, no network or credentials
-- gitleaks over 20 commits: zero findings, with the scanner verified
-  against a positive control first
+- 478 hermetic tests passing at 86% line coverage, re-measured 2026-09-23
+  after the pinning and provenance work landed
+- gitleaks over full history: zero findings, with the scanner verified
+  against a planted-credential positive control first
 - evidence_integrity 0.25 on an adversarial fixture where the old
   citation_validity read 1.0 — the honest metric is the lower one
+- quote fidelity 74% under exact-only matching, down from a reported 100%
+  when a 0.88 similarity match still counted as verbatim
+- 78% of evidence is cross-attributed, so query-level provenance is
+  conditional rather than universal
+- one full cloud run: 76s and $0.0078 against 1,096s locally
 - without an output cap, a 4B local model asked for a research plan ran
   past 240s; with one it is bounded, and completes in ~108s
-- local planning alone costs 100-200s, which is why the hosted demo is
-  cloud-only rather than a preference
+- the validation account allowed 50 provider requests/day and a run costs
+  ~22, which is why the hosted demo caps at one anonymous run per day
 
 If asked for a quality percentage that has not been re-measured, say it has
 not been re-measured. That answer is worth more than a stale number.
