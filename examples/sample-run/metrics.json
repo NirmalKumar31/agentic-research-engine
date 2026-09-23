@@ -1,5 +1,5 @@
 {
-  "run_id": "20260922-213752-3ddbff",
+  "run_id": "20260923-012039-c97214",
   "query": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
   "mode": "local",
   "model_assignments": {
@@ -9,32 +9,95 @@
     "synthesizer": "ollama:qwen3:4b",
     "verifier": "ollama:qwen3:4b"
   },
-  "duration_s": 637.81,
+  "duration_s": 1095.73,
+  "environment": {
+    "python": "3.12.3",
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "cpu_count": 10,
+    "packages": {
+      "agentic-research-engine": "0.1.0",
+      "langgraph": "1.2.12",
+      "langchain-core": "1.6.4",
+      "langchain-openai": "1.6.3",
+      "langchain-ollama": "1.1.0",
+      "openai": "3.18.0",
+      "pydantic": "2.13.5",
+      "httpx": "0.28.1",
+      "trafilatura": "2.2.0",
+      "pypdf": "6.19.0"
+    },
+    "ollama": {
+      "version": "0.32.5",
+      "models": {
+        "qwen3:4b": {
+          "digest": "359d7dd4bcdab3d8",
+          "size_bytes": 2497293931,
+          "quantization": "Q4_K_M",
+          "parameter_size": "4.0B"
+        },
+        "llama3.2:3b": {
+          "digest": "a80c4f17acd55265",
+          "size_bytes": 2019393189,
+          "quantization": "Q4_K_M",
+          "parameter_size": "3.2B"
+        },
+        "embeddinggemma:latest": {
+          "digest": "85462619ee721b46",
+          "size_bytes": 621875917,
+          "quantization": "BF16",
+          "parameter_size": "307.58M"
+        }
+      }
+    },
+    "settings": {
+      "llm_mode": "local",
+      "max_research_rounds": 1,
+      "max_sources": 5,
+      "max_sources_per_round": 5,
+      "max_llm_calls": 30,
+      "max_parallel_searches": 5,
+      "max_parallel_fetches": 8,
+      "max_parallel_local_llm_calls": 1,
+      "search_depth": "basic",
+      "llm_temperature": 0.2
+    }
+  },
   "research_rounds": 1,
   "stop_reason": "coverage judged sufficient",
-  "search_queries": 6,
+  "search_queries": 5,
   "searches_failed": 0,
-  "search_results": 48,
-  "search_credits": 6.0,
-  "pages_fetched": 0,
-  "provider_content_reused": 5,
+  "search_results": 40,
+  "search_credits": 5.0,
+  "pages_fetched": 1,
+  "provider_content_reused": 4,
   "fetch_failures": 0,
-  "fetch_status_breakdown": {},
-  "duplicate_urls": 2,
+  "fetch_status_breakdown": {
+    "ok": 1
+  },
+  "duplicate_urls": 3,
   "already_known_urls": 0,
   "content_duplicates": 0,
-  "fetches_avoided": 2,
+  "fetches_avoided": 3,
   "unique_sources": 5,
   "usable_sources": 5,
-  "evidence_items": 30,
-  "verified_quotes": 30,
-  "unverified_quotes": 0,
+  "evidence_items": 27,
+  "exact_quotes": 20,
+  "fuzzy_quotes": 2,
+  "unmatched_quotes": 5,
+  "citable_evidence": 20,
+  "cross_attributed_evidence": 21,
+  "content_origins": {
+    "provider_raw": 4,
+    "html_fetch": 1
+  },
   "domain_concentration": 0.2,
   "distinct_domains": 5,
   "llm_calls": 20,
   "llm_failed_calls": 0,
-  "input_tokens": 21540,
-  "output_tokens": 6046,
+  "input_tokens": 19508,
+  "output_tokens": 6318,
   "calls_by_provider": {
     "ollama": 20
   },
@@ -48,21 +111,33 @@
   "known_cost_usd": 0.0,
   "cost_is_complete": true,
   "unpriced_calls": 0,
-  "citation_validity_rate": 1.0,
+  "citation_integrity_rate": 1.0,
+  "evidence_integrity_rate": 1.0,
   "citation_coverage_rate": 1.0,
-  "citation_support_rate": 0.6,
-  "citations_total": 11,
-  "unused_sources": 0,
+  "claim_support_rate": 1.0,
+  "partial_support_rate": 0.0,
+  "support_breakdown": {
+    "supported": 10,
+    "partially_supported": 0,
+    "unsupported": 0,
+    "not_checked": 7
+  },
+  "entailment_exhaustive": false,
+  "citations_total": 17,
+  "evidence_refs_total": 17,
+  "contradictions_total": 0,
+  "contradictions_auditable": 0,
+  "unused_sources": 1,
   "citations_repaired": false,
   "stage_seconds": {
-    "analyze_query": 10.957,
-    "plan_research": 45.707,
-    "generate_queries": 16.257,
-    "dedupe_sources": 0.002,
+    "analyze_query": 11.374,
+    "plan_research": 104.068,
+    "generate_queries": 123.274,
+    "dedupe_sources": 0.001,
     "register_sources": 0.0,
-    "assess_coverage": 25.118,
-    "synthesize": 111.658,
-    "verify_citations": 97.696
+    "assess_coverage": 21.781,
+    "synthesize": 145.43,
+    "verify_citations": 166.442
   },
   "errors": 0,
   "error_kinds": {}

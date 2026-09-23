@@ -503,18 +503,76 @@ round cap and still produces a report.
 
 ## Measurements
 
-> **The figures previously published here are historical and no longer
-> describe this system.** The provenance model changed substantially
-> (evidence-level claims, exact-only quote matching, citable-evidence
-> gating), and several metrics were renamed because their old names
-> overstated what they measured. Republishing the old numbers against the
-> new definitions would be wrong, so they have been withdrawn pending fresh
-> runs. What the earlier runs established about the *engine* — that it
-> retrieves real sources, extracts verifiable quotes and terminates — still
-> holds; the specific percentages do not carry over.
+One real run on 2026-09-23, after the provenance rework: live Tavily search,
+`qwen3:4b` through Ollama, no cloud model, no API spend.
 
-Fresh measurements will be recorded here once re-run. What has changed and
-why is in [Metric definitions](#metric-definitions) below.
+**Question:** *Compare modern approaches for detecting fraud in highly
+imbalanced transaction datasets, including how such models should be
+evaluated.*
+
+<details>
+<summary><b>Environment</b> (these numbers are hardware-specific)</summary>
+
+Python 3.12.3 · macOS 26.5.2 arm64, 10 cores · LangGraph 1.2.12 ·
+Ollama 0.32.5 · `qwen3:4b` digest `359d7dd4bcdab3d8`, Q4_K_M ·
+1 round, 5 sources max, 1 concurrent local call
+
+</details>
+
+| | |
+|---|---|
+| Sub-questions / queries / raw results | 5 / 5 / 40 |
+| Sources used | 5, across **5 distinct domains** |
+| Content origin | 4 provider-supplied, 1 fetched by us |
+| Evidence items | 27 |
+| **Quote fidelity (exact)** | **74%** — 20 of 27 |
+| Quote drift (fuzzy, not citable) | 7% — 2 of 27 |
+| Unmatched quotes (discarded) | 5 of 27 |
+| **Evidence integrity** | **100%** — 17 of 17 references resolved |
+| Citation integrity | 100% — invariant by construction |
+| Citation coverage | 100% of evidence-owing claims |
+| Claim support (sampled, 10 of 17) | 10 supported, 0 partial, 0 unsupported |
+| Contradictions reported | 0 |
+| Sources retrieved but never cited | 1 of 5 |
+| Model calls / tokens | 20 · 19,508 in / 6,318 out |
+| **Cost** | **$0.00** — no external LLM API spend |
+| Duration | 1,096s |
+| Recoverable errors | 0 |
+
+### What changed, and what got worse
+
+Two figures moved **down** because the definitions got honest, and both are
+published at the lower value:
+
+- **Quote fidelity 100% → 74%.** The old measure counted a 0.88 similarity
+  match as verbatim. Under exact-only matching, 2 quotes are reworded and 5
+  could not be located at all. Those 7 are excluded from citation entirely,
+  so the report rests on 20 verified spans rather than 27 assumed ones.
+- **Citation integrity is no longer a quality signal.** It reads 100%
+  because the engine derives citations from already-resolved evidence. The
+  measurement that says something about the model is evidence integrity,
+  which happens to also be 100% here — the synthesiser referenced only
+  evidence that existed.
+
+And one number I did not expect:
+
+- **78% of evidence is cross-attributed** (21 of 27). Each source is shown
+  every open sub-question, so the extractor frequently finds something
+  relevant to a sub-question whose queries never retrieved that page. The
+  engine records this as `cross_attributed=True` with no query id rather
+  than borrowing an unrelated one. Provenance to the *source* is still
+  complete; the evidence→query link exists for the other 22%. This is
+  honest rather than good, and it is in [Limitations](#limitations).
+
+### Where the time goes
+
+`verify_citations` 166s · `synthesize` 145s · `generate_queries` 123s ·
+`plan_research` 104s · `assess_coverage` 22s · `analyze_query` 11s.
+Deduplication and source registration are ~1ms combined.
+
+Nearly all of it is local model inference. This is the measurement behind
+the hosted demo being cloud-only: a run this shape does not fit inside any
+reasonable web timeout on this hardware.
 
 ## What running on a 4B local model taught us
 
@@ -522,34 +580,32 @@ All measured on `qwen3:4b`. These findings shaped the design rather than
 merely describing it.
 
 **Prose instructions do not survive a small model; schema fields do.** The
-synthesis prompt asked for citation markers like `[S3]` in the claim text. The
-model produced a complete, well-organised report containing **zero** markers.
-Moving citations into a required `source_ids` schema field fixed it outright,
-same model and same question:
-
-| | prose markers | schema field |
-|---|---|---|
-| Citations emitted | 0 | 9 |
-| Citation validity | n/a | 100% |
+synthesis prompt asked for citation markers like `[S3]` in the claim text.
+The model produced a complete, well-organised report containing **zero**
+markers. Moving citations into a required schema field fixed it outright.
+That lesson generalised: claims now reference evidence ids as a schema
+field, and the engine derives everything else.
 
 > If a model must produce something reliably, put it in the schema, not the
 > instructions.
 
-**Quotation is reliable; judgement is not.** Asked to extract verbatim
-quotes, the model is accurate — 83% quote fidelity on one run and 30/30
-(100%) on the live run above. Asked to *judge* whether evidence entails a
-claim, it is much weaker: 33% and 60% support rates on those same two runs,
-grading its own report. Copying text is easy for a small model; deciding
-whether one sentence establishes another is not.
+**Quotation is good but not perfect, and the gap matters.** 74% of quotes
+were found verbatim; 7% were reworded and 19% could not be located. Under
+the old boolean check the reworded ones passed as verbatim. They are now
+excluded from citation, which is why the headline went down and the report
+got more trustworthy at the same time.
 
-That gap is the empirical basis for the hybrid split — extraction local,
-verification in the cloud — rather than an assumption about model size.
+**Local models do not parallelise.** Ollama serves one model largely
+serially, so fanning eight extraction calls at it produced queueing and
+read timeouts rather than throughput.
 
-**Local models do not parallelise.** Ollama serves one model largely serially.
-Fanning eight extraction calls at it produced queueing and read timeouts, not
-throughput — hence a separate concurrency limit for local providers.
+**Unbounded generation can hang.** Without an output cap, this model asked
+for a research plan ran past 240s. With one it is bounded, and completes in
+~108s through the router. Per-role caps now go to the provider.
 
----
+**It is too slow for a web demo.** Planning alone is 100-200s and a full
+run is ~18 minutes on this hardware. That is why the hosted demo runs
+cloud-only, and it was measured rather than assumed.
 
 ## Security
 
@@ -676,9 +732,12 @@ not have them.
 - **Quote fidelity is alignment against the copy we hold.** For a
   provider-supplied source that is the search provider's text, not an
   independently re-fetched page. `content_origin` records which.
-- **Cross-attributed evidence has no query provenance.** When a finding
-  answers a sub-question that no query for it retrieved, the chain stops at
-  the source. That is recorded honestly rather than filled in with an
+- **Cross-attributed evidence has no query provenance**, and it is the
+  common case: **78% in the measured run**. Each source is shown every open
+  sub-question, so the extractor often finds something relevant to a
+  sub-question whose queries never retrieved that page. Provenance to the
+  source is complete; the evidence→query link only exists for the rest.
+  Recorded as `cross_attributed=True` rather than filled in with an
   unrelated query.
 - **Entailment is judged by a model**, and in local mode by the same model
   that wrote the report. Treat the support figure as weak evidence.
