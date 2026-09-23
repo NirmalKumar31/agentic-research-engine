@@ -24,6 +24,11 @@ from agentic_research.config import Settings
 from agentic_research.models import ContentOrigin, FetchStatus
 from agentic_research.observability import get_logger
 from agentic_research.retrieval.parser import extract_main_text
+from agentic_research.retrieval.safety import (
+    UnresolvableHostError,
+    UnsafeURLError,
+    validate_url,
+)
 from agentic_research.retrieval.urls import domain_of
 
 log = get_logger(__name__)
@@ -68,8 +73,11 @@ class PageFetcher:
     way to get rate limited mid-run.
     """
 
-    def __init__(self, settings: Settings, *, per_host_limit: int = 2) -> None:
+    def __init__(
+        self, settings: Settings, *, per_host_limit: int = 2, max_redirects: int = 5
+    ) -> None:
         self.settings = settings
+        self._max_redirects = max_redirects
         self.stats = FetchStats()
         self._semaphore = asyncio.Semaphore(settings.max_parallel_fetches)
         self._per_host_limit = per_host_limit
@@ -81,8 +89,8 @@ class PageFetcher:
     async def __aenter__(self) -> PageFetcher:
         self._client = httpx.AsyncClient(
             timeout=httpx.Timeout(self.settings.fetch_timeout_seconds, connect=8.0),
-            follow_redirects=True,
-            max_redirects=5,
+            # Redirects are handled in _fetch_inner so each hop is revalidated.
+            follow_redirects=False,
             headers={
                 "User-Agent": self.settings.user_agent,
                 "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5",
@@ -114,6 +122,14 @@ class PageFetcher:
         async with self._semaphore, self._host_locks[host]:
             try:
                 result = await self._fetch_inner(url)
+            except UnresolvableHostError as exc:
+                # DNS failure, not a policy refusal. Reported as such so the
+                # BLOCKED count stays a meaningful security signal.
+                result = FetchResult(url=url, status=FetchStatus.HTTP_ERROR, error=exc.reason)
+            except UnsafeURLError as exc:
+                # Refused by the outbound policy before any connection.
+                log.warning("url_blocked", url=url[:120], reason=exc.reason)
+                result = FetchResult(url=url, status=FetchStatus.BLOCKED, error=exc.reason)
             except httpx.TimeoutException:
                 result = FetchResult(
                     url=url,
@@ -143,38 +159,76 @@ class PageFetcher:
         return result
 
     async def _fetch_inner(self, url: str) -> FetchResult:
+        """Follow redirects manually, revalidating every hop.
+
+        ``follow_redirects=True`` would let a public URL bounce the client
+        into a private address or the cloud metadata endpoint with no second
+        check, which is the standard SSRF redirect bypass.
+        """
+        current = url
+        for _ in range(self._max_redirects + 1):
+            validate_url(current)
+            result, redirect_to = await self._fetch_once(current)
+            if redirect_to is None:
+                return result
+            current = redirect_to
+        return FetchResult(
+            url=url,
+            final_url=current,
+            status=FetchStatus.HTTP_ERROR,
+            error=f"exceeded {self._max_redirects} redirects",
+        )
+
+    async def _fetch_once(self, url: str) -> tuple[FetchResult, str | None]:
+        """Issue one request.
+
+        Returns ``(result, next_url)``. ``next_url`` is set only for a
+        redirect, and the caller must revalidate it before following.
+        """
         assert self._client is not None
-        # Streamed so an oversized body can be abandoned partway rather than
-        # buffered in full first.
+
+        def failure(status: FetchStatus, error: str, **extra: object) -> tuple[FetchResult, None]:
+            return FetchResult(url=url, status=status, error=error, **extra), None  # type: ignore[arg-type]
+
         async with self._client.stream("GET", url) as response:
             final_url = str(response.url)
-            if response.status_code >= 400:
-                return FetchResult(
-                    url=url,
+            code = response.status_code
+
+            if response.is_redirect:
+                location = response.headers.get("location")
+                if not location:
+                    return failure(
+                        FetchStatus.HTTP_ERROR,
+                        "redirect without a location header",
+                        final_url=final_url,
+                        http_status=code,
+                    )
+                return FetchResult(url=url), str(response.url.join(location))
+
+            if code >= 400:
+                return failure(
+                    FetchStatus.HTTP_ERROR,
+                    f"HTTP {code}",
                     final_url=final_url,
-                    status=FetchStatus.HTTP_ERROR,
-                    http_status=response.status_code,
-                    error=f"HTTP {response.status_code}",
+                    http_status=code,
                 )
 
             content_type = response.headers.get("content-type", "").lower()
             if content_type and not any(t in content_type for t in _TEXTUAL_TYPES):
-                return FetchResult(
-                    url=url,
+                return failure(
+                    FetchStatus.UNSUPPORTED_TYPE,
+                    f"unsupported content-type: {content_type.split(';')[0]}",
                     final_url=final_url,
-                    status=FetchStatus.UNSUPPORTED_TYPE,
-                    http_status=response.status_code,
-                    error=f"unsupported content-type: {content_type.split(';')[0]}",
+                    http_status=code,
                 )
 
             declared = response.headers.get("content-length")
             if declared and declared.isdigit() and int(declared) > self.settings.max_page_bytes:
-                return FetchResult(
-                    url=url,
+                return failure(
+                    FetchStatus.TOO_LARGE,
+                    f"content-length {declared} exceeds cap",
                     final_url=final_url,
-                    status=FetchStatus.TOO_LARGE,
-                    http_status=response.status_code,
-                    error=f"content-length {declared} exceeds cap",
+                    http_status=code,
                 )
 
             chunks: list[bytes] = []
@@ -184,13 +238,12 @@ class PageFetcher:
                 if total > self.settings.max_page_bytes:
                     # Servers lie about or omit content-length, so the cap is
                     # also enforced against bytes actually received.
-                    return FetchResult(
-                        url=url,
+                    return failure(
+                        FetchStatus.TOO_LARGE,
+                        f"body exceeded {self.settings.max_page_bytes} bytes",
                         final_url=final_url,
-                        status=FetchStatus.TOO_LARGE,
-                        http_status=response.status_code,
+                        http_status=code,
                         bytes_read=total,
-                        error=f"body exceeded {self.settings.max_page_bytes} bytes",
                     )
                 chunks.append(chunk)
 
@@ -205,20 +258,23 @@ class PageFetcher:
         if not text.strip():
             # Usually a JavaScript-rendered page or an interstitial. Headless
             # rendering would fix some of these and is out of scope.
-            return FetchResult(
-                url=url,
+            return failure(
+                FetchStatus.EMPTY,
+                "no extractable text",
                 final_url=final_url,
-                status=FetchStatus.EMPTY,
-                http_status=response.status_code,
+                http_status=code,
                 bytes_read=total,
-                error="no extractable text",
             )
 
-        return FetchResult(
-            url=url,
-            final_url=final_url,
-            status=FetchStatus.OK,
-            text=text,
-            http_status=response.status_code,
-            bytes_read=total,
+        return (
+            FetchResult(
+                url=url,
+                final_url=final_url,
+                status=FetchStatus.OK,
+                text=text,
+                http_status=code,
+                bytes_read=total,
+                content_origin=ContentOrigin.HTML_FETCH,
+            ),
+            None,
         )

@@ -233,6 +233,8 @@ class FetchStatus(StrEnum):
     TIMEOUT = "timeout"
     TOO_LARGE = "too_large"
     UNSUPPORTED_TYPE = "unsupported_type"
+    BLOCKED = "blocked"
+    """Refused by the outbound URL policy before any connection was made."""
     EMPTY = "empty"
     ERROR = "error"
 
