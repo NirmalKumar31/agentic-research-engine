@@ -392,6 +392,190 @@ def compare_models(
     console.print(f"[dim]Written to {output}[/dim]")
 
 
+# Metrics reported as shares rather than counts, so the table formats them as
+# percentages instead of printing 0.7391.
+_RATE_METRICS = frozenset(
+    {
+        "quote_fidelity",
+        "quote_drift",
+        "cross_attribution_rate",
+        "citable_cross_attribution_rate",
+        "evidence_coverage",
+        "sub_questions_with_citable_evidence",
+        "source_utilisation",
+    }
+)
+
+_ATTRIBUTION_ROWS = (
+    ("evidence_items", "evidence items"),
+    ("citable_items", "citable items"),
+    ("quote_fidelity", "quote fidelity"),
+    ("cross_attribution_rate", "cross-attributed"),
+    ("citable_cross_attribution_rate", "cross-attributed (citable)"),
+    ("evidence_coverage", "evidence coverage"),
+    ("sub_questions_with_citable_evidence", "sub-questions answered"),
+    ("source_utilisation", "sources earning their fetch"),
+    ("mean_sub_questions_shown", "mean sub-questions shown"),
+    ("extraction_calls", "extraction calls"),
+    ("input_tokens", "input tokens"),
+    ("output_tokens", "output tokens"),
+    ("known_cost_usd", "cost"),
+    ("duration_s", "duration (s)"),
+)
+
+
+def _format_measurement(name: str, value: float) -> str:
+    if name in _RATE_METRICS:
+        return f"{value:.1%}"
+    if name == "known_cost_usd":
+        return f"${value:.4f}"
+    if float(value).is_integer():
+        return f"{int(value):,}"
+    return f"{value:,.2f}"
+
+
+def _attribution_cell(name: str, aggregate: dict) -> str:
+    """One table cell: the mean, with the observed range when repeats differ."""
+    entry = aggregate.get(name)
+    if not isinstance(entry, dict):
+        return "n/a"
+    text = _format_measurement(name, entry["mean"])
+    if entry["n"] > 1 and entry["min"] != entry["max"]:
+        low = _format_measurement(name, entry["min"])
+        high = _format_measurement(name, entry["max"])
+        text = f"{text} [{low}..{high}]"
+    return text
+
+
+@app.command("attribution")
+def attribution_experiment(
+    corpus_path: Annotated[Path, typer.Argument(help="Corpus produced by `freeze`.")] = Path(
+        "evaluations/corpus.json"
+    ),
+    strategy: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--strategy",
+            "-s",
+            help="all_open, retrieved_only or adjacent. Repeatable; default is all three.",
+        ),
+    ] = None,
+    repeats: Annotated[
+        int, typer.Option("--repeats", "-r", help="Passes per strategy. One pass is one draw.")
+    ] = 1,
+    adjacent_k: Annotated[
+        int, typer.Option("--adjacent-k", help="Extra nearest sub-questions for `adjacent`.")
+    ] = 2,
+    allow_cloud: Annotated[
+        bool, typer.Option("--allow-cloud", help="Accept paid extraction calls.")
+    ] = False,
+    output: Annotated[Path, typer.Option("--output", "-o")] = Path("evaluations/attribution.json"),
+) -> None:
+    """Measure what narrowing extraction costs in evidence and coverage.
+
+    Re-extracts from a frozen corpus under each strategy, varying only the
+    sub-questions the extractor is shown. Free on a local model; refuses to
+    run on a cloud one unless `--allow-cloud` is passed, because one pass is
+    one call per source and three strategies multiply that quietly.
+    """
+    from agentic_research.evaluation.ab import EvidenceCorpus
+    from agentic_research.evaluation.attribution import (
+        CloudSpendRefused,
+        Strategy,
+        UnusableCorpusError,
+        run_experiment,
+        validate_corpus_for_extraction,
+    )
+
+    if not corpus_path.is_file():
+        _fail(f"No corpus at {corpus_path}", "Create one with `agentic-research freeze`.")
+        return
+
+    try:
+        chosen = [Strategy(name.strip()) for name in strategy] if strategy else list(Strategy)
+    except ValueError as exc:
+        _fail(str(exc), f"Valid strategies: {', '.join(s.value for s in Strategy)}")
+        return
+
+    settings = _load_settings()
+    configure_logging("WARNING", settings.log_format)
+    corpus = EvidenceCorpus.load(corpus_path)
+
+    problems = validate_corpus_for_extraction(corpus)
+    if problems:
+        _fail(
+            "This corpus cannot support the experiment:\n  - " + "\n  - ".join(problems),
+            "A comparison run on it would produce zeros that read like findings.",
+        )
+        return
+
+    console.print(f"Corpus: {corpus.summary()}")
+    console.print(f"Question: {corpus.question}")
+    console.print(
+        f"Strategies: {', '.join(f'{s.letter}={s.value}' for s in chosen)} | {repeats} repeat(s)\n"
+    )
+
+    try:
+        experiment = asyncio.run(
+            run_experiment(
+                corpus,
+                settings,
+                strategies=chosen,
+                repeats=repeats,
+                adjacent_k=adjacent_k,
+                allow_cloud=allow_cloud,
+            )
+        )
+    except CloudSpendRefused as exc:
+        _fail(str(exc))
+        return
+    except UnusableCorpusError as exc:
+        _fail(str(exc))
+        return
+
+    table = Table(
+        title=f"Extraction strategy comparison ({experiment.eligible_sources} shared sources)",
+        show_header=True,
+    )
+    table.add_column("Metric")
+    for item in chosen:
+        table.add_column(f"{item.letter}  {item.value}", justify="right")
+
+    aggregates = {item.value: experiment.aggregate(item) for item in chosen}
+    for name, label in _ATTRIBUTION_ROWS:
+        table.add_row(label, *[_attribution_cell(name, aggregates[i.value]) for i in chosen])
+    console.print(table)
+
+    if experiment.excluded_sources:
+        console.print(
+            f"[dim]{len(experiment.excluded_sources)} source(s) excluded from every arm: "
+            "no discovery path, so B and C would have had nothing to show them.[/dim]"
+        )
+    if repeats == 1:
+        console.print(
+            "[yellow]One pass per strategy is one draw from a sampling model. "
+            "Use -r 3 or more before reading a difference as real.[/yellow]"
+        )
+    if experiment.breaches:
+        # A breach means the harness measured something other than what it
+        # claims, so the table above should not be read at all.
+        console.print("\n[bold red]Invariant breached — do not trust these numbers:[/bold red]")
+        for breach in experiment.breaches:
+            console.print(f"  [red]- {breach}[/red]")
+
+    console.print(
+        "\n[dim]`retrieved_only` reaches 0% cross-attribution by construction. "
+        "What the table measures is what that costs.[/dim]"
+    )
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(experiment.to_dict(), indent=2, default=str), encoding="utf-8")
+    console.print(f"[dim]Written to {output}[/dim]")
+
+    if experiment.breaches:
+        raise typer.Exit(code=2)
+
+
 @app.command("graph")
 def show_graph(
     output: Annotated[
