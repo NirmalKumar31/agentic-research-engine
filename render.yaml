@@ -20,7 +20,22 @@ services:
     autoDeploy: false
 
     envVars:
-      # --- secrets: set in the dashboard, never committed ---------------
+      # --- live research is off, and that is the point ------------------
+      # The daily run cap lives in process memory. A free instance spins
+      # down when idle, and every cold start resets it, so it cannot bound
+      # a 50-request/day account quota. Per-run request and spend ceilings
+      # still hold; the cross-restart daily budget does not. The site
+      # therefore serves recorded runs, which costs nothing and cannot be
+      # exhausted. Enabling this without a persistent atomic quota store
+      # means handing the API budget to anyone who finds the URL.
+      - key: LIVE_RESEARCH_ENABLED
+        value: "false"
+
+      # --- secrets: not required while live research is off -------------
+      # Left declared so enabling live mode later is a dashboard change
+      # rather than a blueprint edit. Render prompts for these and accepts
+      # them being left empty; the replay site needs neither, and a deploy
+      # must not fail on a secret it never uses.
       - key: TAVILY_API_KEY
         sync: false
       - key: OPENAI_API_KEY
@@ -29,10 +44,14 @@ services:
       # --- hosted demo posture ------------------------------------------
       - key: DEMO_MODE
         value: "true"
-      # Cloud-only: there is no Ollama on a free instance, and pretending
-      # otherwise would fail preflight on the first request.
+      # No model is used while the service only replays recordings, and
+      # LLM_MODE=cloud would refuse to start without OPENAI_API_KEY --
+      # failing the deploy on a credential the replay site never touches.
+      # Set this to `cloud` at the same time as LIVE_RESEARCH_ENABLED=true,
+      # never separately: there is no Ollama on a free instance, so `local`
+      # plus live research would fail preflight on the first request.
       - key: LLM_MODE
-        value: cloud
+        value: local
       # Start on the cheap model. Validate cost before considering Sol.
       - key: OPENAI_MODEL
         value: gpt-6-luna
