@@ -94,19 +94,67 @@ class TestGitState:
             assert state["short_commit"] == state["commit"][:8]
             assert isinstance(state["dirty"], bool)
 
-    def test_absent_git_is_reported_not_guessed(self) -> None:
+    def test_absent_git_is_reported_not_guessed(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """An installed wheel has no repository; saying so beats inventing
         a commit."""
         import agentic_research.provenance as provenance
 
-        original = provenance._git
-        provenance._git = lambda *args: None  # type: ignore[assignment]
+        monkeypatch.setattr(provenance, "_git", lambda *args: None)
+        for name in provenance._COMMIT_ENV_VARS:
+            monkeypatch.delenv(name, raising=False)
+        git_state.cache_clear()
         try:
             state = git_state()
         finally:
-            provenance._git = original  # type: ignore[assignment]
+            git_state.cache_clear()
         assert state["commit"] == "unavailable"
         assert state["dirty"] is None
+
+    def test_a_deployed_image_reports_its_build_commit(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The container ships no git binary and no .git, so without this
+        fallback every deployed instance would report "unavailable" -- the
+        one place the commit is actually needed."""
+        import agentic_research.provenance as provenance
+
+        monkeypatch.setattr(provenance, "_git", lambda *args: None)
+        for name in provenance._COMMIT_ENV_VARS:
+            monkeypatch.delenv(name, raising=False)
+        monkeypatch.setenv("RENDER_GIT_COMMIT", "abcdef1234567890")
+        git_state.cache_clear()
+        try:
+            state = git_state()
+        finally:
+            git_state.cache_clear()
+        assert state["commit"] == "abcdef1234567890"
+        assert state["short_commit"] == "abcdef12"
+        # No working tree in an image, so this is known-clean rather than
+        # unknown.
+        assert state["dirty"] is False
+
+    def test_git_state_is_cached_so_health_checks_are_cheap(self) -> None:
+        """/api/health calls this on every probe; it was spawning a git
+        subprocess each time."""
+        import agentic_research.provenance as provenance
+
+        git_state.cache_clear()
+        calls: list[tuple[str, ...]] = []
+        original = provenance._git
+
+        def counting(*args: str) -> str | None:
+            calls.append(args)
+            return original(*args)
+
+        provenance._git = counting  # type: ignore[assignment]
+        try:
+            git_state()
+            first = len(calls)
+            git_state()
+            assert len(calls) == first, "second call re-shelled out to git"
+        finally:
+            provenance._git = original  # type: ignore[assignment]
+            git_state.cache_clear()
 
 
 class TestCaptureBlock:

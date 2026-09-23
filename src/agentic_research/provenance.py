@@ -17,10 +17,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+
+# Deployment platforms expose the built commit as an environment variable.
+# Render sets RENDER_GIT_COMMIT itself; GIT_COMMIT is the build arg this
+# repository's own image uses.
+_COMMIT_ENV_VARS = ("GIT_COMMIT", "RENDER_GIT_COMMIT", "SOURCE_COMMIT")
 
 # Bumped by hand when the *meaning* of an evaluation metric changes, which
 # no hash can detect: renaming citation_validity to citation_integrity and
@@ -94,23 +100,49 @@ def _git(*args: str) -> str | None:
     return result.stdout.strip()
 
 
+@lru_cache(maxsize=1)
 def git_state() -> dict[str, Any]:
     """Commit the measurement came from, and whether the tree was dirty.
 
     A dirty tree means the commit does not describe what actually ran, so
-    the flag matters as much as the SHA. Absent git (an installed wheel,
-    say) is reported rather than guessed at.
+    the flag matters as much as the SHA.
+
+    Cached, for two reasons. It describes the code this process loaded,
+    which cannot change while the process runs -- re-deriving it could
+    report a commit that is not the one executing. And ``/api/health``
+    calls it on every probe, which was spawning a git subprocess per
+    health check.
+
+    Falls back to the platform's commit variable when there is no
+    repository. The container is built from a wheel with ``.git``
+    excluded and ships no git binary, so the subprocess path *always*
+    fails there -- and reporting "unavailable" on the deployed instance
+    defeats the entire point of carrying the commit.
     """
     sha = _git("rev-parse", "HEAD")
-    if sha is None:
-        return {"commit": "unavailable", "dirty": None, "branch": None}
-    status = _git("status", "--porcelain")
-    return {
-        "commit": sha,
-        "short_commit": sha[:8],
-        "dirty": bool(status) if status is not None else None,
-        "branch": _git("rev-parse", "--abbrev-ref", "HEAD"),
-    }
+    if sha:
+        status = _git("status", "--porcelain")
+        return {
+            "commit": sha,
+            "short_commit": sha[:8],
+            "dirty": bool(status) if status is not None else None,
+            "branch": _git("rev-parse", "--abbrev-ref", "HEAD"),
+        }
+
+    for name in _COMMIT_ENV_VARS:
+        value = os.environ.get(name, "").strip()
+        if value:
+            return {
+                "commit": value,
+                "short_commit": value[:8],
+                # An image built from a commit has no working tree to be
+                # dirty, so this is false by construction rather than
+                # unknown.
+                "dirty": False,
+                "branch": os.environ.get("RENDER_GIT_BRANCH") or None,
+                "source": name,
+            }
+    return {"commit": "unavailable", "dirty": None, "branch": None}
 
 
 def config_fingerprint(settings: Any) -> str:

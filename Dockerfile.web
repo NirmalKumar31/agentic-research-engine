@@ -50,6 +50,15 @@ COPY --from=frontend /build/dist ./web/dist
 
 USER researcher
 
+# The image is built from a wheel with .git excluded and ships no git
+# binary, so the running service cannot discover its own commit. Bake it
+# in, or /api/health reports "unavailable" on exactly the instance whose
+# identity matters most. Render populates RENDER_GIT_COMMIT itself; this
+# arg covers a plain `docker build`:
+#   docker build -f Dockerfile.web --build-arg GIT_COMMIT=$(git rev-parse HEAD) .
+ARG GIT_COMMIT=""
+ENV GIT_COMMIT=$GIT_COMMIT
+
 ENV PYTHONUNBUFFERED=1 \
     LOG_FORMAT=json \
     DEMO_MODE=true \
