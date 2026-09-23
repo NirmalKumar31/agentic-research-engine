@@ -224,7 +224,9 @@ export default function App() {
             >
               Run it locally
             </a>{" "}
-            for live research — it works offline against Ollama with no API key.
+            for live research: the models can run on Ollama with no paid LLM
+            API usage, though live web research still needs a search provider
+            such as Tavily configured.
           </p>
         </section>
       )}

@@ -377,27 +377,14 @@ preflight on the first request.
 
 #### Cold starts
 
-Render's free tier spins a service down after ~15 minutes idle, and the
-next visitor waits 30–60s for it to wake. For a link someone follows once,
-from a CV or a message, that is the difference between a demo and a blank
-page.
+Render's free tier spins a service down after inactivity, so the first
+visit after a quiet period takes roughly a minute while the service wakes.
+That is the platform behaving as designed, not a fault to work around.
 
-A free uptime monitor pinging `/api/health` every 10 minutes keeps it warm:
-
-| Setting | Value |
-|---|---|
-| URL | `https://<your-service>.onrender.com/api/health` |
-| Interval | 10 minutes (must be under Render's ~15 minute idle window) |
-| Method | `GET`, expect HTTP 200 |
-
-[UptimeRobot](https://uptimerobot.com) and
-[cron-job.org](https://cron-job.org) both do this on a free plan. The
-endpoint is deliberately cheap — no model, no search, no credentials — so
-pinging it costs nothing but the instance-hours.
-
-Render's free tier includes 750 instance-hours per month and a
-continuously-warm service uses roughly 730, so one always-on service fits.
-A second service would not.
+Replay mode is what makes it acceptable: the request that wakes the
+service spends no OpenAI and no Tavily credit, so a cold start costs
+latency and nothing else. If always-on matters, the answer is a paid
+instance rather than synthetic traffic.
 
 #### Why the public site replays instead of running live
 

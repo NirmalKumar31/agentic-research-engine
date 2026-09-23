@@ -1,13 +1,19 @@
-# Render blueprint for the hosted demo.
+# Render blueprint for the public replay demo.
 #
-# Secrets are NOT in this file. TAVILY_API_KEY and OPENAI_API_KEY are set as
-# secret environment variables in the Render dashboard; sync:false below
-# tells Render to prompt for them rather than expecting a value here.
+# This Blueprint declares NO secrets, and needs none. The public site is
+# replay-only: it serves research runs recorded earlier and committed
+# inside the package, so it calls no model and no search provider. There is
+# deliberately no TAVILY_API_KEY or OPENAI_API_KEY entry here -- every
+# sync:false variable prompts for a value at Blueprint creation, which
+# would demand two credentials for a site that uses neither.
 #
 # Free instances have limited CPU and RAM, spin down when idle and use an
-# ephemeral filesystem. This is configured as a portfolio demo, not
-# production infrastructure: no persistence, in-memory checkpointing, and
-# no local model server.
+# ephemeral filesystem. A cold start after inactivity takes roughly a
+# minute. Replay makes that cheap rather than merely tolerable: the request
+# that wakes the service spends no API credit at all.
+#
+# This is a portfolio demo, not production infrastructure: no persistence,
+# in-memory checkpointing, and no local model server.
 
 services:
   - type: web
