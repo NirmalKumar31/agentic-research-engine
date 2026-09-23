@@ -272,10 +272,15 @@ class TestRecordedExamplesNeedNoCredentials:
 
 
 class TestExampleIdsAreSafe:
-    @pytest.mark.parametrize("bad", ["Example-Run", "", "a" * 200, "run;rm -rf /"])
+    @pytest.mark.parametrize("bad", ["Example-Run", "a" * 200, "run;rm -rf /"])
     def test_a_malformed_id_under_api_is_a_json_404(self, client: Any, bad: str) -> None:
         """Stays under /api after URL normalisation, so it must come back as
-        a JSON 404 rather than falling through to the SPA shell."""
+        a JSON 404 rather than falling through to the SPA shell.
+
+        The empty string is deliberately absent: ``/api/examples/`` is the
+        collection's trailing-slash form, not an invalid id. Asserting 404
+        for it demanded the collection break. See TestTheCollectionRoute.
+        """
         response = client.get(f"/api/examples/{bad}")
         assert response.status_code in (400, 404)
         assert response.headers["content-type"].startswith("application/json")
@@ -297,11 +302,6 @@ class TestExampleIdsAreSafe:
         assert response.status_code == 404
         assert response.headers["content-type"].startswith("application/json")
 
-    def test_the_spa_still_serves_frontend_routes(self, client: Any) -> None:
-        """The catch-all must keep working for everything that is not /api."""
-        response = client.get("/some/client/route")
-        assert response.status_code == 200
-
     def test_traversal_cannot_read_a_file_outside_the_directory(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -317,6 +317,94 @@ class TestExampleIdsAreSafe:
         assert not recordings.valid_id("has_underscore")
         assert not recordings.valid_id("has space")
         assert not recordings.valid_id("../x")
+
+
+class TestTheCollectionRoute:
+    """``/api/examples/`` is the collection, not an empty example id.
+
+    That distinction is why an earlier malformed-id test was wrong, and the
+    trailing-slash form once behaved differently depending on whether a
+    frontend build happened to exist.
+    """
+
+    def test_the_collection_returns_the_listing(self, client: Any) -> None:
+        response = client.get("/api/examples")
+        assert response.status_code == 200
+        assert response.json()["examples"][0]["id"] == "example-run"
+
+    def test_the_trailing_slash_form_reaches_the_same_collection(self, client: Any) -> None:
+        response = client.get("/api/examples/")
+        assert response.status_code == 200
+        assert response.json()["examples"][0]["id"] == "example-run"
+
+    def test_the_trailing_slash_redirects_rather_than_404s(self, client: Any) -> None:
+        """Starlette's redirect must survive. A catch-all route matches every
+        path and suppresses it, which is exactly how this broke."""
+        response = client.get("/api/examples/", follow_redirects=False)
+        assert response.status_code == 307
+        assert response.headers["location"].endswith("/api/examples")
+
+
+class TestRoutingIsIdenticalWithAndWithoutAFrontendBuild:
+    """The Python CI job never builds the frontend, so ``web/dist`` is absent
+    there and present locally.
+
+    Two tests once passed locally and failed in CI for precisely that
+    reason. These fix the frontend state explicitly rather than inheriting
+    whatever the working tree happens to contain.
+    """
+
+    @pytest.fixture
+    def built_frontend(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+        dist = tmp_path / "web" / "dist"
+        (dist / "assets").mkdir(parents=True)
+        (dist / "index.html").write_text("<!doctype html><title>app</title>", encoding="utf-8")
+        (dist / "favicon.svg").write_text("<svg/>", encoding="utf-8")
+        monkeypatch.setattr("agentic_research.web.api._FRONTEND_DIST", dist)
+        return dist
+
+    @pytest.fixture
+    def no_frontend(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+        missing = tmp_path / "absent"
+        monkeypatch.setattr("agentic_research.web.api._FRONTEND_DIST", missing)
+        return missing
+
+    def test_with_a_build_a_client_route_gets_the_app_shell(self, built_frontend: Path) -> None:
+        with TestClient(create_app(_settings())) as client:
+            response = client.get("/some/client/route")
+        assert response.status_code == 200
+        assert "<title>app</title>" in response.text
+
+    def test_with_a_build_a_real_static_file_is_served(self, built_frontend: Path) -> None:
+        with TestClient(create_app(_settings())) as client:
+            assert client.get("/favicon.svg").status_code == 200
+
+    def test_with_a_build_unknown_api_paths_are_still_json(self, built_frontend: Path) -> None:
+        with TestClient(create_app(_settings())) as client:
+            unknown = client.get("/api/does-not-exist")
+            bad_id = client.get("/api/examples/Not-Valid")
+            collection = client.get("/api/examples/")
+        assert unknown.status_code == 404
+        assert unknown.headers["content-type"].startswith("application/json")
+        assert bad_id.status_code == 404
+        assert bad_id.headers["content-type"].startswith("application/json")
+        # The collection resolves whether or not a build exists.
+        assert collection.status_code == 200
+
+    def test_without_a_build_nothing_pretends_to_serve_a_frontend(self, no_frontend: Path) -> None:
+        with TestClient(create_app(_settings())) as client:
+            client_route = client.get("/some/client/route")
+            collection = client.get("/api/examples/")
+        assert client_route.status_code == 404
+        assert client_route.headers["content-type"].startswith("application/json")
+        assert collection.status_code == 200
+
+    def test_a_traversal_outside_the_build_is_refused(self, built_frontend: Path) -> None:
+        secret = built_frontend.parent.parent / "secret.txt"
+        secret.write_text("TOP SECRET", encoding="utf-8")
+        with TestClient(create_app(_settings())) as client:
+            response = client.get("/../../secret.txt")
+        assert "TOP SECRET" not in response.text
 
 
 class TestRecordingsAreSanitised:

@@ -22,7 +22,7 @@ from typing import Any
 
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -303,22 +303,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             name="assets",
         )
 
-        @app.get("/{full_path:path}")
-        async def spa(full_path: str) -> Any:
-            """Serve the built frontend, falling back to index for routes.
+    @app.exception_handler(404)
+    async def not_found(request: Request, exc: Exception) -> Response:
+        """Client-side routes get the app shell; unknown API paths get JSON.
 
-            Anything under /api is excluded. Without that, an unknown or
-            mistyped API path returns the SPA shell with 200 -- so a client
-            cannot tell a missing endpoint from a working one, and a route
-            removed in future silently starts serving HTML to callers
-            expecting JSON.
-            """
-            if full_path == "api" or full_path.startswith("api/"):
-                return JSONResponse({"error": "Not found."}, status_code=404)
-            candidate = (_FRONTEND_DIST / full_path).resolve()
-            if full_path and candidate.is_file() and _FRONTEND_DIST.resolve() in candidate.parents:
-                return FileResponse(candidate)
-            return FileResponse(_FRONTEND_DIST / "index.html")
+        Deliberately a 404 handler rather than a catch-all ``/{path:path}``
+        route. A catch-all *matches* every request, which suppresses
+        Starlette's trailing-slash redirect -- so ``/api/examples/`` became
+        a 404 when the frontend was built and a 307 to the collection when
+        it was not. Same service, two behaviours, decided by whether a
+        build directory happened to exist. Running after routing has
+        already failed keeps redirects intact and keeps this path identical
+        in both cases.
+        """
+        path = request.url.path
+        if path == "/api" or path.startswith("/api/"):
+            # A missing endpoint must not answer with the SPA shell, or a
+            # caller cannot tell it apart from a working one.
+            return JSONResponse({"error": "Not found."}, status_code=404)
+        if not _FRONTEND_DIST.is_dir():
+            return JSONResponse({"error": "Not found."}, status_code=404)
+
+        root = _FRONTEND_DIST.resolve()
+        candidate = (_FRONTEND_DIST / path.lstrip("/")).resolve()
+        if path.strip("/") and candidate.is_file() and root in candidate.parents:
+            return FileResponse(candidate)
+        return FileResponse(_FRONTEND_DIST / "index.html")
 
     return app
 
