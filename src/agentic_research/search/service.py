@@ -36,6 +36,15 @@ class SearchProviderNotConfigured(Exception):
     pass
 
 
+class SearchBudgetExceeded(Exception):
+    """The run would exceed its search credit ceiling.
+
+    Search is metered in provider credits, which are money. Checked before
+    dispatch using the credits this specific call would consume, so a
+    configured ceiling is never silently passed.
+    """
+
+
 def build_provider(settings: Settings) -> SearchProvider:
     """Instantiate the configured provider.
 
@@ -138,6 +147,23 @@ class SearchService:
             raise RuntimeError("SearchService must be used as an async context manager")
 
         options = self.options_for(query)
+        cost = self.provider.credits_for(options)
+        ceiling = self.settings.max_search_credits
+        # 0 means unlimited, matching the cloud budget convention.
+        if ceiling and self.stats.credits + cost > ceiling:
+            log.warning(
+                "search_budget_exhausted",
+                spent=self.stats.credits,
+                ceiling=ceiling,
+                query_id=query.id,
+            )
+            return self._failure(
+                query,
+                f"search credit budget exhausted ({self.stats.credits:g} of "
+                f"{ceiling:g} used); raise MAX_SEARCH_CREDITS",
+                time.perf_counter(),
+            )
+
         started = time.perf_counter()
 
         async with self._semaphore:

@@ -11,7 +11,7 @@ import asyncio
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from agentic_research.config import ModelRole, ModelSpec, Provider
+from agentic_research.config import CloudBudget, ModelRole, ModelSpec, Provider
 from agentic_research.llm.pricing import get_price
 
 
@@ -59,7 +59,27 @@ class StructuredOutputError(LLMError):
 
 
 class BudgetExceededError(LLMError):
-    """The run hit its hard ceiling on model calls."""
+    """The run hit a hard ceiling on model calls."""
+
+
+class CloudBudgetExceededError(BudgetExceededError):
+    """A paid-provider ceiling would be exceeded by the next call.
+
+    Raised *before* dispatch, using the worst case that call could cost, so a
+    configured spend limit is never silently passed. Distinct from the plain
+    call ceiling because the remedy differs: one is a throughput limit, the
+    other is money.
+    """
+
+    def __init__(self, dimension: str, spent: float, ceiling: float) -> None:
+        self.dimension = dimension
+        self.spent = spent
+        self.ceiling = ceiling
+        super().__init__(
+            f"cloud {dimension} budget would be exceeded: {spent:g} of {ceiling:g} "
+            f"already committed. Raise MAX_CLOUD_{dimension.upper()} or use "
+            "LLM_MODE=local."
+        )
 
 
 @dataclass(slots=True)
@@ -114,28 +134,83 @@ class UsageTotals:
 
 
 class UsageTracker:
-    """Accumulates call records and enforces the call ceiling.
+    """Accumulates call records and enforces call and spend ceilings.
 
     Parallel workers call this concurrently. ``reserve`` is the only
     read-modify-write path, so it is the only one that needs the lock;
     ``list.append`` is already atomic.
     """
 
-    def __init__(self, max_calls: int) -> None:
+    def __init__(self, max_calls: int, cloud_budget: CloudBudget | None = None) -> None:
         self._max_calls = max_calls
+        self._cloud = cloud_budget
         self._reserved = 0
+        self._cloud_reserved = 0
         self._lock = asyncio.Lock()
         self.records: list[LLMCallRecord] = []
 
-    async def reserve(self) -> None:
-        """Claim one call slot, or refuse."""
+    async def reserve(
+        self,
+        provider: Provider | None = None,
+        *,
+        role: ModelRole | None = None,
+        model: str | None = None,
+        estimated_input_tokens: int = 0,
+    ) -> None:
+        """Claim one call slot, or refuse.
+
+        For cloud providers this also pre-checks every spend dimension using
+        the worst case the call could cost: already-committed usage plus the
+        role's output ceiling. Checking after the fact would mean discovering
+        the overspend on the invoice.
+        """
         async with self._lock:
             if self._reserved >= self._max_calls:
                 raise BudgetExceededError(
                     f"LLM call budget exhausted ({self._max_calls} calls). "
                     "Raise MAX_LLM_CALLS or narrow the question."
                 )
+            if provider is Provider.OPENAI and self._cloud is not None:
+                self._check_cloud_locked(role, model, estimated_input_tokens)
+                self._cloud_reserved += 1
             self._reserved += 1
+
+    def _check_cloud_locked(
+        self, role: ModelRole | None, model: str | None, estimated_input_tokens: int
+    ) -> None:
+        """Caller must hold the lock. A ceiling of 0 means unlimited."""
+        budget = self._cloud
+        assert budget is not None
+        spent = self.totals()
+
+        if budget.max_cloud_calls and self._cloud_reserved >= budget.max_cloud_calls:
+            raise CloudBudgetExceededError("calls", self._cloud_reserved, budget.max_cloud_calls)
+
+        cloud_input = sum(r.input_tokens for r in self.records if r.provider is Provider.OPENAI)
+        cloud_output = sum(r.output_tokens for r in self.records if r.provider is Provider.OPENAI)
+        output_cap = (budget.output_cap_for(role.value) if role is not None else None) or 2_000
+
+        if budget.max_cloud_input_tokens and (
+            cloud_input + estimated_input_tokens > budget.max_cloud_input_tokens
+        ):
+            raise CloudBudgetExceededError(
+                "input_tokens", cloud_input, budget.max_cloud_input_tokens
+            )
+        if budget.max_cloud_output_tokens and (
+            cloud_output + output_cap > budget.max_cloud_output_tokens
+        ):
+            raise CloudBudgetExceededError(
+                "output_tokens", cloud_output, budget.max_cloud_output_tokens
+            )
+
+        if budget.max_cloud_cost_usd and model:
+            price = get_price(Provider.OPENAI, model)
+            if price is not None:
+                worst_case = price.cost(estimated_input_tokens, output_cap)
+                if spent.known_cost_usd + worst_case > budget.max_cloud_cost_usd:
+                    raise CloudBudgetExceededError(
+                        "cost_usd", spent.known_cost_usd, budget.max_cloud_cost_usd
+                    )
 
     async def remaining(self) -> int:
         async with self._lock:

@@ -97,6 +97,31 @@ class ModelSpec(BaseModel):
         return f"{self.provider.value}:{self.model}"
 
 
+class CloudBudget(BaseModel):
+    """Hard ceilings on money and paid capacity for a single run.
+
+    Separate from :class:`RunBudget` because the units are different and the
+    consequences are different: exceeding a round limit wastes time, while
+    exceeding a spend limit costs money that cannot be reclaimed. These apply
+    only to cloud providers; local inference is unmetered here.
+
+    Checked before dispatch using the worst case a call could cost, so a
+    configured ceiling is never silently exceeded.
+    """
+
+    model_config = {"frozen": True}
+
+    max_cloud_calls: int = Field(ge=0)
+    max_cloud_input_tokens: int = Field(ge=0)
+    max_cloud_output_tokens: int = Field(ge=0)
+    max_cloud_cost_usd: float = Field(ge=0.0)
+    max_search_credits: float = Field(ge=0.0)
+    max_output_tokens_per_call: dict[str, int] = Field(default_factory=dict)
+
+    def output_cap_for(self, role: str) -> int | None:
+        return self.max_output_tokens_per_call.get(role)
+
+
 class RunBudget(BaseModel):
     """Hard ceilings for a single research run.
 
@@ -144,6 +169,24 @@ class Settings(BaseSettings):
     verifier_model: str | None = None
 
     allow_cloud_fallback: bool = False
+
+    # --- cloud spend ceilings -------------------------------------------
+    # Zero disables a dimension rather than meaning "no spend allowed";
+    # an explicitly zero-budget run would be indistinguishable from an
+    # unconfigured one, so `0` is read as unlimited and documented as such.
+    max_cloud_calls: int = Field(default=40, ge=0)
+    max_cloud_input_tokens: int = Field(default=400_000, ge=0)
+    max_cloud_output_tokens: int = Field(default=60_000, ge=0)
+    max_cloud_cost_usd: float = Field(default=0.50, ge=0.0)
+    max_search_credits: float = Field(default=50.0, ge=0.0)
+
+    # Per-role output ceilings. Synthesis legitimately needs room; a query
+    # writer emitting 4k tokens is a malfunction, not a long answer.
+    max_output_tokens_planner: int = Field(default=2_000, ge=64)
+    max_output_tokens_researcher: int = Field(default=1_500, ge=64)
+    max_output_tokens_critic: int = Field(default=1_500, ge=64)
+    max_output_tokens_synthesizer: int = Field(default=6_000, ge=64)
+    max_output_tokens_verifier: int = Field(default=400, ge=64)
 
     llm_temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     llm_timeout_seconds: float = Field(default=180.0, gt=0)
@@ -271,6 +314,23 @@ class Settings(BaseSettings):
         for role, override in self._role_overrides().items():
             resolved[role] = ModelSpec.parse(override) if override else self._default_spec(role)
         return resolved
+
+    @property
+    def cloud_budget(self) -> CloudBudget:
+        return CloudBudget(
+            max_cloud_calls=self.max_cloud_calls,
+            max_cloud_input_tokens=self.max_cloud_input_tokens,
+            max_cloud_output_tokens=self.max_cloud_output_tokens,
+            max_cloud_cost_usd=self.max_cloud_cost_usd,
+            max_search_credits=self.max_search_credits,
+            max_output_tokens_per_call={
+                ModelRole.PLANNER.value: self.max_output_tokens_planner,
+                ModelRole.RESEARCHER.value: self.max_output_tokens_researcher,
+                ModelRole.CRITIC.value: self.max_output_tokens_critic,
+                ModelRole.SYNTHESIZER.value: self.max_output_tokens_synthesizer,
+                ModelRole.VERIFIER.value: self.max_output_tokens_verifier,
+            },
+        )
 
     @property
     def budget(self) -> RunBudget:

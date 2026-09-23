@@ -87,7 +87,17 @@ class RoleModel:
         still billed and still counted), and it lets us feed the validation
         error back to the model instead of losing the attempt.
         """
-        await self._tracker.reserve()
+        # Rough token estimate for the pre-dispatch spend check. Deliberately
+        # a cheap approximation (~4 chars/token): exact counting would need a
+        # tokeniser per model, and the check only needs to be conservative,
+        # not precise. The ceiling is enforced again by the recorded actuals.
+        estimated_input = (len(system) + len(user)) // 4
+        await self._tracker.reserve(
+            self.spec.provider,
+            role=self.role,
+            model=self.spec.model,
+            estimated_input_tokens=estimated_input,
+        )
         if self._gate is not None:
             async with self._gate:
                 return await self._invoke(schema, system, user, repair=repair)
@@ -231,7 +241,7 @@ class ModelRouter:
 
     def __init__(self, settings: Settings, tracker: UsageTracker | None = None) -> None:
         self.settings = settings
-        self.tracker = tracker or UsageTracker(settings.max_llm_calls)
+        self.tracker = tracker or UsageTracker(settings.max_llm_calls, settings.cloud_budget)
         self._assignments = settings.resolve_models()
         self._clients: dict[str, BaseChatModel] = {}
         self._fallbacks: dict[ModelRole, ModelSpec] = {}
@@ -320,10 +330,11 @@ class ModelRouter:
 
     def get(self, role: ModelRole) -> RoleModel:
         spec = self._fallbacks.get(role) or self._assignments[role]
+        output_cap = self.settings.cloud_budget.output_cap_for(role.value)
         return RoleModel(
             role=role,
             spec=spec,
-            model=self._client_for(spec),
+            model=self._client_for(spec, output_cap),
             tracker=self.tracker,
             fell_back=role in self._fallbacks,
             repair_attempts=1,
@@ -345,15 +356,18 @@ class ModelRouter:
             self._local_gate = asyncio.Semaphore(self.settings.max_parallel_local_llm_calls)
         return self._local_gate
 
-    def _client_for(self, spec: ModelSpec) -> BaseChatModel:
-        cached = self._clients.get(str(spec))
+    def _client_for(self, spec: ModelSpec, output_cap: int | None) -> BaseChatModel:
+        # Keyed by output cap as well as spec: the cap is baked into the
+        # client, so two roles sharing a model still need separate instances.
+        key = f"{spec}#{output_cap}"
+        cached = self._clients.get(key)
         if cached is not None:
             return cached
-        client = self._build(spec)
-        self._clients[str(spec)] = client
+        client = self._build(spec, output_cap)
+        self._clients[key] = client
         return client
 
-    def _build(self, spec: ModelSpec) -> BaseChatModel:
+    def _build(self, spec: ModelSpec, output_cap: int | None = None) -> BaseChatModel:
         settings = self.settings
         if spec.provider is Provider.OPENAI:
             from langchain_openai import ChatOpenAI
@@ -368,6 +382,9 @@ class ModelRouter:
                 temperature=settings.llm_temperature,
                 timeout=settings.llm_timeout_seconds,
                 max_retries=settings.llm_max_retries,
+                # Hard per-call output ceiling. A runaway generation is
+                # otherwise billed in full before anything notices.
+                max_completion_tokens=output_cap,
             )
 
         from langchain_ollama import ChatOllama
@@ -377,6 +394,7 @@ class ModelRouter:
             base_url=settings.ollama_base_url,
             temperature=settings.llm_temperature,
             num_ctx=settings.local_num_ctx,
+            num_predict=output_cap or settings.local_num_ctx,
             # Chain-of-thought text before the JSON object is a common cause of
             # structured-output failures on small local models, and the thinking
             # tokens are pure latency for the mechanical roles that run locally.
