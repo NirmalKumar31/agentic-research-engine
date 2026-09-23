@@ -39,6 +39,9 @@ class RunMetrics(BaseModel):
     model_assignments: dict[str, str] = Field(default_factory=dict)
 
     duration_s: float = 0.0
+    environment: dict[str, Any] = Field(default_factory=dict)
+    """Python/OS/package/model versions. Latency figures are hardware
+    specific and meaningless without the hardware."""
     research_rounds: int = 0
     stop_reason: str = ""
 
@@ -144,6 +147,7 @@ def build_metrics(
     usage: UsageTracker,
     search_stats: SearchStats,
     fetch_stats: FetchStats,
+    environment: dict[str, Any] | None = None,
 ) -> RunMetrics:
     """Assemble the run summary from state and the live service counters."""
     counters: dict[str, int] = state.get("counters", {}) or {}
@@ -172,6 +176,7 @@ def build_metrics(
         mode=mode,
         model_assignments=model_assignments,
         duration_s=round(duration_s, 2),
+        environment=environment or {},
         research_rounds=state.get("round_number", 0) or 0,
         stop_reason=state.get("stop_reason", "") or "",
         search_queries=len(state.get("completed_queries", []) or []),

@@ -90,6 +90,7 @@ class QuestionResult:
 class BenchmarkReport:
     started_at: str
     mode: str
+    environment: dict[str, Any] = field(default_factory=dict)
     results: list[QuestionResult] = field(default_factory=list)
 
     def aggregate(self) -> dict[str, float | None]:
@@ -121,6 +122,7 @@ class BenchmarkReport:
         return {
             "started_at": self.started_at,
             "mode": self.mode,
+            "environment": self.environment,
             "totals": self.totals(),
             "aggregate": self.aggregate(),
             "per_question": [

@@ -25,6 +25,7 @@ from typing import Any, cast
 from langchain_core.runnables import RunnableConfig
 
 from agentic_research.config import Settings
+from agentic_research.environment import capture as capture_environment
 from agentic_research.graph.state import RunContext, initial_state
 from agentic_research.graph.workflow import compile_graph
 from agentic_research.llm.base import UsageTracker
@@ -170,6 +171,7 @@ async def stream_research(
                 usage=router.tracker,
                 search_stats=search.stats,
                 fetch_stats=fetcher.stats,
+                environment=capture_environment(settings),
             )
 
             markdown = _render(final_state, metrics)

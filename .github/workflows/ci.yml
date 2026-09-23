@@ -32,6 +32,9 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Install
+        # Unconstrained on purpose for the matrix job: this is a library and
+        # the broad ranges in pyproject.toml need to keep working as
+        # dependencies move. The container build uses constraints.txt.
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
