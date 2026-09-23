@@ -603,6 +603,7 @@ def record_example(
     from agentic_research.web.recordings import (
         RECORDING_SCHEMA_VERSION,
         RECORDINGS_DIR,
+        assert_no_secrets,
         public_provenance,
         sanitise_trace,
         serialise_result,
@@ -672,6 +673,16 @@ def record_example(
         "trace": sanitise_trace(trace),
         "result": serialised,
     }
+
+    # Scanned before it is written, not after it is committed. The loader
+    # checks this too, but by then the file exists and a `git add -A` has
+    # had its chance -- and a credential caught in CI is a credential
+    # already in history.
+    try:
+        assert_no_secrets(example_id, payload)
+    except ValueError as exc:
+        _fail(str(exc), "Nothing was written. Fix the source of that value first.")
+        return
 
     RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
     destination = RECORDINGS_DIR / f"{example_id}.json"

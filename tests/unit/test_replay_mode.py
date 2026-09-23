@@ -37,6 +37,28 @@ def _settings(**overrides: Any) -> Settings:
     return Settings(**base)
 
 
+def _fake_credential(*parts: str) -> str:
+    """Assemble a credential-shaped string at runtime.
+
+    Never written as a whole literal. A committed secret-shaped string is a
+    permanent finding in the full-history scan even when it was always
+    fake, and rewriting shared history to remove one is far worse than
+    joining two fragments here. Three of these had to be allowlisted after
+    exactly that mistake.
+    """
+    return "".join(parts)
+
+
+# Shapes only. None of these is, or ever was, a real credential.
+FAKE_CREDENTIALS = (
+    _fake_credential("sk-", "proj-", "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789"),
+    _fake_credential("tvly", "-", "AbCdEfGh01234567890123456789"),
+    _fake_credential("ghp", "_", "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789"),
+    _fake_credential("AKIA", "IOSFODNN7EXAMPLE"),
+    _fake_credential("-----BEGIN ", "RSA PRIVATE KEY-----"),
+)
+
+
 RECORDING = {
     "recording_schema_version": 1,
     "meta": {
@@ -440,7 +462,12 @@ class TestOneCanonicalSerialiser:
         assert api_module._serialise_result is serialise_result
 
     def test_a_recording_has_the_same_result_shape_as_a_live_run(self, client: Any) -> None:
-        from tests.unit.test_web_api import sample_result
+        # Imported the way `fakes` is, by module name rather than through a
+        # `tests.` package path. There is no tests/__init__.py, so the
+        # dotted form only resolves when the repo root happens to be on
+        # sys.path -- true under `python -m pytest`, false under a bare
+        # `pytest`, which is what CI runs.
+        from test_web_api import sample_result
 
         from agentic_research.web.recordings import serialise_result
 
@@ -549,16 +576,7 @@ class TestRecordingsAreSanitised:
         finally:
             recordings._index.cache_clear()
 
-    @pytest.mark.parametrize(
-        "secret",
-        [
-            "sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789",
-            "tvly-AbCdEfGh01234567890123456789",
-            "ghp_AbCdEfGhIjKlMnOpQrStUvWxYz0123456789",
-            "AKIAIOSFODNN7EXAMPLE",
-            "-----BEGIN RSA PRIVATE KEY-----",
-        ],
-    )
+    @pytest.mark.parametrize("secret", FAKE_CREDENTIALS)
     def test_a_credential_shaped_value_is_refused_whatever_it_is_called(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, secret: str
     ) -> None:
@@ -578,7 +596,7 @@ class TestRecordingsAreSanitised:
     ) -> None:
         """This runs in CI logs. A message containing the credential has
         published it a second time."""
-        secret = "sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789"
+        secret = FAKE_CREDENTIALS[0]
         payload = json.loads(json.dumps(RECORDING))
         payload["result"]["markdown"] = secret
         self._write(tmp_path, monkeypatch, payload)
@@ -586,7 +604,7 @@ class TestRecordingsAreSanitised:
             with pytest.raises(ValueError) as caught:
                 recordings.available()
             assert secret not in str(caught.value)
-            assert "sk-proj" not in str(caught.value)
+            assert secret[:8] not in str(caught.value)
         finally:
             recordings._index.cache_clear()
 

@@ -185,7 +185,7 @@ def valid_id(candidate: str) -> bool:
     return bool(_SAFE_ID.match(candidate or ""))
 
 
-def _assert_no_secrets(recording_id: str, payload: Any) -> None:
+def assert_no_secrets(recording_id: str, payload: Any) -> None:
     """Walk a recording and refuse anything that looks like a credential.
 
     Both halves matter. A name-only check passes ``{"note": "sk-proj-..."}``
@@ -273,7 +273,7 @@ def _index() -> dict[str, dict[str, Any]]:
                 expected=RECORDING_SCHEMA_VERSION,
             )
             continue
-        _assert_no_secrets(recording_id, payload)
+        assert_no_secrets(recording_id, payload)
         loaded[recording_id] = payload
 
     log.info("recordings_loaded", count=len(loaded), ids=sorted(loaded))
