@@ -97,6 +97,14 @@ check_untyped_defs = true
 module = ["trafilatura.*", "langchain_ollama.*"]
 ignore_missing_imports = true
 
+# Streamlit lives in the optional `ui` extra, so it is absent from the
+# default dev environment and from CI. The app is still worth type
+# checking -- a metric rename once left it calling an attribute that no
+# longer existed -- and that check is of our own types, not Streamlit's.
+[[tool.mypy.overrides]]
+module = ["streamlit", "streamlit.*"]
+ignore_missing_imports = true
+
 # numpy arrives transitively via the optional streamlit extra and ships stubs
 # using 3.12-only syntax, which fails to parse under python_version = 3.11.
 # Nothing in this package imports it.
