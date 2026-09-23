@@ -1,0 +1,988 @@
+{
+  "recording_schema_version": 1,
+  "meta": {
+    "id": "fraud-detection-imbalanced",
+    "label": "Fraud detection on imbalanced data",
+    "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+    "description": "A local qwen3:4b run over five web sources. Every claim resolves to a verbatim quote checked against the retrieved text.",
+    "mode": "local",
+    "recorded_at": "2026-09-23T19:31:23.887746+00:00",
+    "order": 1,
+    "provenance": {
+      "engine_version": "0.2.0",
+      "evaluator_version": "2",
+      "prompt_version": "ca3fdd2b3d79",
+      "schema_version": "26fd7b1a9d14",
+      "config_fingerprint": "ae1c2ab384d5",
+      "commit": "2159681fe36f0717d92ba94cb1316bdf5a3738b5",
+      "short_commit": "2159681f",
+      "dirty": false,
+      "python": "3.12.3",
+      "platform": "macOS-26.5.2-arm64-arm-64bit"
+    }
+  },
+  "trace": [
+    {
+      "event": "started",
+      "query": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated."
+    },
+    {
+      "event": "analyzing_query",
+      "query": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated."
+    },
+    {
+      "event": "query_analyzed",
+      "format": "timeline",
+      "intent": "research"
+    },
+    {
+      "event": "planning"
+    },
+    {
+      "event": "plan_generated",
+      "count": 1,
+      "questions": [
+        "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated."
+      ]
+    },
+    {
+      "event": "generating_queries",
+      "round": 1,
+      "sub_questions": 1
+    },
+    {
+      "event": "queries_generated",
+      "count": 2,
+      "queries": [
+        "modern fraud detection techniques imbalanced transaction datasets model evaluation metrics",
+        "fraud detection model evaluation imbalanced data classification metrics"
+      ],
+      "round": 1
+    },
+    {
+      "event": "search_completed",
+      "query": "modern fraud detection techniques imbalanced transaction datasets model evaluation metrics",
+      "query_id": "Q1",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "fraud detection model evaluation imbalanced data classification metrics",
+      "query_id": "Q2",
+      "results": 8
+    },
+    {
+      "event": "sources_deduplicated",
+      "avoided": 3,
+      "results": 16,
+      "selected": 5,
+      "unique": 13
+    },
+    {
+      "event": "source_retrieved",
+      "source_id": "S5",
+      "title": "Empirical study of Machine Learning Classifier Evaluation ..."
+    },
+    {
+      "event": "sources_registered",
+      "duplicates": 0,
+      "extracting": 5,
+      "usable": 5
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 4,
+      "source_id": "S5"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 1,
+      "source_id": "S2"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S1"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S3"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S4"
+    },
+    {
+      "event": "assessing_coverage",
+      "round": 1
+    },
+    {
+      "event": "coverage_evaluated",
+      "covered": 1,
+      "missing": 0,
+      "ratio": 1.0,
+      "round": 1,
+      "sufficient": true,
+      "weak": 0
+    },
+    {
+      "event": "synthesizing",
+      "evidence": 23
+    },
+    {
+      "event": "synthesized",
+      "findings": 5,
+      "sections": 3
+    },
+    {
+      "event": "verifying_citations"
+    },
+    {
+      "event": "citations_verified",
+      "evidence_integrity": 1.0,
+      "exhaustive": false,
+      "support": {
+        "supported": 10,
+        "partially_supported": 0,
+        "unsupported": 0,
+        "not_checked": 8
+      },
+      "total": 18
+    },
+    {
+      "event": "completed",
+      "stop_reason": "coverage judged sufficient"
+    }
+  ],
+  "result": {
+    "run_id": "20260923-191312-758ddf",
+    "report": {
+      "title": "Modern Approaches for Fraud Detection in Highly Imbalanced Transaction Datasets",
+      "summary_claims": [
+        {
+          "text": "The most effective evaluation metrics for fraud detection in highly imbalanced datasets are a combined F1 score and g-mean, in that specific order.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e1"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "Traditional accuracy metrics are inadequate for evaluating fraud detection models due to the extreme imbalance in fraudulent transactions.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e2"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "F1 score and g-mean are recommended as effective performance measures for unbalanced datasets.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e3"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "ROC curve (AuROC) and Average Precision are commonly used performance measures in credit card fraud detection.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e4"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "Credit card fraud detection datasets typically have over 99% legitimate transactions.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e1"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "SMOTE oversampling with a 200% ratio can significantly improve dataset balance in fraud detection.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e1"
+          ],
+          "citation_ids": [
+            "S1"
+          ]
+        }
+      ],
+      "key_findings": [
+        {
+          "text": "The most effective evaluation metrics for fraud detection in highly imbalanced datasets are a combined F1 score and g-mean, in that specific order.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e1"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "Traditional accuracy metrics are inadequate for evaluating fraud detection models due to the extreme imbalance in fraudulent transactions.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e2"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "F1 score and g-mean are recommended as effective performance measures for unbalanced datasets.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e3"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "ROC curve (AuROC) and Average Precision are commonly used performance measures in credit card fraud detection.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e4"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "SMOTE oversampling with a 200% ratio can significantly improve dataset balance in fraud detection.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e1"
+          ],
+          "citation_ids": [
+            "S1"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "heading": "Evaluation Metrics",
+          "claims": [
+            {
+              "text": "The most effective evaluation metrics for fraud detection in highly imbalanced datasets are a combined F1 score and g-mean, in that specific order.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S5-e1"
+              ],
+              "citation_ids": [
+                "S5"
+              ]
+            },
+            {
+              "text": "F1 score and g-mean are recommended as effective performance measures for unbalanced datasets.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S5-e3"
+              ],
+              "citation_ids": [
+                "S5"
+              ]
+            },
+            {
+              "text": "Traditional accuracy metrics are inadequate for evaluating fraud detection models due to the extreme imbalance in fraudulent transactions.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S5-e2"
+              ],
+              "citation_ids": [
+                "S5"
+              ]
+            },
+            {
+              "text": "ROC curve (AuROC) and Average Precision are commonly used performance measures in credit card fraud detection.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S5-e4"
+              ],
+              "citation_ids": [
+                "S5"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Data Imbalance Characteristics",
+          "claims": [
+            {
+              "text": "Credit card fraud detection datasets typically have over 99% legitimate transactions.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e1"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Data Preprocessing Techniques",
+          "claims": [
+            {
+              "text": "SMOTE oversampling with a 200% ratio can significantly improve dataset balance in fraud detection.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S1-e1"
+              ],
+              "citation_ids": [
+                "S1"
+              ]
+            },
+            {
+              "text": "SMOTE proves valuable in scenarios with extreme imbalances, such as health insurance fraud detection where fraudulent claims can be as rare as 1:99.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S1-e3"
+              ],
+              "citation_ids": [
+                "S1"
+              ]
+            }
+          ]
+        }
+      ],
+      "contradictions": [],
+      "limitations": [
+        "The evidence does not provide specific details on the performance of other oversampling techniques beyond SMOTE.",
+        "The evidence does not include comparative evaluations of different machine learning models (e.g., Random Forest vs. neural networks) in fraud detection.",
+        "The evidence does not specify the exact impact of SMOTE on model recall in health insurance fraud detection scenarios.",
+        "2 extracted finding(s) were excluded because their quotes could not be located in the source text"
+      ]
+    },
+    "plan": {
+      "strategy": "planning failed; researching the question as a single dimension",
+      "sub_questions": [
+        {
+          "id": "SQ1",
+          "text": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+          "rationale": "fallback: the question itself",
+          "is_followup": false
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "S5-e1",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "The study found that a combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection model classification.",
+        "quote": "We demonstrate that a combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection model classification.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e2",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "Traditional measures such as Accuracy cannot be used to identify better performing classifiers due to the massive imbalance in fraud data.",
+        "quote": "Traditional measures such as Accuracy cannot be used to identify better performing classifiers due to the massive imbalance in fraud data [2].",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e3",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "The study recommends F1 score and g-mean as effective performance measures for unbalanced data sets.",
+        "quote": "Notably, [4] recommends F1 score and g-mean as effective performance measures for unbalanced data sets.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e4",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "The study states that the typical performance measure for credit card fraud-detection is ROC curve (AuROC reduces the area of the ROC curve to a single comparable value), which is a global ranking measure while Average Precision (which corresponds to the area under the precision-recall curve) is also frequently used.",
+        "quote": "According to [3], the typical performance measure for credit card fraud-detection is ROC curve (AuROC reduces the area of the ROC curve to a single comparable value), which is a global ranking measure while Average Precision (which corresponds to the area under the precision-recall curve) is also frequently used.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e1",
+        "source_id": "S2",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "In credit card fraud detection datasets, over 99% of transactions are legitimate; a model that always predicts \"not fraud\" can easily achieve over 99% accuracy while missing nearly all fraudulent cases!",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e1",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "In a credit card fraud detection dataset, only 492 out of 284,807 transactions were fraudulent. To balance this, SMOTE was applied with a 200% oversampling ratio. This doubled the minority class to 984 samples, significantly improving the dataset's balance.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e2",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "A RandomForestClassifier trained on the SMOTE-enhanced dataset correctly identified 75 fraudulent transactions. It achieved a recall score of 0.7653.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e3",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "SMOTE proves valuable in scenarios with extreme imbalances. For instance, in health insurance fraud detection, where the ratio of fraudulent to non-fraudulent claims can be as low as 1:99, SMOTE can significantly enhance the model's ability to detect rare fraud cases.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e4",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "In fraud detection systems face severe imbalances. The Medicare fraud dataset shows this, with just 0.06% of instances in the minority class.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e5",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "Credit card fraud detection (1-2% fraud cases)",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e6",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "The recent study found only 0.17% of transactions were fraudulent.",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.4,
+        "citable": false,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e1",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "In highly imbalanced data such as fraud detection, AUC-PR is more informative than AUC-ROC because it answers how well the model balances Precision and Recall where it matters.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e2",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "AUC-PR is the go-to metric when fraud cases are rare, and we care about catching as many as possible without overwhelming the system with false alarms.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e3",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "For instance, a model could have AUC-ROC = 0.98 and still have AUC-PR = 0.10, which means that the model detects fraud more often than non-fraud, but when it comes to real-world detection, Precision at high Recall isn\u2019t stellar.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e4",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "The Area Under Precision-Recall Curve (AUC-PR) plots Precision vs. Recall and focuses squarely on the minority class (fraud), so it tells us how well the model catches fraud while keeping false positives low.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e5",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "Fraud detection models face unique challenges during evaluation. Two examples are (1) class imbalance and (2) the different costs of false positives vs. false negatives.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e6",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+        "quote": "Class imbalance means that the model doesn\u2019t have enough fraudulent transactions to learn from, as they are rare compared to legitimate ones.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e1",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "In imbalanced datasets, Accuracy is unreliable. Use the F1-Score, Precision, and Recall to get a true picture of performance.",
+        "quote": "For imbalanced datasets, Accuracy is unreliable. Use the F1-Score, Precision, and Recall to get a true picture of performance.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e2",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "In imbalanced datasets, a model can achieve high Accuracy by simply predicting the majority class every time (e.g., saying every transaction is \"Not Fraud\").",
+        "quote": "In imbalanced datasets, a model can achieve high Accuracy by simply predicting the majority class every time (e.g., saying every transaction is \"Not Fraud\").",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e3",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "For fraud detection, Recall is much more important\u2014it measures what percentage of actual frauds you caught.",
+        "quote": "For fraud detection, Recall is much more important\u2014it measures what percentage of actual frauds you caught.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e4",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "If you increase recall too much, you might get too many False Positives, so you must balance it with Precision.",
+        "quote": "If you increase recall too much, you might get too many False Positives, so you must balance it with Precision.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e5",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "The F1-Score is the harmonic mean of both and is generally the best single metric for imbalanced classes.",
+        "quote": "The F1-Score is the harmonic mean of both and is generally the best single metric for imbalanced classes.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e6",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "A Confusion Matrix is essential here as it breaks down exactly where your True Positives and False Negatives are occurring.",
+        "quote": "A Confusion Matrix is essential here as it breaks down exactly where your True Positives and False Negatives are occurring.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      }
+    ],
+    "sources": [
+      {
+        "id": "S1",
+        "url": "https://keylabs.ai/blog/handling-imbalanced-data-in-classification",
+        "title": "Handling Imbalanced Data in Classification | Keylabs",
+        "domain": "keylabs.ai",
+        "source_type": "blog",
+        "content_origin": "provider_raw",
+        "quality_score": 0.58,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S2",
+        "url": "https://codesignal.com/learn/courses/evaluation-metrics-advanced-techniques/lessons/comprehensive-evaluation-strategies-for-imbalanced-data",
+        "title": "Comprehensive Evaluation Strategies for Imbalanced Data",
+        "domain": "codesignal.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.623,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S3",
+        "url": "https://www.cesarsotovalero.net/blog/evaluation-metrics-for-real-time-financial-fraud-detection-ml-models.html",
+        "title": "Evaluation Metrics for Real-Time Financial Fraud Detection ML Models",
+        "domain": "cesarsotovalero.net",
+        "source_type": "blog",
+        "content_origin": "provider_raw",
+        "quality_score": 0.571,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S4",
+        "url": "https://www.icertglobal.com/community/machine-learning-evaluation-metrics-for-imbalanced-data",
+        "title": "Machine Learning Evaluation Metrics for Imbalanced Data | iCertGlobal Community",
+        "domain": "icertglobal.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.569,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S5",
+        "url": "https://arxiv.org/html/2208.11904v1",
+        "title": "Empirical study of Machine Learning Classifier Evaluation ...",
+        "domain": "arxiv.org",
+        "source_type": "academic",
+        "content_origin": "html_fetch",
+        "quality_score": 0.969,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "ok"
+      }
+    ],
+    "verification": {
+      "total_claims": 18,
+      "substantive_claims": 18,
+      "total_citations": 18,
+      "resolvable_citations": 18,
+      "total_evidence_refs": 18,
+      "resolvable_evidence_refs": 18,
+      "supported_claims": 10,
+      "partially_supported_claims": 0,
+      "unsupported_claims": 0,
+      "checked_claims": 10,
+      "checkable_claims": 18,
+      "entailment_exhaustive": false,
+      "contradictions_total": 0,
+      "contradictions_auditable": 0,
+      "issues": [
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S3",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S4",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        }
+      ],
+      "unused_source_ids": [
+        "S3",
+        "S4"
+      ],
+      "repaired": false
+    },
+    "metrics": {
+      "run_id": "20260923-191312-758ddf",
+      "query": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+      "mode": "local",
+      "model_assignments": {
+        "planner": "ollama:qwen3:4b",
+        "researcher": "ollama:qwen3:4b",
+        "critic": "ollama:qwen3:4b",
+        "synthesizer": "ollama:qwen3:4b",
+        "verifier": "ollama:qwen3:4b"
+      },
+      "duration_s": 1090.79,
+      "environment": {
+        "python": "3.12.3",
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "machine": "arm64",
+        "processor": "arm",
+        "cpu_count": 10,
+        "packages": {
+          "agentic-research-engine": "0.2.0",
+          "langgraph": "1.2.12",
+          "langchain-core": "1.6.4",
+          "langchain-openai": "1.6.3",
+          "langchain-ollama": "1.1.0",
+          "openai": "3.18.0",
+          "pydantic": "2.13.5",
+          "httpx": "0.28.1",
+          "trafilatura": "2.2.0",
+          "pypdf": "6.19.0"
+        },
+        "provenance": {
+          "engine_version": "0.2.0",
+          "evaluator_version": "2",
+          "prompt_version": "ca3fdd2b3d79",
+          "schema_version": "26fd7b1a9d14",
+          "git": {
+            "commit": "2159681fe36f0717d92ba94cb1316bdf5a3738b5",
+            "short_commit": "2159681f",
+            "dirty": false,
+            "branch": "main"
+          },
+          "config_fingerprint": "ae1c2ab384d5",
+          "model_assignments": {
+            "planner": "ollama:qwen3:4b",
+            "researcher": "ollama:qwen3:4b",
+            "critic": "ollama:qwen3:4b",
+            "synthesizer": "ollama:qwen3:4b",
+            "verifier": "ollama:qwen3:4b"
+          }
+        },
+        "ollama": {
+          "version": "0.32.5",
+          "models": {
+            "qwen3:4b": {
+              "digest": "359d7dd4bcdab3d8",
+              "size_bytes": 2497293931,
+              "quantization": "Q4_K_M",
+              "parameter_size": "4.0B"
+            },
+            "llama3.2:3b": {
+              "digest": "a80c4f17acd55265",
+              "size_bytes": 2019393189,
+              "quantization": "Q4_K_M",
+              "parameter_size": "3.2B"
+            },
+            "embeddinggemma:latest": {
+              "digest": "85462619ee721b46",
+              "size_bytes": 621875917,
+              "quantization": "BF16",
+              "parameter_size": "307.58M"
+            }
+          }
+        },
+        "settings": {
+          "llm_mode": "local",
+          "max_research_rounds": 1,
+          "max_sources": 5,
+          "max_sources_per_round": 5,
+          "max_llm_calls": 40,
+          "max_parallel_searches": 5,
+          "max_parallel_fetches": 8,
+          "max_parallel_local_llm_calls": 2,
+          "search_depth": "basic",
+          "llm_temperature": 0.2
+        }
+      },
+      "research_rounds": 1,
+      "stop_reason": "coverage judged sufficient",
+      "search_queries": 2,
+      "searches_failed": 0,
+      "search_results": 16,
+      "search_credits": 2.0,
+      "pages_fetched": 1,
+      "provider_content_reused": 4,
+      "fetch_failures": 0,
+      "fetch_status_breakdown": {
+        "ok": 1
+      },
+      "duplicate_urls": 3,
+      "already_known_urls": 0,
+      "content_duplicates": 0,
+      "fetches_avoided": 3,
+      "unique_sources": 5,
+      "usable_sources": 5,
+      "evidence_items": 23,
+      "exact_quotes": 21,
+      "fuzzy_quotes": 1,
+      "unmatched_quotes": 1,
+      "citable_evidence": 21,
+      "cross_attributed_evidence": 0,
+      "content_origins": {
+        "provider_raw": 4,
+        "html_fetch": 1
+      },
+      "domain_concentration": 0.2,
+      "distinct_domains": 5,
+      "llm_calls": 20,
+      "provider_requests": 21,
+      "billable_provider_requests": 21,
+      "failed_provider_requests": 2,
+      "structured_repairs": 1,
+      "compatibility_retries": 0,
+      "transport_retries": 0,
+      "rate_limit_refusals": 0,
+      "provider_requests_by_model": {
+        "ollama:qwen3:4b": 21
+      },
+      "reserved_worst_case_usd": 0.0,
+      "reservation_was_sufficient": true,
+      "llm_failed_calls": 1,
+      "input_tokens": 21223,
+      "output_tokens": 10169,
+      "calls_by_provider": {
+        "ollama": 20
+      },
+      "calls_by_role": {
+        "planner": 2,
+        "researcher": 6,
+        "critic": 1,
+        "synthesizer": 1,
+        "verifier": 10
+      },
+      "known_cost_usd": 0.0,
+      "cost_is_complete": true,
+      "unpriced_calls": 0,
+      "citation_integrity_rate": 1.0,
+      "evidence_integrity_rate": 1.0,
+      "citation_coverage_rate": 1.0,
+      "claim_support_rate": 1.0,
+      "partial_support_rate": 0.0,
+      "support_breakdown": {
+        "supported": 10,
+        "partially_supported": 0,
+        "unsupported": 0,
+        "not_checked": 8
+      },
+      "entailment_exhaustive": false,
+      "citations_total": 18,
+      "evidence_refs_total": 18,
+      "contradictions_total": 0,
+      "contradictions_auditable": 0,
+      "unused_sources": 2,
+      "citations_repaired": false,
+      "stage_seconds": {
+        "analyze_query": 15.603,
+        "plan_research": 416.48,
+        "generate_queries": 7.408,
+        "dedupe_sources": 0.001,
+        "register_sources": 0.0,
+        "assess_coverage": 120.897,
+        "synthesize": 104.097,
+        "verify_citations": 101.632
+      },
+      "errors": 1,
+      "error_kinds": {
+        "StructuredOutputError": 1
+      }
+    },
+    "markdown": "# Modern Approaches for Fraud Detection in Highly Imbalanced Transaction Datasets\n\n## Summary\n\nThe most effective evaluation metrics for fraud detection in highly imbalanced datasets are a combined F1 score and g-mean, in that specific order. [S5] Traditional accuracy metrics are inadequate for evaluating fraud detection models due to the extreme imbalance in fraudulent transactions. [S5] F1 score and g-mean are recommended as effective performance measures for unbalanced datasets. [S5] ROC curve (AuROC) and Average Precision are commonly used performance measures in credit card fraud detection. [S5] Credit card fraud detection datasets typically have over 99% legitimate transactions. [S2] SMOTE oversampling with a 200% ratio can significantly improve dataset balance in fraud detection. [S1]\n\n## Key findings\n\n- The most effective evaluation metrics for fraud detection in highly imbalanced datasets are a combined F1 score and g-mean, in that specific order. [S5]\n- Traditional accuracy metrics are inadequate for evaluating fraud detection models due to the extreme imbalance in fraudulent transactions. [S5]\n- F1 score and g-mean are recommended as effective performance measures for unbalanced datasets. [S5]\n- ROC curve (AuROC) and Average Precision are commonly used performance measures in credit card fraud detection. [S5]\n- SMOTE oversampling with a 200% ratio can significantly improve dataset balance in fraud detection. [S1]\n\n## Evaluation Metrics\n\nThe most effective evaluation metrics for fraud detection in highly imbalanced datasets are a combined F1 score and g-mean, in that specific order. [S5]\n\nF1 score and g-mean are recommended as effective performance measures for unbalanced datasets. [S5]\n\nTraditional accuracy metrics are inadequate for evaluating fraud detection models due to the extreme imbalance in fraudulent transactions. [S5]\n\nROC curve (AuROC) and Average Precision are commonly used performance measures in credit card fraud detection. [S5]\n\n## Data Imbalance Characteristics\n\nCredit card fraud detection datasets typically have over 99% legitimate transactions. [S2]\n\n## Data Preprocessing Techniques\n\nSMOTE oversampling with a 200% ratio can significantly improve dataset balance in fraud detection. [S1]\n\nSMOTE proves valuable in scenarios with extreme imbalances, such as health insurance fraud detection where fraudulent claims can be as rare as 1:99. [S1]\n\n## Limitations\n\n- The evidence does not provide specific details on the performance of other oversampling techniques beyond SMOTE.\n- The evidence does not include comparative evaluations of different machine learning models (e.g., Random Forest vs. neural networks) in fraud detection.\n- The evidence does not specify the exact impact of SMOTE on model recall in health insurance fraud detection scenarios.\n- 2 extracted finding(s) were excluded because their quotes could not be located in the source text\n\n## Sources\n\n- **[S1]** [Handling Imbalanced Data in Classification | Keylabs](https://keylabs.ai/blog/handling-imbalanced-data-in-classification) \u2014 keylabs.ai, blog, n.d., quality 0.58\n- **[S2]** [Comprehensive Evaluation Strategies for Imbalanced Data](https://codesignal.com/learn/courses/evaluation-metrics-advanced-techniques/lessons/comprehensive-evaluation-strategies-for-imbalanced-data) \u2014 codesignal.com, other, n.d., quality 0.62\n- **[S3]** [Evaluation Metrics for Real-Time Financial Fraud Detection ML Models](https://www.cesarsotovalero.net/blog/evaluation-metrics-for-real-time-financial-fraud-detection-ml-models.html) \u2014 cesarsotovalero.net, blog, n.d., quality 0.57 _(retrieved, not cited)_\n- **[S4]** [Machine Learning Evaluation Metrics for Imbalanced Data | iCertGlobal Community](https://www.icertglobal.com/community/machine-learning-evaluation-metrics-for-imbalanced-data) \u2014 icertglobal.com, other, n.d., quality 0.57 _(retrieved, not cited)_\n- **[S5]** [Empirical study of Machine Learning Classifier Evaluation ...](https://arxiv.org/html/2208.11904v1) \u2014 arxiv.org, academic, n.d., quality 0.97\n\n## Citation verification\n\n- Evidence references: 18, 18 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: 100% of 18\n- Entailment checked against each claim's own evidence, over a sample of 10 of 18 eligible claims: 10 supported, 0 partially supported, 0 unsupported, 8 not checked\n- Retrieved but never cited: S3, S4\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 2 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 3 |\n| Evidence items | 23 |\n| Quotes verbatim (exact-normalised) | 91% |\n| Quotes fuzzy (excluded from citation) | 4% |\n| LLM calls | 20 |\n| Tokens (in/out) | 21,223 / 10,169 |\n| Estimated cost | $0.0000 |\n| Duration | 1090.8s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-23 19:31 UTC._\n"
+  }
+}

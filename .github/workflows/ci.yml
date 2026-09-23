@@ -86,6 +86,20 @@ jobs:
           /tmp/fresh/bin/agentic-research --help
           LLM_MODE=local /tmp/fresh/bin/agentic-research graph | head -5
 
+      # The public site runs from the installed wheel, not a source
+      # checkout. If the recording JSON were not packaged, the deployed
+      # demo would come up with nothing to show and the failure would
+      # first appear on Render. Asserted here instead.
+      - name: Verify recordings ship inside the wheel
+        run: |
+          /tmp/fresh/bin/python - <<'PY'
+          from agentic_research.web.recordings import RECORDINGS_DIR, available
+          found = [s.id for s in available()]
+          print(f"recordings dir: {RECORDINGS_DIR}")
+          print(f"loaded: {found}")
+          assert found, "no recordings in the installed wheel; check package data"
+          PY
+
   docker:
     name: Build the image and run the CLI inside it
     runs-on: ubuntu-latest
