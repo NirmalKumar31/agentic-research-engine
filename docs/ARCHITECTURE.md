@@ -278,54 +278,110 @@ together.
 
 ## 5. Provenance
 
-Every link is stored, not inferred:
+### 5.1 Evidence-first claims
+
+The first version of this system stored citations as source ids on each
+claim. That looked like provenance and was not: nothing recorded *which
+evidence* produced a sentence. When verification later needed to check
+whether a source supported a claim, it had no way to know which span was
+responsible, so it sampled the first three evidence items belonging to the
+cited source and judged against those. Frequently that meant grading a
+claim against text that played no part in writing it.
+
+The fix is to make evidence the primary link and derive everything else:
+
+```python
+class Claim(BaseModel):
+    text: str
+    evidence_ids: list[str]   # the model supplies only this
+    citation_ids: list[str]   # the ENGINE derives this
+    kind: ClaimKind
+```
+
+The synthesiser is shown evidence ids (`S3-e2`) and never source ids, and
+references the items it actually used. The engine then resolves each id to
+its source. Letting a model emit both invites the two to disagree, and
+there would be no way to tell which was right.
 
 ```mermaid
 graph LR
-    Q[User question] --> A[QueryAnalysis]
-    A --> P[ResearchPlan]
-    P --> SQ["SubQuestion SQ2"]
-    SQ --> SE["SearchQuery Q5<br/>sub_question_id=SQ2"]
+    Q[Question] --> SQ[SubQuestion SQ2]
+    SQ --> SE[SearchQuery Q5]
     SE --> SR[SearchResult]
-    SR --> SD["SourceDocument S3<br/>found_by_queries=[Q5]"]
-    SD --> EV["EvidenceItem S3-e1<br/>source_id=S3<br/>sub_question_id=SQ2<br/>quote_verified=true"]
-    EV --> CL["Claim<br/>citation_ids=[S3]"]
-    CL --> CI["Citation [S3]"]
+    SR --> SD[SourceDocument S3]
+    SD -- DiscoveryRef --> EV["EvidenceItem S3-e1<br/>quote + page<br/>quote_match"]
+    EV --> CL["Claim<br/>evidence_ids"]
+    CL -- derived --> CI["Citation [S3, p. 14]"]
 ```
 
-Given any sentence in the report you can walk backwards to the exact quoted
-span, the page it came from, the query that found it, and the sub-question
-that motivated the query. `outputs/<run_id>/evidence.json` contains the whole
-chain for offline inspection.
+Read right to left, every arrow is stored rather than inferred.
 
-### 5.1 Ids are assigned by the engine
+**A consequence worth stating plainly:** `citation_integrity` — the metric
+previously published as "citation validity" and reported at 100% — is now
+true by construction, because citations only exist for evidence that
+already resolved. It is an engine invariant, not a quality signal. The
+measurement that actually says something about the model is
+`evidence_integrity`: how often the model referenced evidence that exists
+and is citable. On an adversarial fixture that reads 0.25 where the old
+metric read 1.0. The honest metric is the lower one.
 
-Source ids are allocated in the deduplication barrier — a single-writer node —
-not by workers and never by a model. Two reasons:
+### 5.2 Discovery provenance
 
-- **Races.** Parallel workers allocating from a shared counter would collide.
-- **Hallucination.** A model permitted to mint source ids will eventually cite
-  `[S7]` in a run that retrieved four sources.
+A source used to hold two independent lists, `found_by_queries` and
+`answers_sub_questions`, which lost the relationship between them. Given a
+page found by Q2 (serving SQ1) and Q7 (serving SQ4), nothing recorded which
+query belonged to which sub-question — so evidence took
+`found_by_queries[0]`, correct only by luck.
 
-Evidence ids are `f"{source_id}-e{n}"`, which is unique without coordination
-because exactly one worker owns a given source.
-
-### 5.2 Quote verification
-
-Every evidence item carries a `quote` that must genuinely appear in the source:
+They are now `DiscoveryRef(query_id, sub_question_id)` pairs. An evidence
+item records the path matching *its own* sub-question:
 
 ```python
-def verify_quote(quote: str, source_text: str) -> bool:
-    # exact substring after normalising whitespace and smart punctuation,
-    # then a sliding-window similarity pass at 0.88
+discovery = source.discovery_for(sub_question_id)   # None if no such path
+cross_attributed = discovery is None
 ```
 
-Tolerant of curly quotes and reflowed whitespace; intolerant of paraphrase.
-This is the check that stops a real URL being cited for a sentence the page
-never contained. Failures are flagged rather than dropped, so they surface in
-the metrics (`quote_fidelity`) instead of disappearing.
+When a finding addresses a sub-question that no query for it retrieved,
+that is recorded as `cross_attributed=True` with no query id, rather than
+borrowing an unrelated one. The chain stops honestly instead of appearing
+complete.
 
----
+### 5.3 Ids are assigned by the engine
+
+Source ids are allocated in the deduplication barrier — a single-writer
+node — never by workers and never by a model. Parallel workers allocating
+from a shared counter would collide, and a model permitted to mint source
+ids will eventually cite `[S7]` in a run that retrieved four sources.
+
+Evidence ids are `f"{source_id}-e{n}"`, unique without coordination because
+exactly one worker owns a given source.
+
+### 5.4 Quote matching is three-valued
+
+The original check returned a boolean and accepted a 0.88 similarity match,
+and the result was published as "verbatim". It was not.
+
+| Class | Meaning | Citable |
+|---|---|---|
+| `EXACT_NORMALIZED` | Present after normalising whitespace and smart punctuation | Yes |
+| `FUZZY` | Close but reworded | **No** |
+| `NONE` | Not locatable | No |
+
+Words may not differ. `"positive cases"` → `"positive examples"` is FUZZY,
+kept for diagnostics, and can never ground a citation.
+
+The matcher also returns the character offset of the match, which is how a
+PDF quote recovers its page number.
+
+### 5.5 Uncitable evidence cannot reach synthesis
+
+Confidence weighting alone was not enough: an unverified item at 0.7
+relevance scored 0.28 against a 0.25 floor and could ground a citation. So
+a claim could rest entirely on text nobody could find in the page.
+
+`build_package(citable_only=True)` is now the default, and resolution
+rejects any claim referencing uncitable evidence. Diagnostic callers can
+still see everything that was extracted.
 
 ## 6. The research loop
 
@@ -534,33 +590,123 @@ evidence is the expensive part.
 
 ## 12. Evaluation
 
-No gold answers. Gold answers for open research questions are expensive,
-quickly stale, and mostly measure whether the model agrees with whoever wrote
-them.
+No gold answers. They are expensive, go stale quickly, and mostly measure
+whether the model agrees with whoever wrote them.
 
-Instead every metric asks whether the system did what it claims to do:
+Every metric instead asks whether the system did what it claims. Several
+were renamed during the provenance rework because their original names
+asserted more than the measurement supported.
 
-| Metric | Definition | Target |
+| Metric | Definition | What it does **not** say |
 |---|---|---|
-| `citation_validity` | citations resolving to a retrieved source | 100% |
-| `citation_coverage` | factual claims carrying a citation | high |
-| `claim_support` | sampled claims entailed by their cited evidence | high |
-| `quote_fidelity` | quotes located in their source text | high |
-| `evidence_coverage` | sub-questions with adequate evidence | high |
-| `source_diversity` | 1 − share held by the largest domain | high |
-| `duplicate_avoidance` | results deduplicated before fetching | informational |
-| `unused_source_rate` | retrieved sources never cited | low |
+| `evidence_integrity` | Evidence ids referenced that exist and are citable | Nothing about whether the evidence supports the claim |
+| `citation_integrity` | Citation markers resolving to a retrieved source | Nothing about support. Now an engine invariant |
+| `citation_coverage` | Evidence-owing claims carrying a citation | Nothing about citation *correctness* |
+| `claim_support` | Checked claims fully entailed by their own evidence | Sampled unless marked exhaustive |
+| `partial_support` | Checked claims only partially entailed | — |
+| `quote_fidelity` | Quotes found verbatim (exact-normalised) | Nothing about whether the page is right |
+| `quote_drift` | Quotes matching only approximately | — |
+| `evidence_coverage` | Sub-questions with ≥2 verified items from ≥2 sources | Nothing about depth or quality |
+| `source_diversity` | 1 − share held by the largest domain | Diversity is not independence |
+| `contradiction_auditability` | Disagreements evidenced on both sides | — |
+| `duplicate_avoidance` | Results deduplicated before fetching | — |
+| `unused_source_rate` | Retrieved sources never cited | — |
 
-**`citation_validity` is the one that should always be 100%.** Anything less
-means the report cites a source the run never retrieved.
+### 12.1 Renaming, and why the honest number is lower
 
-**What this does not measure:** whether the report is *true*. The engine can
-score perfectly while faithfully reporting what a set of wrong pages said. It
-verifies faithfulness to retrieved sources, not correctness about the world.
+`citation_validity` implied a source supported its claim. It only ever
+measured that an id resolved. Worse, under the evidence-first design it
+became trivially 1.0, because the engine derives citations only from
+evidence that already resolved — so publishing it as a headline would be
+reporting an invariant as an achievement.
 
----
+`evidence_integrity` replaces it as the model-facing measure, and it is
+lower, because it counts the references a model got wrong.
 
-## 13. Things deliberately not built
+The same applies to quote fidelity: tightening "verbatim" to exact-only
+moves reworded matches out of the numerator, so the honest figure is below
+the old one. Both were published downward rather than quietly redefined.
+
+### 12.2 Sampled versus exhaustive
+
+Entailment costs one model call per claim. Interactive runs cap at ten and
+the metric is renamed `sampled_claim_support`; benchmark runs check every
+eligible claim and set `entailment_exhaustive`. A sampled figure published
+under an exhaustive name is exactly the kind of number this project exists
+not to produce.
+
+### 12.3 Controlled comparison
+
+Running the graph twice with two models does not compare the models: search
+results move, so the reports rest on different evidence. `freeze` captures
+one run's retrieval output and `compare` replays only synthesis and
+verification against it, so both arms see byte-identical input. The replay
+path raises if anything tries to search, so a regression fails loudly
+rather than silently invalidating every future comparison.
+
+### 12.4 What none of it measures
+
+Whether the report is **true**. All of this measures faithfulness to
+retrieved sources. A confident report built entirely on wrong pages scores
+perfectly. That is a ceiling on what the system can claim, not a gap to
+close with another metric.
+
+## 13. Security
+
+### 13.1 SSRF
+
+The fetcher follows URLs chosen by a search provider and then whatever
+those pages redirect to. With `follow_redirects=True` and no address
+filtering — the original state — a hosted deployment fetches
+`http://169.254.169.254/` on request and hands instance credentials to a
+language model.
+
+The policy is deny-by-default on *addresses*, not hostnames, because a
+hostname can resolve anywhere:
+
+- http/https only; non-web ports refused
+- loopback, private, link-local, multicast, reserved, unspecified — v4 and v6
+- IPv4-mapped and 6to4 IPv6 unwrapped and rechecked
+- cloud metadata named explicitly as well as covered by range
+- `localhost`, `.local`, `.internal` refused syntactically, so the check
+  does not depend on the resolver behaving
+- **every** resolved address must be safe, not merely one: a name with one
+  public and one private A record would otherwise pass depending on which
+  the client picked
+
+Redirects are followed manually, revalidating each hop. DNS failure is
+reported as a network error rather than a policy block, so the blocked
+count stays a meaningful signal rather than being diluted by typos.
+
+**Not solved:** DNS rebinding. The address is validated before connecting,
+but a name could resolve differently at connect time. Closing it means
+pinning the validated IP into the connection.
+
+### 13.2 Prompt injection
+
+Retrieved HTML, provider content and PDF text are untrusted. They are
+framed as data in the system prompt and again around the content, and a
+document cannot forge the boundary markers to appear to close the data
+region.
+
+The structural defence matters more than the prompt: the extractor has no
+tool access, so a fully persuaded model has nothing to reach. And a claim
+invented from a page instruction references no evidence, so it fails
+resolution rather than reaching the reader with a citation.
+
+### 13.3 Spend
+
+Cloud call, input-token, output-token, cost and search-credit ceilings are
+checked **before** dispatch using each call's worst case — committed usage
+plus the role's output cap. Checking afterwards means discovering the
+overspend on the invoice. Per-role output limits are pushed to the
+provider, not merely counted locally, so a runaway generation is cut off
+rather than billed in full.
+
+Local inference is never charged against these, so an exhausted cloud
+budget does not stop a local run.
+
+## 14. Things deliberately not built
 
 - **A crawler.** The fetcher retrieves chosen URLs and stops. No link
   discovery, no frontier, no cross-run crawl budget.

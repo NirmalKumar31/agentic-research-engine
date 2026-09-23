@@ -164,3 +164,33 @@ class TestSearchCreditCeiling:
             )
         assert not response.ok
         assert "credit budget" in (response.error or "")
+
+
+class TestLocalOutputCap:
+    def test_local_models_get_a_generation_cap(self) -> None:
+        """Measured: without num_predict, a 4B model asked for a research
+        plan ran past 240s. With it, the call is bounded. The cap converts
+        an unbounded hang into a bounded failure."""
+        from agentic_research.llm.router import ModelRouter
+
+        settings = Settings(
+            llm_mode="local",
+            ollama_model="qwen3:4b",
+            max_output_tokens_planner=2_000,
+            _env_file=None,
+        )
+        client = ModelRouter(settings).get(ModelRole.PLANNER)._model
+        assert getattr(client, "num_predict", None) == 2_000
+
+    def test_roles_get_their_own_local_cap(self) -> None:
+        from agentic_research.llm.router import ModelRouter
+
+        settings = Settings(
+            llm_mode="local",
+            max_output_tokens_verifier=400,
+            max_output_tokens_synthesizer=6_000,
+            _env_file=None,
+        )
+        router = ModelRouter(settings)
+        assert router.get(ModelRole.VERIFIER)._model.num_predict == 400
+        assert router.get(ModelRole.SYNTHESIZER)._model.num_predict == 6_000
