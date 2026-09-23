@@ -596,28 +596,26 @@ Luna extracted fewer findings but every one was verbatim-verifiable. The
 local model produced more, of which a quarter could not be aligned to the
 source and were discarded.
 
-### Controlled comparison — identical evidence
+### Controlled comparison — preliminary, and not a current result
 
-Synthesis and verification replayed over a frozen corpus, so the only
-variable is the model:
+> **These figures are a historical diagnostic, not a measured benchmark.**
+> They came from a first comparison attempt whose frozen corpus had its
+> source text stripped. The current validator **rejects that corpus**, and
+> the library now refuses to run on it at all. They are kept because the
+> run happened, not because they stand.
 
 | | local | luna |
 |---|---|---|
-| Claim support (exhaustive) | **55.6%** | **81.2%** |
+| Claim support | 55.6% | 81.2% |
 | Partial support | 22.2% | 18.8% |
-| Evidence integrity | 100% | 100% |
-| Duration | 406s | **51s** |
-| Cost | $0.00 | $0.0025 |
+| Duration | 406s | 51s |
 
-Neither model referenced evidence that did not exist. The difference is
-entirely in whether a claim is actually entailed by the evidence cited for
-it — which is the gap the hybrid split was designed around, now measured
-rather than assumed.
-
-**Caveats, because this is one run:** the comparison above used a corpus
-whose source text had been stripped, which broke `citation_integrity` for
-both arms equally (see below). `claim_support` is unaffected — both arms
-saw byte-identical input — but no figure here has repeats or variance.
+Both arms did see byte-identical input, so the *relative* comparison was
+internally consistent — but `citation_integrity` read 0% for both because
+every source failed the usability check, which is exactly the kind of
+artefact that makes a whole table untrustworthy. A clean rerun on a
+full-text corpus is pending quota reset and will replace this section
+whichever way it lands.
 
 ### Three things the paid run exposed
 

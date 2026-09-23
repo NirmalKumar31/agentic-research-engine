@@ -74,8 +74,20 @@ class RunMetrics(BaseModel):
     domain_concentration: float = 0.0
     distinct_domains: int = 0
 
-    # Models
+    # Models. Logical calls and provider requests are different units: one
+    # logical call can emit several requests (repair, compatibility retry),
+    # and providers rate-limit and bill on requests.
     llm_calls: int = 0
+    provider_requests: int = 0
+    billable_provider_requests: int = 0
+    structured_repairs: int = 0
+    compatibility_retries: int = 0
+    transport_retries: int = 0
+    rate_limit_refusals: int = 0
+    provider_requests_by_model: dict[str, int] = Field(default_factory=dict)
+    reserved_worst_case_usd: float = 0.0
+    reservation_was_sufficient: bool = True
+    """Recorded spend stayed within the worst case reserved before dispatch."""
     llm_failed_calls: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
@@ -203,6 +215,15 @@ def build_metrics(
         domain_concentration=domain_concentration(domains),
         distinct_domains=len(set(domains)),
         llm_calls=totals.calls,
+        provider_requests=totals.provider_requests,
+        billable_provider_requests=totals.billable_provider_requests,
+        structured_repairs=totals.structured_repairs,
+        compatibility_retries=totals.compatibility_retries,
+        transport_retries=totals.transport_retries,
+        rate_limit_refusals=totals.rate_limit_refusals,
+        provider_requests_by_model=totals.provider_requests_by_model,
+        reserved_worst_case_usd=totals.reserved_worst_case_usd,
+        reservation_was_sufficient=totals.reservation_was_sufficient,
         llm_failed_calls=totals.failed_calls,
         input_tokens=totals.input_tokens,
         output_tokens=totals.output_tokens,

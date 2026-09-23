@@ -174,6 +174,13 @@ class Settings(BaseSettings):
     # Zero disables a dimension rather than meaning "no spend allowed";
     # an explicitly zero-budget run would be indistinguishable from an
     # unconfigured one, so `0` is read as unlimited and documented as such.
+    # Ceiling on provider HTTP requests across all providers. Distinct from
+    # MAX_LLM_CALLS, which bounds logical model calls: one logical call can
+    # emit several requests (repair, compatibility retry, transport retry)
+    # and providers rate-limit on requests, not on our abstraction.
+    max_provider_requests: int = Field(default=120, ge=0)
+    # Cloud request ceiling. Named max_cloud_calls for continuity, but it is
+    # now counted in provider requests rather than logical calls.
     max_cloud_calls: int = Field(default=40, ge=0)
     max_cloud_input_tokens: int = Field(default=400_000, ge=0)
     max_cloud_output_tokens: int = Field(default=60_000, ge=0)
@@ -198,7 +205,15 @@ class Settings(BaseSettings):
 
     llm_temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     llm_timeout_seconds: float = Field(default=180.0, gt=0)
-    llm_max_retries: int = Field(default=2, ge=0, le=5)
+    llm_max_retries: int = Field(
+        default=2,
+        ge=0,
+        le=5,
+        description=(
+            "Ollama only. OpenAI clients are built with max_retries=0 so no "
+            "provider request escapes the router's accounting."
+        ),
+    )
     max_parallel_local_llm_calls: int = Field(
         default=2,
         ge=1,

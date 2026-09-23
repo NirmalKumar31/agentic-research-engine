@@ -36,14 +36,13 @@ class DemoLimits:
     max_runtime_seconds: float = 240.0
     max_concurrent_runs: int = 2
     runs_per_ip_per_hour: int = 2
-    global_runs_per_day: int = 2
-    """Deliberately tiny, and measured rather than guessed.
+    global_runs_per_day: int = 1
+    """Deliberately tiny, and derived rather than guessed.
 
-    A full run costs ~22 provider requests, and the OpenAI tier this was
-    validated on allows 50 requests per day. Two runs is what that actually
-    buys. The previous default of 60 would have exhausted the account's
-    daily quota in the first three visitors and then failed opaquely for
-    everyone else."""
+    A run's worst case is its provider-request ceiling, not the ~22 one run
+    happened to use. On the validated 50-requests-per-day account that
+    affords a single run. The earlier default of 60 would have drained the
+    quota within three visitors and failed opaquely for everyone after."""
     max_cloud_cost_usd: float = 0.05
     max_search_credits: float = 8.0
     max_provider_requests_per_day: int = 50
@@ -51,14 +50,21 @@ class DemoLimits:
     with the plan, not independently."""
 
 
-def runs_affordable(provider_requests_per_day: int, requests_per_run: int = 22) -> int:
-    """How many demo runs a provider quota actually supports.
+def runs_affordable(provider_requests_per_day: int, worst_case_requests_per_run: int = 40) -> int:
+    """How many demo runs a provider quota can safely support.
 
-    Measured: a one-round, six-source run issued 22 provider requests. The
-    daily run cap should follow from the quota rather than being picked
-    independently and discovered at the 429.
+    Derived from the **worst case** a run may emit, not the average it
+    happened to emit once. A run reserves up to MAX_CLOUD_CALLS provider
+    requests, and structured repairs and compatibility retries each consume
+    one, so the observed ~22 is a floor rather than a bound.
+
+    Returns **0** when the quota cannot afford even one safe run. An earlier
+    version used ``max(1, ...)``, which promised a run the quota could not
+    pay for and turned a predictable refusal into a mid-run 429.
     """
-    return max(1, provider_requests_per_day // max(1, requests_per_run))
+    if worst_case_requests_per_run <= 0:
+        return 0
+    return provider_requests_per_day // worst_case_requests_per_run
 
 
 def limits_from_settings(settings: Settings) -> DemoLimits:
@@ -73,7 +79,12 @@ def limits_from_settings(settings: Settings) -> DemoLimits:
         runs_per_ip_per_hour=settings.demo_runs_per_hour,
         max_concurrent_runs=settings.demo_max_concurrent_runs,
         max_provider_requests_per_day=settings.demo_provider_requests_per_day,
-        global_runs_per_day=runs_affordable(settings.demo_provider_requests_per_day),
+        global_runs_per_day=runs_affordable(
+            settings.demo_provider_requests_per_day,
+            # The worst case a single run may emit, so capacity is never
+            # promised beyond what the quota can actually pay for.
+            worst_case_requests_per_run=max(1, settings.max_cloud_calls),
+        ),
     )
 
 
@@ -154,6 +165,16 @@ class RateLimiter:
                 raise CapacityError(
                     "The demo is running at capacity right now. Try again in a minute.",
                     retry_after_seconds=60,
+                )
+
+            if self._limits.global_runs_per_day <= 0:
+                # The provider quota cannot pay for even one safe run. Say
+                # so plainly instead of accepting a run that will 429.
+                raise CapacityError(
+                    "Live runs are disabled: the configured provider quota "
+                    "cannot cover a full research run. The recorded example "
+                    "run is still available.",
+                    retry_after_seconds=None,
                 )
 
             self._global.prune(86_400, now)

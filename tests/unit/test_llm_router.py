@@ -9,10 +9,12 @@ from pydantic import BaseModel
 
 from agentic_research.config import ModelRole, ModelSpec, Provider, Settings
 from agentic_research.llm.base import (
+    AttemptKind,
     BudgetExceededError,
     LLMCallRecord,
     ModelTimeoutError,
     ModelUnavailableError,
+    ProviderAttempt,
     ProviderRateLimited,
     ProviderRejectedRequest,
     StructuredOutputError,
@@ -149,12 +151,32 @@ class TestBudget:
 
 class TestUsageTotals:
     def test_unknown_pricing_is_reported_not_guessed(self) -> None:
+        """Cost comes from provider attempts, which is where tokens are
+        actually spent; a logical call is just their container."""
         tracker = UsageTracker(max_calls=10)
-        tracker.record(
-            LLMCallRecord(ModelRole.PLANNER, Provider.OPENAI, "gpt-6-sol", "S", 1.0, 1000, 500)
+        tracker.record_attempt(
+            ProviderAttempt(
+                ModelRole.PLANNER,
+                Provider.OPENAI,
+                "gpt-6-sol",
+                "S",
+                AttemptKind.INITIAL,
+                1.0,
+                1000,
+                500,
+            )
         )
-        tracker.record(
-            LLMCallRecord(ModelRole.CRITIC, Provider.OPENAI, "gpt-unknown-99", "S", 1.0, 100, 100)
+        tracker.record_attempt(
+            ProviderAttempt(
+                ModelRole.CRITIC,
+                Provider.OPENAI,
+                "gpt-unknown-99",
+                "S",
+                AttemptKind.INITIAL,
+                1.0,
+                100,
+                100,
+            )
         )
         totals = tracker.totals()
         assert totals.unpriced_calls == 1
@@ -166,11 +188,24 @@ class TestUsageTotals:
         tracker.record(
             LLMCallRecord(ModelRole.RESEARCHER, Provider.OLLAMA, "qwen3:4b", "S", 9.0, 5000, 900)
         )
+        tracker.record_attempt(
+            ProviderAttempt(
+                ModelRole.RESEARCHER,
+                Provider.OLLAMA,
+                "qwen3:4b",
+                "S",
+                AttemptKind.INITIAL,
+                9.0,
+                5000,
+                900,
+            )
+        )
         totals = tracker.totals()
         assert totals.known_cost_usd == 0.0
         assert totals.cost_is_complete
         assert totals.total_tokens == 5900
         assert totals.by_provider == {"ollama": 1}
+        assert totals.provider_requests == 1
 
     def test_pricing_prefix_match_handles_dated_snapshots(self) -> None:
         assert get_price(Provider.OPENAI, "gpt-6-sol-2026-09-01") == get_price(

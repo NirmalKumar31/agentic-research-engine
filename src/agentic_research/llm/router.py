@@ -25,10 +25,12 @@ from pydantic import BaseModel
 
 from agentic_research.config import LLMMode, ModelRole, ModelSpec, Provider, Settings
 from agentic_research.llm.base import (
+    AttemptKind,
     LLMCallRecord,
     LLMError,
     ModelTimeoutError,
     ModelUnavailableError,
+    ProviderAttempt,
     ProviderRateLimited,
     ProviderRejectedRequest,
     StructuredOutputError,
@@ -117,17 +119,10 @@ class RoleModel:
         still billed and still counted), and it lets us feed the validation
         error back to the model instead of losing the attempt.
         """
-        # Rough token estimate for the pre-dispatch spend check. Deliberately
-        # a cheap approximation (~4 chars/token): exact counting would need a
-        # tokeniser per model, and the check only needs to be conservative,
-        # not precise. The ceiling is enforced again by the recorded actuals.
-        estimated_input = (len(system) + len(user)) // 4
-        await self._tracker.reserve(
-            self.spec.provider,
-            role=self.role,
-            model=self.spec.model,
-            estimated_input_tokens=estimated_input,
-        )
+        # Only the logical-call slot is claimed here. Money is bounded per
+        # provider request inside _invoke, because one logical call can emit
+        # several requests and the provider charges for each.
+        await self._tracker.reserve()
         if self._gate is not None:
             async with self._gate:
                 return await self._invoke_handling_quirks(schema, system, user, repair=repair)
@@ -155,10 +150,21 @@ class RoleModel:
                 detail="model accepts only its default temperature",
             )
             self._model = self._rebuild_without_temperature()
-            return await self._invoke(schema, system, user, repair=repair)
+            # A compatibility retry is another provider request and is
+            # reserved and counted as one, even though the rejected 400
+            # billed nothing.
+            return await self._invoke(
+                schema, system, user, repair=repair, first_kind=AttemptKind.COMPATIBILITY_RETRY
+            )
 
     async def _invoke(
-        self, schema: type[SchemaT], system: str, user: str, *, repair: bool
+        self,
+        schema: type[SchemaT],
+        system: str,
+        user: str,
+        *,
+        repair: bool,
+        first_kind: AttemptKind = AttemptKind.INITIAL,
     ) -> SchemaT:
         runnable = self._model.with_structured_output(
             schema, method="json_schema", include_raw=True
@@ -173,6 +179,27 @@ class RoleModel:
 
         while attempts < max_attempts:
             attempts += 1
+            kind = first_kind if attempts == 1 else AttemptKind.STRUCTURED_REPAIR
+
+            # Rough token estimate for the pre-dispatch spend check. A cheap
+            # approximation (~4 chars/token): exact counting needs a
+            # per-model tokeniser, and the check only has to be conservative.
+            # Re-estimated each attempt because a repair carries the failed
+            # response and the correction back into the prompt, so the
+            # second request is genuinely larger than the first.
+            estimated_input = sum(len(str(getattr(m, "content", m))) for m in messages) // 4
+
+            # The hard gate. Every provider request passes through here
+            # immediately before it is emitted, and reserves its own
+            # worst-case token and cost allowance.
+            await self._tracker.reserve_provider_request(
+                self.spec.provider,
+                role=self.role,
+                model=self.spec.model,
+                estimated_input_tokens=estimated_input,
+            )
+
+            attempt_started = time.perf_counter()
             try:
                 # include_raw=True always yields the {raw, parsed, parsing_error}
                 # envelope, but the return type is declared as the union of both
@@ -180,6 +207,19 @@ class RoleModel:
                 result = cast("dict[str, Any]", await runnable.ainvoke(messages))
             except Exception as exc:
                 last_error = f"{type(exc).__name__}: {exc}"
+                domain = self._as_domain_error(exc)
+                # A request the provider rejected still consumed its rate
+                # limit; it just produced no tokens to bill.
+                self._record_attempt(
+                    schema.__name__,
+                    kind,
+                    attempt_started,
+                    0,
+                    0,
+                    ok=False,
+                    error=last_error,
+                    billable=False,
+                )
                 self._finish(
                     schema.__name__,
                     started,
@@ -189,15 +229,26 @@ class RoleModel:
                     ok=False,
                     error=last_error,
                 )
-                raise self._as_domain_error(exc) from exc
+                raise domain from exc
 
             raw = result.get("raw")
             usage = getattr(raw, "usage_metadata", None) or {}
-            input_tokens += int(usage.get("input_tokens", 0) or 0)
-            output_tokens += int(usage.get("output_tokens", 0) or 0)
+            attempt_in = int(usage.get("input_tokens", 0) or 0)
+            attempt_out = int(usage.get("output_tokens", 0) or 0)
+            input_tokens += attempt_in
+            output_tokens += attempt_out
 
             parsed = result.get("parsed")
             parse_error = result.get("parsing_error")
+            self._record_attempt(
+                schema.__name__,
+                kind,
+                attempt_started,
+                attempt_in,
+                attempt_out,
+                ok=parsed is not None and parse_error is None,
+            )
+
             if parsed is not None and parse_error is None:
                 self._finish(
                     schema.__name__, started, input_tokens, output_tokens, attempts, ok=True
@@ -228,6 +279,34 @@ class RoleModel:
             error=last_error,
         )
         raise StructuredOutputError(self.spec, schema.__name__, attempts, last_error)
+
+    def _record_attempt(
+        self,
+        schema_name: str,
+        kind: AttemptKind,
+        started: float,
+        input_tokens: int,
+        output_tokens: int,
+        *,
+        ok: bool,
+        error: str | None = None,
+        billable: bool = True,
+    ) -> None:
+        self._tracker.record_attempt(
+            ProviderAttempt(
+                role=self.role,
+                provider=self.spec.provider,
+                model=self.spec.model,
+                schema=schema_name,
+                kind=kind,
+                latency_s=round(time.perf_counter() - started, 3),
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                ok=ok,
+                error=error,
+                billable=billable,
+            )
+        )
 
     def _finish(
         self,
@@ -467,7 +546,11 @@ class ModelRouter:
                 model=spec.model,
                 api_key=settings.openai_api_key,
                 timeout=settings.llm_timeout_seconds,
-                max_retries=settings.llm_max_retries,
+                # Zero on purpose. An SDK-internal retry is a provider
+                # request our accounting never sees, which is precisely the
+                # gap this design closes. Any retry we want is issued by the
+                # router, where it is reserved and counted.
+                max_retries=0,
                 **extra,
                 # Hard per-call output ceiling. A runaway generation is
                 # otherwise billed in full before anything notices.

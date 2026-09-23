@@ -14,9 +14,11 @@ import respx
 
 from agentic_research.config import ModelRole, Provider, Settings
 from agentic_research.llm.base import (
+    AttemptKind,
     BudgetExceededError,
     CloudBudgetExceededError,
     LLMCallRecord,
+    ProviderAttempt,
     UsageTracker,
 )
 from agentic_research.models import SearchQuery
@@ -35,43 +37,64 @@ def cloud_call(tokens_in: int = 1000, tokens_out: int = 500) -> LLMCallRecord:
     )
 
 
+def cloud_attempt(
+    tokens_in: int = 1000,
+    tokens_out: int = 500,
+    kind: AttemptKind = AttemptKind.INITIAL,
+    model: str = "gpt-6-luna",
+) -> ProviderAttempt:
+    return ProviderAttempt(
+        ModelRole.SYNTHESIZER, Provider.OPENAI, model, "R", kind, 1.0, tokens_in, tokens_out
+    )
+
+
+async def reserve_cloud(
+    tracker: UsageTracker,
+    role: ModelRole = ModelRole.VERIFIER,
+    model: str = "gpt-6-luna",
+    tokens_in: int = 0,
+) -> float:
+    return await tracker.reserve_provider_request(
+        Provider.OPENAI, role=role, model=model, estimated_input_tokens=tokens_in
+    )
+
+
 class TestCloudCallCeiling:
     async def test_cloud_calls_are_capped(self) -> None:
         tracker = UsageTracker(100, budget(max_cloud_calls=2))
         for _ in range(2):
-            await tracker.reserve(Provider.OPENAI, role=ModelRole.VERIFIER, model="gpt-6-luna")
+            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
         with pytest.raises(CloudBudgetExceededError) as info:
-            await tracker.reserve(Provider.OPENAI, role=ModelRole.VERIFIER, model="gpt-6-luna")
+            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
         assert info.value.dimension == "calls"
 
     async def test_local_calls_are_not_charged_to_the_cloud_budget(self) -> None:
         """Local inference has no vendor cost, so a spent cloud budget must
         not stop a local-mode run."""
         tracker = UsageTracker(100, budget(max_cloud_calls=1))
-        await tracker.reserve(Provider.OPENAI, role=ModelRole.VERIFIER, model="gpt-6-luna")
+        await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
         for _ in range(5):
-            await tracker.reserve(Provider.OLLAMA, role=ModelRole.RESEARCHER, model="qwen3:4b")
+            await tracker.reserve_provider_request(
+                Provider.OLLAMA, role=ModelRole.RESEARCHER, model="qwen3:4b"
+            )
 
     async def test_zero_means_unlimited_not_forbidden(self) -> None:
         """An explicitly zero budget would otherwise be indistinguishable
         from an unconfigured one."""
         tracker = UsageTracker(100, budget(max_cloud_calls=0, max_cloud_cost_usd=0.0))
         for _ in range(5):
-            await tracker.reserve(Provider.OPENAI, role=ModelRole.VERIFIER, model="gpt-6-luna")
+            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
 
 
 class TestSpendCeiling:
     async def test_cost_is_checked_before_dispatch_not_after(self) -> None:
         """The whole point: the call that would breach the ceiling never runs."""
         tracker = UsageTracker(100, budget(max_cloud_cost_usd=0.02))
-        tracker.record(cloud_call(tokens_in=100_000, tokens_out=30_000))
+        tracker.record_attempt(cloud_attempt(tokens_in=100_000, tokens_out=30_000))
+        # Reserve to match what those tokens would have consumed.
+        await reserve_cloud(tracker, ModelRole.SYNTHESIZER, tokens_in=100_000)
         with pytest.raises(CloudBudgetExceededError) as info:
-            await tracker.reserve(
-                Provider.OPENAI,
-                role=ModelRole.SYNTHESIZER,
-                model="gpt-6-luna",
-                estimated_input_tokens=50_000,
-            )
+            await reserve_cloud(tracker, ModelRole.SYNTHESIZER, "gpt-6-luna", 50_000)
         assert info.value.dimension == "cost_usd"
 
     async def test_worst_case_output_is_included_in_the_check(self) -> None:
@@ -81,35 +104,40 @@ class TestSpendCeiling:
         # worst case (6k output tokens for the synthesiser) must still block.
         tracker = UsageTracker(100, budget(max_cloud_cost_usd=0.0029))
         with pytest.raises(CloudBudgetExceededError):
-            await tracker.reserve(
-                Provider.OPENAI,
-                role=ModelRole.SYNTHESIZER,
-                model="gpt-6-luna",
-                estimated_input_tokens=1_000,
-            )
+            await reserve_cloud(tracker, ModelRole.SYNTHESIZER, "gpt-6-luna", 1_000)
 
     async def test_input_token_ceiling(self) -> None:
         tracker = UsageTracker(100, budget(max_cloud_input_tokens=10_000))
         with pytest.raises(CloudBudgetExceededError) as info:
-            await tracker.reserve(
-                Provider.OPENAI,
-                role=ModelRole.VERIFIER,
-                model="gpt-6-luna",
-                estimated_input_tokens=20_000,
-            )
+            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna", 20_000)
         assert info.value.dimension == "input_tokens"
 
     async def test_output_token_ceiling(self) -> None:
         tracker = UsageTracker(100, budget(max_cloud_output_tokens=1_000))
         with pytest.raises(CloudBudgetExceededError) as info:
-            await tracker.reserve(Provider.OPENAI, role=ModelRole.SYNTHESIZER, model="gpt-6-luna")
+            await reserve_cloud(tracker, ModelRole.SYNTHESIZER, "gpt-6-luna")
         assert info.value.dimension == "output_tokens"
 
-    async def test_plain_call_ceiling_still_applies(self) -> None:
+    async def test_logical_call_ceiling_is_separate_from_requests(self) -> None:
+        """MAX_LLM_CALLS bounds work; MAX_PROVIDER_REQUESTS bounds money.
+
+        They are different units and neither substitutes for the other.
+        """
         tracker = UsageTracker(1, budget())
-        await tracker.reserve(Provider.OLLAMA, role=ModelRole.RESEARCHER, model="q")
-        with pytest.raises(BudgetExceededError):
-            await tracker.reserve(Provider.OLLAMA, role=ModelRole.RESEARCHER, model="q")
+        await tracker.reserve()
+        with pytest.raises(BudgetExceededError, match="MAX_LLM_CALLS"):
+            await tracker.reserve()
+
+    async def test_provider_request_ceiling_applies_to_every_provider(self) -> None:
+        tracker = UsageTracker(100, budget(), max_provider_requests=2)
+        for _ in range(2):
+            await tracker.reserve_provider_request(
+                Provider.OLLAMA, role=ModelRole.RESEARCHER, model="qwen3:4b"
+            )
+        with pytest.raises(BudgetExceededError, match="MAX_PROVIDER_REQUESTS"):
+            await tracker.reserve_provider_request(
+                Provider.OLLAMA, role=ModelRole.RESEARCHER, model="qwen3:4b"
+            )
 
 
 class TestPerRoleOutputCaps:

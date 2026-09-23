@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from agentic_research.config import ModelRole, Provider
 from agentic_research.evaluation.evaluators import evaluate_run
-from agentic_research.llm.base import LLMCallRecord, UsageTracker
+from agentic_research.llm.base import (
+    AttemptKind,
+    LLMCallRecord,
+    ProviderAttempt,
+    UsageTracker,
+)
 from agentic_research.metrics import build_metrics
 from agentic_research.models import (
     CitationIssue,
@@ -159,6 +164,18 @@ class TestBuildMetrics:
         tracker = UsageTracker(max_calls=10)
         tracker.record(
             LLMCallRecord(ModelRole.CRITIC, Provider.OPENAI, "gpt-mystery", "S", 1.0, 10, 10)
+        )
+        tracker.record_attempt(
+            ProviderAttempt(
+                ModelRole.CRITIC,
+                Provider.OPENAI,
+                "gpt-mystery",
+                "S",
+                AttemptKind.INITIAL,
+                1.0,
+                10,
+                10,
+            )
         )
         metrics = build_metrics(
             run_id="r1",

@@ -102,7 +102,14 @@ async def stream_research(
     bind_run(run_id)
     started = time.perf_counter()
 
-    router = ModelRouter(settings, UsageTracker(settings.max_llm_calls))
+    router = ModelRouter(
+        settings,
+        UsageTracker(
+            settings.max_llm_calls,
+            settings.cloud_budget,
+            max_provider_requests=settings.max_provider_requests,
+        ),
+    )
     log.info(
         "research_started",
         query=query[:200],

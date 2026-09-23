@@ -245,14 +245,18 @@ class TestRateLimiting:
     def test_capacity_message_is_honest_not_a_generic_error(self, patched_stream) -> None:
         patched_stream()
         app = create_app(demo_settings())
-        app.state.research.limits = DemoLimits(global_runs_per_day=0)
+        # One run allowed, already consumed, so the daily cap is the thing
+        # that refuses -- distinct from the zero-capacity case below.
+        app.state.research.limits = DemoLimits(global_runs_per_day=1)
         from agentic_research.web.limits import RateLimiter
 
         app.state.research.limiter = RateLimiter(app.state.research.limits)
         with TestClient(app) as client:
-            response = client.post("/api/research", json={"query": "a real question here"})
+            client.post("/api/research", json={"query": "a real question here"}).read()
+            response = client.post("/api/research", json={"query": "another real question"})
         assert response.status_code == 429
-        assert "daily budget" in response.json()["error"]
+        error = response.json()["error"]
+        assert "daily budget" in error or "demo runs" in error
 
 
 class TestStreaming:
@@ -329,25 +333,36 @@ class TestCapacityMatchesProviderQuota:
     """The demo's daily cap must follow from the provider quota.
 
     Found live: the default cap of 60 runs/day sat above an account limit of
-    50 provider requests/day, and a run costs ~22 requests. Three visitors
-    would have exhausted the quota and everyone after them would have seen
-    an opaque failure mid-run rather than an honest capacity message.
+    50 provider requests/day. Three visitors would have drained the quota
+    and everyone after would have hit an opaque mid-run 429 rather than an
+    honest capacity message.
     """
 
-    def test_daily_cap_is_derived_from_the_quota(self) -> None:
+    def test_daily_cap_is_derived_from_the_worst_case_not_the_average(self) -> None:
         from agentic_research.web.limits import runs_affordable
 
-        assert runs_affordable(50) == 2
-        assert runs_affordable(500) == 22
-        # Never zero: a misconfigured quota should still allow one attempt
-        # rather than silently disabling the demo.
-        assert runs_affordable(1) == 1
+        # 50 quota against a 40-request worst case affords exactly one run.
+        assert runs_affordable(50, 40) == 1
+        assert runs_affordable(500, 40) == 12
+
+    def test_a_quota_too_small_for_one_run_affords_zero(self) -> None:
+        """max(1, ...) would promise a run the quota cannot pay for and
+        turn a predictable refusal into a mid-run 429."""
+        from agentic_research.web.limits import runs_affordable
+
+        assert runs_affordable(30, 40) == 0
+        assert runs_affordable(0, 40) == 0
 
     def test_settings_quota_flows_into_the_limits(self) -> None:
         from agentic_research.web.limits import limits_from_settings
 
         limits = limits_from_settings(
-            Settings(llm_mode="local", demo_provider_requests_per_day=220, _env_file=None)
+            Settings(
+                llm_mode="local",
+                demo_provider_requests_per_day=400,
+                max_cloud_calls=40,
+                _env_file=None,
+            )
         )
         assert limits.global_runs_per_day == 10
 
@@ -355,4 +370,61 @@ class TestCapacityMatchesProviderQuota:
         from agentic_research.web.limits import DemoLimits
 
         limits = DemoLimits()
-        assert limits.global_runs_per_day * 22 <= limits.max_provider_requests_per_day
+        assert limits.global_runs_per_day * 40 <= limits.max_provider_requests_per_day
+
+    def test_zero_capacity_is_an_honest_distinct_state(self) -> None:
+        """Not 'try again later' -- live runs are off until the quota
+        changes, and the message should say so."""
+        import asyncio
+
+        from agentic_research.web.limits import CapacityError, DemoLimits, RateLimiter
+
+        limiter = RateLimiter(DemoLimits(global_runs_per_day=0))
+        with pytest.raises(CapacityError) as info:
+            asyncio.run(limiter.acquire("1.2.3.4"))
+        assert "disabled" in info.value.reason
+        assert info.value.retry_after_seconds is None
+
+
+class TestDegradedCorpusRefusedInLibrary:
+    """The CLI refused a degraded corpus; the library did not, so a Python
+    caller could produce exactly the misleading comparison the CLI was
+    protected from."""
+
+    def test_compare_refuses_by_default(self) -> None:
+        import asyncio
+
+        from agentic_research.evaluation.ab import (
+            DegradedCorpusError,
+            EvidenceCorpus,
+            compare,
+        )
+        from agentic_research.models import SourceDocument, SubQuestion
+
+        corpus = EvidenceCorpus(
+            question="q",
+            sub_questions=[SubQuestion(id="SQ1", text="t", rationale="r")],
+            sources=[
+                SourceDocument(
+                    id="S1",
+                    url="https://x/a",
+                    canonical_url="https://x/a",
+                    title="T",
+                    domain="x",
+                    text="",  # stripped
+                )
+            ],
+            evidence=[],
+        )
+        with pytest.raises(DegradedCorpusError, match="no text"):
+            asyncio.run(compare(corpus, demo_settings(), {"a": {}}))
+
+    def test_the_escape_hatch_must_be_explicit(self) -> None:
+        import inspect
+
+        from agentic_research.evaluation.ab import compare
+
+        signature = inspect.signature(compare)
+        parameter = signature.parameters["allow_degraded"]
+        assert parameter.default is False
+        assert parameter.kind is inspect.Parameter.KEYWORD_ONLY

@@ -1,3 +1,8 @@
+from agentic_research.evaluation.ab import (
+    DegradedCorpusError,
+    EvidenceCorpus,
+    compare,
+)
 from agentic_research.evaluation.benchmark import (
     BENCHMARK,
     BenchmarkQuestion,
@@ -12,8 +17,11 @@ __all__ = [
     "BENCHMARK",
     "BenchmarkQuestion",
     "BenchmarkReport",
+    "DegradedCorpusError",
+    "EvidenceCorpus",
     "Metric",
     "QuestionResult",
+    "compare",
     "evaluate_run",
     "run_benchmark",
     "write_report",

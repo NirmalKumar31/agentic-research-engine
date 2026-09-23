@@ -46,6 +46,17 @@ from agentic_research.runner import RunResult
 log = get_logger(__name__)
 
 
+class DegradedCorpusError(Exception):
+    """A corpus that cannot support verification was handed to compare().
+
+    Raised rather than logged. A degraded corpus produces a table whose
+    zeros look like findings -- the stripped-source-text corpus drove
+    citation integrity to 0% in both arms and briefly read as a result.
+    The CLI already refused it; the library must too, or a Python caller
+    can generate the same misleading output the CLI was protected from.
+    """
+
+
 @dataclass
 class EvidenceCorpus:
     """One run's retrieval output, frozen for replay."""
@@ -186,7 +197,14 @@ async def run_arm(
             update={field_names[role]: spec for role, spec in applied.items()}
         )
 
-    router = ModelRouter(settings, UsageTracker(settings.max_llm_calls, settings.cloud_budget))
+    router = ModelRouter(
+        settings,
+        UsageTracker(
+            settings.max_llm_calls,
+            settings.cloud_budget,
+            max_provider_requests=settings.max_provider_requests,
+        ),
+    )
     state: ResearchState = initial_state("ab", corpus.question, exhaustive_verification=True)
     state.update(
         {
@@ -314,13 +332,26 @@ async def compare(
     corpus: EvidenceCorpus,
     settings: Settings,
     arms: dict[str, dict[ModelRole, str]],
+    *,
+    allow_degraded: bool = False,
 ) -> Comparison:
     """Run each configuration over the same corpus, sequentially.
 
     Sequential because the arms contend for the same local GPU and the same
     rate limits; running them concurrently would measure queueing.
+
+    Refuses a corpus that cannot support verification unless
+    ``allow_degraded=True`` is passed deliberately. Correctness lives here
+    rather than only in the CLI so a Python caller cannot accidentally
+    produce a comparison the CLI would have rejected.
     """
     problems = corpus.validate_for_replay()
+    if problems and not allow_degraded:
+        raise DegradedCorpusError(
+            "corpus cannot support verification: "
+            + "; ".join(problems)
+            + " (pass allow_degraded=True to run it anyway, for diagnostics only)"
+        )
     for problem in problems:
         log.warning("corpus_degraded", problem=problem)
 
