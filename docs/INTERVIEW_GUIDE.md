@@ -10,24 +10,76 @@ than a guess, and interviewers can tell the difference.
 
 ## The 60-second version
 
-> It is a deep-research system built on LangGraph. You give it a research
-> question; it decomposes that into sub-questions, runs web searches in
-> parallel, deduplicates the results before fetching anything, extracts
-> evidence as verbatim quotes checked against the source text, assesses its
-> own coverage, and loops for another round if there are gaps — bounded by
-> explicit budgets. Then it synthesises a report where every claim carries
-> citations, and a verification pass checks that each citation resolves to a
-> source the run actually retrieved.
+> It is a deep-research system built on LangGraph. You give it a question;
+> it decomposes that into sub-questions, runs web searches in parallel,
+> deduplicates before fetching anything, extracts evidence as quotes
+> checked verbatim against the source text, assesses its own coverage, and
+> loops for another round if there are gaps — bounded by explicit budgets.
+> Then it writes a report and verifies its own citations.
 >
-> The two parts I would point at are the evidence provenance — you can trace
-> any sentence back through claim, evidence, source, query, to the
-> sub-question that motivated it — and the model routing, where code requests
-> a model by role and configuration decides whether that runs on OpenAI or a
-> local Ollama model.
+> The part I would point at is the provenance. A claim references *exact
+> evidence ids*, not source ids, and the engine resolves those to sources
+> itself. So any sentence in the report opens up to the specific quote
+> behind it, the page if it came from a PDF, the query that found it, and
+> the sub-question that motivated the query. The web UI makes that
+> clickable.
+>
+> The other half is honesty about measurement. It reports what it could
+> not verify, and when I tightened the definitions several headline numbers
+> went down — I published the lower ones.
 
-If they only ask one follow-up it is usually "why LangGraph". Have that ready.
+If they ask one follow-up it is usually "why LangGraph". Have that ready.
+The second most likely is "what does 100% citation validity actually mean",
+and the answer is that I removed that claim.
 
----
+## Security questions
+
+Worth rehearsing, because most LLM portfolio projects have no answer here.
+
+### "This fetches URLs a search engine gave it. What stops SSRF?"
+
+Originally nothing — it followed arbitrary redirects with no address
+filtering, which on a public deployment means fetching
+`http://169.254.169.254/` on request and handing instance credentials to a
+model. That was a deployment blocker and I fixed it before deploying.
+
+Deny-by-default on *addresses*, not hostnames, because a hostname resolves
+wherever it likes: http/https only, non-web ports refused, and loopback,
+private, link-local, multicast, reserved and unspecified ranges blocked
+across v4 and v6, including IPv4-mapped v6 forms. Every resolved address
+must be safe, not merely one of them — a name with one public and one
+private A record would otherwise pass depending on which the client picked.
+Redirects are followed manually so each hop is revalidated.
+
+What it does **not** solve is DNS rebinding: the address is checked before
+connecting, but the name could resolve differently at connect time.
+Closing that means pinning the validated IP into the connection. I would
+volunteer that limitation rather than wait to be asked.
+
+### "You feed web pages to a model. What about prompt injection?"
+
+The prompt-level defence is the weaker half: content is framed as untrusted
+data in the system prompt and around the text, and a document cannot forge
+the boundary markers.
+
+The structural defence is what actually matters. The extractor has no tool
+access, so a fully persuaded model has nothing to reach. And a claim
+invented from a page instruction references no evidence, so it fails
+resolution and never reaches the reader with a citation. The provenance
+design turns out to be an injection control as well as a quality one.
+
+### "It has your API key. What stops someone draining it?"
+
+Cloud call, input-token, output-token, cost and search-credit ceilings,
+all checked *before* dispatch using the call's worst case — committed spend
+plus the role's output cap. Checking afterwards means finding out on the
+invoice. Per-role output limits go to the provider, not just our counter,
+so a runaway generation is cut off rather than billed and then noticed.
+
+On top of that the hosted demo is server-controlled: a client value can
+only make a run smaller. Per-IP hourly cap, global daily cap, concurrency
+cap, query length bounds, wall-clock timeout, and the run slot released on
+disconnect so a closed tab does not hold capacity.
 
 ## Architecture questions
 
@@ -159,29 +211,52 @@ limitation stated in it.
 
 ### "How do you verify citations?"
 
-Two passes, cheapest and strongest first.
+Three passes, cheapest and strongest first.
 
-**Structural** — free, deterministic, decidable by lookup:
-- does every cited id resolve to a source actually retrieved? (the one that
-  must never fail)
-- does every factual-looking claim carry a citation?
-- which retrieved sources were never used?
+**Resolution** (free, deterministic). Every claim references *evidence ids*,
+not source ids. Each must exist and be citable; unknown ids, and ids
+pointing at evidence whose quote never aligned to its source, are dropped
+and reported as errors. Citation markers are then derived from what
+survived — by the engine, never by the model.
 
-**Entailment** — one model call per claim, sampled rather than exhaustive,
-key findings first: does the cited evidence actually support this claim?
+**Structural** (free). Does every evidence-owing claim carry evidence?
+Which sources went unused? Is each contradiction evidenced on both sides?
 
-Running structural first means the expensive pass is never spent on a claim
-already known to be broken.
+**Entailment** (one model call per claim). Does the claim's *own* evidence
+support it? Sampled in interactive runs and named `sampled_claim_support`
+to say so; exhaustive in benchmarks.
 
-If a citation points at a source that was never retrieved, repair strips the
-marker and leaves the sentence. That is the conservative choice: the sentence
-may well be true and merely mis-cited, but a dangling reference is always
-wrong. The stripped claim then shows up as uncited on re-verification, which
-is an honest description of its state.
+The interesting part is what the first version got wrong. It stored only
+source ids, so nothing recorded which evidence produced a sentence. When
+verification needed to check support, it pulled the first three evidence
+items belonging to the cited source and judged against those — frequently
+grading a claim against text that played no part in writing it. It looked
+like provenance and was not.
 
-Underneath all of it is quote verification at extraction time: each evidence
-item carries a verbatim span checked against the source text, tolerant of
-curly quotes and reflowed whitespace, intolerant of paraphrase.
+### "You renamed a metric. What was wrong with it?"
+
+Ask me this and I will hand you the best example in the project.
+
+The old headline was `citation_validity`, reported at 100%. It only ever
+measured that a citation id resolved to something retrieved — nothing about
+whether the source supported the claim. The name implied the stronger
+guarantee.
+
+Renamed to `citation_integrity`. And once citations were derived from
+already-resolved evidence, it became **true by construction** — an engine
+invariant, not an achievement. So the real measurement is now
+`evidence_integrity`: how often the model referenced evidence that exists
+and is citable. On an adversarial fixture that reads 0.25 where the old
+metric read 1.0.
+
+Same with quote fidelity. "Verbatim" was accepting a 0.88 similarity match.
+Tightened to exact-only — whitespace and smart punctuation may differ,
+words may not — which moves reworded matches out of the numerator and makes
+the number lower.
+
+Both went down when they were made honest, and both were published
+downward rather than quietly redefined. That is the answer I would want to
+hear.
 
 ### "How does local/cloud routing work, and is 'hybrid' real?"
 
@@ -364,14 +439,20 @@ per difficulty.
 exactly where — that is the interesting part, and pretending otherwise
 invites the one follow-up you cannot answer.
 
-**Know your own numbers**, from the live run in the README (real Tavily
-search, `qwen3:4b` running locally, zero API cost):
+**Know your own numbers.** The headline percentages from the first version
+are withdrawn: the provenance model changed and several metrics were
+renamed, so republishing them would be comparing different measurements.
+Quote the ones that still hold, and say which are pending a re-run:
 
-- 6 sub-questions, 6 queries, 48 results, 5 sources, 5 distinct domains
-- 30 evidence items, **30/30 quotes verified**
-- 11 citations, **100% valid**, 100% coverage, 60% entailment-supported
-- 20 model calls, 21.5k in / 6.0k out tokens, $0.00, 638s
-- 0 separate page fetches — all five sources reused content the search
-  provider already returned
-- 0 → 9 citations from moving citations into the schema
-- 202 hermetic tests in under 10 seconds
+- 357 hermetic tests, under 10 seconds, no network or credentials
+- gitleaks over 20 commits: zero findings, with the scanner verified
+  against a positive control first
+- evidence_integrity 0.25 on an adversarial fixture where the old
+  citation_validity read 1.0 — the honest metric is the lower one
+- without an output cap, a 4B local model asked for a research plan ran
+  past 240s; with one it is bounded, and completes in ~108s
+- local planning alone costs 100-200s, which is why the hosted demo is
+  cloud-only rather than a preference
+
+If asked for a quality percentage that has not been re-measured, say it has
+not been re-measured. That answer is worth more than a stale number.
