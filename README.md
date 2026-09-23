@@ -47,13 +47,20 @@ and evaluating a system that has no gold answer.
 - **Deduplicates before fetching.** A page found by four sub-questions costs
   one fetch and one extraction call, not four.
 - **Extracts evidence as verbatim quotes**, each checked against the source
-  text. A quote that cannot be located is flagged, not silently trusted.
+  text. Only an exact match (after whitespace and punctuation normalisation)
+  can support a citation; a reworded near-match is kept for diagnostics and
+  explicitly excluded.
+- **Reads PDFs with page provenance**, so an academic citation can render
+  `[S7, p. 14]` without guessing.
 - **Preserves disagreement.** Evidence carries a stance, and contradictions
   survive into the report instead of being smoothed into consensus.
 - **Assesses its own coverage** using counted facts, then loops on specific
   gaps — under hard limits on rounds, queries, sources and model calls.
-- **Verifies its own citations.** Structural checks first, then sampled
-  entailment checking of claims against their cited evidence.
+- **Verifies its own citations** against the *exact* evidence behind each
+  claim: structural checks first, then entailment — sampled in interactive
+  runs, exhaustive in benchmarks, and labelled either way.
+- **Refuses unsafe fetches.** Private, loopback, link-local and cloud
+  metadata addresses are blocked, and every redirect hop is revalidated.
 - **Reports honestly.** Cost is marked unavailable rather than guessed;
   unverifiable quotes and unresolved citations appear in the output.
 
@@ -104,10 +111,14 @@ graph LR
     SQ --> SE[SearchQuery Q5]
     SE --> SR[SearchResult]
     SR --> SD[SourceDocument S3]
-    SD --> EV[EvidenceItem S3-e1<br/>quote_verified]
-    EV --> CL[Claim]
-    CL --> CI["Citation [S3]"]
+    SD -- DiscoveryRef --> EV["EvidenceItem S3-e1<br/>quote + page<br/>quote_match=exact"]
+    EV --> CL["Claim<br/>evidence_ids=[S3-e1]"]
+    CL -- derived by engine --> CI["Citation [S3, p. 14]"]
 ```
+
+Read it right to left: given any sentence, the engine can name the exact
+evidence item, its verbatim quote and page, the source, the query that
+found it, and the sub-question that motivated the query.
 
 ### Model routing
 
@@ -283,25 +294,65 @@ modes unprompted.
 ### Web UI
 
 ```bash
-pip install -e ".[ui]"
-streamlit run app/streamlit_app.py
+pip install -e ".[web]"
+cd web && npm install && npm run build && cd ..
+uvicorn agentic_research.web.api:get_asgi_app --factory --reload
+# http://127.0.0.1:8000
 ```
 
-Same engine, same event stream — the UI contains no research logic.
+React + Vite frontend served by the same FastAPI process, driving the same
+`stream_research` generator as the CLI over Server-Sent Events. The UI
+contains no research logic and invents no progress: every line it shows
+corresponds to a node that actually ran.
 
-### Docker
+The part worth looking at is the **claim drill-down** — click any citation
+marker and it expands the exact evidence behind that sentence: the verbatim
+quote, its match class, the page for PDFs, the sub-question it answers, the
+query that found it, and a link to the source. That is only possible
+because provenance is evidence-level rather than source-level.
+
+It also surfaces what is weak rather than hiding it: uncited claims, fuzzy
+quotes marked not-citable, contradictions flagged when one side lacks
+evidence, and sources retrieved but never cited.
+
+A Streamlit app remains at `app/streamlit_app.py` as a local debugging
+interface.
+
+### Hosted demo mode
+
+`DEMO_MODE=true` makes every limit server-controlled. A client value can
+only ever make a run **smaller**:
+
+| Guard | Default |
+|---|---|
+| Rounds / sources / queries / model calls | 1 / 6 / 6 / 20 |
+| Cloud spend per run | $0.05, checked before dispatch |
+| Search credits per run | 8 |
+| Runs per client per hour | 3 |
+| Concurrent runs | 2 |
+| Wall-clock per run | 240s |
+| Query length | 10–300 characters |
+| Cloud fallback / persistence / API docs | off |
+
+At capacity it returns an honest, specific reason with `Retry-After`, not a
+generic failure. Run slots are released on completion, failure **and client
+disconnect**.
+
+### Deploying
 
 ```bash
-docker build -t agentic-research .
-docker run --rm --env-file .env \
-  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
-  -v "$PWD/outputs:/home/researcher/outputs" \
-  agentic-research research "..."
+docker build -f Dockerfile.web -t agentic-research-web .
+docker run -p 8000:8000 --env-file .env -e DEMO_MODE=true agentic-research-web
 ```
 
-`localhost` inside a container is the container, so local and hybrid modes
-need `OLLAMA_BASE_URL` pointed at the host. CI builds the image and runs the
-CLI inside it on every push.
+`render.yaml` is a Render blueprint containing **no secrets** — the two API
+keys are declared `sync: false` so Render prompts for them. It configures
+the demo cloud-only on `gpt-6-luna` with a $0.05 per-run ceiling, ephemeral
+filesystem and in-memory checkpointing.
+
+Cloud-only is not a preference: a local 4B model does not finish a run
+inside any reasonable web timeout. That was measured, not assumed — a live
+smoke test against Ollama hit the 240s ceiling during planning.
 
 ### Output artifacts
 
@@ -370,34 +421,70 @@ That was a real bug caught by a test.
 
 ```python
 EvidenceItem(
-    id="S3-e1",              # unique without coordination: one worker owns S3
+    id="S3-e1",                  # unique without coordination: one worker owns S3
     source_id="S3",
-    sub_question_id="SQ2",   # why we went looking
-    query_id="Q5",           # what found it
+    sub_question_id="SQ2",       # what we were trying to answer
+    discovery=DiscoveryRef(      # the actual path that retrieved it, or None
+        query_id="Q5", sub_question_id="SQ2"
+    ),
+    cross_attributed=False,      # True when no query for SQ2 found this source
     claim="Precision-recall curves are more informative than ROC AUC here.",
     quote="precision-recall curves are a more informative evaluation than "
           "ROC AUC under heavy imbalance",
-    stance=Stance.SUPPORTS,
-    quote_verified=True,     # the quote was located in the source text
+    quote_match=QuoteMatch.EXACT_NORMALIZED,
+    page=14,                     # for PDF sources
 )
 ```
 
-`quote_verified` is the load-bearing field. It tolerates curly quotes and
-reflowed whitespace, and rejects paraphrase. It is what stops a real URL being
-cited for a sentence the page never contained.
+A claim in the report references **evidence ids**, not source ids:
+
+```python
+Claim(
+    text="Precision-recall is the better metric under heavy imbalance",
+    evidence_ids=["S3-e1"],      # supplied by the model
+    citation_ids=["S3"],         # derived by the engine, never by the model
+    kind=ClaimKind.FACTUAL,
+)
+```
+
+That ordering is the whole point. The model picks evidence; the engine
+resolves evidence → source. Letting a model emit both invites the two to
+disagree, and it is what makes this chain walkable rather than aspirational:
+
+```
+Claim → EvidenceItem → quote + page → SourceDocument → DiscoveryRef
+      → SearchQuery → SubQuestion
+```
+
+An id that does not exist, or that points at evidence whose quote never
+aligned to its source, is **dropped and reported as an error** — the
+sentence survives without a citation, which is an honest description of its
+state, rather than keeping a reference that resolves to nothing.
+
+`quote_match` is three-valued rather than a boolean. Only
+`EXACT_NORMALIZED` is citable: whitespace and smart punctuation may differ,
+words may not. A reworded near-match is recorded as `FUZZY`, kept for
+diagnostics, and can never ground a citation.
 
 ### Citation verification
 
-1. **Structural** (free, deterministic): does every cited id resolve to a
-   source actually retrieved? Does every factual claim carry a citation? Which
-   retrieved sources went unused?
-2. **Entailment** (sampled, one model call per claim): does the cited evidence
-   actually support this claim?
+1. **Resolution** (free, deterministic): every referenced evidence id must
+   exist and be citable. Unknown ids, and ids pointing at evidence whose
+   quote never aligned, are dropped and reported as errors. Citation
+   markers are then *derived* from what survived.
+2. **Structural** (free): does every evidence-owing claim carry evidence?
+   Which sources went unused? Is each contradiction evidenced on both sides?
+3. **Entailment** (one model call per claim): does the claim's *own*
+   evidence support it? Sampled in interactive runs and labelled
+   `sampled_claim_support`; exhaustive in benchmarks.
 
-A citation pointing at a source that was never retrieved gets the marker
-stripped and the sentence kept — the sentence may be true and merely
-mis-cited, but a dangling reference is always wrong. The claim then shows up
-as uncited, which is an honest description of its state.
+Support is reported as four separate counts — supported, partially
+supported, unsupported, not checked — rather than collapsing partial into
+either bucket.
+
+A dropped reference leaves the sentence in place without a citation. The
+sentence may well be true and merely mis-referenced; a dangling reference
+is always wrong.
 
 ### Bounded loops
 
@@ -414,54 +501,20 @@ round cap and still produces a report.
 
 ---
 
-## A measured run
+## Measurements
 
-Every number below is from one real execution on 2026-09-22 — live Tavily
-search, `qwen3:4b` running locally, no cloud model involved. The artifacts it
-produced are the ones described in [Output artifacts](#output-artifacts).
+> **The figures previously published here are historical and no longer
+> describe this system.** The provenance model changed substantially
+> (evidence-level claims, exact-only quote matching, citable-evidence
+> gating), and several metrics were renamed because their old names
+> overstated what they measured. Republishing the old numbers against the
+> new definitions would be wrong, so they have been withdrawn pending fresh
+> runs. What the earlier runs established about the *engine* — that it
+> retrieves real sources, extracts verifiable quotes and terminates — still
+> holds; the specific percentages do not carry over.
 
-**Question:** *Compare modern approaches for detecting fraud in highly
-imbalanced transaction datasets, including how such models should be
-evaluated.*
-
-| | |
-|---|---|
-| Sub-questions planned | 6 |
-| Search queries / results | 6 / 48 |
-| Unique URLs after deduplication | 46 (2 duplicates collapsed) |
-| Sources retrieved | 5 (per-round cap), across **5 distinct domains** |
-| Separate page fetches | **0** — all five reused content Tavily already returned |
-| Evidence items | 30 |
-| **Quotes verified against source** | **30 / 30 (100%)** |
-| **Citation validity** | **11 / 11 (100%)** |
-| Citation coverage | 100% of factual claims |
-| Claims entailed by cited evidence | 60% (sampled) |
-| Sources retrieved but never cited | 0 |
-| Research rounds | 1 — stopped because coverage was judged sufficient |
-| Model calls | 20 (planner 2, researcher 6, critic 1, synthesizer 1, verifier 10) |
-| Tokens | 21,540 in / 6,046 out |
-| **Cost** | **$0.00** (entirely local) |
-| Wall clock | 638s |
-| Recoverable errors | 0 |
-
-Sources it selected included an arXiv paper and an MDPI journal article
-alongside two industry write-ups — domain concentration 0.20, meaning no
-single publisher dominated.
-
-The unedited artifacts from this run are committed under
-[`examples/sample-run/`](examples/sample-run/), including the full evidence
-chain with every quote and its verification flag.
-
-Two things worth reading honestly rather than as marketing:
-
-- **Deduplication saved little here (2 of 48).** Six genuinely different
-  sub-questions return genuinely different pages. The barrier is cheap
-  insurance that pays off when sub-questions overlap; a unit test pins the
-  mechanism at 3 fetches for 9 results across 3 queries. Quoting the test
-  fixture's ratio as a headline number would be dishonest.
-- **60% entailment support is the weakest number here**, and it is the local
-  model judging its own report. That is a calibration limit of a 4B verifier,
-  which is exactly why hybrid mode keeps verification in the cloud.
+Fresh measurements will be recorded here once re-run. What has changed and
+why is in [Metric definitions](#metric-definitions) below.
 
 ## What running on a 4B local model taught us
 
@@ -498,6 +551,34 @@ throughput — hence a separate concurrency limit for local providers.
 
 ---
 
+## Security
+
+Relevant because this fetches attacker-influenced URLs and feeds
+attacker-influenced text to a model.
+
+**SSRF.** The fetcher previously followed arbitrary redirects with no
+address filtering, which on a public deployment means fetching
+`http://169.254.169.254/` on request. Now deny-by-default: http/https only,
+non-web ports refused, and loopback, private, link-local, multicast,
+reserved and unspecified ranges blocked across IPv4 and IPv6, including
+IPv4-mapped IPv6 forms. Every resolved address must be safe, not merely one
+of them. Redirects are followed manually so each hop is revalidated.
+
+**Prompt injection.** Retrieved text is framed as untrusted data in both the
+system prompt and around the content, and a document cannot forge the
+boundary markers. The extractor has no tool access, so a persuaded model has
+nothing to reach — and a claim invented from an instruction references no
+evidence, so it fails resolution instead of reaching the reader with a
+citation.
+
+**Spend.** Cloud call, token, cost and search-credit ceilings are checked
+*before* dispatch using each call's worst case, and per-role output limits
+are enforced at the provider rather than only counted locally.
+
+**Secrets.** gitleaks runs over the full history in CI with added rules for
+Tavily and OpenAI key formats, verified against a positive control. The API
+never returns a key, an environment value, or a raw exception string.
+
 ## Testing
 
 ```bash
@@ -529,64 +610,46 @@ What the suite actually pins down, beyond the obvious:
 ## Evaluation
 
 ```bash
-agentic-research evaluate          # runs the benchmark question set
+agentic-research evaluate            # benchmark suite, checks every claim
+agentic-research freeze "question"   # capture an evidence corpus
+agentic-research compare -a local=ollama:qwen3:4b -a cloud=openai:gpt-6-luna
 ```
 
-No gold answers — they are expensive, go stale, and mostly measure agreement
-with whoever wrote them. Instead each metric asks whether the system did what
-it claims:
+No gold answers. They are expensive, go stale, and mostly measure whether
+the model agrees with whoever wrote them. Every metric instead asks whether
+the system did what it claims.
 
-| Metric | Definition |
-|---|---|
-| `citation_validity` | Citations resolving to a genuinely retrieved source |
-| `citation_coverage` | Factual claims carrying at least one citation |
-| `claim_support` | Sampled claims entailed by their cited evidence |
-| `quote_fidelity` | Quotes located in their source text |
-| `evidence_coverage` | Sub-questions that ended with adequate evidence |
-| `source_diversity` | 1 − share held by the single largest domain |
-| `duplicate_avoidance` | Results deduplicated before any fetch was spent |
-| `unused_source_rate` | Retrieved sources the report never cited |
+### Metric definitions
 
-`citation_validity` is the one that should always be 100%.
+Each one states exactly what it does and does not assert. Several were
+renamed because the old names claimed more than the measurement supported.
 
-### Measured results
+| Metric | Definition | Note |
+|---|---|---|
+| `evidence_integrity` | Share of evidence ids the model referenced that exist and are citable | **The model-facing integrity measure.** A hallucinated or unverifiable reference lands here |
+| `citation_integrity` | Share of citation markers resolving to a retrieved source | Now a *structural invariant*, not a measurement — the engine derives citations from already-resolved evidence, so anything below 100% is an engine bug. Formerly published as `citation_validity`, which implied the source supported the claim |
+| `citation_coverage` | Share of evidence-owing claims carrying a citation | "Evidence-owing" is by declared `ClaimKind`, not a keyword guess |
+| `claim_support` | Share of checked claims fully entailed by **their own** evidence | Named `sampled_claim_support` when sampled. Partial support is excluded from the numerator |
+| `partial_support` | Share only partially entailed | Reported separately rather than folded into either bucket. Lower is better |
+| `quote_fidelity` | Share of quotes found **verbatim** (exact after whitespace/punctuation normalisation) | Words may not differ. A 0.88 similarity match no longer counts |
+| `quote_drift` | Share matching only approximately | Diagnostic; these are never citable. Lower is better |
+| `evidence_coverage` | Share of sub-questions with ≥2 verified items from ≥2 sources | Same function the routing logic uses, so metric and behaviour cannot drift |
+| `source_diversity` | 1 − share held by the largest domain | |
+| `contradiction_auditability` | Share of reported disagreements with evidence on **both** sides | |
+| `duplicate_avoidance` | Share of results deduplicated before any fetch | Informational; real overlap is low |
+| `unused_source_rate` | Retrieved sources never cited | Lower is better |
 
-Three benchmark questions, `qwen3:4b` running locally with live Tavily
-search, 2026-09-22. 3/3 runs succeeded, 58 model calls, 15 sources, $0.00,
-mean 971s per question.
+### What none of this measures
 
-| Metric | Mean | B1 | B2 | B3 |
-|---|---|---|---|---|
-| `citation_validity` | **100%** | 100% | 100% | 100% |
-| `citation_coverage` | 100% | 100% | 100% | 100% |
-| `evidence_coverage` | 100% | 100% | 100% | 100% |
-| `quote_fidelity` | 86.4% | 83% | 76% | 100% |
-| `claim_support` | 70.0% | 80% | 70% | 60% |
-| `source_diversity` | 68.9% | — | — | — |
-| `duplicate_avoidance` | 13.1% | — | — | — |
-| `unused_source_rate` | 6.7% | — | — | — |
+**Whether the report is true.** Everything above measures faithfulness to
+retrieved sources. A confident report built entirely on wrong pages scores
+perfectly. That is a real ceiling on what this system can claim, not a gap
+to be closed with another metric.
 
-Reading these honestly:
-
-- **`citation_validity` held at 100% across all three.** No run cited a source
-  it had not retrieved. That is the property the citation subsystem exists to
-  guarantee, and it is the only one that should never degrade.
-- **`quote_fidelity` at 86% means roughly one extracted quote in seven could
-  not be located in its source.** Those items are flagged, excluded from
-  coverage counting, and down-weighted in confidence — but a larger model
-  would do better here, and the number is a property of the 4B model, not of
-  the pipeline.
-- **`claim_support` at 70% is the weakest figure**, and it is the same local
-  model grading its own report. It is a calibration limit as much as a quality
-  signal, which is exactly why hybrid mode keeps verification in the cloud.
-- **`duplicate_avoidance` at 13% is low**, as expected: distinct sub-questions
-  return distinct pages, so the dedup barrier is cheap insurance rather than a
-  large saving on these questions.
-
-Reproduce with `agentic-research evaluate -n 3`. Numbers will vary between
-runs — the web moves, and the model is sampling.
-
----
+**Quote fidelity is alignment against the text we hold**, which for a
+provider-supplied source is the search provider's copy rather than an
+independently re-fetched page. Every source records its `content_origin`
+so the two are distinguishable.
 
 ## Limitations
 
@@ -594,33 +657,43 @@ Stated plainly, because a tool that hides these is worse than one that does
 not have them.
 
 - **It does not verify truth.** It verifies that claims are faithful to
-  retrieved sources. A confident report built on wrong pages will score well.
-- **Source quality is a heuristic**, not a measurement. Hand-weighted over
-  document type, search rank, length and recency, untuned against ground
-  truth. It orders sources for extraction; it is not a claim about
-  correctness, and it reports its reasons so you can disagree.
-- **PDFs are skipped** as unsupported content. A real gap for academic sources.
-- **JavaScript-only pages yield nothing.** They are marked `EMPTY` rather than
+  retrieved sources. A confident report built on wrong pages scores well.
+- **`citation_integrity` is now near-meaningless as a quality signal.**
+  Citations are derived from already-resolved evidence, so it is 1.0 by
+  construction. `evidence_integrity` is the number that actually measures
+  the model.
+- **Quote fidelity is alignment against the copy we hold.** For a
+  provider-supplied source that is the search provider's text, not an
+  independently re-fetched page. `content_origin` records which.
+- **Cross-attributed evidence has no query provenance.** When a finding
+  answers a sub-question that no query for it retrieved, the chain stops at
+  the source. That is recorded honestly rather than filled in with an
+  unrelated query.
+- **Entailment is judged by a model**, and in local mode by the same model
+  that wrote the report. Treat the support figure as weak evidence.
+- **SSRF protection does not close DNS rebinding.** Addresses are validated
+  before connecting, but a name could resolve differently at connect time.
+  Closing it means pinning the validated IP into the connection.
+- **Rate limiting is in-memory**, so it is per-process. Behind replicas the
+  real bound is the per-run cloud spend ceiling.
+- **No OCR.** A scanned PDF is detected and reported as such, not read.
+- **JavaScript-only pages yield nothing.** Marked `EMPTY` rather than
   silently counted as read.
-- **The factual-claim detector is keyword-based** and will misclassify some
-  framing sentences. It only drives warnings, never deletion.
-- **Entailment checking is sampled**, not exhaustive, because it costs one
-  model call per claim.
-- **Local models are meaningfully weaker** at judgement roles — quantified
-  above rather than hand-waved.
-- **English-centric.** Extraction prompts and quote matching have not been
-  tested on other languages.
-- **Not a crawler.** It fetches chosen URLs and stops. No link discovery.
+- **Source quality is an untuned heuristic.** Hand-weighted over document
+  type, rank, length and recency. It orders sources for extraction; it is
+  not a claim about correctness, and it reports its reasons.
+- **English-centric.** Extraction prompts and quote matching are untested
+  on other languages.
+- **Not a crawler.** It fetches chosen URLs and stops.
 
 ## Roadmap
 
-- PDF text extraction (the largest real gap)
+- Pin the validated IP into the connection to close DNS rebinding
+- OCR for scanned PDFs
 - Content cache keyed by canonical URL, shared across runs
 - Cross-encoder reranking of evidence before synthesis
 - Source-quality weights learned from which sources end up cited
-- Postgres checkpointing and a task queue, if this ever runs multi-tenant
-
----
+- Shared rate-limit state if the demo ever runs on more than one instance
 
 ## Technology
 
