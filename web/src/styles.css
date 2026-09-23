@@ -171,3 +171,45 @@ a { color: var(--accent); }
 .muted { color: var(--muted); }
 .small { font-size: .82rem; }
 .footer { margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+
+/* --- recorded demonstrations ------------------------------------------ */
+
+.examples-panel {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 1rem 1.15rem; margin: 1.25rem 0; background: var(--panel);
+}
+.examples-panel__head {
+  display: flex; align-items: center; gap: .75rem; margin-bottom: .35rem;
+}
+.examples-panel h2 { font-size: 1.05rem; margin: 0; }
+
+/* Always visible, never subtle: a replay must not be mistakable for a
+   run that is happening now. */
+.badge {
+  font-size: .72rem; font-weight: 600; letter-spacing: .02em;
+  padding: .15rem .5rem; border-radius: 999px; white-space: nowrap;
+}
+.badge--recorded {
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.example-list { list-style: none; padding: 0; margin: .85rem 0 0; display: grid; gap: .6rem; }
+.example {
+  display: flex; flex-direction: column; gap: .2rem; width: 100%;
+  text-align: left; cursor: pointer; font: inherit;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .7rem .85rem; background: transparent; color: inherit;
+}
+.example:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+.example:disabled { opacity: .55; cursor: default; }
+.example--active { border-color: var(--accent); background: var(--accent-soft); }
+.example__label { font-weight: 600; }
+.example__question { font-size: .88rem; color: var(--muted); }
+.example__facts { margin-top: .15rem; }
+
+.notice {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .8rem 1rem; margin: 1.25rem 0;
+}
+.recorded-note { margin: 1rem 0 -.5rem; }

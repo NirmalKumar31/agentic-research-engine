@@ -101,7 +101,13 @@ function dispatch(block: string, handlers: StreamHandlers): void {
 }
 
 export interface DemoConfig {
-  mode: string;
+  /** What the service actually offers. `mode` is boot configuration and
+   *  is null while replaying, because no model is reachable then. */
+  service_mode: "replay" | "live";
+  live_research_enabled: boolean;
+  local_models_available: boolean;
+  recorded_examples: number;
+  mode: string | null;
   max_query_chars: number;
   max_rounds: number;
   max_sources: number;
@@ -116,4 +122,88 @@ export async function fetchConfig(): Promise<DemoConfig | null> {
   } catch {
     return null;
   }
+}
+
+/** Summary of a recorded run, as listed on the homepage. */
+export interface ExampleSummary {
+  id: string;
+  question: string;
+  label: string;
+  description: string;
+  mode: string;
+  recorded_at: string;
+  sources: number;
+  evidence_items: number;
+  citable_evidence: number;
+  has_pdf_evidence: boolean;
+  duration_s: number;
+}
+
+export async function fetchExamples(): Promise<ExampleSummary[]> {
+  try {
+    const response = await fetch("/api/examples");
+    if (!response.ok) return [];
+    const body = (await response.json()) as { examples: ExampleSummary[] };
+    return body.examples ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export interface RecordedRun {
+  recorded: true;
+  meta: ExampleSummary & { provenance?: Record<string, unknown> };
+  result: RunResult;
+}
+
+export async function fetchExample(id: string): Promise<RecordedRun | null> {
+  try {
+    const response = await fetch(`/api/examples/${encodeURIComponent(id)}`);
+    return response.ok ? ((await response.json()) as RecordedRun) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Replay a recorded run's own progress events over SSE.
+ *
+ * Shares `dispatch` with the live stream because the event shapes are
+ * identical by construction -- the recorder stores what the graph emitted.
+ * A GET, not a POST, so nothing here can be mistaken for starting a run.
+ */
+export async function replayExample(
+  id: string,
+  handlers: StreamHandlers,
+  signal: AbortSignal,
+): Promise<void> {
+  const response = await fetch(`/api/examples/${encodeURIComponent(id)}/stream`, { signal });
+
+  if (!response.ok) {
+    handlers.onError(`Could not load that recording (${response.status}).`);
+    handlers.onDone();
+    return;
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    handlers.onError("Streaming is not supported by this browser.");
+    handlers.onDone();
+    return;
+  }
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let split = buffer.indexOf("\n\n");
+    while (split !== -1) {
+      dispatch(buffer.slice(0, split), handlers);
+      buffer = buffer.slice(split + 2);
+      split = buffer.indexOf("\n\n");
+    }
+  }
+  handlers.onDone();
 }
