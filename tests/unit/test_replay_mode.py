@@ -38,6 +38,7 @@ def _settings(**overrides: Any) -> Settings:
 
 
 RECORDING = {
+    "recording_schema_version": 1,
     "meta": {
         "id": "example-run",
         "label": "Fraud detection on imbalanced data",
@@ -53,6 +54,23 @@ RECORDING = {
     ],
     "result": {
         "run_id": "recorded",
+        "plan": {
+            "strategy": "cover models, metrics and failure modes",
+            "sub_questions": [
+                {
+                    "id": "SQ1",
+                    "text": "Which metrics suit heavy class imbalance?",
+                    "rationale": "accuracy is misleading here",
+                    "is_followup": False,
+                },
+                {
+                    "id": "SQ2",
+                    "text": "Which resampling methods are used?",
+                    "rationale": "the standard first lever",
+                    "is_followup": False,
+                },
+            ],
+        },
         "report": {
             "title": "Fraud detection",
             "summary_claims": [
@@ -407,21 +425,168 @@ class TestRoutingIsIdenticalWithAndWithoutAFrontendBuild:
         assert "TOP SECRET" not in response.text
 
 
+class TestOneCanonicalSerialiser:
+    """A recording must be the same shape as a live result.
+
+    They are produced in different places -- the CLI recorder and the SSE
+    endpoint -- and if the two drifted the UI would need a second render
+    path, which is how a replay stops matching the thing it is imitating.
+    """
+
+    def test_the_api_and_the_recorder_share_one_implementation(self) -> None:
+        import agentic_research.web.api as api_module
+        from agentic_research.web.recordings import serialise_result
+
+        assert api_module._serialise_result is serialise_result
+
+    def test_a_recording_has_the_same_result_shape_as_a_live_run(self, client: Any) -> None:
+        from tests.unit.test_web_api import sample_result
+
+        from agentic_research.web.recordings import serialise_result
+
+        live = serialise_result(sample_result())
+        recorded = client.get("/api/examples/example-run").json()["result"]
+
+        assert set(recorded) == set(live), "recording and live result differ at the top level"
+        for key in ("evidence", "sources"):
+            if live[key] and recorded[key]:
+                assert set(recorded[key][0]) == set(live[key][0]), f"{key} entries differ"
+        if live["report"] and recorded["report"]:
+            assert set(recorded["report"]) == set(live["report"])
+            live_claim = live["report"]["summary_claims"][0]
+            recorded_claim = recorded["report"]["summary_claims"][0]
+            assert set(recorded_claim) == set(live_claim)
+
+    def test_the_schema_version_is_recorded_and_checked(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A recording outlives the code that made it, so an incompatible
+        one must disappear rather than render as a subtly broken demo."""
+        from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
+
+        stale = json.loads(json.dumps(RECORDING))
+        stale["recording_schema_version"] = RECORDING_SCHEMA_VERSION + 1
+        directory = tmp_path / "stale"
+        directory.mkdir()
+        (directory / "example-run.json").write_text(json.dumps(stale), encoding="utf-8")
+        monkeypatch.setattr(recordings, "RECORDINGS_DIR", directory)
+        recordings._index.cache_clear()
+        try:
+            assert recordings.available() == []
+        finally:
+            recordings._index.cache_clear()
+
+
+class TestTheTraceIsAnAllowlist:
+    """Progress events land in a committed, publicly served file, so what
+    survives is listed rather than filtered."""
+
+    def test_unlisted_fields_are_dropped(self) -> None:
+        cleaned = recordings.sanitise_trace(
+            [
+                {
+                    "event": "search_completed",
+                    "query_id": "Q1",
+                    "query": "fraud detection",
+                    "results": 8,
+                    "api_key": "leaked",
+                    "internal_state": {"anything": "at all"},
+                }
+            ]
+        )
+        assert cleaned == [
+            {
+                "event": "search_completed",
+                "query": "fraud detection",
+                "query_id": "Q1",
+                "results": 8,
+            }
+        ]
+
+    def test_an_unknown_event_type_is_dropped_entirely(self) -> None:
+        """A new graph event has to be considered before it can appear in a
+        public file, rather than arriving there by default."""
+        assert recordings.sanitise_trace([{"event": "brand_new_stage", "secret": "x"}]) == []
+
+    def test_started_keeps_the_question_but_not_the_model_map(self) -> None:
+        cleaned = recordings.sanitise_trace(
+            [{"event": "started", "run_id": "r1", "query": "q", "models": {"planner": "gpt-6"}}]
+        )
+        assert cleaned == [{"event": "started", "query": "q"}]
+
+    def test_public_provenance_drops_settings_and_packages(self) -> None:
+        """Identifiers, not a deployment dump."""
+        from agentic_research.config import Settings
+        from agentic_research.environment import capture as capture_environment
+
+        full = capture_environment(Settings(llm_mode="local", _env_file=None))
+        public = recordings.public_provenance(full)
+
+        assert "settings" not in public and "packages" not in public and "ollama" not in public
+        assert public["prompt_version"] and public["schema_version"]
+        assert "commit" in public and "dirty" in public
+
+
 class TestRecordingsAreSanitised:
-    def test_a_recording_containing_a_credential_is_refused(
+    def _write(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, payload: dict) -> None:
+        directory = tmp_path / "bad"
+        directory.mkdir(exist_ok=True)
+        (directory / "poisoned.json").write_text(json.dumps(payload), encoding="utf-8")
+        monkeypatch.setattr(recordings, "RECORDINGS_DIR", directory)
+        recordings._index.cache_clear()
+
+    def test_a_forbidden_key_name_is_refused(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Committed to a public repo and served anonymously, so this fails
         loudly in CI rather than quietly on the website."""
-        directory = tmp_path / "bad"
-        directory.mkdir()
-        poisoned = {"meta": {}, "result": {"settings": {"openai_api_key": "sk-leaked"}}}
-        (directory / "poisoned.json").write_text(json.dumps(poisoned), encoding="utf-8")
-        monkeypatch.setattr(recordings, "RECORDINGS_DIR", directory)
-        recordings._index.cache_clear()
+        payload = json.loads(json.dumps(RECORDING))
+        payload["result"]["settings"] = {"openai_api_key": ""}
+        self._write(tmp_path, monkeypatch, payload)
         try:
             with pytest.raises(ValueError, match="forbidden key"):
                 recordings.available()
+        finally:
+            recordings._index.cache_clear()
+
+    @pytest.mark.parametrize(
+        "secret",
+        [
+            "sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789",
+            "tvly-AbCdEfGh01234567890123456789",
+            "ghp_AbCdEfGhIjKlMnOpQrStUvWxYz0123456789",
+            "AKIAIOSFODNN7EXAMPLE",
+            "-----BEGIN RSA PRIVATE KEY-----",
+        ],
+    )
+    def test_a_credential_shaped_value_is_refused_whatever_it_is_called(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, secret: str
+    ) -> None:
+        """A key-name check alone passes {"note": "sk-proj-..."} straight
+        through, which is the realistic way one of these gets committed."""
+        payload = json.loads(json.dumps(RECORDING))
+        payload["result"]["evidence"][0]["claim"] = f"An innocuous note: {secret}"
+        self._write(tmp_path, monkeypatch, payload)
+        try:
+            with pytest.raises(ValueError, match="credential-shaped"):
+                recordings.available()
+        finally:
+            recordings._index.cache_clear()
+
+    def test_the_refusal_never_quotes_the_secret_it_found(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """This runs in CI logs. A message containing the credential has
+        published it a second time."""
+        secret = "sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789"
+        payload = json.loads(json.dumps(RECORDING))
+        payload["result"]["markdown"] = secret
+        self._write(tmp_path, monkeypatch, payload)
+        try:
+            with pytest.raises(ValueError) as caught:
+                recordings.available()
+            assert secret not in str(caught.value)
+            assert "sk-proj" not in str(caught.value)
         finally:
             recordings._index.cache_clear()
 

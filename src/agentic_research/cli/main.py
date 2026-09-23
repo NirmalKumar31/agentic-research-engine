@@ -600,7 +600,14 @@ def record_example(
 
     Source page text is excluded, so a recording is safe to commit.
     """
-    from agentic_research.web.recordings import RECORDINGS_DIR, serialise_result, valid_id
+    from agentic_research.web.recordings import (
+        RECORDING_SCHEMA_VERSION,
+        RECORDINGS_DIR,
+        public_provenance,
+        sanitise_trace,
+        serialise_result,
+        valid_id,
+    )
 
     if not valid_id(example_id):
         _fail(
@@ -614,6 +621,18 @@ def record_example(
     )
     configure_logging("WARNING", settings.log_format)
     console.print(f"Recording [bold]{example_id}[/bold]: {question}")
+
+    # Captured before the run, not after. It has to describe the code that
+    # is about to execute; taking it at the end would describe whatever the
+    # tree looked like twenty minutes later, which is not the same thing.
+    provenance = public_provenance(capture_environment(settings))
+    if provenance.get("dirty"):
+        _fail(
+            "Refusing to record from a dirty working tree.",
+            "A published recording must be reproducible from committed code. "
+            "Commit or stash first.",
+        )
+        return
 
     trace: list[dict[str, Any]] = []
     result: RunResult | None = None
@@ -636,6 +655,7 @@ def record_example(
 
     serialised = serialise_result(result)
     payload: dict[str, Any] = {
+        "recording_schema_version": RECORDING_SCHEMA_VERSION,
         "meta": {
             "id": example_id,
             "label": label,
@@ -644,9 +664,12 @@ def record_example(
             "mode": settings.llm_mode.value,
             "recorded_at": datetime.now(UTC).isoformat(),
             "order": order,
-            "environment": capture_environment(settings),
+            # Identifiers only. A full environment capture holds resolved
+            # settings, package versions and local model configuration --
+            # right for a private artifact, wrong for a public file.
+            "provenance": provenance,
         },
-        "trace": trace,
+        "trace": sanitise_trace(trace),
         "result": serialised,
     }
 

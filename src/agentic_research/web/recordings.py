@@ -36,6 +36,89 @@ log = get_logger(__name__)
 # deploy with no examples at all.
 RECORDINGS_DIR = Path(__file__).resolve().parent / "recordings"
 
+# Bumped when the recording payload changes shape. A committed example
+# outlives the code that produced it, and a silently-incompatible old file
+# renders as a subtly broken demo rather than an obvious error.
+RECORDING_SCHEMA_VERSION = 1
+
+# Progress events are copied into a committed, publicly served file, so the
+# fields that survive are listed rather than filtered. An allowlist cannot
+# leak a field added later; a denylist silently can.
+_TRACE_FIELDS: dict[str, frozenset[str]] = {
+    "started": frozenset({"query"}),
+    "analyzing_query": frozenset({"query"}),
+    "query_analyzed": frozenset({"intent", "format"}),
+    "planning": frozenset(),
+    "plan_generated": frozenset({"count", "questions"}),
+    "generating_queries": frozenset({"round", "sub_questions"}),
+    "queries_generated": frozenset({"count", "queries", "round"}),
+    "search_completed": frozenset({"query", "query_id", "results"}),
+    "search_failed": frozenset({"query_id"}),
+    "sources_deduplicated": frozenset({"results", "unique", "avoided", "selected"}),
+    "source_retrieved": frozenset({"source_id", "title"}),
+    "source_failed": frozenset({"source_id", "status"}),
+    "sources_registered": frozenset({"usable", "duplicates", "extracting"}),
+    "evidence_extracted": frozenset({"source_id", "items"}),
+    "assessing_coverage": frozenset({"round"}),
+    "coverage_evaluated": frozenset({"round", "ratio", "covered", "weak", "missing", "sufficient"}),
+    "synthesizing": frozenset({"evidence"}),
+    "synthesized": frozenset({"sections", "findings"}),
+    "verifying_citations": frozenset(),
+    "citations_verified": frozenset({"total", "evidence_integrity", "support", "exhaustive"}),
+    "completed": frozenset({"stop_reason"}),
+}
+
+# `started` also carries run_id and a models map. Neither belongs in a
+# published recording: the run id is meaningless once replayed, and the
+# model map is deployment configuration.
+
+
+def sanitise_trace(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Reduce progress events to the fields a visitor may see.
+
+    Unknown event types are dropped rather than passed through. A new
+    event added to the graph should have to be considered here before it
+    appears in a public file.
+    """
+    cleaned: list[dict[str, Any]] = []
+    for event in events:
+        name = event.get("event")
+        if not isinstance(name, str):
+            continue
+        allowed = _TRACE_FIELDS.get(name)
+        if allowed is None:
+            # Not `event=`: structlog reserves that key for the message.
+            log.debug("trace_event_dropped", event_name=name)
+            continue
+        cleaned.append({"event": name, **{k: event[k] for k in sorted(allowed) if k in event}})
+    return cleaned
+
+
+def public_provenance(environment: dict[str, Any]) -> dict[str, Any]:
+    """The identifiers that make a recording reproducible, and nothing else.
+
+    A full environment capture holds the resolved settings, installed
+    package versions and local model configuration. That is the right
+    content for a private run artifact and the wrong content for a file
+    served to the public: it is deployment detail, and it is exactly the
+    kind of blob a credential eventually gets added to.
+    """
+    provenance = environment.get("provenance", {}) or {}
+    git = provenance.get("git", {}) or {}
+    return {
+        "engine_version": provenance.get("engine_version"),
+        "evaluator_version": provenance.get("evaluator_version"),
+        "prompt_version": provenance.get("prompt_version"),
+        "schema_version": provenance.get("schema_version"),
+        "config_fingerprint": provenance.get("config_fingerprint"),
+        "commit": git.get("commit"),
+        "short_commit": git.get("short_commit"),
+        "dirty": git.get("dirty"),
+        "python": environment.get("python"),
+        "platform": environment.get("platform"),
+    }
+
+
 # Ids appear in a URL path and are used to build a filename, so they are
 # restricted rather than sanitised. Rejecting anything unexpected is easier
 # to reason about than trying to neutralise it.
@@ -45,6 +128,19 @@ _SAFE_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 # bad recording fails loudly in CI rather than quietly on the public site.
 _FORBIDDEN_KEYS = frozenset(
     {"api_key", "openai_api_key", "tavily_api_key", "brave_api_key", "authorization", "token"}
+)
+
+# Key names are not enough: {"note": "sk-proj-..."} passes a name-only
+# check. These match the *value* shapes, and mirror the rules in
+# .gitleaks.toml so the two cannot disagree about what a key looks like.
+_SECRET_VALUE_PATTERNS = (
+    re.compile(r"\bsk-proj-[A-Za-z0-9_-]{20,}"),
+    re.compile(r"\bsk-[A-Za-z0-9]{32,}"),
+    re.compile(r"\btvly-[A-Za-z0-9]{16,}"),
+    re.compile(r"\bBSA[A-Za-z0-9_-]{20,}"),  # Brave
+    re.compile(r"\bghp_[A-Za-z0-9]{36}"),
+    re.compile(r"\bAKIA[0-9A-Z]{16}"),
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 )
 
 
@@ -92,21 +188,30 @@ def valid_id(candidate: str) -> bool:
 def _assert_no_secrets(recording_id: str, payload: Any) -> None:
     """Walk a recording and refuse anything that looks like a credential.
 
-    Cheap insurance on a file that is committed to a public repository and
-    served anonymously. A recording is built from already-sanitised API
-    output, so this should never fire -- which is exactly why it is worth
-    asserting rather than assuming.
+    Both halves matter. A name-only check passes ``{"note": "sk-proj-..."}``
+    straight through, and a value-only check misses an empty-but-named
+    field that a later edit fills in. Neither the key nor the matched text
+    is ever included in the error: this runs in CI logs, and a message that
+    quotes the secret it found has published it again.
     """
-    stack: list[Any] = [payload]
+    stack: list[tuple[str, Any]] = [("$", payload)]
     while stack:
-        node = stack.pop()
+        where, node = stack.pop()
         if isinstance(node, dict):
             for key, value in node.items():
-                if key.lower() in _FORBIDDEN_KEYS:
-                    raise ValueError(f"recording {recording_id!r} contains a forbidden key {key!r}")
-                stack.append(value)
+                if str(key).lower() in _FORBIDDEN_KEYS:
+                    raise ValueError(
+                        f"recording {recording_id!r} contains a forbidden key at {where}"
+                    )
+                stack.append((f"{where}.{key}", value))
         elif isinstance(node, list):
-            stack.extend(node)
+            stack.extend((f"{where}[{i}]", item) for i, item in enumerate(node))
+        elif isinstance(node, str):
+            for pattern in _SECRET_VALUE_PATTERNS:
+                if pattern.search(node):
+                    raise ValueError(
+                        f"recording {recording_id!r} contains a credential-shaped value at {where}"
+                    )
 
 
 def _summary_from(recording_id: str, payload: dict[str, Any]) -> RecordingSummary:
@@ -155,6 +260,18 @@ def _index() -> dict[str, dict[str, Any]]:
             continue
         if not isinstance(payload, dict) or "result" not in payload:
             log.warning("recording_malformed", id=recording_id)
+            continue
+        version = payload.get("recording_schema_version")
+        if version != RECORDING_SCHEMA_VERSION:
+            # Skipped rather than rendered. A recording outlives the code
+            # that made it, and a shape change would otherwise surface as a
+            # subtly broken demo instead of an obvious absence.
+            log.warning(
+                "recording_schema_mismatch",
+                id=recording_id,
+                found=version,
+                expected=RECORDING_SCHEMA_VERSION,
+            )
             continue
         _assert_no_secrets(recording_id, payload)
         loaded[recording_id] = payload
