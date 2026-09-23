@@ -234,6 +234,14 @@ class Settings(BaseSettings):
     checkpoint_backend: str = "sqlite"
     checkpoint_path: Path = Path("checkpoints/research.sqlite")
 
+    # --- Hosted demo -------------------------------------------------------
+    # Server-controlled. When true the API clamps every run to the fixed
+    # demo ceilings regardless of what the client asks for.
+    demo_mode: bool = False
+    cors_origins: str = Field(
+        default="", description="Comma-separated allowed origins; empty disables CORS"
+    )
+
     # --- Observability -----------------------------------------------------
     log_level: str = "INFO"
     log_format: str = "console"

@@ -39,11 +39,14 @@ dependencies = [
 
 [project.optional-dependencies]
 ui = ["streamlit>=1.64,<2"]
+web = ["fastapi>=0.120,<1", "uvicorn[standard]>=0.40,<1"]
 dev = [
     "pytest>=9.1,<10",
     "pytest-asyncio>=1.4,<2",
     "pytest-cov>=7,<8",
     "respx>=0.23,<0.24",
+    "fastapi>=0.120,<1",
+    "uvicorn[standard]>=0.40,<1",
     "ruff>=0.16,<0.17",
     "mypy>=2.3,<3",
 ]

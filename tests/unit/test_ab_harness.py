@@ -29,15 +29,23 @@ PAGE = "Fraud datasets are severely imbalanced in production systems everywhere.
 
 def corpus() -> EvidenceCorpus:
     source = SourceDocument(
-        id="S1", url="https://x.org/a", canonical_url="https://x.org/a", title="Paper",
-        domain="x.org", text=PAGE, content_hash="h",
+        id="S1",
+        url="https://x.org/a",
+        canonical_url="https://x.org/a",
+        title="Paper",
+        domain="x.org",
+        text=PAGE,
+        content_hash="h",
         discovered_by=[DiscoveryRef(query_id="Q1", sub_question_id="SQ1")],
     )
     item = EvidenceItem(
-        id="S1-e1", source_id="S1", sub_question_id="SQ1",
+        id="S1-e1",
+        source_id="S1",
+        sub_question_id="SQ1",
         claim="Fraud datasets are imbalanced.",
         quote="Fraud datasets are severely imbalanced in production systems",
-        quote_match=QuoteMatch.EXACT_NORMALIZED, relevance=0.9,
+        quote_match=QuoteMatch.EXACT_NORMALIZED,
+        relevance=0.9,
         discovery=DiscoveryRef(query_id="Q1", sub_question_id="SQ1"),
     )
     return EvidenceCorpus(
@@ -45,9 +53,7 @@ def corpus() -> EvidenceCorpus:
         sub_questions=[SubQuestion(id="SQ1", text="how imbalanced?", rationale="r")],
         sources=[source],
         evidence=[item],
-        completed_queries=[
-            SearchQuery(id="Q1", sub_question_id="SQ1", text="q", round_number=1)
-        ],
+        completed_queries=[SearchQuery(id="Q1", sub_question_id="SQ1", text="q", round_number=1)],
     )
 
 
@@ -99,17 +105,13 @@ class TestReplay:
         result = await run_arm("local", corpus(), ab_settings)
         assert result.ok, result.error
 
-    async def test_verification_is_exhaustive_in_replay(
-        self, ab_settings: Settings
-    ) -> None:
+    async def test_verification_is_exhaustive_in_replay(self, ab_settings: Settings) -> None:
         result = await run_arm("local", corpus(), ab_settings)
         assert result.verification.get("entailment_exhaustive") is True
 
 
 class TestComparison:
-    async def test_both_arms_run_over_the_same_corpus(
-        self, ab_settings: Settings
-    ) -> None:
+    async def test_both_arms_run_over_the_same_corpus(self, ab_settings: Settings) -> None:
         shared = corpus()
         comparison = await compare(
             shared,
@@ -123,12 +125,8 @@ class TestComparison:
         assert all(a.ok for a in comparison.arms)
         assert comparison.corpus_summary == shared.summary()
 
-    async def test_report_records_that_the_corpus_was_shared(
-        self, ab_settings: Settings
-    ) -> None:
-        comparison = await compare(
-            corpus(), ab_settings, {"a": all_roles("ollama:qwen3:4b")}
-        )
+    async def test_report_records_that_the_corpus_was_shared(self, ab_settings: Settings) -> None:
+        comparison = await compare(corpus(), ab_settings, {"a": all_roles("ollama:qwen3:4b")})
         payload = comparison.to_dict()
         assert "frozen evidence corpus" in payload["note"]
         assert payload["environment"]["python"]
@@ -142,7 +140,7 @@ class TestComparison:
         calls = {"n": 0}
         real = ab.run_arm
 
-        async def flaky(label, corpus_, settings, **kwargs):  # noqa: ANN001, ANN003
+        async def flaky(label, corpus_, settings, **kwargs):
             calls["n"] += 1
             if calls["n"] == 1:
                 raise RuntimeError("provider down")
