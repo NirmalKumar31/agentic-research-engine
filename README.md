@@ -815,6 +815,8 @@ docs/                    ARCHITECTURE.md · INTERVIEW_GUIDE.md
   the rejected alternatives
 - [`docs/INTERVIEW_GUIDE.md`](docs/INTERVIEW_GUIDE.md) — presenting the design
   and its tradeoffs
+- [`docs/REVIEW.md`](docs/REVIEW.md) — a deliberately unflattering standing
+  list of what is still wrong, from five perspectives
 
 ## Attribution
 
