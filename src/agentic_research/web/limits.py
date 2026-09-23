@@ -35,10 +35,30 @@ class DemoLimits:
     max_llm_calls: int = 20
     max_runtime_seconds: float = 240.0
     max_concurrent_runs: int = 2
-    runs_per_ip_per_hour: int = 3
-    global_runs_per_day: int = 60
+    runs_per_ip_per_hour: int = 2
+    global_runs_per_day: int = 2
+    """Deliberately tiny, and measured rather than guessed.
+
+    A full run costs ~22 provider requests, and the OpenAI tier this was
+    validated on allows 50 requests per day. Two runs is what that actually
+    buys. The previous default of 60 would have exhausted the account's
+    daily quota in the first three visitors and then failed opaquely for
+    everyone else."""
     max_cloud_cost_usd: float = 0.05
     max_search_credits: float = 8.0
+    max_provider_requests_per_day: int = 50
+    """The account-level ceiling the run caps are derived from. Raise this
+    with the plan, not independently."""
+
+
+def runs_affordable(provider_requests_per_day: int, requests_per_run: int = 22) -> int:
+    """How many demo runs a provider quota actually supports.
+
+    Measured: a one-round, six-source run issued 22 provider requests. The
+    daily run cap should follow from the quota rather than being picked
+    independently and discovered at the 429.
+    """
+    return max(1, provider_requests_per_day // max(1, requests_per_run))
 
 
 def limits_from_settings(settings: Settings) -> DemoLimits:
@@ -52,6 +72,8 @@ def limits_from_settings(settings: Settings) -> DemoLimits:
         max_runtime_seconds=settings.demo_max_runtime_seconds,
         runs_per_ip_per_hour=settings.demo_runs_per_hour,
         max_concurrent_runs=settings.demo_max_concurrent_runs,
+        max_provider_requests_per_day=settings.demo_provider_requests_per_day,
+        global_runs_per_day=runs_affordable(settings.demo_provider_requests_per_day),
     )
 
 

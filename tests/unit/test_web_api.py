@@ -323,3 +323,36 @@ class TestStreaming:
         with TestClient(app) as client:
             client.post("/api/research", json={"query": "a genuine question here"}).read()
             assert client.get("/api/health").json()["capacity"]["active_runs"] == 0
+
+
+class TestCapacityMatchesProviderQuota:
+    """The demo's daily cap must follow from the provider quota.
+
+    Found live: the default cap of 60 runs/day sat above an account limit of
+    50 provider requests/day, and a run costs ~22 requests. Three visitors
+    would have exhausted the quota and everyone after them would have seen
+    an opaque failure mid-run rather than an honest capacity message.
+    """
+
+    def test_daily_cap_is_derived_from_the_quota(self) -> None:
+        from agentic_research.web.limits import runs_affordable
+
+        assert runs_affordable(50) == 2
+        assert runs_affordable(500) == 22
+        # Never zero: a misconfigured quota should still allow one attempt
+        # rather than silently disabling the demo.
+        assert runs_affordable(1) == 1
+
+    def test_settings_quota_flows_into_the_limits(self) -> None:
+        from agentic_research.web.limits import limits_from_settings
+
+        limits = limits_from_settings(
+            Settings(llm_mode="local", demo_provider_requests_per_day=220, _env_file=None)
+        )
+        assert limits.global_runs_per_day == 10
+
+    def test_default_cap_does_not_exceed_the_measured_quota(self) -> None:
+        from agentic_research.web.limits import DemoLimits
+
+        limits = DemoLimits()
+        assert limits.global_runs_per_day * 22 <= limits.max_provider_requests_per_day

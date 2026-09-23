@@ -45,6 +45,28 @@ class ModelTimeoutError(LLMError):
     """
 
 
+class ProviderRateLimited(LLMError):
+    """The provider refused the request for quota or rate reasons.
+
+    Its own type because the remedy is unlike the others: not a smaller
+    request, not a different model, just less traffic or a later time. The
+    message carries the provider's own wording, which usually names the
+    exact limit that was hit.
+    """
+
+    def __init__(self, detail: str, retry_after_seconds: float | None = None) -> None:
+        self.retry_after_seconds = retry_after_seconds
+        super().__init__(detail)
+
+
+class ProviderRejectedRequest(LLMError):
+    """The provider refused the request as malformed or unsupported.
+
+    Distinct from a transport failure: retrying the identical request will
+    fail identically, so only a changed request is worth attempting.
+    """
+
+
 class StructuredOutputError(LLMError):
     """A model could not be coaxed into producing schema-valid output."""
 

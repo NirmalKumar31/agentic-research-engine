@@ -183,7 +183,15 @@ class Settings(BaseSettings):
     # Per-role output ceilings. Synthesis legitimately needs room; a query
     # writer emitting 4k tokens is a malfunction, not a long answer.
     max_output_tokens_planner: int = Field(default=2_000, ge=64)
-    max_output_tokens_researcher: int = Field(default=1_500, ge=64)
+    max_output_tokens_researcher: int = Field(
+        default=3_000,
+        ge=64,
+        description=(
+            "Extraction returns up to six findings, each with a verbatim quote. "
+            "1500 was measured to truncate real responses mid-JSON, which the "
+            "structured-output layer then reports as a parse failure."
+        ),
+    )
     max_output_tokens_critic: int = Field(default=1_500, ge=64)
     max_output_tokens_synthesizer: int = Field(default=6_000, ge=64)
     max_output_tokens_verifier: int = Field(default=400, ge=64)
@@ -251,6 +259,15 @@ class Settings(BaseSettings):
     )
     demo_runs_per_hour: int = Field(default=3, ge=1)
     demo_max_concurrent_runs: int = Field(default=2, ge=1)
+    demo_provider_requests_per_day: int = Field(
+        default=50,
+        ge=1,
+        description=(
+            "Account-level provider request quota. The demo's daily run cap is "
+            "derived from this, because a run costs ~22 requests and picking the "
+            "two numbers independently ends in a 429 mid-run."
+        ),
+    )
 
     # --- Observability -----------------------------------------------------
     log_level: str = "INFO"

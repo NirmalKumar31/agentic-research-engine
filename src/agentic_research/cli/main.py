@@ -350,6 +350,11 @@ def compare_models(
     settings = _load_settings()
     configure_logging("WARNING", settings.log_format)
     corpus = EvidenceCorpus.load(corpus_path)
+    problems = corpus.validate_for_replay()
+    if problems:
+        # Refuse rather than print a table whose zeros look like findings.
+        _fail("This corpus cannot support verification:\n  - " + "\n  - ".join(problems))
+        return
     console.print(f"Corpus: {corpus.summary()}")
     console.print(f"Question: {corpus.question}\n")
 

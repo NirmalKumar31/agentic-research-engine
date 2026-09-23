@@ -52,6 +52,11 @@ services:
         value: "20000"
       - key: MAX_SEARCH_CREDITS
         value: "8"
+      # Measured on the validation account: gpt-6-luna allowed 50 requests
+      # per day and one run costs ~22. Raise this only when the plan is
+      # raised; the daily run cap is derived from it.
+      - key: DEMO_PROVIDER_REQUESTS_PER_DAY
+        value: "50"
 
       # --- run shape -----------------------------------------------------
       - key: MAX_RESEARCH_ROUNDS

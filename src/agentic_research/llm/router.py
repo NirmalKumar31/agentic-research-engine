@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import Callable
+from functools import partial
 from typing import Any, TypeVar, cast
 
 import httpx
@@ -24,8 +26,11 @@ from pydantic import BaseModel
 from agentic_research.config import LLMMode, ModelRole, ModelSpec, Provider, Settings
 from agentic_research.llm.base import (
     LLMCallRecord,
+    LLMError,
     ModelTimeoutError,
     ModelUnavailableError,
+    ProviderRateLimited,
+    ProviderRejectedRequest,
     StructuredOutputError,
     UsageTracker,
 )
@@ -34,6 +39,29 @@ from agentic_research.observability import get_logger
 log = get_logger(__name__)
 
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    """Detect a provider quota or rate refusal.
+
+    Matched on the message rather than the SDK's exception class so the
+    router does not need to import provider-specific types, and so it keeps
+    working if a provider is added or an SDK renames its errors.
+    """
+    text = str(exc).lower()
+    return (
+        "error code: 429" in text
+        or "rate limit" in text
+        or "rate_limit" in text
+        or "quota" in text
+        or "insufficient_quota" in text
+    )
+
+
+def _is_temperature_rejection(exc: Exception) -> bool:
+    text = str(exc).lower()
+    return "temperature" in text and ("does not support" in text or "unsupported value" in text)
+
 
 _REPAIR_TEMPLATE = (
     "Your previous response could not be parsed into the required schema.\n"
@@ -62,6 +90,7 @@ class RoleModel:
         fell_back: bool = False,
         repair_attempts: int = 1,
         gate: asyncio.Semaphore | None = None,
+        rebuild_without_temperature: Callable[[], BaseChatModel] | None = None,
     ) -> None:
         self.role = role
         self.spec = spec
@@ -70,6 +99,7 @@ class RoleModel:
         self._fell_back = fell_back
         self._repair_attempts = repair_attempts
         self._gate = gate
+        self._rebuild_without_temperature = rebuild_without_temperature
 
     async def structured(
         self,
@@ -100,8 +130,32 @@ class RoleModel:
         )
         if self._gate is not None:
             async with self._gate:
-                return await self._invoke(schema, system, user, repair=repair)
-        return await self._invoke(schema, system, user, repair=repair)
+                return await self._invoke_handling_quirks(schema, system, user, repair=repair)
+        return await self._invoke_handling_quirks(schema, system, user, repair=repair)
+
+    async def _invoke_handling_quirks(
+        self, schema: type[SchemaT], system: str, user: str, *, repair: bool
+    ) -> SchemaT:
+        """Absorb provider parameter quirks rather than making callers know them.
+
+        Some OpenAI models accept only the default temperature and reject any
+        explicit value with a 400. Which models those are is not discoverable
+        without asking, so the router tries, and on that specific rejection
+        rebuilds the client without the parameter and retries once. The
+        rejected request is a 400, so it bills nothing.
+        """
+        try:
+            return await self._invoke(schema, system, user, repair=repair)
+        except LLMError as exc:
+            if self._rebuild_without_temperature is None or not _is_temperature_rejection(exc):
+                raise
+            log.info(
+                "temperature_unsupported_retrying",
+                model=str(self.spec),
+                detail="model accepts only its default temperature",
+            )
+            self._model = self._rebuild_without_temperature()
+            return await self._invoke(schema, system, user, repair=repair)
 
     async def _invoke(
         self, schema: type[SchemaT], system: str, user: str, *, repair: bool
@@ -219,6 +273,12 @@ class RoleModel:
             )
             return ModelTimeoutError(f"{self.spec} timed out. {hint}")
         text = str(exc).lower()
+        # Checked before the connection heuristics: a 429 body can mention
+        # "connection" and would otherwise be misreported as unreachable.
+        if _is_rate_limit(exc):
+            return ProviderRateLimited(
+                f"{self.spec} rate limited or out of quota: {str(exc)[:300]}"
+            )
         if isinstance(exc, httpx.ConnectError) or "connection" in text or "refused" in text:
             hint = (
                 "Start the local server with `ollama serve`"
@@ -228,6 +288,8 @@ class RoleModel:
             return ModelUnavailableError(self.spec, "connection failed", hint)
         if isinstance(exc, httpx.HTTPError):
             return ModelUnavailableError(self.spec, f"transport error: {exc}")
+        if "invalid_request_error" in text or "unsupported value" in text:
+            return ProviderRejectedRequest(f"{self.spec} rejected the request: {exc}")
         return exc
 
 
@@ -249,6 +311,9 @@ class ModelRouter:
         # Created lazily so it binds to the running loop rather than whichever
         # loop happened to construct the router.
         self._local_gate: asyncio.Semaphore | None = None
+        # Models discovered at runtime to reject an explicit temperature.
+        # Remembered so the retry happens once per model, not once per call.
+        self._no_temperature: set[str] = set()
 
     # -- introspection ----------------------------------------------------
 
@@ -339,7 +404,20 @@ class ModelRouter:
             fell_back=role in self._fallbacks,
             repair_attempts=1,
             gate=self._gate_for(spec),
+            rebuild_without_temperature=(
+                partial(self._without_temperature, spec, output_cap)
+                if spec.provider is Provider.OPENAI
+                else None
+            ),
         )
+
+    def _without_temperature(self, spec: ModelSpec, output_cap: int | None) -> BaseChatModel:
+        """Rebuild a client for a model that rejects an explicit temperature."""
+        self._no_temperature.add(spec.model)
+        key = f"{spec}#{output_cap}"
+        client = self._build(spec, output_cap, with_temperature=False)
+        self._clients[key] = client
+        return client
 
     def _gate_for(self, spec: ModelSpec) -> asyncio.Semaphore | None:
         """Concurrency limit for local models.
@@ -367,7 +445,13 @@ class ModelRouter:
         self._clients[key] = client
         return client
 
-    def _build(self, spec: ModelSpec, output_cap: int | None = None) -> BaseChatModel:
+    def _build(
+        self,
+        spec: ModelSpec,
+        output_cap: int | None = None,
+        *,
+        with_temperature: bool = True,
+    ) -> BaseChatModel:
         settings = self.settings
         if spec.provider is Provider.OPENAI:
             from langchain_openai import ChatOpenAI
@@ -376,12 +460,15 @@ class ModelRouter:
                 raise ModelUnavailableError(
                     spec, "OPENAI_API_KEY is not set", "Add it to .env or use LLM_MODE=local"
                 )
+            extra: dict[str, Any] = {}
+            if with_temperature and spec.model not in self._no_temperature:
+                extra["temperature"] = settings.llm_temperature
             return ChatOpenAI(
                 model=spec.model,
                 api_key=settings.openai_api_key,
-                temperature=settings.llm_temperature,
                 timeout=settings.llm_timeout_seconds,
                 max_retries=settings.llm_max_retries,
+                **extra,
                 # Hard per-call output ceiling. A runaway generation is
                 # otherwise billed in full before anything notices.
                 max_completion_tokens=output_cap,

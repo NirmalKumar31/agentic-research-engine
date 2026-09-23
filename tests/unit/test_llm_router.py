@@ -13,6 +13,8 @@ from agentic_research.llm.base import (
     LLMCallRecord,
     ModelTimeoutError,
     ModelUnavailableError,
+    ProviderRateLimited,
+    ProviderRejectedRequest,
     StructuredOutputError,
     UsageTracker,
 )
@@ -235,3 +237,144 @@ class TestPreflightAndFallback:
         settings = Settings(llm_mode="cloud", openai_api_key="sk-x", _env_file=None)
         assert await ModelRouter(settings).preflight() == []
         assert route.call_count == 0
+
+
+class TestProviderQuirks:
+    """Provider parameter quirks belong in the router, not in every caller."""
+
+    async def test_model_rejecting_temperature_is_retried_without_it(self) -> None:
+        """Measured against gpt-6-luna, which accepts only its default
+        temperature and 400s on any explicit value. Which models behave this
+        way is not discoverable without asking, so the router absorbs it."""
+        rejection = RuntimeError(
+            "Error code: 400 - {'error': {'message': \"Unsupported value: "
+            "'temperature' does not support 0.2 with this model. Only the "
+            "default (1) value is supported.\", 'type': 'invalid_request_error'}}"
+        )
+        rebuilt = FakeChatModel([envelope(parsed=Shape(value="ok"))])
+        first = FakeChatModel([rejection])
+        calls = {"rebuilds": 0}
+
+        def rebuild() -> FakeChatModel:
+            calls["rebuilds"] += 1
+            return rebuilt
+
+        model = RoleModel(
+            role=ModelRole.PLANNER,
+            spec=ModelSpec(provider=Provider.OPENAI, model="gpt-6-luna"),
+            model=first,  # type: ignore[arg-type]
+            tracker=UsageTracker(max_calls=10),
+            rebuild_without_temperature=rebuild,  # type: ignore[arg-type]
+        )
+        result = await model.structured(Shape, "s", "u")
+
+        assert result.value == "ok"
+        assert calls["rebuilds"] == 1
+        assert rebuilt.calls == 1
+
+    async def test_other_bad_requests_are_not_silently_retried(self) -> None:
+        """Only the temperature quirk is absorbed. A genuinely malformed
+        request must surface rather than be retried into the same failure."""
+        rejection = RuntimeError(
+            "Error code: 400 - {'error': {'message': 'Invalid schema', "
+            "'type': 'invalid_request_error'}}"
+        )
+        rebuilds = {"n": 0}
+
+        def rebuild() -> FakeChatModel:
+            rebuilds["n"] += 1
+            return FakeChatModel([envelope(parsed=Shape(value="x"))])
+
+        model = RoleModel(
+            role=ModelRole.PLANNER,
+            spec=ModelSpec(provider=Provider.OPENAI, model="gpt-6-luna"),
+            model=FakeChatModel([rejection]),  # type: ignore[arg-type]
+            tracker=UsageTracker(max_calls=10),
+            rebuild_without_temperature=rebuild,  # type: ignore[arg-type]
+        )
+        with pytest.raises(ProviderRejectedRequest):
+            await model.structured(Shape, "s", "u")
+        assert rebuilds["n"] == 0
+
+    def test_local_models_never_get_the_rebuild_hook(self) -> None:
+        settings = Settings(llm_mode="local", ollama_model="qwen3:4b", _env_file=None)
+        role_model = ModelRouter(settings).get(ModelRole.PLANNER)
+        assert role_model._rebuild_without_temperature is None
+
+    def test_a_model_known_to_reject_temperature_is_built_without_it(self) -> None:
+        """Remembered per model, so the retry happens once rather than on
+        every call for the rest of the run."""
+        settings = Settings(
+            llm_mode="cloud",
+            openai_api_key="sk-test",
+            openai_model="gpt-6-luna",
+            _env_file=None,
+        )
+        router = ModelRouter(settings)
+        spec = ModelSpec(provider=Provider.OPENAI, model="gpt-6-luna")
+        rebuilt = router._without_temperature(spec, 2_000)
+        assert "gpt-6-luna" in router._no_temperature
+        assert getattr(rebuilt, "temperature", None) is None
+
+
+class TestRateLimitHandling:
+    """A provider quota refusal must degrade the run, not crash it.
+
+    Found live: a real 429 from gpt-6-luna ("requests per day (RPD): Limit
+    50, Used 50") was not an LLMError, so every planning, critique and
+    reporting node -- all of which catch LLMError -- let it escape and
+    killed the run. Only the Send-dispatched workers survived, because they
+    catch broadly.
+    """
+
+    REAL_429 = (
+        "Error code: 429 - {'error': {'message': 'Rate limit reached for "
+        "gpt-6-luna in organization org-44eb on requests per day (RPD): "
+        "Limit 50, Used 50, Requested 1.', 'type': 'requests'}}"
+    )
+
+    async def test_a_provider_429_becomes_an_llm_error(self) -> None:
+        chat = FakeChatModel([RuntimeError(self.REAL_429)])
+        with pytest.raises(ProviderRateLimited) as info:
+            await role_model(chat).structured(Shape, "s", "u")
+        # The provider's own wording names the limit that was hit.
+        assert "50" in str(info.value)
+
+    async def test_rate_limits_are_caught_by_llm_error_handlers(self) -> None:
+        """The property that actually matters: the nodes catch LLMError, so
+        a rate limit must be one."""
+        from agentic_research.llm.base import LLMError
+
+        chat = FakeChatModel([RuntimeError(self.REAL_429)])
+        with pytest.raises(LLMError):
+            await role_model(chat).structured(Shape, "s", "u")
+
+    @pytest.mark.parametrize(
+        "message",
+        [
+            "Error code: 429 - too many requests",
+            "You exceeded your current quota",
+            "insufficient_quota: please check your plan",
+            "Rate limit reached for requests",
+        ],
+    )
+    async def test_quota_refusals_are_recognised(self, message: str) -> None:
+        chat = FakeChatModel([RuntimeError(message)])
+        with pytest.raises(ProviderRateLimited):
+            await role_model(chat).structured(Shape, "s", "u")
+
+    async def test_a_rate_limit_is_not_confused_with_unreachability(self) -> None:
+        """A 429 body can mention 'connection'; reporting it as an
+        unreachable model would send the user to fix the wrong thing."""
+        chat = FakeChatModel(
+            [RuntimeError("Error code: 429 - rate limit; connection pool saturated")]
+        )
+        with pytest.raises(ProviderRateLimited):
+            await role_model(chat).structured(Shape, "s", "u")
+
+    async def test_a_genuine_connection_failure_still_reports_as_unavailable(
+        self,
+    ) -> None:
+        chat = FakeChatModel([httpx.ConnectError("refused")])
+        with pytest.raises(ModelUnavailableError):
+            await role_model(chat).structured(Shape, "s", "u")

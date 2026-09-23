@@ -113,6 +113,30 @@ class EvidenceCorpus:
             f"{len(self.evidence)} evidence items ({citable} citable)"
         )
 
+    def validate_for_replay(self) -> list[str]:
+        """Check the corpus can actually support verification.
+
+        A corpus assembled from the published run artifacts has its source
+        text stripped, which makes every source fail `is_usable` and drives
+        citation integrity to 0% in both arms of a comparison -- a number
+        that looks like a finding and is really a broken fixture. Caught
+        here rather than surfacing as a mysterious result.
+        """
+        problems: list[str] = []
+        without_text = [s.id for s in self.sources if not s.text.strip()]
+        if without_text:
+            problems.append(
+                f"{len(without_text)} source(s) have no text ({', '.join(without_text[:5])}). "
+                "Verification treats them as unretrieved, so citation integrity "
+                "will read 0%. Build the corpus with `agentic-research freeze`, "
+                "which keeps source text, rather than from outputs/<run>/."
+            )
+        if not any(e.is_citable for e in self.evidence):
+            problems.append("no citable evidence: synthesis will have nothing to cite")
+        if not self.sub_questions:
+            problems.append("no sub-questions")
+        return problems
+
 
 @dataclass
 class ArmResult:
@@ -251,12 +275,14 @@ class Comparison:
     question: str
     corpus_summary: str
     environment: dict[str, Any]
+    corpus_problems: list[str] = field(default_factory=list)
     arms: list[ArmResult] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "question": self.question,
             "corpus": self.corpus_summary,
+            "corpus_problems": self.corpus_problems,
             "environment": self.environment,
             "note": (
                 "Both arms synthesised from a byte-identical frozen evidence "
@@ -294,10 +320,15 @@ async def compare(
     Sequential because the arms contend for the same local GPU and the same
     rate limits; running them concurrently would measure queueing.
     """
+    problems = corpus.validate_for_replay()
+    for problem in problems:
+        log.warning("corpus_degraded", problem=problem)
+
     comparison = Comparison(
         question=corpus.question,
         corpus_summary=corpus.summary(),
         environment=capture_environment(settings),
+        corpus_problems=problems,
     )
     for label, overrides in arms.items():
         log.info("ab_arm_started", label=label)

@@ -574,6 +574,73 @@ Nearly all of it is local model inference. This is the measurement behind
 the hosted demo being cloud-only: a run this shape does not fit inside any
 reasonable web timeout on this hardware.
 
+## Cloud validation (gpt-6-luna)
+
+First paid run, 2026-09-23. **Total spend $0.0105 across 42 billed
+requests.** Deliberately conservative: Luna only, never Sol or Astra.
+
+### Full graph, cloud vs local
+
+Same question, same shape of run (1 round, ~6 sources):
+
+| | local `qwen3:4b` | cloud `gpt-6-luna` |
+|---|---|---|
+| Wall clock | 1,096s | **76s** (14× faster) |
+| Provider calls | 20 | 22 |
+| Tokens (in/out) | 19.5k / 6.3k | 22.3k / 11.2k |
+| Cost | $0.00 | **$0.0078** |
+| Evidence extracted | 27 | 19 |
+| **Quotes exact / citable** | 20 of 27 (74%) | **19 of 19 (100%)** |
+
+Luna extracted fewer findings but every one was verbatim-verifiable. The
+local model produced more, of which a quarter could not be aligned to the
+source and were discarded.
+
+### Controlled comparison — identical evidence
+
+Synthesis and verification replayed over a frozen corpus, so the only
+variable is the model:
+
+| | local | luna |
+|---|---|---|
+| Claim support (exhaustive) | **55.6%** | **81.2%** |
+| Partial support | 22.2% | 18.8% |
+| Evidence integrity | 100% | 100% |
+| Duration | 406s | **51s** |
+| Cost | $0.00 | $0.0025 |
+
+Neither model referenced evidence that did not exist. The difference is
+entirely in whether a claim is actually entailed by the evidence cited for
+it — which is the gap the hybrid split was designed around, now measured
+rather than assumed.
+
+**Caveats, because this is one run:** the comparison above used a corpus
+whose source text had been stripped, which broke `citation_integrity` for
+both arms equally (see below). `claim_support` is unaffected — both arms
+saw byte-identical input — but no figure here has repeats or variance.
+
+### Three things the paid run exposed
+
+**`gpt-6-luna` rejects an explicit temperature.** It accepts only the
+default and 400s on anything else, like OpenAI's reasoning models. The
+router now detects that specific rejection, rebuilds the client without the
+parameter and retries once. A 400 bills nothing.
+
+**A provider 429 crashed the run.** `openai.RateLimitError` was not an
+`LLMError`, and every planning, critique and reporting node catches
+`LLMError` — so a rate limit escaped and killed the graph. Only the
+fan-out workers survived, because they catch broadly. Rate limits are now a
+domain error and degrade like any other.
+
+**The account allows 50 provider requests per day.** A run costs ~22, so
+this tier supports **two demo runs per day**. The hosted demo's default cap
+was 60 — three visitors would have drained the quota and everyone after
+would have hit an opaque mid-run failure. The daily cap is now *derived*
+from the quota rather than picked independently.
+
+**Not completed:** the hybrid smoke test (Experiment B). The daily quota
+was exhausted by the comparison above. Nothing is reported for it.
+
 ## What running on a 4B local model taught us
 
 All measured on `qwen3:4b`. These findings shaped the design rather than
