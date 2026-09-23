@@ -54,10 +54,16 @@ must be safe, not merely one of them — a name with one public and one
 private A record would otherwise pass depending on which the client picked.
 Redirects are followed manually so each hop is revalidated.
 
-What it does **not** solve is DNS rebinding: the address is checked before
-connecting, but the name could resolve differently at connect time.
-Closing that means pinning the validated IP into the connection. I would
-volunteer that limitation rather than wait to be asked.
+DNS rebinding is closed by pinning: the connection goes to the address
+that was validated, not to whatever the name resolves to a moment later.
+The hostname rides along in the `Host` header and the TLS SNI.
+
+The interesting part is what that risks. If `sni_hostname` did not drive
+certificate verification, pinning would have silently disabled hostname
+checking — worse than the hole it closes. So it is tested against a real
+TLS server with a real certificate, both directions: correct SNI connects,
+wrong SNI is refused. Volunteer that the proof is against an in-process CA
+on loopback, not the public certificate ecosystem.
 
 ### "You feed web pages to a model. What about prompt injection?"
 
@@ -406,10 +412,13 @@ content.
 
 ### "What would you do next?"
 
-PDF extraction is the biggest real gap — a lot of good academic sources are
-PDFs and they are currently skipped as `UNSUPPORTED_TYPE`. After that, a
-content cache keyed by canonical URL across runs, and cross-encoder reranking
-of evidence before it reaches synthesis.
+Ground truth. Every metric here measures faithfulness to retrieved
+sources, so a report citing five wrong pages scores perfectly. Closing
+that needs labelled answers, which is a different project.
+
+Nearer term: a content cache keyed by canonical URL across runs, and
+cross-encoder reranking of evidence before synthesis. OCR for scanned
+PDFs, which are detected and reported rather than read.
 
 ---
 
@@ -448,7 +457,7 @@ are withdrawn: the provenance model changed and several metrics were
 renamed, so republishing them would be comparing different measurements.
 Quote the ones that still hold, and say which are pending a re-run:
 
-- 478 hermetic tests passing at 86% line coverage, re-measured 2026-09-23
+- 535 hermetic tests passing at 86% line coverage, measured at `6cc4e73`
   after the pinning and provenance work landed
 - gitleaks over full history: zero findings, with the scanner verified
   against a planted-credential positive control first
@@ -457,12 +466,18 @@ Quote the ones that still hold, and say which are pending a re-run:
 - quote fidelity 74% under exact-only matching, down from a reported 100%
   when a 0.88 similarity match still counted as verbatim
 - 78% of evidence is cross-attributed, so query-level provenance is
-  conditional rather than universal
+  conditional rather than universal. Measured what narrowing would cost:
+  over three repeats, strict retrieval-only attribution took evidence
+  coverage from 100% to 16.7% on that corpus, so production kept all-open
+  extraction
 - one full cloud run: 76s and $0.0078 against 1,096s locally
 - without an output cap, a 4B local model asked for a research plan ran
   past 240s; with one it is bounded, and completes in ~108s
 - the validation account allowed 50 provider requests/day and a run costs
-  ~22, which is why the hosted demo caps at one anonymous run per day
+  ~22 — and the daily cap lives in process memory, so a host that sleeps
+  resets it on every cold start. That is why the public site replays
+  recorded runs and refuses live research server-side, rather than adding
+  a database whose only job would be letting strangers spend the budget
 
 If asked for a quality percentage that has not been re-measured, say it has
 not been re-measured. That answer is worth more than a stale number.

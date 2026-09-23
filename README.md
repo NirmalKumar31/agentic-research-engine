@@ -360,23 +360,61 @@ disconnect**.
 
 ```bash
 docker build -f Dockerfile.web -t agentic-research-web .
-docker run -p 8000:8000 --env-file .env -e DEMO_MODE=true agentic-research-web
+docker run -p 8000:8000 -e DEMO_MODE=true agentic-research-web
 ```
 
-`render.yaml` is a Render blueprint containing **no secrets** — the two API
-keys are declared `sync: false` so Render prompts for them. It configures
-the demo cloud-only on `gpt-6-luna` with a $0.05 per-run ceiling, ephemeral
-filesystem and in-memory checkpointing.
+`render.yaml` is a Render blueprint that declares **no secrets at all**, and
+deploys with `LIVE_RESEARCH_ENABLED=false`. Replay needs neither an OpenAI
+nor a Tavily key, so the blueprint does not ask for them — every `sync:
+false` variable prompts for a value at Blueprint creation, which would have
+demanded two credentials for a site that calls neither provider.
 
-Cloud-only is not a preference: a local 4B model does not finish a run
-inside any reasonable web timeout. That was measured, not assumed — a live
-smoke test against Ollama hit the 240s ceiling during planning.
+To enable live research later: add `OPENAI_API_KEY` and `TAVILY_API_KEY` in
+the Render dashboard, then set `LLM_MODE=cloud` and
+`LIVE_RESEARCH_ENABLED=true` **together**. Separately is a mistake — there
+is no Ollama on a Render instance, so `local` plus live research fails
+preflight on the first request.
+
+#### Cold starts
+
+Render's free tier spins a service down after ~15 minutes idle, and the
+next visitor waits 30–60s for it to wake. For a link someone follows once,
+from a CV or a message, that is the difference between a demo and a blank
+page.
+
+A free uptime monitor pinging `/api/health` every 10 minutes keeps it warm:
+
+| Setting | Value |
+|---|---|
+| URL | `https://<your-service>.onrender.com/api/health` |
+| Interval | 10 minutes (must be under Render's ~15 minute idle window) |
+| Method | `GET`, expect HTTP 200 |
+
+[UptimeRobot](https://uptimerobot.com) and
+[cron-job.org](https://cron-job.org) both do this on a free plan. The
+endpoint is deliberately cheap — no model, no search, no credentials — so
+pinging it costs nothing but the instance-hours.
+
+Render's free tier includes 750 instance-hours per month and a
+continuously-warm service uses roughly 730, so one always-on service fits.
+A second service would not.
+
+#### Why the public site replays instead of running live
+
+The demo's daily run cap lives in process memory, and a host that spins
+down resets it on every cold start. It therefore cannot bound an
+account-level quota — the per-run request and spend ceilings still hold,
+but the daily one does not survive a restart. Rather than add Redis or
+Postgres whose only purpose would be letting strangers spend the API
+budget, the public instance serves recorded runs and `/api/research`
+refuses server-side.
 
 ### Output artifacts
 
 ```
 outputs/<run_id>/
     report.md        rendered report with citations and verification footer
+    report.json      structured report: claims, evidence ids, claim kinds
     sources.json     every source, quality score, fetch status
     evidence.json    every evidence item, its quote, its verification flag
     metrics.json     full metric set
@@ -729,9 +767,9 @@ pip install -e ".[dev]"
 pytest                    # hermetic: no network, no credentials, no cost
 ```
 
-**478 tests passing, 86% line coverage**, measured on 2026-09-23 against
-the tree that became `dd5da5b`. The figure is restated only when it has
-been re-run, never estimated from a diff.
+**535 tests passing, 86% line coverage**, measured on 2026-09-23 against
+commit `6cc4e73`. The figure is restated only when it has been re-run,
+never estimated from a diff.
 
 Default runs are hermetic. Every external boundary — models, search, page
 fetching — is faked or mocked, while the real state machine, reducers,
@@ -851,7 +889,10 @@ not have them.
   source is complete; the evidence→query link only exists for the rest.
   Recorded as `cross_attributed=True` rather than filled in with an
   unrelated query. `agentic-research attribution` exists to measure what
-  narrowing would cost; it has not been run, so nothing has changed.
+  narrowing would cost. It has now been run, over three repeats: strict
+  retrieval-only attribution cut evidence coverage from 100% to 16.7% on
+  the tested corpus, so production kept all-open extraction. See
+  [the experiment](examples/attribution-experiment/).
 - **Entailment is judged by a model**, and in local mode by the same model
   that wrote the report. Treat the support figure as weak evidence.
 - **DNS-rebinding protection is proven against a test CA, not the real
@@ -872,8 +913,6 @@ not have them.
 
 ## Roadmap
 
-- Execute the TLS and rebinding suites, and publish the result either way
-- Run the cross-attribution experiment and act on what it says
 - OCR for scanned PDFs
 - Content cache keyed by canonical URL, shared across runs
 - Cross-encoder reranking of evidence before synthesis

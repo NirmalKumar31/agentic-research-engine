@@ -31,7 +31,8 @@ evidence pipeline with stored provenance, and a citation verifier.
 graph TB
     subgraph Interfaces
         CLI[CLI<br/>typer + rich]
-        UI[Streamlit app]
+        WEB[React/Vite SPA<br/>+ FastAPI over SSE]
+        UI[Streamlit<br/>local debug only]
         EV[Evaluation harness]
     end
 
@@ -58,6 +59,7 @@ graph TB
     end
 
     CLI --> RUN
+    WEB --> RUN
     UI --> RUN
     EV --> RUN
     RUN --> GRAPH
@@ -72,8 +74,42 @@ graph TB
 ```
 
 Interfaces never touch providers. They drive `runner.stream_research`, which
-builds the runtime context and runs the graph. This is why the CLI, the UI and
-the evaluation harness contain no research logic at all.
+builds the runtime context and runs the graph. This is why the CLI, the web
+API, the Streamlit app and the evaluation harness contain no research logic
+at all.
+
+The React/FastAPI app is the portfolio interface and the one that matters.
+Streamlit came first and is kept as a local debugging surface; it is not
+what gets deployed.
+
+### 2.1 Two deployment modes
+
+The same FastAPI application serves both, and the difference is one
+server-side setting.
+
+| | Replay (public default) | Live |
+|---|---|---|
+| `LIVE_RESEARCH_ENABLED` | `false` | `true` |
+| `/api/research` | 403 before any work | runs, under demo ceilings |
+| Credentials needed | none | OpenAI + Tavily |
+| What the UI offers | recorded runs | recorded runs plus a composer |
+| `/api/config` reports | `service_mode: replay` | `service_mode: live` |
+
+Replay serves recorded runs from JSON committed inside the package, so the
+public site needs no provider, no key and no network egress. That is not a
+presentation choice. The demo's daily run cap lives in process memory, and
+a free host that spins down when idle resets it on every cold start — so it
+cannot bound an account-level quota. Per-run request and spend ceilings are
+unaffected and still enforced before dispatch; the *daily* one does not
+survive a restart.
+
+The alternative was a persistent atomic quota store whose only purpose
+would be letting anonymous visitors spend the API budget. For a portfolio
+demo that is architecture bought for nothing.
+
+The gate is enforced in the route, before query validation and before
+anything constructs a run, because disabling a button in React leaves the
+endpoint open to `curl` and that endpoint spends money.
 
 ---
 
