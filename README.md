@@ -610,10 +610,21 @@ What the suite actually pins down, beyond the obvious:
 ## Evaluation
 
 ```bash
-agentic-research evaluate            # benchmark suite, checks every claim
+agentic-research evaluate -n 3       # first 3 questions; checks every claim
 agentic-research freeze "question"   # capture an evidence corpus
 agentic-research compare -a local=ollama:qwen3:4b -a cloud=openai:gpt-6-luna
 ```
+
+The suite holds **12 questions across 8 categories** — technical
+comparison, multi-dimensional decision, contradictory sources, quantitative
+claims, academic/PDF, time-sensitive, primary-source-heavy and sparse
+evidence. Results are aggregated per category as well as overall, because a
+single mean hides that quote fidelity can be fine on a comparison and poor
+where figures are quoted.
+
+`-n N` takes the first N, and the ordering spreads categories so a small N
+still covers a range. Running all twelve against a paid model costs real
+money; nothing here runs automatically.
 
 No gold answers. They are expensive, go stale, and mostly measure whether
 the model agrees with whoever wrote them. Every metric instead asks whether

@@ -23,15 +23,26 @@ log = get_logger(__name__)
 
 @dataclass(frozen=True)
 class BenchmarkQuestion:
+    """One benchmark question and the property it is meant to stress."""
+
     id: str
     question: str
     why: str
-    """What this question is meant to stress."""
+    category: str
 
 
+# Twelve questions spanning the categories that stress different parts of
+# the engine. Deliberately inexpensive: each is answerable from a handful
+# of sources, because the point is to exercise the pipeline rather than to
+# produce a literature review.
+#
+# Running all of them against a paid model costs real money. `evaluate -n N`
+# takes the first N, and the categories are ordered so a small N still
+# covers a spread.
 BENCHMARK: tuple[BenchmarkQuestion, ...] = (
     BenchmarkQuestion(
-        id="B1",
+        id="B01",
+        category="technical comparison",
         question=(
             "Compare modern approaches for detecting fraud in highly imbalanced "
             "transaction datasets, including their evaluation methodology."
@@ -39,38 +50,107 @@ BENCHMARK: tuple[BenchmarkQuestion, ...] = (
         why="requires decomposition across sampling, algorithms and evaluation",
     ),
     BenchmarkQuestion(
-        id="B2",
+        id="B02",
+        category="multi-dimensional decision",
         question=(
             "Are locally hosted open-weight language models viable for enterprise "
             "document analysis, considering cost, privacy and capability tradeoffs?"
         ),
-        why="multi-dimensional tradeoff question with commercially biased sources",
+        why="several independent dimensions; commercially biased sources",
     ),
     BenchmarkQuestion(
-        id="B3",
-        question=(
-            "What are the practical differences between vector databases and "
-            "traditional search engines for retrieval-augmented generation?"
-        ),
-        why="vendor-heavy topic; tests source diversity and contradiction handling",
-    ),
-    BenchmarkQuestion(
-        id="B4",
+        id="B03",
+        category="contradictory sources",
         question=(
             "How effective are current techniques for detecting AI-generated text, "
             "and what are their documented failure modes?"
         ),
-        why="genuine disagreement in the literature; tests contradiction preservation",
+        why="genuine disagreement in the literature; tests contradiction capture",
     ),
     BenchmarkQuestion(
-        id="B5",
+        id="B04",
+        category="quantitative claims",
+        question=(
+            "What measured latency and throughput differences are reported between "
+            "INT8 and FP16 inference for transformer models on GPUs?"
+        ),
+        why="numeric claims; quote fidelity matters most where figures are quoted",
+    ),
+    BenchmarkQuestion(
+        id="B05",
+        category="academic / PDF",
+        question=(
+            "What do published papers report about the sample efficiency of "
+            "parameter-efficient fine-tuning compared with full fine-tuning?"
+        ),
+        why="arXiv-heavy, so it exercises PDF extraction and page citations",
+    ),
+    BenchmarkQuestion(
+        id="B06",
+        category="time sensitive",
+        question=(
+            "What changed in the EU AI Act obligations that took effect most "
+            "recently, and who do they apply to?"
+        ),
+        why="recency matters; stale sources should be visibly penalised",
+    ),
+    BenchmarkQuestion(
+        id="B07",
+        category="primary-source heavy",
+        question=(
+            "What does the official Kubernetes documentation specify about pod "
+            "eviction behaviour under memory pressure?"
+        ),
+        why="a correct answer should cite first-party docs, not blog summaries",
+    ),
+    BenchmarkQuestion(
+        id="B08",
+        category="sparse evidence",
+        question=(
+            "What is documented about failure rates of automated citation "
+            "verification systems in production deployments?"
+        ),
+        why="little good evidence exists; the run should admit that, not invent it",
+    ),
+    BenchmarkQuestion(
+        id="B09",
+        category="technical comparison",
+        question=(
+            "What are the practical differences between vector databases and "
+            "traditional search engines for retrieval-augmented generation?"
+        ),
+        why="vendor-heavy topic; tests source diversity",
+    ),
+    BenchmarkQuestion(
+        id="B10",
+        category="multi-dimensional decision",
         question=(
             "What are the operational tradeoffs between Kubernetes and serverless "
             "platforms for machine learning inference workloads?"
         ),
-        why="comparison with strong marketing noise around it",
+        why="comparison with heavy marketing noise around it",
+    ),
+    BenchmarkQuestion(
+        id="B11",
+        category="quantitative claims",
+        question=(
+            "What reduction in labelling effort do published active learning "
+            "studies report for text classification tasks?"
+        ),
+        why="reported percentages vary widely; tests whether spread is preserved",
+    ),
+    BenchmarkQuestion(
+        id="B12",
+        category="contradictory sources",
+        question=(
+            "Do published results support or contradict the claim that retrieval "
+            "augmentation reduces hallucination in language models?"
+        ),
+        why="the literature genuinely splits; a single-sided answer is a failure",
     ),
 )
+
+CATEGORIES = tuple(dict.fromkeys(q.category for q in BENCHMARK))
 
 
 @dataclass
@@ -78,6 +158,7 @@ class QuestionResult:
     question_id: str
     question: str
     ok: bool
+    category: str = ""
     metrics: list[Metric] = field(default_factory=list)
     run_metrics: dict[str, Any] = field(default_factory=dict)
     error: str = ""
@@ -102,6 +183,22 @@ class BenchmarkReport:
             summary[name] = round(statistics.mean(values), 4) if values else None
         return summary
 
+    def by_category(self) -> dict[str, dict[str, float | None]]:
+        """Mean of each metric within each category.
+
+        A single aggregate hides that, say, quote fidelity is fine on
+        technical comparisons and poor on quantitative claims.
+        """
+        out: dict[str, dict[str, float | None]] = {}
+        for category in dict.fromkeys(r.category for r in self.results if r.ok):
+            rows = [r for r in self.results if r.ok and r.category == category]
+            names = dict.fromkeys(m.name for r in rows for m in r.metrics)
+            out[category] = {}
+            for name in names:
+                values = [v for r in rows if (v := r.value(name)) is not None]
+                out[category][name] = round(statistics.mean(values), 4) if values else None
+        return out
+
     def totals(self) -> dict[str, Any]:
         ok = [r for r in self.results if r.ok]
         return {
@@ -125,9 +222,11 @@ class BenchmarkReport:
             "environment": self.environment,
             "totals": self.totals(),
             "aggregate": self.aggregate(),
+            "by_category": self.by_category(),
             "per_question": [
                 {
                     "id": r.question_id,
+                    "category": r.category,
                     "question": r.question,
                     "ok": r.ok,
                     "error": r.error,
@@ -167,7 +266,13 @@ async def run_benchmark(
         except Exception as exc:
             log.warning("benchmark_question_failed", id=question.id, error=str(exc)[:200])
             report.results.append(
-                QuestionResult(question.id, question.question, ok=False, error=str(exc)[:300])
+                QuestionResult(
+                    question.id,
+                    question.question,
+                    ok=False,
+                    category=question.category,
+                    error=str(exc)[:300],
+                )
             )
             continue
 
@@ -177,6 +282,7 @@ async def run_benchmark(
                 question_id=question.id,
                 question=question.question,
                 ok=True,
+                category=question.category,
                 metrics=evaluate_run(result.state, run_metrics),
                 run_metrics=run_metrics,
             )
