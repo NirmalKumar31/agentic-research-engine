@@ -113,8 +113,9 @@ except Exception as exc:
 
 st.title("Agentic Research Engine")
 st.caption(
-    "Decomposes a question, researches it in parallel, tracks every claim back "
-    "to a retrieved source, and verifies its own citations."
+    "Decomposes a question, researches it in parallel, tracks every "
+    "evidence-owing claim back to a retrieved source, and verifies its own "
+    "citations."
 )
 
 if config_error:

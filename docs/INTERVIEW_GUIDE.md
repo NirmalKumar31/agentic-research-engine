@@ -216,8 +216,9 @@ limitation stated in it.
 
 Three passes, cheapest and strongest first.
 
-**Resolution** (free, deterministic). Every claim references *evidence ids*,
-not source ids. Each must exist and be citable; unknown ids, and ids
+**Resolution** (free, deterministic). Every evidence-owing claim references
+*evidence ids*, not source ids — framing claims declare their kind and
+carry none. Each must exist and be citable; unknown ids, and ids
 pointing at evidence whose quote never aligned to its source, are dropped
 and reported as errors. Citation markers are then derived from what
 survived — by the engine, never by the model.

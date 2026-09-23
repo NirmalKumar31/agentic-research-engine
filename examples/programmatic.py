@@ -47,7 +47,8 @@ async def simple() -> None:
         f"cost={result.metrics.cost_display}"
     )
 
-    # Every claim can be traced back to the text it came from.
+    # Every evidence-owing claim traces back to the text it came from;
+    # framing sentences declare their kind and deliberately carry none.
     for item in result.state["evidence"][:3]:
         source = next(s for s in result.state["sources"] if s.id == item.source_id)
         print(f"\n[{item.source_id}] {item.claim}")
