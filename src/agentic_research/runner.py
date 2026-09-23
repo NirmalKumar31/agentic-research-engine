@@ -88,6 +88,7 @@ async def stream_research(
     settings: Settings,
     *,
     run_id: str | None = None,
+    exhaustive_verification: bool = False,
 ) -> AsyncIterator[dict[str, Any]]:
     """Run research, yielding progress events as they happen.
 
@@ -142,7 +143,7 @@ async def stream_research(
 
             final_state: dict[str, Any] = {}
             async for mode, chunk in app.astream(
-                initial_state(run_id, query),
+                initial_state(run_id, query, exhaustive_verification=exhaustive_verification),
                 config=config,
                 context=context,
                 # Must be a list: LangGraph switches on isinstance(..., list)
@@ -208,10 +209,16 @@ async def run_research(
     *,
     run_id: str | None = None,
     on_progress: ProgressCallback | None = None,
+    exhaustive_verification: bool = False,
 ) -> RunResult:
     """Convenience wrapper for callers that just want the finished result."""
     result: RunResult | None = None
-    async for event in stream_research(query, settings, run_id=run_id):
+    async for event in stream_research(
+        query,
+        settings,
+        run_id=run_id,
+        exhaustive_verification=exhaustive_verification,
+    ):
         if event.get("event") == "result":
             result = event["result"]
         elif on_progress is not None:

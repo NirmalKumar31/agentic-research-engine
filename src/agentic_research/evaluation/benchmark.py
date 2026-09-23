@@ -159,7 +159,9 @@ async def run_benchmark(
             on_question(question)
         log.info("benchmark_question_started", id=question.id)
         try:
-            result = await run_research(question.question, settings)
+            # Benchmarks check every eligible claim. Sampling here and
+            # publishing the result as a quality figure would misrepresent it.
+            result = await run_research(question.question, settings, exhaustive_verification=True)
         except Exception as exc:
             log.warning("benchmark_question_failed", id=question.id, error=str(exc)[:200])
             report.results.append(

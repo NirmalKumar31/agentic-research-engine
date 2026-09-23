@@ -107,6 +107,13 @@ class ResearchState(TypedDict, total=False):
     # --- identity -----------------------------------------------------
     run_id: str
     original_query: str
+    exhaustive_verification: bool
+    """Check entailment for every eligible claim rather than a sample.
+
+    Off for interactive runs, where one model call per claim is a real
+    latency and cost cost. On for benchmarks, because a sampled figure
+    published as if it were exhaustive is exactly the kind of metric this
+    project exists not to produce."""
 
     # --- planning (single writer each) --------------------------------
     analysis: QueryAnalysis | None
@@ -205,11 +212,14 @@ class RunContext:
     warnings: list[str] = field(default_factory=list)
 
 
-def initial_state(run_id: str, query: str) -> ResearchState:
+def initial_state(
+    run_id: str, query: str, *, exhaustive_verification: bool = False
+) -> ResearchState:
     """Seed state. Every accumulating channel starts as an empty container."""
     return ResearchState(
         run_id=run_id,
         original_query=query,
+        exhaustive_verification=exhaustive_verification,
         analysis=None,
         plan=None,
         sub_questions=[],
