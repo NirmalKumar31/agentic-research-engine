@@ -32,6 +32,10 @@ def demo_settings(**overrides: Any) -> Settings:
     base = {
         "llm_mode": "local",
         "demo_mode": True,
+        # These exercise the *live* path, so they opt into it explicitly.
+        # It ships off by default because the hosted demo serves recorded
+        # runs; the gating itself is covered in test_replay_mode.py.
+        "live_research_enabled": True,
         # Deliberately secret-shaped, and allowlisted in .gitleaks.toml.
         "tavily_api_key": "tvly-test-key",
         "max_research_rounds": 9,

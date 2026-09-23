@@ -268,6 +268,15 @@ def _write_artifacts(
     directory.mkdir(parents=True, exist_ok=True)
 
     (directory / "report.md").write_text(markdown, encoding="utf-8")
+    # The structured report, not just the rendered markdown. Only this form
+    # carries claim -> evidence_ids -> citation_ids and each claim's kind,
+    # so without it a stored run cannot reproduce the provenance drill-down
+    # -- which is the one thing this project is actually for.
+    report = state.get("report")
+    _dump(
+        directory / "report.json",
+        report.model_dump(mode="json") if report is not None else None,
+    )
     _dump(directory / "metrics.json", metrics.model_dump(mode="json"))
     _dump(
         directory / "sources.json",

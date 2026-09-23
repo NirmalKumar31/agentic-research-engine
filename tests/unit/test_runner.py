@@ -124,7 +124,23 @@ class TestArtifacts:
 
         assert result.output_dir is not None
         written = {p.name for p in result.output_dir.iterdir()}
-        assert written == {"report.md", "metrics.json", "sources.json", "evidence.json", "run.json"}
+        assert written == {
+            "report.md",
+            "report.json",
+            "metrics.json",
+            "sources.json",
+            "evidence.json",
+            "run.json",
+        }
+
+        # The structured report, not just the rendered markdown. Only this
+        # form carries claim -> evidence_ids, so without it a stored run
+        # cannot reproduce the provenance drill-down the demo replays.
+        report = json.loads((result.output_dir / "report.json").read_text())
+        claims = [*report["summary_claims"], *report["key_findings"]]
+        assert claims, "no claims persisted"
+        assert any(c["evidence_ids"] for c in claims)
+        assert all("kind" in c for c in claims)
 
         evidence = json.loads((result.output_dir / "evidence.json").read_text())
         assert evidence and "quote" in evidence[0] and "quote_verified" in evidence[0]

@@ -261,6 +261,18 @@ class Settings(BaseSettings):
     # Server-controlled. When true the API clamps every run to the fixed
     # demo ceilings regardless of what the client asks for.
     demo_mode: bool = False
+    live_research_enabled: bool = Field(
+        default=False,
+        description=(
+            "Whether an anonymous HTTP request may start a paid research run. "
+            "Off by default, and deliberately so: the daily run cap lives in "
+            "process memory, and a host that spins down when idle resets it on "
+            "every cold start, so it cannot bound an account-level quota. The "
+            "per-run request and spend ceilings remain real; the daily one does "
+            "not survive a restart. The public site serves recorded runs "
+            "instead, and the CLI is unaffected."
+        ),
+    )
     cors_origins: str = Field(
         default="", description="Comma-separated allowed origins; empty disables CORS"
     )

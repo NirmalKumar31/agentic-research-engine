@@ -38,10 +38,18 @@ from agentic_research.web.limits import (
     limits_from_settings,
     validate_query,
 )
+from agentic_research.web.recordings import RecordingNotFound
+from agentic_research.web.recordings import available as available_recordings
+from agentic_research.web.recordings import load as load_recording
 
 log = get_logger(__name__)
 
 _FRONTEND_DIST = Path(__file__).resolve().parents[3] / "web" / "dist"
+
+# Recorded traces are replayed faster than they happened. An 18-minute local
+# run is not worth watching in real time, and the events are real either
+# way; only the spacing is cosmetic.
+_REPLAY_EVENT_DELAY_S = 0.35
 
 
 class ResearchRequest(BaseModel):
@@ -253,10 +261,93 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @api.get("/config")
     async def config() -> dict[str, Any]:
         """What the client may know. Never any secret or raw environment."""
-        return demo_mode_summary(state.settings, state.limits)
+        summary = demo_mode_summary(state.settings, state.limits)
+        # Reported truthfully so the UI can describe what it offers rather
+        # than discovering the refusal after the user has typed a question.
+        summary["live_research_enabled"] = state.settings.live_research_enabled
+        summary["recorded_examples"] = len(available_recordings())
+        return summary
+
+    @api.get("/examples")
+    async def examples() -> dict[str, Any]:
+        """Recorded runs. Needs no credentials and spends nothing."""
+        return {"examples": [s.to_dict() for s in available_recordings()]}
+
+    @api.get("/examples/{example_id}")
+    async def example(example_id: str) -> Any:
+        """One recorded run, in the same shape a live run returns.
+
+        The UI renders it identically apart from the recording label, which
+        is the point: the provenance explorer is the thing worth showing.
+        """
+        try:
+            payload = load_recording(example_id)
+        except RecordingNotFound:
+            return JSONResponse({"error": "No such example."}, status_code=404)
+        return {
+            "recorded": True,
+            "meta": payload.get("meta", {}),
+            "result": payload.get("result", {}),
+        }
+
+    @api.get("/examples/{example_id}/stream")
+    async def example_stream(example_id: str, request: Request) -> Any:
+        """Replay a recorded run's own progress events.
+
+        Every event here was emitted by a node that really ran. Timing is
+        compressed for watchability; nothing is invented. A recording with
+        no captured trace simply yields its result.
+        """
+        try:
+            payload = load_recording(example_id)
+        except RecordingNotFound:
+            return JSONResponse({"error": "No such example."}, status_code=404)
+
+        async def replay() -> AsyncIterator[str]:
+            meta = payload.get("meta", {})
+            yield _sse(
+                "started",
+                {
+                    "run_id": f"recorded-{example_id}",
+                    "query": meta.get("question", ""),
+                    "recorded": True,
+                },
+            )
+            for event in payload.get("trace", []) or []:
+                if await request.is_disconnected():
+                    return
+                await asyncio.sleep(_REPLAY_EVENT_DELAY_S)
+                yield _sse("progress", event)
+            yield _sse("result", payload.get("result", {}))
+            yield _sse("done", {"run_id": f"recorded-{example_id}", "recorded": True})
+
+        return StreamingResponse(
+            replay(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     @api.post("/research")
     async def research(payload: ResearchRequest, request: Request) -> Any:
+        # Enforced here, on the server, before anything is validated or
+        # dispatched. Hiding the button in React would leave the endpoint
+        # open to anyone with curl, and this endpoint spends money.
+        if not state.settings.live_research_enabled:
+            return JSONResponse(
+                {
+                    "error": (
+                        "Live research is disabled on the public portfolio "
+                        "instance. Explore a recorded run, or run the project "
+                        "locally for live research."
+                    ),
+                    "live_disabled": True,
+                },
+                status_code=403,
+            )
         try:
             query = validate_query(payload.query, state.limits)
         except ValueError as exc:
@@ -313,7 +404,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         @app.get("/{full_path:path}")
         async def spa(full_path: str) -> Any:
-            """Serve the built frontend, falling back to index for routes."""
+            """Serve the built frontend, falling back to index for routes.
+
+            Anything under /api is excluded. Without that, an unknown or
+            mistyped API path returns the SPA shell with 200 -- so a client
+            cannot tell a missing endpoint from a working one, and a route
+            removed in future silently starts serving HTML to callers
+            expecting JSON.
+            """
+            if full_path == "api" or full_path.startswith("api/"):
+                return JSONResponse({"error": "Not found."}, status_code=404)
             candidate = (_FRONTEND_DIST / full_path).resolve()
             if full_path and candidate.is_file() and _FRONTEND_DIST.resolve() in candidate.parents:
                 return FileResponse(candidate)
