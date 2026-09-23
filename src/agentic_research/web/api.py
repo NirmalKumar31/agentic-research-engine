@@ -162,10 +162,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @api.get("/config")
     async def config() -> dict[str, Any]:
         """What the client may know. Never any secret or raw environment."""
+        # service_mode and live_research_enabled come from the summary, so
+        # the UI can describe what it offers rather than discovering the
+        # refusal after the visitor has typed a question.
         summary = demo_mode_summary(state.settings, state.limits)
-        # Reported truthfully so the UI can describe what it offers rather
-        # than discovering the refusal after the user has typed a question.
-        summary["live_research_enabled"] = state.settings.live_research_enabled
         summary["recorded_examples"] = len(available_recordings())
         return summary
 

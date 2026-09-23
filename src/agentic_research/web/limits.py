@@ -232,16 +232,27 @@ def validate_query(query: str, limits: DemoLimits) -> str:
 def demo_mode_summary(settings: Settings, limits: DemoLimits) -> dict[str, object]:
     """What the client is allowed to know about the configuration.
 
-    Model names and ceilings are fine to publish; anything that could
-    identify or expose a credential is not, and no key or environment value
-    is ever included here.
+    Ceilings are fine to publish; anything that could identify or expose a
+    credential is not, and no key or environment value is ever included.
+
+    ``service_mode`` is what the client should actually reason about.
+    ``LLM_MODE`` is boot configuration, not a capability: the hosted
+    replay instance runs with ``LLM_MODE=local`` purely because cloud mode
+    refuses to start without an API key it will never use. There is no
+    Ollama on that host, so reporting "local" as though a local model were
+    available would be false.
     """
+    live = settings.live_research_enabled
     return {
-        "mode": settings.llm_mode.value,
+        "service_mode": "live" if live else "replay",
+        "live_research_enabled": live,
+        # Only meaningful when something can actually run. While replaying,
+        # no model of any kind is reachable from this service.
+        "local_models_available": bool(live and settings.llm_mode is not LLMMode.CLOUD),
+        "mode": settings.llm_mode.value if live else None,
         "max_query_chars": limits.max_query_chars,
         "max_rounds": limits.max_rounds,
         "max_sources": limits.max_sources,
         "max_runtime_seconds": limits.max_runtime_seconds,
         "runs_per_hour": limits.runs_per_ip_per_hour,
-        "local_models_available": settings.llm_mode is not LLMMode.CLOUD,
     }

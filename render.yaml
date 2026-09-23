@@ -31,15 +31,17 @@ services:
       - key: LIVE_RESEARCH_ENABLED
         value: "false"
 
-      # --- secrets: not required while live research is off -------------
-      # Left declared so enabling live mode later is a dashboard change
-      # rather than a blueprint edit. Render prompts for these and accepts
-      # them being left empty; the replay site needs neither, and a deploy
-      # must not fail on a secret it never uses.
-      - key: TAVILY_API_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
+      # --- no secrets, deliberately --------------------------------------
+      # TAVILY_API_KEY and OPENAI_API_KEY are absent rather than declared
+      # with sync:false. Every sync:false variable prompts for a value when
+      # the Blueprint is created, so declaring them would demand two
+      # credentials from someone deploying a site that never calls either
+      # provider -- including someone who has no account with them.
+      #
+      # To enable live research later: add OPENAI_API_KEY and
+      # TAVILY_API_KEY in the Render Dashboard, then set LLM_MODE=cloud and
+      # LIVE_RESEARCH_ENABLED=true together. Read the note on LLM_MODE
+      # below before doing so.
 
       # --- hosted demo posture ------------------------------------------
       - key: DEMO_MODE

@@ -241,11 +241,33 @@ class TestConfigTellsTheTruth:
     def test_reports_live_availability(self, client: Any) -> None:
         body = client.get("/api/config").json()
         assert body["live_research_enabled"] is False
+        assert body["service_mode"] == "replay"
         assert body["recorded_examples"] == 1
 
     def test_reports_live_enabled_when_it_is(self) -> None:
         with TestClient(create_app(_settings(live_research_enabled=True))) as client:
-            assert client.get("/api/config").json()["live_research_enabled"] is True
+            body = client.get("/api/config").json()
+        assert body["live_research_enabled"] is True
+        assert body["service_mode"] == "live"
+
+    def test_replay_mode_never_advertises_a_local_model(self) -> None:
+        """The hosted instance boots with LLM_MODE=local only because cloud
+        mode refuses to start without an API key it will never use. There
+        is no Ollama on that host, so claiming a local model is available
+        would be false. Boot configuration is not a capability."""
+        with TestClient(create_app(_settings(llm_mode="local"))) as client:
+            body = client.get("/api/config").json()
+        assert body["service_mode"] == "replay"
+        assert body["local_models_available"] is False
+        assert body["mode"] is None, "internal LLM_MODE must not be advertised while replaying"
+
+    def test_local_models_are_advertised_only_when_live_and_local(self) -> None:
+        with TestClient(
+            create_app(_settings(llm_mode="local", live_research_enabled=True))
+        ) as client:
+            body = client.get("/api/config").json()
+        assert body["local_models_available"] is True
+        assert body["mode"] == "local"
 
     def test_config_leaks_no_credential(self) -> None:
         settings = _settings(tavily_api_key="tvly-secret-value", openai_api_key="sk-secret-value")
