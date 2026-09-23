@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import asyncio
 
-from agentic_research.config import Settings
+from agentic_research.config import LLMMode, Settings
 from agentic_research.runner import run_research, stream_research
 
 QUESTION = (
@@ -24,7 +24,7 @@ QUESTION = (
 def cheap_local_settings() -> Settings:
     """A deliberately small run: one round, few sources, local models."""
     return Settings(
-        llm_mode="local",
+        llm_mode=LLMMode.LOCAL,
         max_research_rounds=1,
         max_sources=6,
         max_sources_per_round=4,
@@ -43,7 +43,7 @@ async def simple() -> None:
     print(
         f"\nsources={result.metrics.unique_sources} "
         f"evidence={result.metrics.evidence_items} "
-        f"citations_valid={result.metrics.citation_validity_rate} "
+        f"evidence_integrity={result.metrics.evidence_integrity_rate} "
         f"cost={result.metrics.cost_display}"
     )
 

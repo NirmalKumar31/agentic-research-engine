@@ -98,6 +98,7 @@ mode = st.sidebar.selectbox(
 max_rounds = st.sidebar.slider("Max research rounds", 1, 5, 2)
 max_sources = st.sidebar.slider("Max sources", 5, 40, 15)
 
+preview: Settings | None = None
 try:
     preview = load_settings(llm_mode=mode, max_research_rounds=max_rounds, max_sources=max_sources)
     st.sidebar.caption("Model routing")
@@ -146,11 +147,15 @@ if st.button("Run research", type="primary", disabled=not question.strip()):
         row[0].metric("Rounds", metrics.research_rounds)
         row[1].metric("Sources", f"{metrics.usable_sources}/{metrics.unique_sources}")
         row[2].metric("Evidence", metrics.evidence_items)
+        # Evidence integrity, not citation integrity: the latter is a
+        # structural invariant now that the engine derives citations from
+        # already-resolved evidence, so it reads 100% by construction and
+        # says nothing about the model.
         row[3].metric(
-            "Citations valid",
+            "Evidence integrity",
             "n/a"
-            if metrics.citation_validity_rate is None
-            else f"{metrics.citation_validity_rate:.0%}",
+            if metrics.evidence_integrity_rate is None
+            else f"{metrics.evidence_integrity_rate:.0%}",
         )
         row[4].metric("Cost", metrics.cost_display)
 

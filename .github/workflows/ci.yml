@@ -48,8 +48,13 @@ jobs:
       - name: Format check
         run: ruff format --check src tests app examples
 
+      # app and examples are type-checked too, not just the package. They
+      # were not, and a metric rename left both reading an attribute that
+      # no longer existed: the Streamlit app and the example script each
+      # raised AttributeError while CI stayed green, because ruff does not
+      # resolve attributes and mypy was not looking at them.
       - name: Type check
-        run: mypy src/agentic_research
+        run: mypy src/agentic_research app examples
 
       # No credentials are configured for this job, so any test that reaches a
       # paid API would fail rather than silently spend money. Integration tests
