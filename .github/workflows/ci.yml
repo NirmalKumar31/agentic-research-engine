@@ -216,17 +216,58 @@ jobs:
       # Starts the service exactly as the host will and waits for /api/health.
       # A container that builds but cannot serve fails here rather than on
       # the deployed URL. No credentials, so demo mode runs with none.
-      - name: Probe /api/health
+      # Started with NO credentials, exactly as the public replay service
+      # runs. If the image needed a key to boot, or shipped without its
+      # recordings, that has to fail here rather than on the deployed URL.
+      - name: Probe the replay service end to end
         run: |
           docker run -d --name web -p 8000:8000 \
-            -e DEMO_MODE=true -e LLM_MODE=local \
+            -e DEMO_MODE=true -e LLM_MODE=local -e LIVE_RESEARCH_ENABLED=false \
             agentic-research-web:ci
           for i in $(seq 1 40); do
-            if curl -sf http://127.0.0.1:8000/api/health > /tmp/health.json; then
-              cat /tmp/health.json; break
-            fi
+            curl -sf http://127.0.0.1:8000/api/health > /tmp/health.json && break
             sleep 2
           done
           test -s /tmp/health.json || { docker logs web; exit 1; }
-          curl -sf http://127.0.0.1:8000/ | head -c 200
+          cat /tmp/health.json; echo
+
+          curl -sf http://127.0.0.1:8000/api/config > /tmp/config.json
+          cat /tmp/config.json; echo
+
+          curl -sf http://127.0.0.1:8000/api/examples > /tmp/examples.json
+          python3 - <<'PY'
+          import json, sys, urllib.request
+          cfg = json.load(open("/tmp/config.json"))
+          assert cfg["service_mode"] == "replay", cfg
+          assert cfg["live_research_enabled"] is False, cfg
+          assert cfg["local_models_available"] is False, cfg
+
+          examples = json.load(open("/tmp/examples.json"))["examples"]
+          assert examples, "the image shipped without its recordings"
+          print("recordings in image:", [e["id"] for e in examples])
+          assert any(e["has_pdf_evidence"] for e in examples), "no PDF recording in the image"
+
+          rid = examples[0]["id"]
+          base = "http://127.0.0.1:8000"
+          full = json.load(urllib.request.urlopen(f"{base}/api/examples/{rid}"))
+          assert full["recorded"] is True
+          assert full["result"]["report"], "recording has no report"
+
+          with urllib.request.urlopen(f"{base}/api/examples/{rid}/stream") as r:
+              body = r.read().decode()
+          assert "event: result" in body and "event: done" in body, "replay stream broken"
+
+          # Paid execution must refuse without credentials, not error out.
+          req = urllib.request.Request(
+              f"{base}/api/research", method="POST",
+              data=json.dumps({"query": "a genuine research question"}).encode(),
+              headers={"content-type": "application/json"})
+          try:
+              urllib.request.urlopen(req); raise AssertionError("live research was not refused")
+          except urllib.error.HTTPError as exc:
+              assert exc.code == 403, exc.code
+          print("replay service verified with zero credentials")
+          PY
+
+          curl -sf http://127.0.0.1:8000/ | head -c 120; echo
           docker rm -f web
