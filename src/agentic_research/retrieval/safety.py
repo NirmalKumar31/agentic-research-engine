@@ -10,11 +10,13 @@ because a hostname can resolve anywhere. Every candidate is resolved and
 every resolved address is checked, and the same check is reapplied to each
 redirect hop rather than trusting ``follow_redirects``.
 
-Scope: this blocks the documented ranges and re-validates redirects. It does
-not fully close DNS rebinding, where a name resolves to a public address at
-validation time and a private one at connect time. Doing that properly means
-pinning the validated IP into the connection, which is noted in the
-limitations rather than implied to be solved.
+DNS rebinding is closed by pinning: the connection is made to the address
+that was validated, not to whatever the name resolves to a moment later.
+Rebinding works by answering the validation lookup with a public address
+and the connection lookup with a private one; connecting to the address
+that was actually checked removes that window.
+The hostname is preserved in the ``Host`` header and in the TLS SNI, so
+virtual hosting and certificate validation behave normally.
 """
 
 from __future__ import annotations
@@ -22,7 +24,7 @@ from __future__ import annotations
 import ipaddress
 import socket
 from dataclasses import dataclass
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 
 _ALLOWED_SCHEMES = frozenset({"http", "https"})
 
@@ -69,6 +71,17 @@ class UnresolvableHostError(UnsafeURLError):
     """
 
 
+class UnpinnedTargetError(UnsafeURLError):
+    """A connection was requested for a target with no validated address.
+
+    Fails closed. The obvious alternative -- fall back to connecting by
+    hostname -- is exactly the DNS-rebinding window pinning exists to
+    remove, so a target that cannot be pinned must not be contacted at all.
+    Reachable when a caller validated with ``resolve=False`` and then tried
+    to connect, which is a programming error rather than a network one.
+    """
+
+
 @dataclass(frozen=True)
 class SafeTarget:
     """A URL that passed validation, with the addresses it resolved to."""
@@ -77,6 +90,48 @@ class SafeTarget:
     host: str
     port: int
     addresses: tuple[str, ...]
+    scheme: str = "https"
+
+    def pinned_request(self, address_index: int = 0) -> tuple[str, dict[str, str], dict[str, str]]:
+        """Return ``(url, headers, extensions)`` that connect to a checked IP.
+
+        The URL's host is replaced with a validated address so the socket
+        cannot be pointed somewhere else by a second DNS lookup. The
+        original hostname is carried in ``Host`` for virtual hosting and in
+        ``sni_hostname`` so TLS still presents and verifies the real name --
+        pinning the address must not weaken certificate validation.
+
+        ``address_index`` selects among the addresses that were validated in
+        this same resolution. It exists for failover and deliberately cannot
+        reach anything outside that set: re-resolving to find an alternative
+        would hand the attacker the second lookup pinning removes.
+
+        Raises :class:`UnpinnedTargetError` when there is no validated
+        address. Failing closed matters here -- returning the hostname URL
+        instead would silently restore the rebinding window.
+        """
+        if not self.addresses:
+            raise UnpinnedTargetError(
+                self.url,
+                "no validated address to pin to; refusing to connect by hostname",
+            )
+        if not 0 <= address_index < len(self.addresses):
+            raise UnpinnedTargetError(
+                self.url,
+                f"address index {address_index} outside the validated set of {len(self.addresses)}",
+            )
+
+        address = self.addresses[address_index]
+        literal = f"[{address}]" if ":" in address else address
+        default_port = 443 if self.scheme == "https" else 80
+        netloc = literal if self.port == default_port else f"{literal}:{self.port}"
+
+        parts = urlsplit(self.url)
+        pinned = urlunsplit((self.scheme, netloc, parts.path or "/", parts.query, ""))
+        host_header = self.host if self.port == default_port else f"{self.host}:{self.port}"
+        headers = {"Host": host_header}
+        extensions = {"sni_hostname": self.host} if self.scheme == "https" else {}
+        return pinned, headers, extensions
 
 
 def _address_is_blocked(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> str | None:
@@ -164,10 +219,10 @@ def validate_url(url: str, *, resolve: bool = True) -> SafeTarget:
         reason = _address_is_blocked(literal)
         if reason:
             raise UnsafeURLError(raw, reason)
-        return SafeTarget(url=raw, host=host, port=port, addresses=(str(literal),))
+        return SafeTarget(url=raw, host=host, port=port, addresses=(str(literal),), scheme=scheme)
 
     if not resolve:
-        return SafeTarget(url=raw, host=host, port=port, addresses=())
+        return SafeTarget(url=raw, host=host, port=port, addresses=(), scheme=scheme)
 
     addresses = _resolve(host)
     if not addresses:
@@ -184,7 +239,7 @@ def validate_url(url: str, *, resolve: bool = True) -> SafeTarget:
             # through depending on which the client picks.
             raise UnsafeURLError(raw, f"resolves to {reason} ({candidate})")
 
-    return SafeTarget(url=raw, host=host, port=port, addresses=tuple(addresses))
+    return SafeTarget(url=raw, host=host, port=port, addresses=tuple(addresses), scheme=scheme)
 
 
 def is_safe_url(url: str, *, resolve: bool = True) -> bool:

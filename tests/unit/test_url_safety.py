@@ -198,12 +198,12 @@ class TestFetcherEnforcement:
     ) -> None:
         """The redirect bypass. follow_redirects=True would have taken it."""
         fake_dns.set("public.example", ["93.184.216.34"])
-        respx.get("https://public.example/start").mock(
+        respx.get(path="/start").mock(
             return_value=httpx.Response(
                 302, headers={"location": "http://169.254.169.254/latest/meta-data/"}
             )
         )
-        metadata = respx.get("http://169.254.169.254/latest/meta-data/").mock(
+        metadata = respx.get(path="/latest/meta-data/").mock(
             return_value=httpx.Response(200, text="SECRET-CREDENTIALS")
         )
         async with PageFetcher(settings) as fetcher:
@@ -218,10 +218,10 @@ class TestFetcherEnforcement:
         self, settings: Settings, fake_dns: FakeDNS
     ) -> None:
         fake_dns.set("public.example", ["93.184.216.34"])
-        respx.get("https://public.example/a").mock(
+        respx.get(path="/a").mock(
             return_value=httpx.Response(301, headers={"location": "https://public.example/b"})
         )
-        respx.get("https://public.example/b").mock(
+        respx.get(path="/b").mock(
             return_value=httpx.Response(200, html=GOOD_HTML, headers={"content-type": "text/html"})
         )
         async with PageFetcher(settings) as fetcher:
@@ -232,7 +232,7 @@ class TestFetcherEnforcement:
     @respx.mock
     async def test_redirect_loops_terminate(self, settings: Settings, fake_dns: FakeDNS) -> None:
         fake_dns.set("public.example", ["93.184.216.34"])
-        respx.get("https://public.example/loop").mock(
+        respx.get(path="/loop").mock(
             return_value=httpx.Response(302, headers={"location": "https://public.example/loop"})
         )
         async with PageFetcher(settings, max_redirects=3) as fetcher:

@@ -25,10 +25,15 @@ GOOD_HTML = (
 )
 
 
+@pytest.fixture(autouse=True)
+def _pin_dns(stub_dns: str) -> None:
+    """The fetcher pins validated addresses, so DNS must be deterministic."""
+
+
 class TestFetchSuccess:
     @respx.mock
     async def test_extracts_text_and_drops_markup(self, settings: Settings) -> None:
-        respx.get("https://ex.com/a").mock(
+        respx.get(path="/a").mock(
             return_value=httpx.Response(
                 200, html=GOOD_HTML, headers={"content-type": "text/html; charset=utf-8"}
             )
@@ -44,10 +49,10 @@ class TestFetchSuccess:
 
     @respx.mock
     async def test_follows_redirect_and_records_final_url(self, settings: Settings) -> None:
-        respx.get("https://ex.com/old").mock(
+        respx.get(path="/old").mock(
             return_value=httpx.Response(301, headers={"location": "https://ex.com/new"})
         )
-        respx.get("https://ex.com/new").mock(
+        respx.get(path="/new").mock(
             return_value=httpx.Response(200, html=GOOD_HTML, headers={"content-type": "text/html"})
         )
         async with PageFetcher(settings) as fetcher:
@@ -60,7 +65,7 @@ class TestFetchSuccess:
 class TestFetchFailureModes:
     @respx.mock
     async def test_http_error_is_classified_not_raised(self, settings: Settings) -> None:
-        respx.get("https://ex.com/404").mock(return_value=httpx.Response(404))
+        respx.get(path="/404").mock(return_value=httpx.Response(404))
         async with PageFetcher(settings) as fetcher:
             result = await fetcher.fetch("https://ex.com/404")
         assert result.status is FetchStatus.HTTP_ERROR
@@ -69,14 +74,14 @@ class TestFetchFailureModes:
 
     @respx.mock
     async def test_timeout(self, settings: Settings) -> None:
-        respx.get("https://ex.com/slow").mock(side_effect=httpx.ConnectTimeout("too slow"))
+        respx.get(path="/slow").mock(side_effect=httpx.ConnectTimeout("too slow"))
         async with PageFetcher(settings) as fetcher:
             result = await fetcher.fetch("https://ex.com/slow")
         assert result.status is FetchStatus.TIMEOUT
 
     @respx.mock
     async def test_redirect_loop(self, settings: Settings) -> None:
-        respx.get("https://ex.com/loop").mock(side_effect=httpx.TooManyRedirects("loop"))
+        respx.get(path="/loop").mock(side_effect=httpx.TooManyRedirects("loop"))
         async with PageFetcher(settings) as fetcher:
             result = await fetcher.fetch("https://ex.com/loop")
         assert result.status is FetchStatus.HTTP_ERROR
@@ -84,7 +89,7 @@ class TestFetchFailureModes:
 
     @respx.mock
     async def test_non_text_binary_is_unsupported(self, settings: Settings) -> None:
-        respx.get("https://ex.com/i.png").mock(
+        respx.get(path="/i.png").mock(
             return_value=httpx.Response(
                 200, content=b"\x89PNG\r\n", headers={"content-type": "image/png"}
             )
@@ -96,7 +101,7 @@ class TestFetchFailureModes:
 
     @respx.mock
     async def test_oversized_declared_length_rejected(self, settings: Settings) -> None:
-        respx.get("https://ex.com/big").mock(
+        respx.get(path="/big").mock(
             return_value=httpx.Response(
                 200,
                 html="<html/>",
@@ -112,7 +117,7 @@ class TestFetchFailureModes:
         self, settings: Settings
     ) -> None:
         settings.max_page_bytes = 10_000
-        respx.get("https://ex.com/liar").mock(
+        respx.get(path="/liar").mock(
             return_value=httpx.Response(
                 200,
                 content=b"<html><body>" + b"x" * 50_000 + b"</body></html>",
@@ -125,7 +130,7 @@ class TestFetchFailureModes:
 
     @respx.mock
     async def test_javascript_shell_yields_empty_not_success(self, settings: Settings) -> None:
-        respx.get("https://ex.com/spa").mock(
+        respx.get(path="/spa").mock(
             return_value=httpx.Response(
                 200,
                 html="<html><body><div id='root'></div><script>app()</script></body></html>",
@@ -139,7 +144,7 @@ class TestFetchFailureModes:
 
     @respx.mock
     async def test_connection_error(self, settings: Settings) -> None:
-        respx.get("https://nope.invalid/x").mock(side_effect=httpx.ConnectError("no dns"))
+        respx.get(path="/x").mock(side_effect=httpx.ConnectError("no dns"))
         async with PageFetcher(settings) as fetcher:
             result = await fetcher.fetch("https://nope.invalid/x")
         assert result.status is FetchStatus.HTTP_ERROR
@@ -148,7 +153,7 @@ class TestFetchFailureModes:
     @respx.mock
     async def test_mismatched_encoding_does_not_crash(self, settings: Settings) -> None:
         body = "<html><body><article><p>café serves fraud analytics daily to many people here</p></article></body></html>".encode()
-        respx.get("https://ex.com/enc").mock(
+        respx.get(path="/enc").mock(
             return_value=httpx.Response(
                 200, content=body, headers={"content-type": "text/html; charset=ascii"}
             )
@@ -173,7 +178,7 @@ class TestConcurrencyLimits:
             live -= 1
             return httpx.Response(200, html=GOOD_HTML, headers={"content-type": "text/html"})
 
-        respx.get(url__startswith="https://same.com/").mock(side_effect=handler)
+        respx.get(path__startswith="/").mock(side_effect=handler)
         async with PageFetcher(settings, per_host_limit=2) as fetcher:
             await asyncio.gather(*(fetcher.fetch(f"https://same.com/{i}") for i in range(6)))
         assert peak <= 2, f"per-host limit exceeded: {peak} concurrent"

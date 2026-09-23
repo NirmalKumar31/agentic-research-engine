@@ -45,6 +45,12 @@ dev = [
     "pytest-asyncio>=1.4,<2",
     "pytest-cov>=7,<8",
     "respx>=0.23,<0.24",
+    # Generates an in-process CA so TLS certificate verification can be
+    # tested for real. The pinning design connects by IP and verifies
+    # against the hostname via SNI; that property cannot be asserted
+    # without a genuine certificate, and verify=False would make the
+    # assertions vacuous.
+    "trustme>=1.2,<2",
     "fastapi>=0.120,<1",
     "uvicorn[standard]>=0.40,<1",
     "ruff>=0.16,<0.17",

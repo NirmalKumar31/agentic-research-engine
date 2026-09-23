@@ -31,6 +31,8 @@ from agentic_research.retrieval.pdf import (
     looks_like_pdf,
 )
 from agentic_research.retrieval.safety import (
+    SafeTarget,
+    UnpinnedTargetError,
     UnresolvableHostError,
     UnsafeURLError,
     validate_url,
@@ -239,8 +241,10 @@ class PageFetcher:
         """
         current = url
         for _ in range(self._max_redirects + 1):
-            validate_url(current)
-            result, redirect_to = await self._fetch_once(current)
+            # Validate, then connect to the address that was validated.
+            # Re-resolving at connect time is what DNS rebinding exploits.
+            target = validate_url(current)
+            result, redirect_to = await self._fetch_with_failover(current, target)
             if redirect_to is None:
                 return result
             current = redirect_to
@@ -251,19 +255,67 @@ class PageFetcher:
             error=f"exceeded {self._max_redirects} redirects",
         )
 
-    async def _fetch_once(self, url: str) -> tuple[FetchResult, str | None]:
-        """Issue one request.
+    async def _fetch_with_failover(
+        self, url: str, target: SafeTarget
+    ) -> tuple[FetchResult, str | None]:
+        """Try each validated address in turn until one connects.
+
+        A hostname with several public records is routinely served by only
+        some of them at any moment, and pinning to the first would turn a
+        transient outage into a failed source. Failover stays strictly
+        inside the set validated by this one resolution: re-resolving to
+        look for an alternative would reintroduce the second lookup that
+        pinning exists to remove.
+
+        Only connection-level failures fail over. An HTTP error is a real
+        answer from the right server and retrying it elsewhere would just
+        hammer the origin.
+        """
+        last_error: httpx.HTTPError | None = None
+        for index in range(len(target.addresses)):
+            try:
+                return await self._fetch_once(url, target, index)
+            except (httpx.ConnectError, httpx.ConnectTimeout) as exc:
+                last_error = exc
+                log.debug(
+                    "pinned_address_unreachable",
+                    url=url[:120],
+                    address_index=index,
+                    remaining=len(target.addresses) - index - 1,
+                )
+
+        if last_error is None:
+            # Zero validated addresses, so the loop never ran. Fail closed
+            # as a *policy* refusal rather than an assertion: connecting by
+            # hostname instead is precisely the rebinding window pinning
+            # removes, and the caller must report it as BLOCKED rather than
+            # as a generic error it might retry.
+            raise UnpinnedTargetError(
+                url, "no validated address to pin to; refusing to connect by hostname"
+            )
+        raise last_error
+
+    async def _fetch_once(
+        self, url: str, target: SafeTarget, address_index: int = 0
+    ) -> tuple[FetchResult, str | None]:
+        """Issue one request against a pre-validated address.
 
         Returns ``(result, next_url)``. ``next_url`` is set only for a
-        redirect, and the caller must revalidate it before following.
+        redirect, and the caller must revalidate and re-pin it before
+        following.
         """
         assert self._client is not None
+        pinned_url, pinned_headers, extensions = target.pinned_request(address_index)
 
         def failure(status: FetchStatus, error: str, **extra: object) -> tuple[FetchResult, None]:
             return FetchResult(url=url, status=status, error=error, **extra), None  # type: ignore[arg-type]
 
-        async with self._client.stream("GET", url) as response:
-            final_url = str(response.url)
+        async with self._client.stream(
+            "GET", pinned_url, headers=pinned_headers, extensions=extensions
+        ) as response:
+            # Report the logical URL, not the pinned one: the IP is a
+            # transport detail and would be confusing in a citation.
+            final_url = url
             code = response.status_code
 
             if response.is_redirect:
@@ -275,7 +327,9 @@ class PageFetcher:
                         final_url=final_url,
                         http_status=code,
                     )
-                return FetchResult(url=url), str(response.url.join(location))
+                # Resolve the redirect against the logical URL so a
+                # relative Location does not inherit the pinned IP.
+                return FetchResult(url=url), str(httpx.URL(url).join(location))
 
             if code >= 400:
                 return failure(

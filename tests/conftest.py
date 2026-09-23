@@ -34,3 +34,26 @@ def settings() -> Settings:
 @pytest.fixture(autouse=True)
 def _quiet_logs(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LOG_LEVEL", "CRITICAL")
+
+
+PUBLIC_TEST_IP = "93.184.216.34"
+
+
+@pytest.fixture
+def stub_dns(monkeypatch: pytest.MonkeyPatch) -> str:
+    """Resolve every hostname to one public address.
+
+    The fetcher pins the validated IP into the connection to close DNS
+    rebinding, so the request URL it issues contains an address rather than
+    a hostname. Tests therefore match on path and rely on this to make the
+    pinned address deterministic.
+    """
+    import socket as _socket
+
+    import agentic_research.retrieval.safety as safety
+
+    def fake(host, *args, **kwargs):
+        return [(_socket.AF_INET, 0, 0, "", (PUBLIC_TEST_IP, 0))]
+
+    monkeypatch.setattr(safety.socket, "getaddrinfo", fake)
+    return PUBLIC_TEST_IP

@@ -40,6 +40,11 @@ PAGES = [
 ]
 
 
+@pytest.fixture(autouse=True)
+def _pin_dns(stub_dns: str) -> None:
+    """The fetcher pins validated addresses, so DNS must be deterministic."""
+
+
 class TestDetection:
     def test_magic_bytes_win_over_a_missing_suffix(self) -> None:
         """Plenty of PDFs are served from URLs with no .pdf on the end."""
@@ -124,7 +129,7 @@ class TestPageProvenance:
 class TestFetcherIntegration:
     @respx.mock
     async def test_a_pdf_is_fetched_and_extracted(self, settings: Settings) -> None:
-        respx.get("https://x.org/paper.pdf").mock(
+        respx.get(path="/paper.pdf").mock(
             return_value=httpx.Response(
                 200, content=make_pdf(PAGES), headers={"content-type": "application/pdf"}
             )
@@ -139,7 +144,7 @@ class TestFetcherIntegration:
 
     @respx.mock
     async def test_a_pdf_without_a_suffix_is_still_extracted(self, settings: Settings) -> None:
-        respx.get("https://x.org/download?id=9").mock(
+        respx.get(path="/download").mock(
             return_value=httpx.Response(
                 200,
                 content=make_pdf(PAGES),
@@ -155,7 +160,7 @@ class TestFetcherIntegration:
     async def test_scanned_pdf_is_classified_and_the_run_continues(
         self, settings: Settings
     ) -> None:
-        respx.get("https://x.org/scan.pdf").mock(
+        respx.get(path="/scan.pdf").mock(
             return_value=httpx.Response(
                 200, content=make_scanned_pdf(), headers={"content-type": "application/pdf"}
             )
@@ -168,7 +173,7 @@ class TestFetcherIntegration:
 
     @respx.mock
     async def test_malformed_pdf_fails_safely(self, settings: Settings) -> None:
-        respx.get("https://x.org/bad.pdf").mock(
+        respx.get(path="/bad.pdf").mock(
             return_value=httpx.Response(
                 200, content=make_malformed_pdf(), headers={"content-type": "application/pdf"}
             )
@@ -182,7 +187,7 @@ class TestFetcherIntegration:
     async def test_oversized_pdf_is_rejected_by_the_pdf_cap(self, settings: Settings) -> None:
         """PDFs get a larger cap than HTML, but still a cap."""
         settings.max_pdf_bytes = 50_000
-        respx.get("https://x.org/huge.pdf").mock(
+        respx.get(path="/huge.pdf").mock(
             return_value=httpx.Response(
                 200,
                 content=make_oversized_pdf(200_000),
@@ -197,7 +202,7 @@ class TestFetcherIntegration:
     async def test_pdfs_get_a_larger_cap_than_html(self, settings: Settings) -> None:
         settings.max_page_bytes = 20_000
         settings.max_pdf_bytes = 500_000
-        respx.get("https://x.org/mid.pdf").mock(
+        respx.get(path="/mid.pdf").mock(
             return_value=httpx.Response(
                 200,
                 content=make_oversized_pdf(60_000),
