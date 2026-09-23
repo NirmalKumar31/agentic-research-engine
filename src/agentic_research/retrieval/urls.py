@@ -124,3 +124,21 @@ def domain_of(url: str) -> str:
 
 def same_document(a: str, b: str) -> bool:
     return bool(a) and canonicalize(a) == canonicalize(b)
+
+
+def looks_like_pdf_url(url: str) -> bool:
+    """Whether a URL is likely to serve a PDF.
+
+    Used to decide whether provider-supplied text is good enough. It is a
+    hint, not a guarantee -- the fetched bytes still decide -- so a false
+    positive costs one request and a false negative costs page numbers.
+
+    Both common shapes are covered: a ``.pdf`` suffix, and a ``/pdf/``
+    path segment, which is how arXiv serves papers
+    (``arxiv.org/pdf/1706.03762`` has no extension at all).
+    """
+    try:
+        path = urlsplit(url).path.lower()
+    except ValueError:
+        return False
+    return path.endswith(".pdf") or "/pdf/" in path or path.endswith("/pdf")

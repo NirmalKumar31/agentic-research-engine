@@ -42,6 +42,7 @@ from agentic_research.models import (
 )
 from agentic_research.observability import get_logger
 from agentic_research.retrieval.parser import markdown_to_text, truncate, word_count
+from agentic_research.retrieval.urls import looks_like_pdf_url
 from agentic_research.schemas import ExtractionOut
 
 log = get_logger(__name__)
@@ -203,25 +204,60 @@ async def fetch_worker(state: FetchTask) -> ResearchState:
     the page body. Tavily can return page content with the search result, and
     re-downloading a page we have been handed is a waste of time and of the
     origin server's bandwidth.
+
+    PDFs are the exception. Tavily returns extracted text for those too, but
+    flattened -- the page boundaries are gone. Taking the shortcut there
+    silently trades away the page numbers that make ``[S7, p. 14]`` possible,
+    which is the one thing a PDF citation is supposed to offer. Measured, not
+    assumed: before this, every source in a Tavily-backed run came back
+    ``provider_raw`` and no run ever produced a single page number.
+
+    So a likely PDF is fetched for real, and provider content becomes the
+    fallback if that fetch fails. The cost is one request per PDF; the
+    alternative is a documented feature that never actually runs.
     """
     source = state["source"]
     candidate = state["candidate"]
     settings = ctx().settings
 
+    provider_text = ""
     if candidate.provider_content and len(candidate.provider_content.strip()) > 200:
-        text = truncate(markdown_to_text(candidate.provider_content), settings.max_extract_chars)
-        if text.strip():
-            return _finalise_source(
-                source,
-                text,
-                FetchStatus.PROVIDER_CONTENT,
-                ContentOrigin.PROVIDER_RAW,
-                reused=True,
-            )
+        provider_text = truncate(
+            markdown_to_text(candidate.provider_content), settings.max_extract_chars
+        )
+
+    wants_pages = looks_like_pdf_url(source.url)
+    if provider_text.strip() and not wants_pages:
+        return _finalise_source(
+            source,
+            provider_text,
+            FetchStatus.PROVIDER_CONTENT,
+            ContentOrigin.PROVIDER_RAW,
+            reused=True,
+        )
+
+    def _fall_back_to_provider(reason: str) -> ResearchState | None:
+        """Use the provider's copy when fetching a PDF did not work out.
+
+        Losing page numbers is much better than losing the source.
+        """
+        if not provider_text.strip():
+            return None
+        log.info("pdf_fetch_fell_back_to_provider", source_id=source.id, reason=reason)
+        return _finalise_source(
+            source,
+            provider_text,
+            FetchStatus.PROVIDER_CONTENT,
+            ContentOrigin.PROVIDER_RAW,
+            reused=True,
+        )
 
     try:
         result = await ctx().fetcher.fetch(source.url)
     except Exception as exc:
+        fallback = _fall_back_to_provider(type(exc).__name__)
+        if fallback is not None:
+            return fallback
         log.warning("fetch_worker_crashed", source_id=source.id, error=str(exc)[:200])
         return {
             "sources": [
@@ -234,6 +270,9 @@ async def fetch_worker(state: FetchTask) -> ResearchState:
         }
 
     if not result.ok:
+        fallback = _fall_back_to_provider(result.status.value)
+        if fallback is not None:
+            return fallback
         emit("source_failed", source_id=source.id, status=result.status.value)
         return {
             "sources": [

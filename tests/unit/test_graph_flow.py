@@ -452,3 +452,98 @@ class TestGraphStructure:
 
         assert "finalize --> END" in diagram
         assert "finalize -.-> register_sources" not in diagram
+
+
+async def run_fetch_worker(settings: Settings, url: str, provider_content: str, **overrides):
+    """Drive fetch_worker alone.
+
+    It reads its context through LangGraph's runtime, so it needs a real
+    (tiny) graph rather than a direct call.
+    """
+    from langgraph.graph import END, START, StateGraph
+    from langgraph.types import Send
+
+    from agentic_research.evidence.dedup import Candidate
+    from agentic_research.graph.nodes.research import fetch_worker
+    from agentic_research.graph.state import FetchTask, ResearchState
+    from agentic_research.models import SourceDocument
+
+    source = SourceDocument(id="S1", url=url, canonical_url=url, title="Doc", domain="example.com")
+    candidate = Candidate(
+        url=url,
+        canonical_url=url,
+        domain="example.com",
+        title="Doc",
+        snippet="",
+        provider_content=provider_content,
+    )
+
+    # Dispatched with Send, as the real graph does. A plain START edge would
+    # hand the worker graph state rather than its payload.
+    graph = StateGraph(ResearchState, context_schema=RunContext)
+    graph.add_node("begin", lambda state: {})
+    graph.add_node("fetch_worker", fetch_worker, input_schema=FetchTask)
+    graph.add_edge(START, "begin")
+    graph.add_conditional_edges(
+        "begin",
+        lambda state: [Send("fetch_worker", {"source": source, "candidate": candidate})],
+        ["fetch_worker"],
+    )
+    graph.add_edge("fetch_worker", END)
+
+    return await graph.compile().ainvoke(
+        initial_state("test-run", "q"), context=make_context(settings, **overrides)
+    )
+
+
+class TestPdfSourcesAreFetchedForTheirPages:
+    """Provider text for a PDF has no page boundaries.
+
+    Tavily returns extracted text for PDFs as readily as for HTML, so the
+    provider-content shortcut applied to every source -- and no Tavily-backed
+    run ever produced a single page number, despite page-aware citation being
+    a documented feature. A likely PDF is therefore fetched for real, with
+    provider content as the fallback rather than the default.
+    """
+
+    async def test_a_pdf_url_is_fetched_even_when_provider_text_exists(
+        self, settings: Settings
+    ) -> None:
+        from agentic_research.models import ContentOrigin
+
+        fetcher = FakeFetcher()
+        state = await run_fetch_worker(
+            settings, "https://arxiv.org/pdf/1706.03762", "PROVIDER TEXT " * 40, fetcher=fetcher
+        )
+        assert fetcher.stats.attempted == 1, "a PDF must be fetched, not taken from the provider"
+        assert state["sources"][0].content_origin is not ContentOrigin.PROVIDER_RAW
+
+    async def test_an_html_url_still_reuses_provider_content(self, settings: Settings) -> None:
+        """The shortcut is worth keeping everywhere it costs nothing."""
+        from agentic_research.models import ContentOrigin
+
+        fetcher = FakeFetcher()
+        state = await run_fetch_worker(
+            settings, "https://example.com/article", "PROVIDER TEXT " * 40, fetcher=fetcher
+        )
+        assert fetcher.stats.attempted == 0, "no request should be made for HTML we were handed"
+        assert state["sources"][0].content_origin is ContentOrigin.PROVIDER_RAW
+
+    async def test_a_failed_pdf_fetch_falls_back_to_provider_text(self, settings: Settings) -> None:
+        """Losing page numbers beats losing the source."""
+        from agentic_research.models import ContentOrigin
+
+        url = "https://example.com/paper.pdf"
+        state = await run_fetch_worker(
+            settings, url, "PROVIDER TEXT " * 40, fetcher=FakeFetcher(fail_urls={url})
+        )
+        source = state["sources"][0]
+        assert source.is_usable, "the source was dropped instead of falling back"
+        assert source.content_origin is ContentOrigin.PROVIDER_RAW
+
+    async def test_a_failed_pdf_fetch_without_provider_text_is_reported(
+        self, settings: Settings
+    ) -> None:
+        url = "https://example.com/paper.pdf"
+        state = await run_fetch_worker(settings, url, "", fetcher=FakeFetcher(fail_urls={url}))
+        assert not state["sources"][0].is_usable
