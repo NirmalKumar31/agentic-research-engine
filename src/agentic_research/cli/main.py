@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 import json
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 from rich.console import Console
@@ -14,6 +15,7 @@ from rich.markdown import Markdown
 from rich.table import Table
 
 from agentic_research.config import LLMMode, Settings, get_settings
+from agentic_research.environment import capture as capture_environment
 from agentic_research.llm.base import ModelUnavailableError
 from agentic_research.observability import configure_logging
 from agentic_research.runner import RunResult, new_run_id, stream_research
@@ -574,6 +576,92 @@ def attribution_experiment(
 
     if experiment.breaches:
         raise typer.Exit(code=2)
+
+
+@app.command("record")
+def record_example(
+    question: Annotated[str, typer.Argument(help="Question to research and record.")],
+    example_id: Annotated[
+        str, typer.Option("--id", help="Lowercase slug; becomes the URL path segment.")
+    ],
+    label: Annotated[str, typer.Option("--label", help="Short title for the homepage card.")],
+    description: Annotated[str, typer.Option("--description", help="One line of context.")] = "",
+    order: Annotated[int, typer.Option("--order", help="Display order on the homepage.")] = 50,
+    mode: Annotated[LLMMode | None, typer.Option("--mode", "-m")] = None,
+    max_rounds: Annotated[int | None, typer.Option("--max-rounds")] = None,
+    max_sources: Annotated[int | None, typer.Option("--max-sources")] = None,
+) -> None:
+    """Run research once and save it as a recorded demo for the website.
+
+    The public site replays these instead of running live research, so the
+    hosted demo cannot spend API credit. Captures the run's own progress
+    events alongside the result: the replay shows what actually happened,
+    never an invented sequence of stages.
+
+    Source page text is excluded, so a recording is safe to commit.
+    """
+    from agentic_research.web.recordings import RECORDINGS_DIR, serialise_result, valid_id
+
+    if not valid_id(example_id):
+        _fail(
+            f"Invalid --id {example_id!r}.",
+            "Lowercase letters, digits and dashes; must start with a letter or digit.",
+        )
+        return
+
+    settings = _load_settings(
+        llm_mode=mode, max_research_rounds=max_rounds, max_sources=max_sources
+    )
+    configure_logging("WARNING", settings.log_format)
+    console.print(f"Recording [bold]{example_id}[/bold]: {question}")
+
+    trace: list[dict[str, Any]] = []
+    result: RunResult | None = None
+
+    async def drive() -> None:
+        nonlocal result
+        async for event in stream_research(question, settings, run_id=new_run_id()):
+            if event.get("event") == "result":
+                result = event["result"]
+            else:
+                # The graph's own events, kept verbatim. The replay endpoint
+                # emits exactly these, so nothing in the UI is invented.
+                trace.append(event)
+                console.print(f"  [dim]{event.get('event')}[/dim]")
+
+    asyncio.run(drive())
+    if result is None:
+        _fail("The run produced no result; nothing recorded.")
+        return
+
+    serialised = serialise_result(result)
+    payload: dict[str, Any] = {
+        "meta": {
+            "id": example_id,
+            "label": label,
+            "question": question,
+            "description": description,
+            "mode": settings.llm_mode.value,
+            "recorded_at": datetime.now(UTC).isoformat(),
+            "order": order,
+            "environment": capture_environment(settings),
+        },
+        "trace": trace,
+        "result": serialised,
+    }
+
+    RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
+    destination = RECORDINGS_DIR / f"{example_id}.json"
+    destination.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+
+    evidence = serialised.get("evidence", [])
+    citable = sum(1 for e in evidence if e.get("citable"))
+    with_pages = sum(1 for e in evidence if e.get("page"))
+    console.print(
+        f"\nRecorded {len(trace)} events, {len(evidence)} evidence items "
+        f"({citable} citable, {with_pages} with a page number)."
+    )
+    console.print(f"[dim]Written to {destination}[/dim]")
 
 
 @app.command("graph")

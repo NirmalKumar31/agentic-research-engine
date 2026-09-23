@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from agentic_research.observability import get_logger
+from agentic_research.runner import RunResult
 
 log = get_logger(__name__)
 
@@ -194,3 +195,114 @@ def trace(recording_id: str) -> list[dict[str, Any]]:
     honest; inventing plausible-looking stages would not be.
     """
     return list(load(recording_id).get("trace", []) or [])
+
+
+# ---------------------------------------------------------------------------
+# Shared result serialisation
+# ---------------------------------------------------------------------------
+#
+# Lives here rather than in api.py so the recorder and the live endpoint
+# cannot drift: a recording must be byte-identical in shape to what a live
+# run returns, or the UI would need two code paths to render them. It also
+# keeps the recorder free of a FastAPI import, since fastapi is an optional
+# extra and `agentic-research record` has to work without it.
+
+
+def serialise_result(result: RunResult) -> dict[str, Any]:
+    """Everything the UI needs to show provenance, and nothing more.
+
+    Deliberately assembled field by field rather than dumping state: state
+    holds full source text and would leak configuration if serialised
+    wholesale.
+    """
+    state = result.state
+    report = state.get("report")
+    evidence = state.get("evidence", []) or []
+    sources = state.get("sources", []) or []
+    plan = state.get("plan")
+
+    def claim(c: Any) -> dict[str, Any]:
+        return {
+            "text": c.text,
+            "kind": c.kind.value,
+            "evidence_ids": list(c.evidence_ids),
+            "citation_ids": list(c.citation_ids),
+        }
+
+    return {
+        "run_id": result.run_id,
+        "report": None
+        if report is None
+        else {
+            "title": report.title,
+            "summary_claims": [claim(c) for c in report.summary_claims],
+            "key_findings": [claim(c) for c in report.key_findings],
+            "sections": [
+                {"heading": s.heading, "claims": [claim(c) for c in s.claims]}
+                for s in report.sections
+            ],
+            "contradictions": [
+                {
+                    "topic": c.topic,
+                    "left_summary": c.left_summary,
+                    "left_evidence_ids": list(c.left_evidence_ids),
+                    "left_citation_ids": list(c.left_citation_ids),
+                    "right_summary": c.right_summary,
+                    "right_evidence_ids": list(c.right_evidence_ids),
+                    "right_citation_ids": list(c.right_citation_ids),
+                    "auditable": c.is_auditable,
+                }
+                for c in report.contradictions
+            ],
+            "limitations": list(report.limitations),
+        },
+        "plan": None
+        if plan is None
+        else {
+            "strategy": plan.strategy_note,
+            "sub_questions": [
+                {
+                    "id": q.id,
+                    "text": q.text,
+                    "rationale": q.rationale,
+                    "is_followup": q.is_followup,
+                }
+                for q in plan.sub_questions
+            ],
+        },
+        "evidence": [
+            {
+                "id": e.id,
+                "source_id": e.source_id,
+                "sub_question_id": e.sub_question_id,
+                "claim": e.claim,
+                "quote": e.quote,
+                "quote_match": e.quote_match.value,
+                "page": e.page,
+                "stance": e.stance.value,
+                "confidence": e.confidence,
+                "citable": e.is_citable,
+                "query_id": e.query_id,
+                "cross_attributed": e.cross_attributed,
+            }
+            for e in evidence
+        ],
+        "sources": [
+            {
+                "id": s.id,
+                "url": s.url,
+                "title": s.title,
+                "domain": s.domain,
+                "source_type": s.source_type.value,
+                "content_origin": s.content_origin.value,
+                "quality_score": s.quality_score,
+                "page_count": s.page_count,
+                "usable": s.is_usable,
+                "fetch_status": s.fetch_status.value,
+            }
+            for s in sources
+        ],
+        "verification": state.get("verification"),
+        "metrics": result.metrics.model_dump(mode="json"),
+        "markdown": result.markdown,
+    }
