@@ -204,9 +204,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         yield
 
+    from agentic_research import __version__
+
     app = FastAPI(
         title="Agentic Research Engine",
-        version="0.2.0",
+        # Read from the package rather than restated here. The two drifted
+        # once already (package 0.1.0, API 0.2.0) and a hardcoded string is
+        # guaranteed to drift again.
+        version=__version__,
         lifespan=lifespan,
         # No interactive docs in demo mode: they invite poking at an endpoint
         # that spends money, and add nothing for a portfolio visitor.
@@ -229,9 +234,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @api.get("/health")
     async def health() -> dict[str, Any]:
-        """Liveness probe. Deliberately cheap and credential-free."""
+        """Liveness probe. Deliberately cheap and credential-free.
+
+        Carries the version and commit so a deployed instance can be
+        matched to the code that produced it without guessing from the
+        deploy timestamp.
+        """
+        from agentic_research.provenance import git_state
+
         return {
             "status": "ok",
+            "version": __version__,
+            "commit": git_state().get("short_commit", "unavailable"),
             "demo_mode": state.demo_mode,
             "capacity": await state.limiter.snapshot(),
         }

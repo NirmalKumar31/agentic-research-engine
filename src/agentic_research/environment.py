@@ -74,7 +74,14 @@ def _ollama_info(base_url: str) -> dict[str, Any]:
 
 
 def capture(settings: Settings | None = None) -> dict[str, Any]:
-    """Describe the machine and software producing a measurement."""
+    """Describe the machine and software producing a measurement.
+
+    Includes the code provenance block, because knowing the hardware
+    without knowing the commit, prompts and schemas leaves a number
+    unreproducible in the way that actually bit this project.
+    """
+    from agentic_research.provenance import capture as capture_provenance
+
     snapshot: dict[str, Any] = {
         "python": sys.version.split()[0],
         "platform": platform.platform(),
@@ -82,6 +89,7 @@ def capture(settings: Settings | None = None) -> dict[str, Any]:
         "processor": platform.processor() or platform.machine(),
         "cpu_count": _cpu_count(),
         "packages": _package_versions(),
+        "provenance": capture_provenance(settings),
     }
     if settings is not None:
         snapshot["ollama"] = _ollama_info(settings.ollama_base_url)
@@ -111,6 +119,8 @@ def _cpu_count() -> int | None:
 
 def describe(snapshot: dict[str, Any]) -> str:
     """One-line human summary, for labelling a figure in prose."""
+    from agentic_research.provenance import describe as describe_provenance
+
     packages = snapshot.get("packages", {})
     ollama = snapshot.get("ollama", {})
     parts = [
@@ -120,4 +130,7 @@ def describe(snapshot: dict[str, Any]) -> str:
     ]
     if ollama.get("version") and ollama["version"] != "unreachable":
         parts.append(f"ollama {ollama['version']}")
+    provenance = snapshot.get("provenance")
+    if provenance:
+        parts.append(describe_provenance(provenance))
     return ", ".join(parts)
