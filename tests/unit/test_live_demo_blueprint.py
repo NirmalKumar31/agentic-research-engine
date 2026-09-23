@@ -1,0 +1,245 @@
+"""The live deployment: its ceilings, and how it fails.
+
+render-live.yaml turns on an endpoint that spends money, so the values in
+it are asserted rather than trusted to review. A typo that widens a
+ceiling is invisible in a diff and expensive in production.
+
+The failure behaviour matters as much as the limits. A visitor who arrives
+when the quota is gone should be told that, and should still be able to
+explore the recorded runs -- the live path breaking must not take the
+replay path with it.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+import yaml
+from fastapi.testclient import TestClient
+
+from agentic_research.config import Settings
+from agentic_research.llm.base import ProviderRateLimited
+from agentic_research.web import recordings
+from agentic_research.web.api import create_app
+
+REPO = Path(__file__).resolve().parents[2]
+
+
+def _blueprint(name: str) -> dict[str, str]:
+    doc = yaml.safe_load((REPO / name).read_text(encoding="utf-8"))
+    service = doc["services"][0]
+    return {e["key"]: e.get("value", "<prompted>") for e in service["envVars"]}
+
+
+class TestTheLiveBlueprint:
+    """Values, not prose. Every one of these bounds real spend."""
+
+    @pytest.fixture
+    def env(self) -> dict[str, str]:
+        return _blueprint("render-live.yaml")
+
+    def test_secrets_are_prompted_never_committed(self, env: dict[str, str]) -> None:
+        assert env["OPENAI_API_KEY"] == "<prompted>"
+        assert env["TAVILY_API_KEY"] == "<prompted>"
+        raw = (REPO / "render-live.yaml").read_text(encoding="utf-8")
+        for marker in ("sk-", "tvly-"):
+            assert marker not in raw, f"{marker} literal in a committed blueprint"
+
+    def test_live_research_is_on_and_cloud_backed(self, env: dict[str, str]) -> None:
+        """These two belong together: there is no Ollama on Render, so
+        local plus live would fail preflight on the first request."""
+        assert env["LIVE_RESEARCH_ENABLED"] == "true"
+        assert env["LLM_MODE"] == "cloud"
+        assert env["DEMO_MODE"] == "true", "client values must stay clamped"
+
+    def test_only_the_cheap_model_is_reachable(self, env: dict[str, str]) -> None:
+        assert env["OPENAI_MODEL"] == "gpt-6-luna"
+        assert env["OPENAI_FAST_MODEL"] == "gpt-6-luna"
+        # Checked against the configured values, not the file text: a
+        # comment saying "Sol and Astra are never used" would otherwise
+        # fail its own assertion.
+        configured = {
+            v.lower() for k, v in env.items() if k.startswith("OPENAI_") and v != "<prompted>"
+        }
+        assert not any("sol" in v or "astra" in v for v in configured), configured
+        # A missing model must fail rather than escalate to a pricier one.
+        assert env["ALLOW_CLOUD_FALLBACK"] == "false"
+
+    def test_per_run_ceilings_match_the_agreed_values(self, env: dict[str, str]) -> None:
+        assert env["MAX_CLOUD_CALLS"] == "20"
+        assert env["MAX_CLOUD_COST_USD"] == "0.05"
+        assert env["MAX_CLOUD_INPUT_TOKENS"] == "120000"
+        assert env["MAX_CLOUD_OUTPUT_TOKENS"] == "20000"
+        assert env["MAX_SEARCH_CREDITS"] == "8"
+
+    def test_the_run_stays_small(self, env: dict[str, str]) -> None:
+        assert env["MAX_RESEARCH_ROUNDS"] == "1"
+        assert env["MAX_SOURCES"] == "6"
+        assert env["MAX_SOURCES_PER_ROUND"] == "6"
+        assert env["MAX_SEARCH_QUERIES"] == "6"
+        assert env["MAX_LLM_CALLS"] == "20"
+
+    def test_traffic_is_shaped_for_one_small_instance(self, env: dict[str, str]) -> None:
+        assert env["DEMO_MAX_CONCURRENT_RUNS"] == "1"
+        assert env["DEMO_RUNS_PER_HOUR"] == "2"
+        assert env["DEMO_PROVIDER_REQUESTS_PER_DAY"] == "50"
+        assert env["DEMO_MAX_RUNTIME_SECONDS"] == "240"
+
+    def test_nothing_is_persisted(self, env: dict[str, str]) -> None:
+        assert env["PERSIST_RUNS"] == "false"
+        assert env["CHECKPOINT_BACKEND"] == "memory"
+
+    def test_the_daily_cap_derives_from_the_quota(self, env: dict[str, str]) -> None:
+        """50 provider requests a day at 20 per run affords two runs. It is
+        derived rather than written down, so raising the tier raises the
+        cap without another edit."""
+        from agentic_research.web.limits import runs_affordable
+
+        affordable = runs_affordable(
+            int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"]), int(env["MAX_CLOUD_CALLS"])
+        )
+        assert affordable == 2
+
+    def test_every_key_maps_to_a_real_setting(self, env: dict[str, str]) -> None:
+        """A misspelled variable is silently ignored by pydantic-settings,
+        so the ceiling it was meant to set simply would not exist."""
+        known = {f.upper() for f in Settings.model_fields}
+        unknown = [k for k in env if k not in known]
+        assert unknown == [], f"these set nothing: {unknown}"
+
+
+class TestTheReplayBlueprintStaysSafe:
+    """Adding a live deployment must not weaken the safe one."""
+
+    def test_it_declares_no_credentials_at_all(self) -> None:
+        env = _blueprint("render.yaml")
+        assert "OPENAI_API_KEY" not in env
+        assert "TAVILY_API_KEY" not in env
+
+    def test_live_research_is_off(self) -> None:
+        assert _blueprint("render.yaml")["LIVE_RESEARCH_ENABLED"] == "false"
+
+
+RECORDING = {
+    "recording_schema_version": 1,
+    "meta": {"id": "demo", "label": "Demo", "question": "q", "order": 1},
+    "result": {
+        "run_id": "r",
+        "plan": None,
+        "report": None,
+        "evidence": [],
+        "sources": [],
+        "verification": None,
+        "metrics": {"duration_s": 1.0},
+        "markdown": "",
+    },
+}
+
+
+@pytest.fixture(autouse=True)
+def _recordings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    directory = tmp_path / "rec"
+    directory.mkdir()
+    (directory / "demo.json").write_text(json.dumps(RECORDING), encoding="utf-8")
+    monkeypatch.setattr(recordings, "RECORDINGS_DIR", directory)
+    recordings._index.cache_clear()
+    yield
+    recordings._index.cache_clear()
+
+
+def _live_settings(**over: Any) -> Settings:
+    base: dict[str, Any] = {
+        "llm_mode": "local",
+        "demo_mode": True,
+        "live_research_enabled": True,
+        "tavily_api_key": "tvly-test-key",
+        "_env_file": None,
+    }
+    base.update(over)
+    return Settings(**base)
+
+
+class TestLiveFailureDoesNotBreakTheRecordedDemos:
+    """The whole point of keeping replay alongside live."""
+
+    def _client(self, monkeypatch: pytest.MonkeyPatch, exc: Exception) -> TestClient:
+        import agentic_research.web.api as api_module
+
+        async def failing(query: str, settings: Any, run_id: str = "") -> Any:
+            raise exc
+            yield {}  # pragma: no cover - makes this an async generator
+
+        monkeypatch.setattr(api_module, "stream_research", failing)
+        return TestClient(create_app(_live_settings()))
+
+    def test_a_provider_429_is_reported_as_capacity_not_a_crash(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """'Please try again' would be wrong advice: the retry fails the
+        same way and spends another provider request doing it."""
+        with (
+            self._client(monkeypatch, ProviderRateLimited("quota exhausted")) as client,
+            client.stream("POST", "/api/research", json={"query": "a real question"}) as r,
+        ):
+            body = "".join(r.iter_text())
+        assert "capacity_reached" in body
+        assert "quota" in body.lower()
+        assert "try again" not in body.lower()
+
+    def test_the_provider_message_is_never_forwarded(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Provider errors name models, limits and sometimes keys."""
+        leak = "Rate limit reached for gpt-6-luna org-abc123 key sk-secret"
+        with (
+            self._client(monkeypatch, ProviderRateLimited(leak)) as client,
+            client.stream("POST", "/api/research", json={"query": "a real question"}) as r,
+        ):
+            body = "".join(r.iter_text())
+        assert "org-abc123" not in body
+        assert "sk-secret" not in body
+        assert "gpt-6-luna" not in body
+
+    def test_recorded_runs_still_serve_after_a_live_failure(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        with self._client(monkeypatch, ProviderRateLimited("gone")) as client:
+            with client.stream("POST", "/api/research", json={"query": "a real question"}) as r:
+                "".join(r.iter_text())
+            assert client.get("/api/examples").json()["examples"], "replay broke with live"
+            assert client.get("/api/examples/demo").json()["recorded"] is True
+            assert client.get("/api/health").json()["status"] == "ok"
+
+    def test_a_generic_failure_does_not_claim_capacity(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        with (
+            self._client(monkeypatch, RuntimeError("boom")) as client,
+            client.stream("POST", "/api/research", json={"query": "a real question"}) as r,
+        ):
+            body = "".join(r.iter_text())
+        assert "capacity_reached" not in body
+        assert "boom" not in body
+
+
+class TestReplayNeedsNoProvider:
+    def test_examples_work_with_no_credentials_configured(self) -> None:
+        """If OpenAI and Tavily both vanished, the site still works."""
+        settings = Settings(
+            llm_mode="local", demo_mode=True, live_research_enabled=False, _env_file=None
+        )
+        with TestClient(create_app(settings)) as client:
+            assert client.get("/api/examples").json()["examples"]
+            assert client.get("/api/examples/demo").status_code == 200
+            assert client.get("/api/config").json()["service_mode"] == "replay"
+
+
+class TestClientCannotWidenTheLiveRun:
+    def test_query_length_is_capped_at_300(self) -> None:
+        from agentic_research.web.limits import DemoLimits, validate_query
+
+        limits = DemoLimits()
+        assert limits.max_query_chars == 300
+        with pytest.raises(ValueError, match="too long"):
+            validate_query("x" * 301, limits)

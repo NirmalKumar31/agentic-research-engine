@@ -45,6 +45,10 @@ dev = [
     "pytest-asyncio>=1.4,<2",
     "pytest-cov>=7,<8",
     "respx>=0.23,<0.24",
+    # Parses render.yaml and render-live.yaml so the deployment ceilings
+    # are asserted rather than reviewed by eye. Present transitively today,
+    # which is not the same as declared: CI installs only this extra.
+    "pyyaml>=6,<7",
     # Generates an in-process CA so TLS certificate verification can be
     # tested for real. The pinning design connects by IP and verifies
     # against the hostname via SNI; that property cannot be asserted

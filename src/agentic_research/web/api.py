@@ -27,6 +27,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from agentic_research.config import Settings, get_settings
+from agentic_research.llm.base import ProviderRateLimited
 from agentic_research.observability import configure_logging, get_logger
 from agentic_research.runner import new_run_id, stream_research
 from agentic_research.web.limits import (
@@ -384,6 +385,23 @@ async def _event_stream(
                 yield _sse("result", _serialise_result(event["result"]))
             else:
                 yield _sse("progress", event)
+    except ProviderRateLimited:
+        # Distinguished from a generic failure on purpose. "Please try
+        # again" is wrong advice here: the next attempt fails the same way
+        # and spends another provider request doing it. The provider's own
+        # message is not forwarded -- it names models and limits.
+        log.warning("web_run_rate_limited", run_id=run_id)
+        yield _sse(
+            "error",
+            {
+                "error": (
+                    "The demo has reached its provider quota for now. The "
+                    "recorded runs below still work, and the quota resets "
+                    "within a day."
+                ),
+                "capacity_reached": True,
+            },
+        )
     except Exception as exc:
         log.warning("web_run_failed", run_id=run_id, error=str(exc)[:200])
         # The message is deliberately generic: an exception string can carry
