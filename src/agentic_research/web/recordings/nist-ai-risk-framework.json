@@ -1,0 +1,1128 @@
+{
+  "recording_schema_version": 1,
+  "meta": {
+    "id": "nist-ai-risk-framework",
+    "label": "NIST AI Risk Management Framework (PDF)",
+    "question": "What does the NIST AI Risk Management Framework specify about governing, mapping, measuring and managing risks in AI systems?",
+    "description": "A standards question answered partly from the NIST PDF, so citations carry the page each quote came from.",
+    "mode": "local",
+    "recorded_at": "2026-09-23T21:23:16.111781+00:00",
+    "order": 2,
+    "provenance": {
+      "engine_version": "0.2.0",
+      "evaluator_version": "2",
+      "prompt_version": "ca3fdd2b3d79",
+      "schema_version": "26fd7b1a9d14",
+      "config_fingerprint": "ae1c2ab384d5",
+      "commit": "c0444120719c8b7bdcfcd750a55d4b1bc482d906",
+      "short_commit": "c0444120",
+      "dirty": false,
+      "python": "3.12.3",
+      "platform": "macOS-26.5.2-arm64-arm-64bit"
+    }
+  },
+  "trace": [
+    {
+      "event": "started",
+      "query": "What does the NIST AI Risk Management Framework specify about governing, mapping, measuring and managing risks in AI systems?"
+    },
+    {
+      "event": "analyzing_query",
+      "query": "What does the NIST AI Risk Management Framework specify about governing, mapping, measuring and managing risks in AI systems?"
+    },
+    {
+      "event": "query_analyzed",
+      "format": "decision_support",
+      "intent": "research"
+    },
+    {
+      "event": "planning"
+    },
+    {
+      "event": "plan_generated",
+      "count": 6,
+      "questions": [
+        "What are the specific governance structures and responsibilities defined in the NIST AI RMF for AI risk management?",
+        "How does the NIST AI RMF define and categorize AI risks that need to be mapped?",
+        "What metrics and measurement approaches does the NIST AI RMF recommend for quantifying AI risks?",
+        "What specific risk management controls and mitigation strategies does the NIST AI RMF outline for addressing AI risks?",
+        "What are the critical failure modes and potential security vulnerabilities that the NIST AI RMF identifies as particularly concerning for AI systems?",
+        "How does the NIST AI RMF handle the dynamic nature of AI risks, including changes in the AI system's behavior over time?"
+      ]
+    },
+    {
+      "event": "generating_queries",
+      "round": 1,
+      "sub_questions": 6
+    },
+    {
+      "event": "queries_generated",
+      "count": 6,
+      "queries": [
+        "NIST AI RMF governance structure responsibilities",
+        "NIST AI RMF risk categorization risk mapping",
+        "NIST AI RMF risk metrics measurement approaches",
+        "NIST AI RMF risk management controls mitigation strategies",
+        "NIST AI RMF critical failure modes security vulnerabilities",
+        "NIST AI RMF dynamic risk changes AI system behavior"
+      ],
+      "round": 1
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF risk metrics measurement approaches",
+      "query_id": "Q3",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF critical failure modes security vulnerabilities",
+      "query_id": "Q5",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF risk categorization risk mapping",
+      "query_id": "Q2",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF governance structure responsibilities",
+      "query_id": "Q1",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF risk management controls mitigation strategies",
+      "query_id": "Q4",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF dynamic risk changes AI system behavior",
+      "query_id": "Q6",
+      "results": 8
+    },
+    {
+      "event": "sources_deduplicated",
+      "avoided": 20,
+      "results": 48,
+      "selected": 5,
+      "unique": 28
+    },
+    {
+      "event": "source_retrieved",
+      "source_id": "S4",
+      "title": "[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)"
+    },
+    {
+      "event": "sources_registered",
+      "duplicates": 0,
+      "extracting": 5,
+      "usable": 5
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S4"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S1"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S3"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S5"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S2"
+    },
+    {
+      "event": "assessing_coverage",
+      "round": 1
+    },
+    {
+      "event": "coverage_evaluated",
+      "covered": 6,
+      "missing": 0,
+      "ratio": 1.0,
+      "round": 1,
+      "sufficient": true,
+      "weak": 0
+    },
+    {
+      "event": "synthesizing",
+      "evidence": 30
+    },
+    {
+      "event": "synthesized",
+      "findings": 2,
+      "sections": 6
+    },
+    {
+      "event": "verifying_citations"
+    },
+    {
+      "event": "citations_verified",
+      "evidence_integrity": 1.0,
+      "exhaustive": false,
+      "support": {
+        "supported": 6,
+        "partially_supported": 2,
+        "unsupported": 0,
+        "not_checked": 6
+      },
+      "total": 18
+    },
+    {
+      "event": "completed",
+      "stop_reason": "coverage judged sufficient"
+    }
+  ],
+  "result": {
+    "run_id": "20260923-210640-43369e",
+    "report": {
+      "title": "NIST AI Risk Management Framework: Governance, Risk Mapping, Measurement, and Management",
+      "summary_claims": [
+        {
+          "text": "The NIST AI Risk Management Framework specifies governance structures and responsibilities through the GOVERN function, which integrates policies, processes, and accountability across the organization to ensure risks are identified, assessed, and managed through clear documentation, ethical considerations, legal compliance, and transparency.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e1"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "The NIST AI Risk Management Framework categorizes AI risks into specific types including Data Quality Issues, Algorithmic Risks, and Operational Risks, which are mapped across the AI lifecycle through the Map Function.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e2"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "The NIST AI Risk Management Framework recommends using quantitative, qualitative, and mixed methods (TEVV) for quantifying AI risks through the MEASURE function.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S3-e3"
+          ],
+          "citation_ids": [
+            "S3"
+          ]
+        },
+        {
+          "text": "The NIST AI Risk Management Framework outlines specific risk management controls and mitigation strategies through the MANAGE function, including testing for safety vulnerabilities, security vulnerabilities, and misuse potential.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e4"
+          ],
+          "citation_ids": [
+            "S1"
+          ]
+        },
+        {
+          "text": "The NIST AI Risk Management Framework identifies critical failure modes and security vulnerabilities such as bias in AI algorithms, privacy violations, and AI-driven decisions that undermine human agency as particularly concerning for AI systems.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e5"
+          ],
+          "citation_ids": [
+            "S5"
+          ]
+        },
+        {
+          "text": "The NIST AI Risk Management Framework handles the dynamic nature of AI risks through continuous monitoring and tracking of risks over time, including mechanisms to identify and track unforeseen risks.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S3-e6"
+          ],
+          "citation_ids": [
+            "S3"
+          ]
+        }
+      ],
+      "key_findings": [
+        {
+          "text": "The NIST AI Risk Management Framework organizes risk management into four core functions: Govern, Map, Measure, and Manage, each with specific responsibilities and processes.",
+          "kind": "synthesis",
+          "evidence_ids": [
+            "S1-e1",
+            "S4-e1",
+            "S5-e1",
+            "S2-e1"
+          ],
+          "citation_ids": [
+            "S1",
+            "S4",
+            "S5",
+            "S2"
+          ]
+        },
+        {
+          "text": "The NIST AI Risk Management Framework emphasizes continuous monitoring and adaptation of risk management practices to address the dynamic nature of AI risks, including emergent risks and evolving threat landscapes.",
+          "kind": "synthesis",
+          "evidence_ids": [
+            "S3-e6",
+            "S2-e6"
+          ],
+          "citation_ids": [
+            "S3",
+            "S2"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "heading": "Governance Structures and Responsibilities",
+          "claims": [
+            {
+              "text": "The NIST AI Risk Management Framework specifies governance structures and responsibilities through the GOVERN function, which integrates policies, processes, and accountability across the organization to ensure risks are identified, assessed, and managed through clear documentation, ethical considerations, legal compliance, and transparency.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S5-e1"
+              ],
+              "citation_ids": [
+                "S5"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "AI Risk Categorization",
+          "claims": [
+            {
+              "text": "The NIST AI Risk Management Framework categorizes AI risks into specific types including Data Quality Issues, Algorithmic Risks, and Operational Risks, which are mapped across the AI lifecycle through the Map Function.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e2"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Risk Measurement Approaches",
+          "claims": [
+            {
+              "text": "The NIST AI Risk Management Framework recommends using quantitative, qualitative, and mixed methods (TEVV) for quantifying AI risks through the MEASURE function.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S3-e3"
+              ],
+              "citation_ids": [
+                "S3"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Risk Management Controls and Mitigation Strategies",
+          "claims": [
+            {
+              "text": "The NIST AI Risk Management Framework outlines specific risk management controls and mitigation strategies through the MANAGE function, including testing for safety vulnerabilities, security vulnerabilities, and misuse potential.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S1-e4"
+              ],
+              "citation_ids": [
+                "S1"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Critical Failure Modes and Security Vulnerabilities",
+          "claims": [
+            {
+              "text": "The NIST AI Risk Management Framework identifies critical failure modes and security vulnerabilities such as bias in AI algorithms, privacy violations, and AI-driven decisions that undermine human agency as particularly concerning for AI systems.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S5-e5"
+              ],
+              "citation_ids": [
+                "S5"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Dynamic Risk Handling",
+          "claims": [
+            {
+              "text": "The NIST AI Risk Management Framework handles the dynamic nature of AI risks through continuous monitoring and tracking of risks over time, including mechanisms to identify and track unforeseen risks.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S3-e6"
+              ],
+              "citation_ids": [
+                "S3"
+              ]
+            }
+          ]
+        }
+      ],
+      "contradictions": [],
+      "limitations": [
+        "The evidence does not provide specific details on the implementation of risk management controls for AI systems in real-world scenarios.",
+        "The evidence does not cover the full scope of the NIST AI RMF's requirements for international compliance and cross-border data transfers.",
+        "The evidence does not include the latest updates to the NIST AI RMF beyond the version referenced in the sources.",
+        "no evidence for The evidence seems to cover the core functions (Govern, Map, Measure, Manage) and their specific aspects, but I need to check if there are any critical gaps in the evidence that would change the answer.",
+        "6 extracted finding(s) were excluded because their quotes could not be located in the source text"
+      ]
+    },
+    "plan": {
+      "strategy": "The user wants me to decompose a research question about the NIST AI Risk Management Framework into meaningful research dimensions that can be investigated separately. I need to create sub-questions that cover genuinely different angles while following the rules provided.",
+      "sub_questions": [
+        {
+          "id": "SQ1",
+          "text": "What are the specific governance structures and responsibilities defined in the NIST AI RMF for AI risk management?",
+          "rationale": "This covers the governance dimension - who is responsible, what structures exist, and how decisions are made. A naive answer might overlook the specific roles and decision-making processes within the framework.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ2",
+          "text": "How does the NIST AI RMF define and categorize AI risks that need to be mapped?",
+          "rationale": "This addresses the risk mapping dimension - what types of risks are identified and how they are categorized. This is distinct from just listing risks, as it focuses on the classification system used by NIST.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ3",
+          "text": "What metrics and measurement approaches does the NIST AI RMF recommend for quantifying AI risks?",
+          "rationale": "This covers the measurement dimension - how risks are quantified, what metrics are used, and the methods for assessment. This is different from just saying 'what risks exist' as it focuses on the measurement process.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ4",
+          "text": "What specific risk management controls and mitigation strategies does the NIST AI RMF outline for addressing AI risks?",
+          "rationale": "This addresses the risk management dimension - the actual controls and actions to reduce risks. This is distinct from just identifying risks as it focuses on the response mechanisms.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ5",
+          "text": "What are the critical failure modes and potential security vulnerabilities that the NIST AI RMF identifies as particularly concerning for AI systems?",
+          "rationale": "This covers the failure modes dimension - what could go wrong, especially security vulnerabilities that are specific to AI systems. This is a dimension a naive answer would overlook, as many people focus on general security rather than AI-specific vulnerabilities.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ6",
+          "text": "How does the NIST AI RMF handle the dynamic nature of AI risks, including changes in the AI system's behavior over time?",
+          "rationale": "This addresses the maturity and evolution dimension - how risks change as AI systems mature and evolve. This is important because AI systems are dynamic, and risks can change over time in ways that static frameworks might miss.",
+          "is_followup": false
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "S4-e1",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI RMF defines governance structures and responsibilities through the GOVERN function, which applies to all stages of AI risk management processes and procedures, and is designed to be a cross-cutting function that informs and is infused throughout the other three functions (MAP, MEASURE, MANAGE).",
+        "quote": "Governance is designed to be a cross-cutting function to inform and be infused throughout the other three functions.",
+        "quote_match": "exact_normalized",
+        "page": 5,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e2",
+        "source_id": "S4",
+        "sub_question_id": "SQ2",
+        "claim": "The NIST AI RMF categorizes AI risks into characteristics of trustworthy AI systems, including valid and reliable, safe, secure and resilient, accountable and transparent, explainable and interpretable, privacy enhanced, and fair with harmful biases managed.",
+        "quote": "The Framework is divided into two parts. Part 1 discusses how organizations can frame the risks related to AI and describes the intended audience. Next, AI risks and trustworthiness are analyzed, outlining the characteristics of trustworthy AI systems, which include valid and reliable, safe, secure and resilient, accountable and transparent, explainable and interpretable, privacy enhanced, and fair with their harmful biases managed.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e3",
+        "source_id": "S4",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI RMF recommends measuring AI risks through the MEASURE function, which includes categories and subcategories for risk measurement.",
+        "quote": "Table 3 Categories and subcategories for the MEASURE function.",
+        "quote_match": "exact_normalized",
+        "page": 4,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e4",
+        "source_id": "S4",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI RMF outlines risk management controls and mitigation strategies through the MANAGE function, which includes categories and subcategories for risk management activities.",
+        "quote": "Table 4 Categories and subcategories for the MANAGE function.",
+        "quote_match": "exact_normalized",
+        "page": 4,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q4",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e5",
+        "source_id": "S4",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI RMF identifies critical failure modes and security vulnerabilities related to AI systems, including those that can amplify, perpetuate, or exacerbate inequitable outcomes.",
+        "quote": "Without proper controls, AI systems can amplify, perpetuate, or exacerbate inequitable or undesirable outcomes for individuals and communities.",
+        "quote_match": "exact_normalized",
+        "page": 6,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e6",
+        "source_id": "S4",
+        "sub_question_id": "SQ6",
+        "claim": "The NIST AI RMF handles the dynamic nature of AI risks through a living document approach that will be updated regularly with formal input from the AI community, with a review expected no later than 2028.",
+        "quote": "The Artificial Intelligence Risk Management Framework (AI RMF) is intended to be a living document. NIST will review the content and usefulness of the Framework regularly to determine if an update is appropriate; a review with formal input from the AI community is expected to take place no later than 2028.",
+        "quote_match": "fuzzy",
+        "page": 3,
+        "stance": "supports",
+        "confidence": 0.4,
+        "citable": false,
+        "query_id": "Q6",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e1",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI RMF is organized into four core functions: Govern, Map, Measure, and Manage.",
+        "quote": "The framework is organized into four core functions: Govern, Map, Measure, and Manage.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e2",
+        "source_id": "S1",
+        "sub_question_id": "SQ2",
+        "claim": "The NIST AI RMF categorizes AI risks into specific measures for evaluation, including MEASURE 1, MEASURE 2, MEASURE 3, and MEASURE 4.",
+        "quote": "The NIST AI RMF organizes risk measurement into categories: MEASURE 1: Appropriate methods and metrics are identified and applied, MEASURE 2: AI systems are evaluated for trustworthy characteristics, MEASURE 3: Mechanisms for tracking identified AI risks are in place, MEASURE 4: Risk metrics reflect AI system impacts.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e3",
+        "source_id": "S1",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI RMF recommends specific metrics for quantifying AI risks, including testing for excessive agency, misinformation, privacy risks, and bias.",
+        "quote": "Test for excessive agency: Verify the AI doesn't take unauthorized actions",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.4,
+        "citable": false,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e4",
+        "source_id": "S1",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI RMF outlines specific risk management controls and mitigation strategies, including testing for safety risks, security vulnerabilities, and misuse potential.",
+        "quote": "Test for safety vulnerabilities: redteam: plugins: - excessive-agency - harmful:misinformation-disinformation strategies: - jailbreak - jailbreak-templates",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e5",
+        "source_id": "S1",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI RMF identifies critical failure modes and security vulnerabilities such as excessive agency, misinformation, privacy risks, and bias as particularly concerning for AI systems.",
+        "quote": "Test for safety vulnerabilities: redteam: plugins: - excessive-agency - harmful:misinformation-disinformation strategies: - jailbreak - jailbreak-templates",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q5",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e6",
+        "source_id": "S1",
+        "sub_question_id": "SQ6",
+        "claim": "The NIST AI RMF handles the dynamic nature of AI risks through mechanisms for tracking identified AI risks and regular evaluation of safety risks.",
+        "quote": "MEASURE 3.1-3.3: Risk Tracking (nist:ai:measure:3.1, nist:ai:measure:3.2, nist:ai:measure:3.3) - These measures focus on ongoing risk monitoring and stakeholder feedback mechanisms.",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.4,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e1",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI RMF defines governance structures and responsibilities through the MEASURE function, which includes identifying and applying appropriate methods and metrics for AI risks",
+        "quote": "MEASURE 1, Methods & metrics identified and applied\nAppropriate methods and metrics are identified and applied.\nSelect and implement measurement approaches and metrics for AI risks identified during the MAP function, prioritizing the most significant risks. Establish procedures for detecting, tracking, and measuring known risks, errors, incidents, and negative impacts. Define acceptable performance limits and course correction actions.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e2",
+        "source_id": "S3",
+        "sub_question_id": "SQ2",
+        "claim": "The NIST AI RMF categorizes AI risks through the MAP function, which identifies risks that need to be mapped and then measured by the MEASURE function",
+        "quote": "MEASURE turns 'we think this is risky' into documented evidence.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.12,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e3",
+        "source_id": "S3",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI RMF recommends using quantitative, qualitative, and mixed methods (TEVV) for quantifying AI risks",
+        "quote": "MEASURE analyzes, assesses, benchmarks, and monitors the risks MAP identified, using quantitative, qualitative, and mixed methods (TEVV).",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e4",
+        "source_id": "S3",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI RMF outlines specific risk management controls and mitigation strategies through the MEASURE function, including monitoring, testing, and evaluation procedures",
+        "quote": "MEASURE turns risk into evidence\nMEASURE is where trustworthiness gets demonstrated, not asserted. Its 22 subcategories, the most of any function, cover validity, safety, security, privacy, fairness, and environmental impact, plus tracking risk over time.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e5",
+        "source_id": "S3",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI RMF identifies critical failure modes and security vulnerabilities through continuous monitoring and anomaly detection",
+        "quote": "Once in production, continuously monitor the AI system's functionality and behavior, as identified in the MAP function. Use hypothesis testing for distribution differences, monitor for anomalies, verify alerts exist for distribution shifts, and assess output accuracy against new ground-truth information.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e6",
+        "source_id": "S3",
+        "sub_question_id": "SQ6",
+        "claim": "The NIST AI RMF handles the dynamic nature of AI risks through ongoing monitoring and tracking of risks over time",
+        "quote": "Risk is not static. MEASURE tracks existing, emergent, and hard-to-measure risks across the lifecycle.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e1",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI RMF defines specific governance structures and responsibilities through the GOVERN function, which creates a culture of AI risk management by integrating policies, processes, and accountability across the organization. This function ensures risks are identified, assessed, and managed through clear documentation, ethical considerations, legal compliance, and transparency.",
+        "quote": "The GOVERN function creates a culture of AI risk management by integrating policies, processes, and accountability across the organization. It ensures risks are identified, assessed, and managed through clear documentation, ethical considerations, legal compliance, and transparency. This function aligns AI development with organizational values, linking risk management to strategic goals and covering the full AI lifecycle, including third-party risks.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e2",
+        "source_id": "S5",
+        "sub_question_id": "SQ2",
+        "claim": "The NIST AI RMF categorizes AI risks through the MAP function, which sets the context for identifying and understanding risks throughout the AI lifecycle, including risks related to the AI system's usage, interdependencies, and varying control levels.",
+        "quote": "The MAP function sets the context for identifying and understanding risks throughout the AI lifecycle, anticipating potential impacts at each stage. It clarifies risks related to the AI system\u2019s usage, including the roles of actors and external stakeholders, as well as interdependencies and varying control levels.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e3",
+        "source_id": "S5",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI RMF recommends using quantitative, qualitative, or mixed-method tools to assess, monitor, and continuously evaluate AI risks through the MEASURE function, which applies metrics to assess AI risks, trustworthiness, and potential unintended consequences.",
+        "quote": "The MEASURE function uses quantitative, qualitative, or mixed-method tools to assess, monitor, and continuously evaluate AI risks and their impacts. This function builds upon the risks identified in the MAP function and informs the MANAGE function, enabling organizations to assess the trustworthiness, fairness, robustness, and overall performance of AI systems.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e4",
+        "source_id": "S5",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI RMF outlines specific risk management controls and mitigation strategies through the MANAGE function, which focuses on allocating resources for AI risk management based on assessments from the MAP and MEASURE functions, including risk prioritization, response strategies, and third-party risk management.",
+        "quote": "The MANAGE function comes last in the process and focuses on allocating resources for AI risk management based on assessments from the MAP and MEASURE functions. It involves developing strategies to mitigate, respond to, and recover from AI-related risks, ensuring regular monitoring and continuous improvement of AI systems.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q4",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e5",
+        "source_id": "S5",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI RMF identifies critical failure modes and potential security vulnerabilities, including bias in AI algorithms, privacy violations, and AI-driven decisions that undermine human agency.",
+        "quote": "AI systems can significantly harm individuals, groups, communities, and society, especially when they are biased, lack transparency, or operate unpredictably.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e6",
+        "source_id": "S5",
+        "sub_question_id": "SQ6",
+        "claim": "The NIST AI RMF handles the dynamic nature of AI risks through the MEASURE function, which implements mechanisms to identify and track unforeseen risks over time, leveraging stakeholder feedback and enabling continuous improvement.",
+        "quote": "Emergent risk tracking: Implements mechanisms to identify and track unforeseen risks over time, leveraging stakeholder feedback.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e1",
+        "source_id": "S2",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI RMF defines specific governance structures and responsibilities through the Map Function, which involves identifying risks across the AI lifecycle and establishing AI system categories. The Map Function includes five categories: Context, Categorization, Capabilities and Usage, Risks and Benefits Mapping, and Impacts Characterization. Organizations should define the AI system's intended purpose, beneficial uses, applicable laws, user expectations, and potential impacts on individuals and society. The Map Function also requires categorizing AI systems based on capabilities, intended use, and potential risks, including assessing complexity, autonomy level, and criticality of decisions.",
+        "quote": "The Map Function involves identifying risks across the AI lifecycle. Organizations assess potential risks to stakeholders, including AI actors and end-users. This function helps in understanding: Data Quality Issues: Biases or inaccuracies in training data. Algorithmic Risks: Potential for unintended behavior or outcomes. Operational Risks: Failures in deployment environments. The Map function consists of five categories to consider impacts on their AI systems: Map 1: Context is established and understood. Organizations should define the AI system\u2019s intended purpose, beneficial uses, applicable laws, user expectations, and potential impacts on individuals and society. This involves collaborating with diverse stakeholders to delineate acceptable deployment boundaries and manage risks. Map 2: Categorization of the AI system is performed. AI systems should be categorized based on their capabilities, intended use, and potential risks. This includes assessing the system\u2019s complexity, autonomy level, and the criticality of decisions it influences, ensuring appropriate risk management strategies are applied. Map 3: AI capabilities, targeted usage, goals, and expected benefits and costs compared with appropriate benchmarks are understood. Organizations need to evaluate the AI system\u2019s capabilities, intended usage, goals, and expected benefits and costs against relevant benchmarks. This assessment helps in understanding the system\u2019s performance, limitations, and alignment with organizational objectives. Map 4: Risks and benefits are mapped for all components of the AI system, including third-party software and data. It\u2019s essential to identify and document risks and benefits associated with all components of the AI system, including third-party software and data. This comprehensive mapping ensures that potential vulnerabilities are recognized and managed throughout the AI lifecycle. Map 5: Impacts to individuals, groups, communities, organizations, and society are characterized. Organizations should assess and document the AI system\u2019s potential impacts on various stakeholders, including individuals, groups, communities, organizations, and society at large. This characterization aids in understanding and mitigating negative consequences while enhancing positive outcomes.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e2",
+        "source_id": "S2",
+        "sub_question_id": "SQ2",
+        "claim": "The NIST AI RMF categorizes AI risks into specific types including Data Quality Issues, Algorithmic Risks, and Operational Risks. These risks are mapped across the AI lifecycle through the Map Function, which includes five categories: Context, Categorization, Capabilities and Usage, Risks and Benefits Mapping, and Impacts Characterization.",
+        "quote": "The Map Function involves identifying risks across the AI lifecycle. Organizations assess potential risks to stakeholders, including AI actors and end-users. This function helps in understanding: Data Quality Issues: Biases or inaccuracies in training data. Algorithmic Risks: Potential for unintended behavior or outcomes. Operational Risks: Failures in deployment environments.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e3",
+        "source_id": "S2",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI RMF recommends using performance metrics (accuracy, precision, recall), fairness indicators, and security assessments to quantify AI risks. These metrics are established to determine thresholds for monitoring systems that alert when those thresholds are crossed.",
+        "quote": "The Measure Function focuses on establishing metrics for assessing vulnerabilities and risk tolerance. It provides tools for continuous risk assessment, such as: Performance Metrics: Accuracy, precision, recall. Fairness Indicators: Evaluating biases in AI outputs. Security Assessments: Identifying vulnerabilities to cyber threats. Metrics are established and quantified to determine thresholds for monitoring systems to alert when those thresholds are crossed.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e4",
+        "source_id": "S2",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI RMF outlines specific risk management controls and mitigation strategies through the Map Function, which includes identifying risks across the AI lifecycle, categorizing AI systems, understanding capabilities and usage, mapping risks and benefits, and characterizing impacts on stakeholders. Organizations should collaborate with diverse stakeholders to delineate acceptable deployment boundaries and manage risks.",
+        "quote": "The Map Function involves identifying risks across the AI lifecycle. Organizations assess potential risks to stakeholders, including AI actors and end-users. This function helps in understanding: Data Quality Issues: Biases or inaccuracies in training data. Algorithmic Risks: Potential for unintended behavior or outcomes. Operational Risks: Failures in deployment environments.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e5",
+        "source_id": "S2",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI RMF identifies critical failure modes and security vulnerabilities such as data quality issues (biases or inaccuracies in training data), algorithmic risks (potential for unintended behavior or outcomes), and operational risks (failures in deployment environments).",
+        "quote": "The Map Function involves identifying risks across the AI lifecycle. Organizations assess potential risks to stakeholders, including AI actors and end-users. This function helps in understanding: Data Quality Issues: Biases or inaccuracies in training data. Algorithmic Risks: Potential for unintended behavior or outcomes. Operational Risks: Failures in deployment environments.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e6",
+        "source_id": "S2",
+        "sub_question_id": "SQ6",
+        "claim": "The NIST AI RMF handles the dynamic nature of AI risks through continuous risk assessment and monitoring, as outlined in the Measure Function, which establishes metrics to determine thresholds for monitoring systems that alert when those thresholds are crossed.",
+        "quote": "The Measure Function focuses on establishing metrics for assessing vulnerabilities and risk tolerance. It provides tools for continuous risk assessment, such as: Performance Metrics: Accuracy, precision, recall. Fairness Indicators: Evaluating biases in AI outputs. Security Assessments: Identifying vulnerabilities to cyber threats. Metrics are established and quantified to determine thresholds for monitoring systems to alert when those thresholds are crossed.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      }
+    ],
+    "sources": [
+      {
+        "id": "S1",
+        "url": "https://www.promptfoo.dev/docs/red-team/nist-ai-rmf",
+        "title": "NIST AI Risk Management Framework",
+        "domain": "promptfoo.dev",
+        "source_type": "official_docs",
+        "content_origin": "provider_raw",
+        "quality_score": 0.98,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S2",
+        "url": "https://optro.ai/blog/nist-ai-rmf",
+        "title": "The Core Functions of the NIST AI RMF",
+        "domain": "optro.ai",
+        "source_type": "blog",
+        "content_origin": "provider_raw",
+        "quality_score": 0.578,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S3",
+        "url": "https://techjacksolutions.com/nist/ai-rmf/measure/what-is-nist-ai-rmf-measure",
+        "title": "What is NIST AI RMF MEASURE? A Practical Guide - 2026 - Tech Jacks Solutions - 2026",
+        "domain": "techjacksolutions.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.626,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S4",
+        "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+        "title": "[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+        "domain": "nvlpubs.nist.gov",
+        "source_type": "standards_body",
+        "content_origin": "pdf_extract",
+        "quality_score": 1.0,
+        "page_count": 8,
+        "usable": true,
+        "fetch_status": "ok"
+      },
+      {
+        "id": "S5",
+        "url": "https://www.scrut.io/post/nist-ai-risk-management-framework",
+        "title": "NIST AI Risk Management: Key Insights & Challenges",
+        "domain": "scrut.io",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.625,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      }
+    ],
+    "verification": {
+      "total_claims": 14,
+      "substantive_claims": 14,
+      "total_citations": 18,
+      "resolvable_citations": 18,
+      "total_evidence_refs": 18,
+      "resolvable_evidence_refs": 18,
+      "supported_claims": 6,
+      "partially_supported_claims": 2,
+      "unsupported_claims": 0,
+      "checked_claims": 8,
+      "checkable_claims": 14,
+      "entailment_exhaustive": false,
+      "contradictions_total": 0,
+      "contradictions_auditable": 0,
+      "issues": [
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "The NIST AI Risk Management Framework categorizes AI risks into specific types including Data Quality Issues, Algorithmic Risks, and Operational Risks, which are mapped across the AI lifecycle through",
+          "citation_id": "",
+          "evidence_id": "S2-e2",
+          "detail": "The evidence mentions that the Map Function involves identifying risks across the AI lifecycle and specifies Data Quality Issues and Algorithmic Risks as examples of risks. However, it does not explic"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "The NIST AI Risk Management Framework identifies critical failure modes and security vulnerabilities such as bias in AI algorithms, privacy violations, and AI-driven decisions that undermine human age",
+          "citation_id": "",
+          "evidence_id": "S5-e5",
+          "detail": "The evidence mentions that AI systems can harm individuals, groups, communities, and society when they are biased, lack transparency, or operate unpredictably. The claim states that the NIST AI Risk M"
+        }
+      ],
+      "unused_source_ids": [],
+      "repaired": false
+    },
+    "metrics": {
+      "run_id": "20260923-210640-43369e",
+      "query": "What does the NIST AI Risk Management Framework specify about governing, mapping, measuring and managing risks in AI systems?",
+      "mode": "local",
+      "model_assignments": {
+        "planner": "ollama:qwen3:4b",
+        "researcher": "ollama:qwen3:4b",
+        "critic": "ollama:qwen3:4b",
+        "synthesizer": "ollama:qwen3:4b",
+        "verifier": "ollama:qwen3:4b"
+      },
+      "duration_s": 995.43,
+      "environment": {
+        "python": "3.12.3",
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "machine": "arm64",
+        "processor": "arm",
+        "cpu_count": 10,
+        "packages": {
+          "agentic-research-engine": "0.2.0",
+          "langgraph": "1.2.12",
+          "langchain-core": "1.6.4",
+          "langchain-openai": "1.6.3",
+          "langchain-ollama": "1.1.0",
+          "openai": "3.18.0",
+          "pydantic": "2.13.5",
+          "httpx": "0.28.1",
+          "trafilatura": "2.2.0",
+          "pypdf": "6.19.0"
+        },
+        "provenance": {
+          "engine_version": "0.2.0",
+          "evaluator_version": "2",
+          "prompt_version": "ca3fdd2b3d79",
+          "schema_version": "26fd7b1a9d14",
+          "git": {
+            "commit": "c0444120719c8b7bdcfcd750a55d4b1bc482d906",
+            "short_commit": "c0444120",
+            "dirty": false,
+            "branch": "main"
+          },
+          "config_fingerprint": "ae1c2ab384d5",
+          "model_assignments": {
+            "planner": "ollama:qwen3:4b",
+            "researcher": "ollama:qwen3:4b",
+            "critic": "ollama:qwen3:4b",
+            "synthesizer": "ollama:qwen3:4b",
+            "verifier": "ollama:qwen3:4b"
+          }
+        },
+        "ollama": {
+          "version": "0.32.5",
+          "models": {
+            "qwen3:4b": {
+              "digest": "359d7dd4bcdab3d8",
+              "size_bytes": 2497293931,
+              "quantization": "Q4_K_M",
+              "parameter_size": "4.0B"
+            },
+            "llama3.2:3b": {
+              "digest": "a80c4f17acd55265",
+              "size_bytes": 2019393189,
+              "quantization": "Q4_K_M",
+              "parameter_size": "3.2B"
+            },
+            "embeddinggemma:latest": {
+              "digest": "85462619ee721b46",
+              "size_bytes": 621875917,
+              "quantization": "BF16",
+              "parameter_size": "307.58M"
+            }
+          }
+        },
+        "settings": {
+          "llm_mode": "local",
+          "max_research_rounds": 1,
+          "max_sources": 5,
+          "max_sources_per_round": 5,
+          "max_llm_calls": 40,
+          "max_parallel_searches": 5,
+          "max_parallel_fetches": 8,
+          "max_parallel_local_llm_calls": 2,
+          "search_depth": "basic",
+          "llm_temperature": 0.2
+        }
+      },
+      "research_rounds": 1,
+      "stop_reason": "coverage judged sufficient",
+      "search_queries": 6,
+      "searches_failed": 0,
+      "search_results": 48,
+      "search_credits": 6.0,
+      "pages_fetched": 1,
+      "provider_content_reused": 4,
+      "fetch_failures": 0,
+      "fetch_status_breakdown": {
+        "ok": 1
+      },
+      "duplicate_urls": 20,
+      "already_known_urls": 0,
+      "content_duplicates": 0,
+      "fetches_avoided": 20,
+      "unique_sources": 5,
+      "usable_sources": 5,
+      "evidence_items": 30,
+      "exact_quotes": 24,
+      "fuzzy_quotes": 3,
+      "unmatched_quotes": 3,
+      "citable_evidence": 24,
+      "cross_attributed_evidence": 19,
+      "content_origins": {
+        "provider_raw": 4,
+        "pdf_extract": 1
+      },
+      "domain_concentration": 0.2,
+      "distinct_domains": 5,
+      "llm_calls": 18,
+      "provider_requests": 18,
+      "billable_provider_requests": 18,
+      "failed_provider_requests": 0,
+      "structured_repairs": 0,
+      "compatibility_retries": 0,
+      "transport_retries": 0,
+      "rate_limit_refusals": 0,
+      "provider_requests_by_model": {
+        "ollama:qwen3:4b": 18
+      },
+      "reserved_worst_case_usd": 0.0,
+      "reservation_was_sufficient": true,
+      "llm_failed_calls": 0,
+      "input_tokens": 22992,
+      "output_tokens": 7545,
+      "calls_by_provider": {
+        "ollama": 18
+      },
+      "calls_by_role": {
+        "planner": 2,
+        "researcher": 6,
+        "critic": 1,
+        "synthesizer": 1,
+        "verifier": 8
+      },
+      "known_cost_usd": 0.0,
+      "cost_is_complete": true,
+      "unpriced_calls": 0,
+      "citation_integrity_rate": 1.0,
+      "evidence_integrity_rate": 1.0,
+      "citation_coverage_rate": 1.0,
+      "claim_support_rate": 0.75,
+      "partial_support_rate": 0.25,
+      "support_breakdown": {
+        "supported": 6,
+        "partially_supported": 2,
+        "unsupported": 0,
+        "not_checked": 6
+      },
+      "entailment_exhaustive": false,
+      "citations_total": 18,
+      "evidence_refs_total": 18,
+      "contradictions_total": 0,
+      "contradictions_auditable": 0,
+      "unused_sources": 0,
+      "citations_repaired": false,
+      "stage_seconds": {
+        "analyze_query": 12.2,
+        "plan_research": 42.266,
+        "generate_queries": 15.886,
+        "dedupe_sources": 0.002,
+        "register_sources": 0.0,
+        "assess_coverage": 57.826,
+        "synthesize": 184.793,
+        "verify_citations": 74.968
+      },
+      "errors": 0,
+      "error_kinds": {}
+    },
+    "markdown": "# NIST AI Risk Management Framework: Governance, Risk Mapping, Measurement, and Management\n\n## Summary\n\nThe NIST AI Risk Management Framework specifies governance structures and responsibilities through the GOVERN function, which integrates policies, processes, and accountability across the organization to ensure risks are identified, assessed, and managed through clear documentation, ethical considerations, legal compliance, and transparency. [S5] The NIST AI Risk Management Framework categorizes AI risks into specific types including Data Quality Issues, Algorithmic Risks, and Operational Risks, which are mapped across the AI lifecycle through the Map Function. [S2] The NIST AI Risk Management Framework recommends using quantitative, qualitative, and mixed methods (TEVV) for quantifying AI risks through the MEASURE function. [S3] The NIST AI Risk Management Framework outlines specific risk management controls and mitigation strategies through the MANAGE function, including testing for safety vulnerabilities, security vulnerabilities, and misuse potential. [S1] The NIST AI Risk Management Framework identifies critical failure modes and security vulnerabilities such as bias in AI algorithms, privacy violations, and AI-driven decisions that undermine human agency as particularly concerning for AI systems. [S5] The NIST AI Risk Management Framework handles the dynamic nature of AI risks through continuous monitoring and tracking of risks over time, including mechanisms to identify and track unforeseen risks. [S3]\n\n## Key findings\n\n- The NIST AI Risk Management Framework organizes risk management into four core functions: Govern, Map, Measure, and Manage, each with specific responsibilities and processes. [S1][S4, p. 5][S5][S2] *(synthesis)*\n- The NIST AI Risk Management Framework emphasizes continuous monitoring and adaptation of risk management practices to address the dynamic nature of AI risks, including emergent risks and evolving threat landscapes. [S3][S2] *(synthesis)*\n\n## Governance Structures and Responsibilities\n\nThe NIST AI Risk Management Framework specifies governance structures and responsibilities through the GOVERN function, which integrates policies, processes, and accountability across the organization to ensure risks are identified, assessed, and managed through clear documentation, ethical considerations, legal compliance, and transparency. [S5]\n\n## AI Risk Categorization\n\nThe NIST AI Risk Management Framework categorizes AI risks into specific types including Data Quality Issues, Algorithmic Risks, and Operational Risks, which are mapped across the AI lifecycle through the Map Function. [S2]\n\n## Risk Measurement Approaches\n\nThe NIST AI Risk Management Framework recommends using quantitative, qualitative, and mixed methods (TEVV) for quantifying AI risks through the MEASURE function. [S3]\n\n## Risk Management Controls and Mitigation Strategies\n\nThe NIST AI Risk Management Framework outlines specific risk management controls and mitigation strategies through the MANAGE function, including testing for safety vulnerabilities, security vulnerabilities, and misuse potential. [S1]\n\n## Critical Failure Modes and Security Vulnerabilities\n\nThe NIST AI Risk Management Framework identifies critical failure modes and security vulnerabilities such as bias in AI algorithms, privacy violations, and AI-driven decisions that undermine human agency as particularly concerning for AI systems. [S5]\n\n## Dynamic Risk Handling\n\nThe NIST AI Risk Management Framework handles the dynamic nature of AI risks through continuous monitoring and tracking of risks over time, including mechanisms to identify and track unforeseen risks. [S3]\n\n## Limitations\n\n- The evidence does not provide specific details on the implementation of risk management controls for AI systems in real-world scenarios.\n- The evidence does not cover the full scope of the NIST AI RMF's requirements for international compliance and cross-border data transfers.\n- The evidence does not include the latest updates to the NIST AI RMF beyond the version referenced in the sources.\n- no evidence for The evidence seems to cover the core functions (Govern, Map, Measure, Manage) and their specific aspects, but I need to check if there are any critical gaps in the evidence that would change the answer.\n- 6 extracted finding(s) were excluded because their quotes could not be located in the source text\n\n## Sources\n\n- **[S1]** [NIST AI Risk Management Framework](https://www.promptfoo.dev/docs/red-team/nist-ai-rmf) \u2014 promptfoo.dev, official_docs, n.d., quality 0.98\n- **[S2]** [The Core Functions of the NIST AI RMF](https://optro.ai/blog/nist-ai-rmf) \u2014 optro.ai, blog, n.d., quality 0.58\n- **[S3]** [What is NIST AI RMF MEASURE? A Practical Guide - 2026 - Tech Jacks Solutions - 2026](https://techjacksolutions.com/nist/ai-rmf/measure/what-is-nist-ai-rmf-measure) \u2014 techjacksolutions.com, other, n.d., quality 0.63\n- **[S4]** [[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf) \u2014 nvlpubs.nist.gov, standards_body, n.d., quality 1.00\n- **[S5]** [NIST AI Risk Management: Key Insights & Challenges](https://www.scrut.io/post/nist-ai-risk-management-framework) \u2014 scrut.io, other, n.d., quality 0.62\n\n## Citation verification\n\n- Evidence references: 18, 18 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: 100% of 14\n- Entailment checked against each claim's own evidence, over a sample of 8 of 14 eligible claims: 6 supported, 2 partially supported, 0 unsupported, 6 not checked\n\n<details><summary>Open citation issues</summary>\n\n- `partially_supported_claim` The evidence mentions that the Map Function involves identifying risks across the AI lifecycle and specifies Data Quality Issues and Algorithmic Risks as examples of risks. However, it does not explic \u2014 The NIST AI Risk Management Framework categorizes AI risks into specific types including Data Quality Issues, Algorithmi\n- `partially_supported_claim` The evidence mentions that AI systems can harm individuals, groups, communities, and society when they are biased, lack transparency, or operate unpredictably. The claim states that the NIST AI Risk M \u2014 The NIST AI Risk Management Framework identifies critical failure modes and security vulnerabilities such as bias in AI \n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 6 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 20 |\n| Evidence items | 30 |\n| Quotes verbatim (exact-normalised) | 80% |\n| Quotes fuzzy (excluded from citation) | 10% |\n| LLM calls | 18 |\n| Tokens (in/out) | 22,992 / 7,545 |\n| Estimated cost | $0.0000 |\n| Duration | 995.4s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-23 21:23 UTC._\n"
+  }
+}
