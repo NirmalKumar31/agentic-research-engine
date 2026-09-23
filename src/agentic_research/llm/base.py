@@ -142,6 +142,9 @@ class ProviderAttempt:
     billable: bool = True
     """False for requests the provider rejected before doing work (4xx),
     which still consume rate-limit quota but produce no tokens."""
+    rate_limited: bool = False
+    """The provider refused for quota reasons. Still a provider request:
+    it consumed rate-limit allowance even though it did no work."""
 
     @property
     def cost_usd(self) -> float | None:
@@ -186,6 +189,7 @@ class UsageTotals:
     failed_calls: int = 0
     provider_requests: int = 0
     billable_provider_requests: int = 0
+    failed_provider_requests: int = 0
     structured_repairs: int = 0
     compatibility_retries: int = 0
     transport_retries: int = 0
@@ -407,6 +411,14 @@ class UsageTracker:
                 totals.compatibility_retries += 1
             elif attempt.kind is AttemptKind.TRANSPORT_RETRY:
                 totals.transport_retries += 1
+            if not attempt.ok:
+                totals.failed_provider_requests += 1
+            if attempt.rate_limited:
+                # Counted separately because a 429 means the quota is gone,
+                # not that the request was malformed. Conflating it with
+                # other failures hides the one cause that will not clear on
+                # its own.
+                totals.rate_limit_refusals += 1
             totals.input_tokens += attempt.input_tokens
             totals.output_tokens += attempt.output_tokens
             totals.latency_s += attempt.latency_s

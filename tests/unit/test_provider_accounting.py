@@ -20,6 +20,9 @@ from agentic_research.config import ModelRole, ModelSpec, Provider, Settings
 from agentic_research.llm.base import (
     BudgetExceededError,
     CloudBudgetExceededError,
+    ProviderRateLimited,
+    ProviderRejectedRequest,
+    StructuredOutputError,
     UsageTracker,
 )
 from agentic_research.llm.router import ModelRouter, RoleModel
@@ -248,6 +251,72 @@ class TestReconciliation:
         # Two reservations, the second for a strictly larger prompt.
         assert tracker.totals().provider_requests == 2
         assert await tracker.reserved_worst_case_usd() > 0
+
+
+class TestFailuresStayObservable:
+    """A refused request is still a request. Losing it from the counters
+    is how a quota disappears with no record of where it went."""
+
+    REAL_429 = (
+        "Error code: 429 - {'error': {'message': 'Rate limit reached for "
+        "gpt-6-luna on requests per day (RPD): Limit 50, Used 50.'}}"
+    )
+
+    async def test_a_rate_limit_refusal_is_counted_as_an_attempt(self) -> None:
+        tracker = UsageTracker(10, cloud_budget())
+        chat = ScriptedModel([RuntimeError(self.REAL_429)])
+        # Narrow on purpose: a bare Exception would also pass if the router
+        # stopped recognising a 429, which is the thing being tested.
+        with pytest.raises(ProviderRateLimited):
+            await role_model(chat, tracker).structured(Shape, "s", "u")
+
+        totals = tracker.totals()
+        assert totals.provider_requests == 1, "the refused request still happened"
+        assert totals.rate_limit_refusals == 1
+        assert totals.failed_provider_requests == 1
+        # A 429 does no work, so it bills nothing but consumes quota.
+        assert totals.billable_provider_requests == 0
+
+    async def test_a_400_is_a_failed_attempt_but_not_a_rate_limit(self) -> None:
+        tracker = UsageTracker(10, cloud_budget())
+        chat = ScriptedModel(
+            [
+                RuntimeError(
+                    "Error code: 400 - {'error': {'type': 'invalid_request_error', "
+                    "'message': 'Invalid schema'}}"
+                )
+            ]
+        )
+        with pytest.raises(ProviderRejectedRequest):
+            await role_model(chat, tracker).structured(Shape, "s", "u")
+
+        totals = tracker.totals()
+        assert totals.provider_requests == 1
+        assert totals.failed_provider_requests == 1
+        assert totals.rate_limit_refusals == 0
+
+    async def test_a_successful_request_is_not_counted_as_failed(self) -> None:
+        tracker = UsageTracker(10, cloud_budget())
+        chat = ScriptedModel([envelope(parsed=Shape(value="ok"))])
+        await role_model(chat, tracker).structured(Shape, "s", "u")
+
+        totals = tracker.totals()
+        assert totals.failed_provider_requests == 0
+        assert totals.rate_limit_refusals == 0
+        assert totals.billable_provider_requests == 1
+
+    async def test_an_unparsable_response_is_a_failed_attempt(self) -> None:
+        """It reached the model and billed tokens, so it is billable, but
+        the attempt did not succeed."""
+        tracker = UsageTracker(10, cloud_budget())
+        chat = ScriptedModel([envelope(parsed=None, error="bad")])
+        with pytest.raises(StructuredOutputError):
+            await role_model(chat, tracker).structured(Shape, "s", "u", repair=False)
+
+        totals = tracker.totals()
+        assert totals.provider_requests == 1
+        assert totals.failed_provider_requests == 1
+        assert totals.billable_provider_requests == 1
 
 
 class TestNoInvisibleRequests:

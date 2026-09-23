@@ -80,6 +80,7 @@ class RunMetrics(BaseModel):
     llm_calls: int = 0
     provider_requests: int = 0
     billable_provider_requests: int = 0
+    failed_provider_requests: int = 0
     structured_repairs: int = 0
     compatibility_retries: int = 0
     transport_retries: int = 0
@@ -217,6 +218,7 @@ def build_metrics(
         llm_calls=totals.calls,
         provider_requests=totals.provider_requests,
         billable_provider_requests=totals.billable_provider_requests,
+        failed_provider_requests=totals.failed_provider_requests,
         structured_repairs=totals.structured_repairs,
         compatibility_retries=totals.compatibility_retries,
         transport_retries=totals.transport_retries,

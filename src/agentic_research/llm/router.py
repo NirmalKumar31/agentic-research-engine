@@ -219,6 +219,7 @@ class RoleModel:
                     ok=False,
                     error=last_error,
                     billable=False,
+                    rate_limited=isinstance(domain, ProviderRateLimited),
                 )
                 self._finish(
                     schema.__name__,
@@ -291,6 +292,7 @@ class RoleModel:
         ok: bool,
         error: str | None = None,
         billable: bool = True,
+        rate_limited: bool = False,
     ) -> None:
         self._tracker.record_attempt(
             ProviderAttempt(
@@ -305,6 +307,7 @@ class RoleModel:
                 ok=ok,
                 error=error,
                 billable=billable,
+                rate_limited=rate_limited,
             )
         )
 
