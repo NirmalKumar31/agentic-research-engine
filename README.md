@@ -613,9 +613,10 @@ And one number I did not expect:
 `plan_research` 104s · `assess_coverage` 22s · `analyze_query` 11s.
 Deduplication and source registration are ~1ms combined.
 
-Nearly all of it is local model inference. This is the measurement behind
-the hosted demo being cloud-only: a run this shape does not fit inside any
-reasonable web timeout on this hardware.
+Nearly all of it is local model inference, and a run this shape does not
+fit inside any reasonable web timeout on this hardware. That is why the
+public site is replay-only, and why live hosted research — if it is ever
+enabled — would have to use cloud inference: Render does not host Ollama.
 
 ## Cloud validation (gpt-6-luna)
 
@@ -711,9 +712,10 @@ read timeouts rather than throughput.
 for a research plan ran past 240s. With one it is bounded, and completes in
 ~108s through the router. Per-role caps now go to the provider.
 
-**It is too slow for a web demo.** Planning alone is 100-200s and a full
-run is ~18 minutes on this hardware. That is why the hosted demo runs
-cloud-only, and it was measured rather than assumed.
+**It is too slow for a live web demo.** Planning alone is 100-200s and a
+full run is ~18 minutes on this hardware. Public v0.2 is therefore
+replay-only; if live hosted mode is enabled later it must use cloud
+inference, because Render does not host Ollama. Measured, not assumed.
 
 ## Security
 

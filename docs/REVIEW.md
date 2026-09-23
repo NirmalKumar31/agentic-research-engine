@@ -1,60 +1,71 @@
 # Standing weaknesses
 
-A deliberately unflattering read of this repository from five angles. The
-point is to name what is still wrong, not to justify it. Anything listed
-here is a real gap; where a fix is known it is stated, and where the honest
-answer is "not measured" it says so.
+A deliberately unflattering read of this repository. The point is to name
+what is still wrong, not to justify it. Anything listed here is a real
+gap; where a fix is known it is stated, and where the honest answer is
+"not measured" it says so.
 
-Last reviewed 2026-09-23, against the working tree following commit
-`5ca0cd4`.
+Reviewed against commit `9fa2e21`, with CI green on all eight jobs and
+535 tests passing at 86% branch-aware coverage.
 
-> **Verification status.** IP pinning, fail-closed pinning, TLS
-> verification, rate-limit accounting, run provenance and version
-> alignment are now executed and committed: 478 tests, 86% coverage,
-> ruff and mypy clean. The cross-attribution harness is tested but
-> **has not been run on a real corpus**, so the trade it exists to
-> measure is still unquantified.
+Two things are **still pending** at the time of writing and are marked as
+such throughout rather than quietly omitted: the cloud validation
+experiments (clean A/B, a current-code Luna run, a hybrid smoke) and the
+public deployment.
 
 ---
 
 ## As an AI/LLM engineer
 
-**Cross-attribution is the common case, not the edge case.** 78% of
-evidence in the measured run answers a sub-question whose queries never
-retrieved that source. The provenance chain to the *source* holds, but the
-evidence→query link — advertised as part of the design — exists for barely
-a fifth of items. The cause is structural: every source is shown every open
-sub-question. An experiment harness now exists to measure what narrowing
-would cost (`agentic-research attribution`), but it **has not been run**, so
-the trade is still unquantified and the design is unchanged. Having the
-harness is not having the number.
+**No ground truth of any kind.** Every metric measures faithfulness to
+retrieved sources. A report that cites five wrong pages perfectly scores
+perfectly. Nothing in the evaluation framework can distinguish it from a
+correct one. This is the single largest limitation and it is structural,
+not a gap to be closed with another metric.
 
-**Quote fidelity is 74% and nothing improves it.** A quarter of extracted
-quotes are reworded or unlocatable, and the only handling is exclusion.
-There is no re-prompt on a failed quote, no "find the nearest real span"
-repair. The result is honest but lossy: roughly a quarter of extraction
-spend is discarded.
+**Cross-attribution is the common case, and now measured rather than
+excused.** Around three quarters of evidence answers a sub-question whose
+queries never retrieved that source. The chain to the *source* is exact;
+the chain back to a query exists for the rest. Narrowing it was tested:
+on the six-source corpus, retrieved-only extraction cut evidence coverage
+from 100% to 16.7% across three repeats, so production kept all-open. That
+is a finding about *that corpus*, where each source was retrieved for a
+mean of 1.17 sub-questions. It is not a general claim that all-open is
+optimal, and a corpus whose sources are found by many queries would likely
+narrow the gap.
+
+**The quote-fidelity difference in that experiment is not causal.**
+Narrowing appeared to improve exact-match fidelity (75.9% to 88.3%), and
+the ranges did not overlap across three repeats. But n=3, the strategies
+ran grouped rather than counterbalanced, and thermal state and execution
+order are not ruled out. It is a lead, not a result.
 
 **Entailment in local mode is a model grading its own work.** The verifier
-role is the same `qwen3:4b` that wrote the report. A support figure
-produced that way is close to meaningless, and the hybrid split exists
-mostly to avoid it. Nobody has checked the verifier against human labels.
+is the same `qwen3:4b` that wrote the report. Nobody has checked it
+against human labels. The earlier self-assessed support figures were
+withdrawn rather than restated, because they came from a previous
+evaluator generation and are not comparable to current metrics. The
+measurement that would replace them is the frozen-corpus local-versus-cloud
+comparison, which **has not been run**.
 
 **Coverage sufficiency is arbitrary where it matters.** `_SUFFICIENT_RATIO
-= 0.7` and "two verified items from two distinct sources" are defensible
-and untuned. Nothing establishes that 0.7 is better than 0.6.
+= 0.7`, and "two verified items from two distinct sources", are defensible
+and untuned. Nothing establishes 0.7 over 0.6 — and the attribution result
+shows how much that second threshold decides.
 
-**Prompt versioning is new and unproven.** Prompts materially change
-behaviour and lived as module constants with no identifier in run metadata,
-so two runs weeks apart were not comparable and nothing recorded why.
-`provenance.py` now hashes the prompt module and the JSON schemas into every
-artifact — written in the same unexecuted batch as everything above, and a
-hash is only useful once there are two runs to compare with it. Every
-published figure in this repository predates it.
+**Source quality scoring is an untuned heuristic.** Hand-weighted over
+document type, rank, length and recency. It orders sources for extraction;
+it is not a claim about correctness.
 
 **Single search provider in practice.** Brave is implemented and unit
 tested against recorded payloads, never against the live API. The
 abstraction is proven at the type level, not the behaviour level.
+
+**The planner fails often enough to matter.** One of the three committed
+recordings is a run where planning failed and the engine researched the
+question as a single dimension. Degrading rather than aborting is correct
+behaviour, but the frequency is unmeasured and one-in-three in the
+recordings is not reassuring.
 
 ---
 
@@ -62,149 +73,138 @@ abstraction is proven at the type level, not the behaviour level.
 
 **Budget enforcement is per process.** `UsageTracker` holds counts in
 memory. Two workers, or one restart mid-run, and the spend ceiling is not
-what it says. For the free single-instance demo that is fine; the moment it
-scales it is wrong, and the code does not stop you scaling it.
+what it says. The per-run request, token and cost ceilings are real and
+checked before dispatch; the *daily* cap is not, and cannot be on a host
+that sleeps.
 
-**Rate limiting has the same shape.** In-memory windows, so per-IP and
-daily caps are per-replica. The real bound would be the per-run spend
-ceiling, which is also per process.
+**There is no durable or distributed quota.** This is why anonymous live
+research is disabled publicly rather than rate-limited. Enabling it safely
+would need a persistent atomic quota store, which has deliberately not
+been built: infrastructure whose only purpose is letting strangers spend
+an API budget is not worth its complexity for a portfolio project.
 
-**Input token estimation is `len // 4`.** The pre-dispatch cost check is
-therefore approximate. It is conservative in the common case and will be
-wrong for code-heavy or non-Latin content, where it under-counts and the
-ceiling is discovered late.
+**Input token estimation is `len // 4`.** Conservative in the common case,
+wrong for code-heavy or non-Latin content, where it under-counts.
 
-**No retry budget across a run.** Individual calls retry with backoff, but
+**No retry budget across a run.** Individual calls retry with backoff;
 nothing caps total retries, so a flapping provider can multiply latency
-within the time limit without tripping anything.
+inside the time limit without tripping anything.
 
-**Checkpointing is written but never exercised in anger.** SQLite
+**Checkpointing is written but never exercised under load.** SQLite
 persistence exists; no test resumes an interrupted run from a checkpoint,
 so "recoverable" is a property of the design rather than a demonstrated
 one.
 
 **The container is not pinned by digest.** `python:3.12-slim` and
 `node:24-slim` are floating tags. `constraints.txt` pins Python
-dependencies but the base images can move under a rebuild.
+dependencies; the base images can move under a rebuild.
 
 **No observability beyond logs.** Structured events exist; nothing
-aggregates them. There is no metrics endpoint, no trace export, and the
-LangSmith hook mentioned in the original design was never wired.
+aggregates them. No metrics endpoint, no trace export.
+
+**PDF fetching costs an extra request.** Provider-supplied text is reused
+for HTML but deliberately not for PDFs, because it arrives with page
+boundaries flattened and page-aware citation is the point. That is one
+additional fetch per PDF source, and if it fails the source silently
+degrades to provider text — with a warning, but still without pages.
 
 ---
 
 ## As a security engineer
 
-**DNS rebinding is closed, and now demonstrated.** The connection is made
-to the address that was validated, with the hostname carried in the `Host`
-header and the TLS SNI, and each redirect hop is revalidated and re-pinned.
-The decisive test passes: against a real TLS server with a real
-certificate, a *wrong* SNI is refused by certificate verification, so
-pinning did not silently disable hostname checking. The residual weakness
-is scope, not correctness — this is tested against an in-process CA on
-loopback, not against the internet's actual certificate ecosystem, so it
-proves the mechanism rather than its behaviour against every real server.
-
-**Failover trusts the validated set, which is correct but narrow.** If a
-hostname's validated addresses are all unreachable the fetch fails rather
-than re-resolving. That is deliberate — re-resolving is the rebinding
-window — but it means a legitimate DNS change mid-run looks like an
-outage until the next run.
+**DNS rebinding is closed, and the proof is narrower than the claim.** The
+connection goes to the validated address, the hostname rides in the `Host`
+header and TLS SNI, each redirect hop is revalidated and re-pinned, a
+target with no validated address fails closed, and failover never
+re-resolves. The decisive property — that a *wrong* SNI is refused by
+certificate verification — is tested against a real TLS server with a real
+certificate. But that certificate comes from an in-process CA on loopback.
+It proves the mechanism, not its behaviour against the public certificate
+ecosystem.
 
 **Prompt-injection defence is mostly structural, which is lucky.** The
-extractor has no tools, so there is little to hijack. But no adversarial
-test has been run against a *live* model — the injection suite checks
-boundaries and plumbing, not whether a model obeys a page. Whether
-`qwen3:4b` can be talked out of its task is unmeasured.
+extractor has no tools, so there is little to hijack, and a claim invented
+from a page references no evidence and fails resolution. But no
+adversarial test has run against a live model. Whether `qwen3:4b` can be
+talked out of its task is unmeasured.
 
-**The SPA catch-all serves index.html for every unmatched path**, which
-also means `/docs` returns 200 in demo mode. Harmless, but it means "docs
-disabled" is asserted by content rather than by routing, and a future route
-added carelessly inherits the same fallthrough.
+**Rate limiting keys on `X-Forwarded-For`.** Spoofable. Irrelevant while
+live research is off; it would matter immediately if it were enabled.
 
-**Rate limiting keys on `X-Forwarded-For`.** Spoofable. The global daily
-cap is the real defence and it is a blunt one — one abusive client can
-exhaust the day for everyone.
-
-**No authentication anywhere.** Correct for an anonymous demo, and it means
-the only thing between the internet and the API key is the limit set.
+**No authentication anywhere.** Correct for an anonymous replay demo.
 
 **Secret scanning covers git, not runtime.** gitleaks protects the
-repository. Nothing stops a key reaching a log if new code logs a settings
-object; the redaction processor matches on key *names* and a novel field
-name would pass through.
+repository, with a positive control that generates random planted
+credentials each run so it cannot be silently disabled by an allowlist —
+which is not hypothetical: an allowlist entry for fixed canary values
+*did* disable it once, and the control caught it. Nothing stops a key
+reaching a log if new code logs a settings object; the redaction processor
+matches on key names and a novel field name would pass through.
 
-**Fetched content is never scanned.** A malicious page is treated purely as
-text. That is the right scope, but it means a stored-XSS payload inside a
-quote reaches the frontend, where React escapes it — the safety is React's,
-not ours, and nothing tests it.
+**Fetched content is never scanned.** A malicious page is treated purely
+as text. React escapes it on render — verified by rendering a
+`<script>` payload through `react-dom/server` and confirming it emits
+escaped text with no executable tag, with `dangerouslySetInnerHTML` absent
+and a test enforcing its absence. The safety is React's; ours is not
+adding an escape hatch.
 
 ---
 
 ## As a research/evaluation engineer
 
-**No ground truth of any kind.** Every metric measures internal
-consistency. A report faithfully citing five wrong pages is
-indistinguishable from a correct one, and nothing in the evaluation
-framework can tell them apart. This is stated in the docs and is still the
-single largest limitation.
-
 **The benchmark has twelve questions and has never been run.** They were
-chosen to stress specific properties, and that intent is untested — it is
-plausible the sparse-evidence question is not actually sparse and the
-contradiction questions do not actually contradict.
+chosen to stress specific properties, and that intent is untested.
 
-**One sample run is not a measurement.** Every published figure comes from
-a single execution with a sampling model. There are no repeats, no
-variance, no confidence interval. "74% quote fidelity" is one draw.
+**One sample run is not a measurement.** The published local figures come
+from single executions with a sampling model. The attribution experiment
+is the only result here with repeats, and n=3 is still small.
 
-**Sampled and exhaustive support are labelled but not comparable.** The
-committed figure is sampled (10 of 17). Nothing establishes how far a
-sample of 10 diverges from the full set.
+**The clean frozen-corpus A/B has not been run.** The historical
+55.6%/81.2% comparison came from a corpus whose source text was stripped,
+which drove citation integrity to 0% in both arms. The loader now refuses
+such input. Those numbers are retained only as a historical diagnostic and
+must not be quoted as current.
 
-**Category aggregation is implemented and unused.** `by_category` exists in
-the report structure with no data behind it.
+**No current cloud measurement.** The last full cloud run predates the
+bugs it exposed. A current-code Luna run and a hybrid smoke are both
+pending.
 
-**The one real A/B was run on a corpus the validator now rejects.** It did
-compare two genuine models — local against `gpt-6-luna` — but the frozen
-corpus had its source text stripped, which drove citation integrity to 0%
-in both arms. The library now refuses that corpus outright. The
-claim-support figures from it (55.6% / 81.2%) are retained only as a
-historical diagnostic, and a clean rerun has not happened.
+**Category aggregation is implemented and unused.** `by_category` exists
+in the report structure with no data behind it.
+
+**The recordings are product artifacts, not benchmarks.** They demonstrate
+the provenance chain. Their metrics should not be quoted as evaluation
+results.
 
 ---
 
 ## As a skeptical hiring manager
 
-**"It works" rests on two runs and a test suite.** The test suite is real
-and well-targeted (478 passing, 86% coverage), and there is now one local
-run and one cloud run. That is still two data points, both single
-executions, neither repeated.
+**The public demo does not run anything.** It replays recorded executions.
+That is defensible — an in-memory daily cap cannot bound an API quota on a
+host that cold-starts, and the alternative was infrastructure whose only
+job is letting strangers spend money — but a visitor cannot type their own
+question, and no amount of framing changes that.
 
-**The most impressive claim is the least demonstrated.** Evidence-level
-provenance is genuinely well built — and the only place a visitor can *see*
-it is a screenshot-free README, because the demo is not deployed.
+**"It works" still rests on a handful of runs.** The test suite is real
+and well-targeted (535 passing, 86% branch coverage). Beyond it: one local
+run, one stale cloud run, one attribution experiment with three repeats,
+and three recordings.
 
-**Two of the stated goals are incomplete.** The site is not live, and the
-clean A/B rerun has not happened. Both are
-correctly reported as blocked rather than fudged, but incomplete is
-incomplete.
+**The commit history shows churn, including self-inflicted breakage.**
+Several commits fix problems introduced one or two commits earlier — a
+stream_mode regression, a secret scan disabled by its own test fixtures,
+two CI failures caused by verifying in an environment that did not match
+CI. Defensible as visible iteration; also evidence that changes landed
+before they were fully checked.
 
-**Eighteen minutes per run is not a usable tool.** Locally it is a
-demonstration, not something anyone would reach for. The cloud path that
-would make it usable is the untested one.
-
-**The commit history shows churn.** Several commits fix problems introduced
-two commits earlier — a stream_mode regression, a size-cap bug, a secret
-scan tripping on its own fixture. Defensible as visible iteration; also
-evidence that changes landed before they were fully thought through.
+**Eighteen minutes per run locally is not a usable tool.** It is a
+demonstration.
 
 **Scope is wide for one project.** Research engine, evaluation framework,
-security layer, PDF pipeline, web app and deployment config. Breadth like
-that invites the question of whether any one part is deep enough, and the
-honest answer is that provenance and evaluation are, while the web app and
-deployment are thin.
+security layer, PDF pipeline, web app, deployment. Provenance and
+evaluation are deep; the web app and deployment are thin.
 
 **No user has ever used it.** No feedback, no failure reports from anyone
-but its author, and no evidence the output is useful to someone who did not
-build it.
+but its author, and no evidence the output is useful to someone who did
+not build it.
