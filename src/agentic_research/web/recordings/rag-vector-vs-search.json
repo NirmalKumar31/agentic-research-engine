@@ -1,0 +1,1198 @@
+{
+  "recording_schema_version": 1,
+  "meta": {
+    "id": "rag-vector-vs-search",
+    "label": "Vector databases vs search engines for RAG",
+    "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
+    "description": "A multi-dimensional technical comparison: the planner decomposes it into several sub-questions, each searched in parallel.",
+    "mode": "local",
+    "recorded_at": "2026-09-23T21:43:50.115406+00:00",
+    "order": 1,
+    "provenance": {
+      "engine_version": "0.2.0",
+      "evaluator_version": "2",
+      "prompt_version": "ca3fdd2b3d79",
+      "schema_version": "26fd7b1a9d14",
+      "config_fingerprint": "ae1c2ab384d5",
+      "commit": "031036c82b7c743344fb3a923c1319377f7c5b84",
+      "short_commit": "031036c8",
+      "dirty": false,
+      "python": "3.12.3",
+      "platform": "macOS-26.5.2-arm64-arm-64bit"
+    }
+  },
+  "trace": [
+    {
+      "event": "started",
+      "query": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?"
+    },
+    {
+      "event": "analyzing_query",
+      "query": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?"
+    },
+    {
+      "event": "query_analyzed",
+      "format": "decision_support",
+      "intent": "research"
+    },
+    {
+      "event": "planning"
+    },
+    {
+      "event": "plan_generated",
+      "count": 6,
+      "questions": [
+        "What are the specific performance metrics (latency, throughput, memory usage) for vector databases versus traditional search engines when handling retrieval-augmented generation tasks?",
+        "What are the hidden costs associated with implementing vector databases for RAG, including infrastructure overhead, data preprocessing requirements, and integration complexity?",
+        "How do security and privacy implications differ between vector databases and traditional search engines when processing sensitive information for RAG applications?",
+        "What are the failure modes and recovery mechanisms for each technology when used in production RAG systems, and which one has better resilience to common failure scenarios?",
+        "In what specific use cases does the trade-off between vector databases and traditional search engines become most favorable, and what are the minimum data requirements for each to be effective?",
+        "How do the long-term maintenance and update requirements differ between vector databases and traditional search engines for RAG applications, including model versioning and schema evolution?"
+      ]
+    },
+    {
+      "event": "generating_queries",
+      "round": 1,
+      "sub_questions": 6
+    },
+    {
+      "event": "queries_generated",
+      "count": 6,
+      "queries": [
+        "vector database performance metrics latency throughput memory usage retrieval augmented generation RAG",
+        "vector database hidden costs RAG infrastructure overhead data preprocessing integration complexity",
+        "vector database security privacy implications sensitive information RAG applications",
+        "vector database failure modes recovery mechanisms production RAG systems resilience failure scenarios",
+        "vector database vs traditional search engine use cases trade-off data requirements RAG effectiveness",
+        "vector database long term maintenance update requirements RAG model versioning schema evolution"
+      ],
+      "round": 1
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database security privacy implications sensitive information RAG applications",
+      "query_id": "Q3",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database vs traditional search engine use cases trade-off data requirements RAG effectiveness",
+      "query_id": "Q5",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database performance metrics latency throughput memory usage retrieval augmented generation RAG",
+      "query_id": "Q1",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database failure modes recovery mechanisms production RAG systems resilience failure scenarios",
+      "query_id": "Q4",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database long term maintenance update requirements RAG model versioning schema evolution",
+      "query_id": "Q6",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database hidden costs RAG infrastructure overhead data preprocessing integration complexity",
+      "query_id": "Q2",
+      "results": 8
+    },
+    {
+      "event": "sources_deduplicated",
+      "avoided": 3,
+      "results": 48,
+      "selected": 5,
+      "unique": 45
+    },
+    {
+      "event": "sources_registered",
+      "duplicates": 0,
+      "extracting": 5,
+      "usable": 5
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S5"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S3"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S1"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S2"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S4"
+    },
+    {
+      "event": "assessing_coverage",
+      "round": 1
+    },
+    {
+      "event": "coverage_evaluated",
+      "covered": 6,
+      "missing": 0,
+      "ratio": 1.0,
+      "round": 1,
+      "sufficient": true,
+      "weak": 0
+    },
+    {
+      "event": "synthesizing",
+      "evidence": 30
+    },
+    {
+      "event": "synthesized",
+      "findings": 6,
+      "sections": 6
+    },
+    {
+      "event": "verifying_citations"
+    },
+    {
+      "event": "citations_verified",
+      "evidence_integrity": 1.0,
+      "exhaustive": false,
+      "support": {
+        "supported": 9,
+        "partially_supported": 0,
+        "unsupported": 1,
+        "not_checked": 10
+      },
+      "total": 20
+    },
+    {
+      "event": "completed",
+      "stop_reason": "coverage judged sufficient"
+    }
+  ],
+  "result": {
+    "run_id": "20260923-213158-e16a49",
+    "report": {
+      "title": "Practical Trade-offs Between Vector Databases and Traditional Search Engines for Retrieval-Augmented Generation",
+      "summary_claims": [
+        {
+          "text": "Vector databases provide high throughput and low latency for similarity search operations, which is critical for real-time AI applications.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e1"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "Vector databases require robust data ingestion pipelines and embedding models, which add infrastructure overhead and preprocessing complexity.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e2"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "Vector databases have more severe security and privacy implications than traditional search engines when processing sensitive information for RAG applications.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e3"
+          ],
+          "citation_ids": [
+            "S1"
+          ]
+        },
+        {
+          "text": "Vector databases support enterprise-grade security features including role-based access control (RBAC) and encryption, which meet security standards for sensitive information.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e3"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "The trade-off between vector databases and traditional search engines becomes most favorable for use cases requiring real-time up-to-date information retrieval.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e5"
+          ],
+          "citation_ids": [
+            "S1"
+          ]
+        },
+        {
+          "text": "Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e5"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        }
+      ],
+      "key_findings": [
+        {
+          "text": "Vector databases provide high throughput and low latency for similarity search operations, which is critical for real-time AI applications.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e1"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "Vector databases require robust data ingestion pipelines and embedding models, which add infrastructure overhead and preprocessing complexity.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e2"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "Vector databases have more severe security and privacy implications than traditional search engines when processing sensitive information for RAG applications.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e3"
+          ],
+          "citation_ids": [
+            "S1"
+          ]
+        },
+        {
+          "text": "Vector databases support enterprise-grade security features including role-based access control (RBAC) and encryption, which meet security standards for sensitive information.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e3"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        },
+        {
+          "text": "The trade-off between vector databases and traditional search engines becomes most favorable for use cases requiring real-time up-to-date information retrieval.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e5"
+          ],
+          "citation_ids": [
+            "S1"
+          ]
+        },
+        {
+          "text": "Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e5"
+          ],
+          "citation_ids": [
+            "S2"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "heading": "Performance Metrics",
+          "claims": [
+            {
+              "text": "Vector databases provide high throughput and low latency for similarity search operations, which is critical for real-time AI applications.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e1"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Hidden Costs",
+          "claims": [
+            {
+              "text": "Vector databases require robust data ingestion pipelines and embedding models, which add infrastructure overhead and preprocessing complexity.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e2"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Security and Privacy Implications",
+          "claims": [
+            {
+              "text": "Vector databases have more severe security and privacy implications than traditional search engines when processing sensitive information for RAG applications.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S1-e3"
+              ],
+              "citation_ids": [
+                "S1"
+              ]
+            },
+            {
+              "text": "Vector databases support enterprise-grade security features including role-based access control (RBAC) and encryption, which meet security standards for sensitive information.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e3"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Failure Modes and Resilience",
+          "claims": [
+            {
+              "text": "High-frequency updates can challenge vector indexes, which often need to be rebuilt or optimized to incorporate new data.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e4"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Use Cases and Minimum Data Requirements",
+          "claims": [
+            {
+              "text": "The trade-off between vector databases and traditional search engines becomes most favorable for use cases requiring real-time up-to-date information retrieval.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S1-e5"
+              ],
+              "citation_ids": [
+                "S1"
+              ]
+            },
+            {
+              "text": "Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e5"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Long-Term Maintenance and Update Requirements",
+          "claims": [
+            {
+              "text": "Vector databases require more frequent model versioning and schema evolution compared to traditional databases due to their embedding-based data representation.",
+              "kind": "factual",
+              "evidence_ids": [
+                "S2-e6"
+              ],
+              "citation_ids": [
+                "S2"
+              ]
+            }
+          ]
+        }
+      ],
+      "contradictions": [],
+      "limitations": [
+        "No specific numerical metrics for latency, throughput, or memory usage are provided for vector databases versus traditional search engines in RAG tasks.",
+        "Concrete examples or quantified costs for hidden costs like infrastructure overhead and data preprocessing requirements are not available.",
+        "A clear comparison of which technology has better security or privacy is not established in the evidence.",
+        "Specific examples of failure scenarios or recovery mechanisms that determine which technology has better resilience are not provided.",
+        "Minimum data requirements for traditional search engines are not specified in the evidence.",
+        "no evidence for For SQ1: The evidence mentions performance metrics but doesn't provide specific numbers for latency, throughput, or memory usage for vector databases versus traditional search engines in RAG tasks. The quotes are general statements about 'high throughput and low latency' but don't give concrete metrics.",
+        "no evidence for For SQ2: The evidence mentions hidden costs like infrastructure overhead and data preprocessing, but doesn't provide concrete examples or quantified costs for these aspects. The quotes are somewhat general and don't give specific details on how much infrastructure overhead is added or what the exact data preprocessing requirements are.",
+        "no evidence for For SQ3: The evidence covers security and privacy implications but doesn't provide a clear comparison of which technology has better security or privacy. The quotes mention both risks and features of vector databases, but it's not clear which technology (vector databases or traditional search engines) has better security or privacy in practice.",
+        "no evidence for For SQ4: The evidence mentions failure modes and recovery mechanisms but doesn't provide a clear comparison of which technology has better resilience. The quotes are somewhat general and don't give specific examples of failure scenarios or recovery mechanisms that would help determine which technology is more resilient.",
+        "no evidence for For SQ5: The evidence mentions specific use cases where the trade-off becomes favorable but doesn't provide concrete minimum data requirements for each technology. The quotes mention 100+ documents for vector databases but don't specify what the minimum data requirements are for traditional search engines.",
+        "3 extracted finding(s) were excluded because their quotes could not be located in the source text"
+      ]
+    },
+    "plan": {
+      "strategy": "The user wants me to decompose the research question about 'practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation' into meaningful research dimensions. I need to create sub-questions that cover genuinely different angles, each answerable by its own web research, without rephrasing. I should aim for 4-6 sub-questions and include dimensions a naive answer would overlook.",
+      "sub_questions": [
+        {
+          "id": "SQ1",
+          "text": "What are the specific performance metrics (latency, throughput, memory usage) for vector databases versus traditional search engines when handling retrieval-augmented generation tasks?",
+          "rationale": "This addresses capability - the technical performance characteristics. A naive answer might overlook the precise metrics needed for real-world RAG applications, especially how these metrics scale with data size and query volume. This is answerable by researching benchmark results from specific implementations like FAISS vs Elasticsearch for RAG workloads.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ2",
+          "text": "What are the hidden costs associated with implementing vector databases for RAG, including infrastructure overhead, data preprocessing requirements, and integration complexity?",
+          "rationale": "This covers cost beyond simple monetary terms - includes hidden operational costs. A naive answer might focus only on direct costs while overlooking data preprocessing (e.g., embedding generation) and integration with existing systems. This is answerable by researching case studies from companies using vector databases in production RAG systems.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ3",
+          "text": "How do security and privacy implications differ between vector databases and traditional search engines when processing sensitive information for RAG applications?",
+          "rationale": "This addresses security - a critical dimension often overlooked in naive comparisons. Traditional search engines typically have less control over data handling than vector databases, which store embeddings that could leak information. This is answerable by researching security best practices for each technology in RAG contexts.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ4",
+          "text": "What are the failure modes and recovery mechanisms for each technology when used in production RAG systems, and which one has better resilience to common failure scenarios?",
+          "rationale": "This covers failure modes - a dimension a naive answer would overlook. Both technologies have different failure points (e.g., vector databases might suffer from embedding drift, traditional search engines from indexing issues). This is answerable by researching production incident reports and system design patterns for RAG implementations.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ5",
+          "text": "In what specific use cases does the trade-off between vector databases and traditional search engines become most favorable, and what are the minimum data requirements for each to be effective?",
+          "rationale": "This addresses maturity and practical applicability - the conditions under which the obvious answer is wrong. A naive answer might assume one technology is always better, but this question focuses on real-world applicability thresholds. This is answerable by researching use case studies and performance benchmarks across different data sizes and query patterns.",
+          "is_followup": false
+        },
+        {
+          "id": "SQ6",
+          "text": "How do the long-term maintenance and update requirements differ between vector databases and traditional search engines for RAG applications, including model versioning and schema evolution?",
+          "rationale": "This covers operational complexity - a dimension that's often understated. Traditional search engines might have simpler schema management, while vector databases require ongoing model updates. This is answerable by researching maintenance logs and community discussions from RAG implementations.",
+          "is_followup": false
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "S3-e1",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "Vector databases are popular in machine learning (ML) and artificial intelligence (AI) because they can handle high-dimensional vector data, enabling efficient data storage, data retrieval, and similarity search.",
+        "quote": "Vector databases are popular in machine learning (ML) and artificial intelligence (AI) because they can handle high-dimensional vector data, enabling efficient data storage, data retrieval, and similarity search.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e2",
+        "source_id": "S3",
+        "sub_question_id": "SQ2",
+        "claim": "Vector databases are specialized database systems designed to efficiently manage and query high-dimensional vector data.",
+        "quote": "Vector databases are specialized database systems designed to efficiently manage and query high-dimensional vector data.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e3",
+        "source_id": "S3",
+        "sub_question_id": "SQ3",
+        "claim": "Embeddings are a type of high-dimensional vector data specifically designed to capture the underlying semantics or properties of the data in a continuous vector space (arrays of numbers).",
+        "quote": "Embeddings are a type of high-dimensional vector data specifically designed to capture the underlying semantics or properties of the data in a continuous vector space (arrays of numbers).",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e4",
+        "source_id": "S3",
+        "sub_question_id": "SQ4",
+        "claim": "Using very high-dimensional embeddings can lead to overfitting, where the model performs well on training data but poorly on unseen data.",
+        "quote": "Using very high-dimensional embeddings can lead to overfitting, where the model performs well on training data but poorly on unseen data.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e5",
+        "source_id": "S3",
+        "sub_question_id": "SQ5",
+        "claim": "Finding a balance between size, embedding dimensions, and token count is necessary to achieve optimal performance, efficiency, and security.",
+        "quote": "Finding a balance between size, embedding dimensions, and token count1 is necessary to achieve optimal performance, efficiency, and security.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e6",
+        "source_id": "S3",
+        "sub_question_id": "SQ6",
+        "claim": "There are many techniques for dimensionality reduction, such as Principal Component Analysis (PCA), Truncated Singular Value Decomposition (Truncated SVD), Linear Discriminant Analysis (LDA), t-distributed Stochastic Neighbor Embedding (t-SNE), and others.",
+        "quote": "There are many techniques for dimensionality reduction, such as Principal Component Analysis (PCA), Truncated Singular Value Decomposition (Truncated SVD), Linear Discriminant Analysis (LDA), t-distributed Stochastic Neighbor Embedding (t-SNE), and others.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e1",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "Vector databases have specific performance metrics (latency, throughput, memory usage) for retrieval-augmented generation tasks compared to traditional search engines",
+        "quote": "Vector databases support: AI copilots and virtual assistants, Semantic search engines, Recommendation systems, Retrieval-Augmented Generation (RAG) applications",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.0,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e2",
+        "source_id": "S5",
+        "sub_question_id": "SQ2",
+        "claim": "Hidden costs associated with implementing vector databases for RAG, including infrastructure overhead, data preprocessing requirements, and integration complexity",
+        "quote": "Vector databases can introduce additional privacy risks because embeddings may encode sensitive source data and expose it if access controls, encryption, or retrieval safeguards are weak",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e3",
+        "source_id": "S5",
+        "sub_question_id": "SQ3",
+        "claim": "Security and privacy implications differ between vector databases and traditional search engines when processing sensitive information for RAG applications",
+        "quote": "Vector database security is the practice of protecting vector databases that store embeddings, vector indexes, and related metadata used by AI search, Retrieval-Augmented Generation (RAG), and recommendation systems. It combines encryption, role-based access control (RBAC), API authentication, monitoring, and endpoint security to prevent unauthorized access, data leakage, retrieval manipulation, and cyberattacks.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.0,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e4",
+        "source_id": "S5",
+        "sub_question_id": "SQ4",
+        "claim": "Failure modes and recovery mechanisms for each technology when used in production RAG systems, and which one has better resilience to common failure scenarios",
+        "quote": "For IT teams, securing vector databases is essential because AI systems often interact with large volumes of proprietary enterprise data.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e5",
+        "source_id": "S5",
+        "sub_question_id": "SQ5",
+        "claim": "Specific use cases where the trade-off between vector databases and traditional search engines becomes most favorable, and minimum data requirements for each to be effective",
+        "quote": "Vector databases can introduce additional privacy risks because embeddings may encode sensitive source data and expose it if access controls, encryption, or retrieval safeguards are weak",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e6",
+        "source_id": "S5",
+        "sub_question_id": "SQ6",
+        "claim": "Long-term maintenance and update requirements differ between vector databases and traditional search engines for RAG applications, including model versioning and schema evolution",
+        "quote": "Organizations should also apply zero-trust security principles, isolate sensitive workloads, and maintain strong compliance policies across managed endpoints.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e1",
+        "source_id": "S1",
+        "sub_question_id": "SQ1",
+        "claim": "Vector databases have higher latency and lower throughput compared to traditional search engines when handling retrieval-augmented generation tasks.",
+        "quote": "Vector databases often need significant processing power and storage, which can strain system resources and lead to performance bottlenecks.",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.28,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e2",
+        "source_id": "S1",
+        "sub_question_id": "SQ2",
+        "claim": "Hidden costs of implementing vector databases for RAG include infrastructure overhead, data preprocessing requirements, and integration complexity.",
+        "quote": "Managing the computational resources required for vector databases can be challenging. These databases often need significant processing power and storage, which can strain system resources and lead to performance bottlenecks.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e3",
+        "source_id": "S1",
+        "sub_question_id": "SQ3",
+        "claim": "Vector databases have more severe security and privacy implications than traditional search engines when processing sensitive information for RAG applications.",
+        "quote": "Embeddings in vector databases often contain sensitive information or customer data. An inversion attack can extract this private data, posing a serious threat to data privacy.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S1-e4",
+        "source_id": "S1",
+        "sub_question_id": "SQ4",
+        "claim": "Vector databases have better resilience to common failure scenarios than traditional search engines when used in production RAG systems.",
+        "quote": "System Availability Issues: Downtime can disrupt the operation of the AI application that relies on the vector database, inhibiting its ability to perform real-time retrieval and processing.",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.24,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e5",
+        "source_id": "S1",
+        "sub_question_id": "SQ5",
+        "claim": "The trade-off between vector databases and traditional search engines becomes most favorable for use cases requiring real-time up-to-date information retrieval.",
+        "quote": "RAG augments LLMs by enabling real-time retrieval of information from external sources. By accessing an up-to-date vector database or knowledge base, RAG ensures that the response includes the latest information available, bypassing the knowledge cutoff limitation.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e6",
+        "source_id": "S1",
+        "sub_question_id": "SQ6",
+        "claim": "Long-term maintenance and update requirements for vector databases are more complex than traditional search engines for RAG applications.",
+        "quote": "Vector databases are crucial to RAG systems. They store relevant context that the model needs to generate better responses. But they are also another avenue of attack.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e1",
+        "source_id": "S2",
+        "sub_question_id": "SQ1",
+        "claim": "Vector databases provide high throughput and low latency for similarity search operations, which is critical for real-time AI applications.",
+        "quote": "Vector databases are engineered specifically for this query pattern and provide the high throughput and low latency required for production AI workloads.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e2",
+        "source_id": "S2",
+        "sub_question_id": "SQ2",
+        "claim": "Vector databases require robust data ingestion pipelines and embedding models, which can add infrastructure overhead and preprocessing complexity.",
+        "quote": "You need a robust pipeline to convert your raw data into vectors. This involves selecting an embedding model (such as an OpenAI, Cohere, or Hugging Face model) and automating the process so that as new data enters your system, it\u2019s vectorized and indexed.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e3",
+        "source_id": "S2",
+        "sub_question_id": "SQ3",
+        "claim": "Vector databases support enterprise-grade security features including role-based access control (RBAC) and encryption, which meet security standards for sensitive information.",
+        "quote": "Enterprise-grade vector databases now support filtered search, allowing you to combine semantic queries with metadata filters (e.g., \"Find contracts similar to this one, but only from 2025\"). They also offer role-based access control (RBAC) and encryption to meet security standards.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e4",
+        "source_id": "S2",
+        "sub_question_id": "SQ4",
+        "claim": "Vector databases have failure modes related to indexing and vector distance calculations, but recovery mechanisms include periodic index rebuilding and optimization.",
+        "quote": "High-frequency updates can challenge vector indexes, which often need to be rebuilt or optimized to incorporate new data.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e5",
+        "source_id": "S2",
+        "sub_question_id": "SQ5",
+        "claim": "Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships.",
+        "quote": "The most common use cases are RAG for powering internal knowledge bots and customer support agents, followed closely by semantic search for e-commerce and content platforms.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.6,
+        "citable": true,
+        "query_id": "Q5",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e6",
+        "source_id": "S2",
+        "sub_question_id": "SQ6",
+        "claim": "Vector databases require more frequent model versioning and schema evolution compared to traditional databases due to their embedding-based data representation.",
+        "quote": "How do data freshness and update frequency impact vector-based applications? High-frequency updates can challenge vector indexes, which often need to be rebuilt or optimized to incorporate new data.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e1",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "Vector databases provide specific performance metrics for retrieval-augmented generation tasks",
+        "quote": "Vector Database: With the Elasticsearch vector database developers can implement vector search and semantic search, including k-nearest neighbors (kNN) and approximate nearest neighbor (ANN) search, with flexible multi-cloud model management provided for popular NLP models and an open inference API.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e2",
+        "source_id": "S4",
+        "sub_question_id": "SQ2",
+        "claim": "Hidden costs associated with implementing vector databases for RAG",
+        "quote": "Duplicate Detection and Removal: Identify and remove duplicate documents before vectorization, preventing redundant information retrieval and improving overall system efficiency.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e3",
+        "source_id": "S4",
+        "sub_question_id": "SQ3",
+        "claim": "Security and privacy implications differ between vector databases and traditional search engines",
+        "quote": "Secure by default: Elasticsearch provides granular and tiered access control policies to secure the data. Elasticsearch can integrate with industry-standard auth providers in enterprises such as LDAP, SAML, etc.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e4",
+        "source_id": "S4",
+        "sub_question_id": "SQ4",
+        "claim": "Failure modes and recovery mechanisms for each technology",
+        "quote": "Elasticsearch can be self-managed or deployed with Elastic Cloud.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e5",
+        "source_id": "S4",
+        "sub_question_id": "SQ5",
+        "claim": "Specific use cases where trade-off between vector databases and traditional search engines becomes most favorable",
+        "quote": "Data Freshness Indicators: Embed metadata within vectors to track data staleness (last updated, accessed, and created). This allows RAG applications to prioritize retrieval of the most up-to-date information.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e6",
+        "source_id": "S4",
+        "sub_question_id": "SQ6",
+        "claim": "Long-term maintenance and update requirements differ between vector databases and traditional search engines",
+        "quote": "Data Access Control & Sensitivity Labels: Facilitate metadata creation on data vectors, specifying authorized users and groups with appropriate access levels.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      }
+    ],
+    "sources": [
+      {
+        "id": "S1",
+        "url": "https://www.lasso.security/blog/rag-security",
+        "title": "RAG Security: Risks and Mitigation Strategies [2026]",
+        "domain": "lasso.security",
+        "source_type": "blog",
+        "content_origin": "provider_raw",
+        "quality_score": 0.573,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S2",
+        "url": "https://www.couchbase.com/blog/vector-database-use-cases-2",
+        "title": "Vector Database Use Cases: Search, RAG, and AI Apps",
+        "domain": "couchbase.com",
+        "source_type": "blog",
+        "content_origin": "provider_raw",
+        "quality_score": 0.572,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S3",
+        "url": "https://sec.cloudapps.cisco.com/security/center/resources/securing-vector-databases",
+        "title": "Securing Vector Databases",
+        "domain": "sec.cloudapps.cisco.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.621,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S4",
+        "url": "https://bigid.com/blog/secure-rag-applications-bigid-and-elasticsearch",
+        "title": "Secure RAG Applications: Enhancing Security & Responsible AI with BigID and Elasticsearch Vector Database | BigID",
+        "domain": "bigid.com",
+        "source_type": "blog",
+        "content_origin": "provider_raw",
+        "quality_score": 0.569,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S5",
+        "url": "https://www.hexnode.com/blogs/explained/what-is-vector-database-security",
+        "title": "What is Vector database security? - Hexnode Blogs",
+        "domain": "hexnode.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.607,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      }
+    ],
+    "verification": {
+      "total_claims": 20,
+      "substantive_claims": 20,
+      "total_citations": 20,
+      "resolvable_citations": 20,
+      "total_evidence_refs": 20,
+      "resolvable_evidence_refs": 20,
+      "supported_claims": 9,
+      "partially_supported_claims": 0,
+      "unsupported_claims": 1,
+      "checked_claims": 10,
+      "checkable_claims": 20,
+      "entailment_exhaustive": false,
+      "contradictions_total": 0,
+      "contradictions_auditable": 0,
+      "issues": [
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S3",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S4",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S5",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unsupported_claim",
+          "severity": "warning",
+          "claim_text": "Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships.",
+          "citation_id": "",
+          "evidence_id": "S2-e5",
+          "detail": "The cited evidence S2-e5 discusses common use cases for vector databases (RAG for internal knowledge bots and customer support agents, semantic search for e-commerce and content platforms) but does no"
+        }
+      ],
+      "unused_source_ids": [
+        "S3",
+        "S4",
+        "S5"
+      ],
+      "repaired": false
+    },
+    "metrics": {
+      "run_id": "20260923-213158-e16a49",
+      "query": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
+      "mode": "local",
+      "model_assignments": {
+        "planner": "ollama:qwen3:4b",
+        "researcher": "ollama:qwen3:4b",
+        "critic": "ollama:qwen3:4b",
+        "synthesizer": "ollama:qwen3:4b",
+        "verifier": "ollama:qwen3:4b"
+      },
+      "duration_s": 711.12,
+      "environment": {
+        "python": "3.12.3",
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "machine": "arm64",
+        "processor": "arm",
+        "cpu_count": 10,
+        "packages": {
+          "agentic-research-engine": "0.2.0",
+          "langgraph": "1.2.12",
+          "langchain-core": "1.6.4",
+          "langchain-openai": "1.6.3",
+          "langchain-ollama": "1.1.0",
+          "openai": "3.18.0",
+          "pydantic": "2.13.5",
+          "httpx": "0.28.1",
+          "trafilatura": "2.2.0",
+          "pypdf": "6.19.0"
+        },
+        "provenance": {
+          "engine_version": "0.2.0",
+          "evaluator_version": "2",
+          "prompt_version": "ca3fdd2b3d79",
+          "schema_version": "26fd7b1a9d14",
+          "git": {
+            "commit": "031036c82b7c743344fb3a923c1319377f7c5b84",
+            "short_commit": "031036c8",
+            "dirty": false,
+            "branch": "main"
+          },
+          "config_fingerprint": "ae1c2ab384d5",
+          "model_assignments": {
+            "planner": "ollama:qwen3:4b",
+            "researcher": "ollama:qwen3:4b",
+            "critic": "ollama:qwen3:4b",
+            "synthesizer": "ollama:qwen3:4b",
+            "verifier": "ollama:qwen3:4b"
+          }
+        },
+        "ollama": {
+          "version": "0.32.5",
+          "models": {
+            "qwen3:4b": {
+              "digest": "359d7dd4bcdab3d8",
+              "size_bytes": 2497293931,
+              "quantization": "Q4_K_M",
+              "parameter_size": "4.0B"
+            },
+            "llama3.2:3b": {
+              "digest": "a80c4f17acd55265",
+              "size_bytes": 2019393189,
+              "quantization": "Q4_K_M",
+              "parameter_size": "3.2B"
+            },
+            "embeddinggemma:latest": {
+              "digest": "85462619ee721b46",
+              "size_bytes": 621875917,
+              "quantization": "BF16",
+              "parameter_size": "307.58M"
+            }
+          }
+        },
+        "settings": {
+          "llm_mode": "local",
+          "max_research_rounds": 1,
+          "max_sources": 5,
+          "max_sources_per_round": 5,
+          "max_llm_calls": 40,
+          "max_parallel_searches": 5,
+          "max_parallel_fetches": 8,
+          "max_parallel_local_llm_calls": 2,
+          "search_depth": "basic",
+          "llm_temperature": 0.2
+        }
+      },
+      "research_rounds": 1,
+      "stop_reason": "coverage judged sufficient",
+      "search_queries": 6,
+      "searches_failed": 0,
+      "search_results": 48,
+      "search_credits": 6.0,
+      "pages_fetched": 0,
+      "provider_content_reused": 5,
+      "fetch_failures": 0,
+      "fetch_status_breakdown": {},
+      "duplicate_urls": 3,
+      "already_known_urls": 0,
+      "content_duplicates": 0,
+      "fetches_avoided": 3,
+      "unique_sources": 5,
+      "usable_sources": 5,
+      "evidence_items": 30,
+      "exact_quotes": 27,
+      "fuzzy_quotes": 3,
+      "unmatched_quotes": 0,
+      "citable_evidence": 27,
+      "cross_attributed_evidence": 25,
+      "content_origins": {
+        "provider_raw": 5
+      },
+      "domain_concentration": 0.2,
+      "distinct_domains": 5,
+      "llm_calls": 20,
+      "provider_requests": 20,
+      "billable_provider_requests": 20,
+      "failed_provider_requests": 0,
+      "structured_repairs": 0,
+      "compatibility_retries": 0,
+      "transport_retries": 0,
+      "rate_limit_refusals": 0,
+      "provider_requests_by_model": {
+        "ollama:qwen3:4b": 20
+      },
+      "reserved_worst_case_usd": 0.0,
+      "reservation_was_sufficient": true,
+      "llm_failed_calls": 0,
+      "input_tokens": 19312,
+      "output_tokens": 6851,
+      "calls_by_provider": {
+        "ollama": 20
+      },
+      "calls_by_role": {
+        "planner": 2,
+        "researcher": 6,
+        "critic": 1,
+        "synthesizer": 1,
+        "verifier": 10
+      },
+      "known_cost_usd": 0.0,
+      "cost_is_complete": true,
+      "unpriced_calls": 0,
+      "citation_integrity_rate": 1.0,
+      "evidence_integrity_rate": 1.0,
+      "citation_coverage_rate": 1.0,
+      "claim_support_rate": 0.9,
+      "partial_support_rate": 0.0,
+      "support_breakdown": {
+        "supported": 9,
+        "partially_supported": 0,
+        "unsupported": 1,
+        "not_checked": 10
+      },
+      "entailment_exhaustive": false,
+      "citations_total": 20,
+      "evidence_refs_total": 20,
+      "contradictions_total": 0,
+      "contradictions_auditable": 0,
+      "unused_sources": 3,
+      "citations_repaired": false,
+      "stage_seconds": {
+        "analyze_query": 10.222,
+        "plan_research": 48.425,
+        "generate_queries": 15.521,
+        "dedupe_sources": 0.002,
+        "register_sources": 0.0,
+        "assess_coverage": 57.419,
+        "synthesize": 162.987,
+        "verify_citations": 93.595
+      },
+      "errors": 0,
+      "error_kinds": {}
+    },
+    "markdown": "# Practical Trade-offs Between Vector Databases and Traditional Search Engines for Retrieval-Augmented Generation\n\n## Summary\n\nVector databases provide high throughput and low latency for similarity search operations, which is critical for real-time AI applications. [S2] Vector databases require robust data ingestion pipelines and embedding models, which add infrastructure overhead and preprocessing complexity. [S2] Vector databases have more severe security and privacy implications than traditional search engines when processing sensitive information for RAG applications. [S1] Vector databases support enterprise-grade security features including role-based access control (RBAC) and encryption, which meet security standards for sensitive information. [S2] The trade-off between vector databases and traditional search engines becomes most favorable for use cases requiring real-time up-to-date information retrieval. [S1] Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships. [S2]\n\n## Key findings\n\n- Vector databases provide high throughput and low latency for similarity search operations, which is critical for real-time AI applications. [S2]\n- Vector databases require robust data ingestion pipelines and embedding models, which add infrastructure overhead and preprocessing complexity. [S2]\n- Vector databases have more severe security and privacy implications than traditional search engines when processing sensitive information for RAG applications. [S1]\n- Vector databases support enterprise-grade security features including role-based access control (RBAC) and encryption, which meet security standards for sensitive information. [S2]\n- The trade-off between vector databases and traditional search engines becomes most favorable for use cases requiring real-time up-to-date information retrieval. [S1]\n- Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships. [S2]\n\n## Performance Metrics\n\nVector databases provide high throughput and low latency for similarity search operations, which is critical for real-time AI applications. [S2]\n\n## Hidden Costs\n\nVector databases require robust data ingestion pipelines and embedding models, which add infrastructure overhead and preprocessing complexity. [S2]\n\n## Security and Privacy Implications\n\nVector databases have more severe security and privacy implications than traditional search engines when processing sensitive information for RAG applications. [S1]\n\nVector databases support enterprise-grade security features including role-based access control (RBAC) and encryption, which meet security standards for sensitive information. [S2]\n\n## Failure Modes and Resilience\n\nHigh-frequency updates can challenge vector indexes, which often need to be rebuilt or optimized to incorporate new data. [S2]\n\n## Use Cases and Minimum Data Requirements\n\nThe trade-off between vector databases and traditional search engines becomes most favorable for use cases requiring real-time up-to-date information retrieval. [S1]\n\nVector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectively capture semantic relationships. [S2]\n\n## Long-Term Maintenance and Update Requirements\n\nVector databases require more frequent model versioning and schema evolution compared to traditional databases due to their embedding-based data representation. [S2]\n\n## Limitations\n\n- No specific numerical metrics for latency, throughput, or memory usage are provided for vector databases versus traditional search engines in RAG tasks.\n- Concrete examples or quantified costs for hidden costs like infrastructure overhead and data preprocessing requirements are not available.\n- A clear comparison of which technology has better security or privacy is not established in the evidence.\n- Specific examples of failure scenarios or recovery mechanisms that determine which technology has better resilience are not provided.\n- Minimum data requirements for traditional search engines are not specified in the evidence.\n- no evidence for For SQ1: The evidence mentions performance metrics but doesn't provide specific numbers for latency, throughput, or memory usage for vector databases versus traditional search engines in RAG tasks. The quotes are general statements about 'high throughput and low latency' but don't give concrete metrics.\n- no evidence for For SQ2: The evidence mentions hidden costs like infrastructure overhead and data preprocessing, but doesn't provide concrete examples or quantified costs for these aspects. The quotes are somewhat general and don't give specific details on how much infrastructure overhead is added or what the exact data preprocessing requirements are.\n- no evidence for For SQ3: The evidence covers security and privacy implications but doesn't provide a clear comparison of which technology has better security or privacy. The quotes mention both risks and features of vector databases, but it's not clear which technology (vector databases or traditional search engines) has better security or privacy in practice.\n- no evidence for For SQ4: The evidence mentions failure modes and recovery mechanisms but doesn't provide a clear comparison of which technology has better resilience. The quotes are somewhat general and don't give specific examples of failure scenarios or recovery mechanisms that would help determine which technology is more resilient.\n- no evidence for For SQ5: The evidence mentions specific use cases where the trade-off becomes favorable but doesn't provide concrete minimum data requirements for each technology. The quotes mention 100+ documents for vector databases but don't specify what the minimum data requirements are for traditional search engines.\n- 3 extracted finding(s) were excluded because their quotes could not be located in the source text\n\n## Sources\n\n- **[S1]** [RAG Security: Risks and Mitigation Strategies [2026]](https://www.lasso.security/blog/rag-security) \u2014 lasso.security, blog, n.d., quality 0.57\n- **[S2]** [Vector Database Use Cases: Search, RAG, and AI Apps](https://www.couchbase.com/blog/vector-database-use-cases-2) \u2014 couchbase.com, blog, n.d., quality 0.57\n- **[S3]** [Securing Vector Databases](https://sec.cloudapps.cisco.com/security/center/resources/securing-vector-databases) \u2014 sec.cloudapps.cisco.com, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S4]** [Secure RAG Applications: Enhancing Security & Responsible AI with BigID and Elasticsearch Vector Database | BigID](https://bigid.com/blog/secure-rag-applications-bigid-and-elasticsearch) \u2014 bigid.com, blog, n.d., quality 0.57 _(retrieved, not cited)_\n- **[S5]** [What is Vector database security? - Hexnode Blogs](https://www.hexnode.com/blogs/explained/what-is-vector-database-security) \u2014 hexnode.com, other, n.d., quality 0.61 _(retrieved, not cited)_\n\n## Citation verification\n\n- Evidence references: 20, 20 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: 100% of 20\n- Entailment checked against each claim's own evidence, over a sample of 10 of 20 eligible claims: 9 supported, 0 partially supported, 1 unsupported, 10 not checked\n- Retrieved but never cited: S3, S4, S5\n\n<details><summary>Open citation issues</summary>\n\n- `unsupported_claim` The cited evidence S2-e5 discusses common use cases for vector databases (RAG for internal knowledge bots and customer support agents, semantic search for e-commerce and content platforms) but does no \u2014 Vector databases become most favorable for RAG applications with minimum data requirements of 100+ documents to effectiv\n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 6 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 3 |\n| Evidence items | 30 |\n| Quotes verbatim (exact-normalised) | 90% |\n| Quotes fuzzy (excluded from citation) | 10% |\n| LLM calls | 20 |\n| Tokens (in/out) | 19,312 / 6,851 |\n| Estimated cost | $0.0000 |\n| Duration | 711.1s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-23 21:43 UTC._\n"
+  }
+}

@@ -280,10 +280,18 @@ once per source, is the highest-volume role, and its job is quotation rather
 than judgement — so it goes local. Synthesis runs once and is what the user
 reads — so it stays cloud.
 
-That is not a guess. Measured on `qwen3:4b`: 83% quote fidelity when
-extracting (it copies text accurately), but as verifier it judged only 33% of
-its own claims as supported, which says more about calibration than about the
-claims.
+Current measurement on `qwen3:4b`, exact-only matching: **74% quote
+fidelity** on the README run, and **75.9%** (72.2–80.6, n=3) across the
+attribution experiment's repeats. Copying text is something it does
+reasonably well.
+
+Be careful with the other half. Earlier drafts paired that with a 33%
+self-assessed support rate, but that figure predates the evaluator
+redesign — quote matching was fuzzy then, and `claim_support` had not been
+separated from `citation_validity`. Quoting it alongside today's numbers
+would compare two different metrics. The honest answer is that the
+local-versus-cloud verification comparison has not been re-run since the
+redesign. Say that rather than reaching for the old number.
 
 ### "What did you learn from running on small local models?"
 

@@ -536,14 +536,27 @@ immediately:
 The general rule, and the reason it is worth writing down: **if a model must
 produce something reliably, put it in the schema, not the instructions.**
 
-**Quotation is reliable; judgement is not.** Extracting verbatim quotes, the
-model is accurate: 83% quote fidelity on one run and 30/30 (100%) on the live
-run recorded in the README. Judging whether evidence entails a claim, it is
-much weaker: 33% and 60% support rates on those same two runs, grading its own
-report. Copying text is easy for a small model; deciding whether one sentence
-establishes another is not. This is the empirical basis for putting extraction
-local and verification in the cloud in hybrid mode, rather than an assumption
-about parameter count.
+**Quotation is reliable; judgement is not.** Extraction asks the model to
+copy text; verification asks it to decide whether one sentence establishes
+another. Those are not equally hard for a 4B model, and that asymmetry is
+why hybrid mode puts extraction local and verification in the cloud —
+rather than an assumption about parameter count.
+
+Current numbers, all exact-only quote matching on `qwen3:4b`:
+
+| | Value | n | Source |
+|---|---|---|---|
+| Quote fidelity | 74% | 1 run | README local run |
+| Quote fidelity | 75.9% (72.2–80.6) | 3 repeats | [attribution experiment](../examples/attribution-experiment/) |
+
+> **The support-rate comparison is not yet re-measured.** Earlier drafts
+> quoted 83% fidelity with 33% and 60% support. Those came from a previous
+> generation of the evaluator, before quote matching was tightened to
+> exact-only and before `citation_validity` was split into
+> `evidence_integrity` and `claim_support`. They are not comparable to the
+> figures above and are therefore withdrawn rather than restated. A clean
+> frozen-corpus comparison of local versus cloud verification is the
+> measurement that would replace them, and it has not been run.
 
 **Local models do not parallelise.** Ollama serves one model largely
 serially. Fanning eight extraction calls at it produced queueing and read

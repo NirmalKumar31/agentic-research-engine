@@ -2,12 +2,12 @@
   "recording_schema_version": 1,
   "meta": {
     "id": "fraud-detection-imbalanced",
-    "label": "Fraud detection on imbalanced data",
+    "label": "Fraud detection (planner fallback)",
     "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
-    "description": "A local qwen3:4b run over five web sources. Every claim resolves to a verbatim quote checked against the retrieved text.",
+    "description": "Kept because of what went wrong: the planner failed and the engine fell back to researching the question as a single dimension. The run still produced verified, citable evidence, which is the point of degrading rather than aborting.",
     "mode": "local",
     "recorded_at": "2026-09-23T19:31:23.887746+00:00",
-    "order": 1,
+    "order": 3,
     "provenance": {
       "engine_version": "0.2.0",
       "evaluator_version": "2",
