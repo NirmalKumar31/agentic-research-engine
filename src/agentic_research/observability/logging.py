@@ -64,6 +64,9 @@ def configure_logging(level: str = "INFO", fmt: str = "console") -> None:
         logging.getLogger(noisy).setLevel(logging.WARNING)
     # trafilatura warns on every page it cannot parse, which is routine here.
     logging.getLogger("trafilatura").setLevel(logging.ERROR)
+    # pypdf warns per malformed file; those are classified and reported by
+    # the fetcher, so the library's own noise adds nothing.
+    logging.getLogger("pypdf").setLevel(logging.ERROR)
     _configured = True
 
 

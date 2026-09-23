@@ -233,6 +233,8 @@ class FetchStatus(StrEnum):
     TIMEOUT = "timeout"
     TOO_LARGE = "too_large"
     UNSUPPORTED_TYPE = "unsupported_type"
+    SCANNED_PDF = "scanned_pdf"
+    """A PDF with no extractable text. Needs OCR, which is out of scope."""
     BLOCKED = "blocked"
     """Refused by the outbound URL policy before any connection was made."""
     EMPTY = "empty"

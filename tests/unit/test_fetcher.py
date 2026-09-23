@@ -83,14 +83,14 @@ class TestFetchFailureModes:
         assert result.error == "redirect loop"
 
     @respx.mock
-    async def test_pdf_is_unsupported_not_garbage(self, settings: Settings) -> None:
-        respx.get("https://ex.com/p.pdf").mock(
+    async def test_non_text_binary_is_unsupported(self, settings: Settings) -> None:
+        respx.get("https://ex.com/i.png").mock(
             return_value=httpx.Response(
-                200, content=b"%PDF-1.7 binary", headers={"content-type": "application/pdf"}
+                200, content=b"\x89PNG\r\n", headers={"content-type": "image/png"}
             )
         )
         async with PageFetcher(settings) as fetcher:
-            result = await fetcher.fetch("https://ex.com/p.pdf")
+            result = await fetcher.fetch("https://ex.com/i.png")
         assert result.status is FetchStatus.UNSUPPORTED_TYPE
         assert result.text == ""
 

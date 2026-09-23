@@ -24,6 +24,12 @@ from agentic_research.config import Settings
 from agentic_research.models import ContentOrigin, FetchStatus
 from agentic_research.observability import get_logger
 from agentic_research.retrieval.parser import extract_main_text
+from agentic_research.retrieval.pdf import (
+    PdfExtractionError,
+    ScannedPdfError,
+    extract_pdf,
+    looks_like_pdf,
+)
 from agentic_research.retrieval.safety import (
     UnresolvableHostError,
     UnsafeURLError,
@@ -34,6 +40,10 @@ from agentic_research.retrieval.urls import domain_of
 log = get_logger(__name__)
 
 _TEXTUAL_TYPES = ("text/html", "application/xhtml", "text/plain", "application/xml", "text/xml")
+_PDF_TYPES = ("application/pdf", "application/x-pdf")
+# Types that tell us nothing. Servers routinely send these for PDFs, so the
+# body has to be inspected rather than rejected on the header alone.
+_AMBIGUOUS_TYPES = ("application/octet-stream", "binary/octet-stream")
 
 
 @dataclass(slots=True)
@@ -158,6 +168,68 @@ class PageFetcher:
             log.debug("source_fetch_failed", url=url[:120], status=key, error=result.error)
         return result
 
+    def _extract_pdf(
+        self, url: str, final_url: str, body: bytes, code: int, total: int
+    ) -> tuple[FetchResult, None]:
+        """Extract PDF text, preserving page boundaries for citations."""
+        try:
+            document = extract_pdf(
+                body,
+                max_pages=self.settings.max_pdf_pages,
+                max_chars=self.settings.max_extract_chars,
+            )
+        except ScannedPdfError as exc:
+            # Parsed fine, just has no text. Not a failure of ours, and the
+            # run continues with the source marked unusable.
+            log.info("pdf_scanned", url=url[:120])
+            return (
+                FetchResult(
+                    url=url,
+                    final_url=final_url,
+                    status=FetchStatus.SCANNED_PDF,
+                    http_status=code,
+                    bytes_read=total,
+                    error=str(exc)[:200],
+                    content_origin=ContentOrigin.PDF_EXTRACT,
+                ),
+                None,
+            )
+        except PdfExtractionError as exc:
+            log.info("pdf_unreadable", url=url[:120], error=str(exc)[:120])
+            return (
+                FetchResult(
+                    url=url,
+                    final_url=final_url,
+                    status=FetchStatus.ERROR,
+                    http_status=code,
+                    bytes_read=total,
+                    error=str(exc)[:200],
+                    content_origin=ContentOrigin.PDF_EXTRACT,
+                ),
+                None,
+            )
+
+        log.debug(
+            "pdf_extracted",
+            url=url[:120],
+            pages=document.page_count,
+            extracted=document.pages_extracted,
+            truncated=document.truncated,
+        )
+        return (
+            FetchResult(
+                url=url,
+                final_url=final_url,
+                status=FetchStatus.OK,
+                text=document.text,
+                http_status=code,
+                bytes_read=total,
+                content_origin=ContentOrigin.PDF_EXTRACT,
+                page_offsets=document.page_offsets,
+            ),
+            None,
+        )
+
     async def _fetch_inner(self, url: str) -> FetchResult:
         """Follow redirects manually, revalidating every hop.
 
@@ -214,7 +286,14 @@ class PageFetcher:
                 )
 
             content_type = response.headers.get("content-type", "").lower()
-            if content_type and not any(t in content_type for t in _TEXTUAL_TYPES):
+            is_pdf = any(t in content_type for t in _PDF_TYPES)
+            ambiguous = any(t in content_type for t in _AMBIGUOUS_TYPES)
+            if (
+                content_type
+                and not is_pdf
+                and not ambiguous
+                and not any(t in content_type for t in _TEXTUAL_TYPES)
+            ):
                 return failure(
                     FetchStatus.UNSUPPORTED_TYPE,
                     f"unsupported content-type: {content_type.split(';')[0]}",
@@ -222,8 +301,15 @@ class PageFetcher:
                     http_status=code,
                 )
 
+            # Ambiguous types get the PDF cap too: we cannot yet tell, and
+            # truncating a large PDF to the HTML cap would corrupt it.
+            size_cap = (
+                self.settings.max_pdf_bytes
+                if (is_pdf or ambiguous)
+                else self.settings.max_page_bytes
+            )
             declared = response.headers.get("content-length")
-            if declared and declared.isdigit() and int(declared) > self.settings.max_page_bytes:
+            if declared and declared.isdigit() and int(declared) > size_cap:
                 return failure(
                     FetchStatus.TOO_LARGE,
                     f"content-length {declared} exceeds cap",
@@ -235,12 +321,12 @@ class PageFetcher:
             total = 0
             async for chunk in response.aiter_bytes():
                 total += len(chunk)
-                if total > self.settings.max_page_bytes:
+                if total > size_cap:
                     # Servers lie about or omit content-length, so the cap is
                     # also enforced against bytes actually received.
                     return failure(
                         FetchStatus.TOO_LARGE,
-                        f"body exceeded {self.settings.max_page_bytes} bytes",
+                        f"body exceeded {size_cap} bytes",
                         final_url=final_url,
                         http_status=code,
                         bytes_read=total,
@@ -248,6 +334,13 @@ class PageFetcher:
                 chunks.append(chunk)
 
         body = b"".join(chunks)
+
+        # Content-type is advisory; magic bytes decide. A URL with no .pdf
+        # suffix is routinely a PDF, and a .pdf URL is routinely an HTML
+        # error page.
+        if looks_like_pdf(body, content_type):
+            return self._extract_pdf(url, final_url, body, code, total)
+
         encoding = response.encoding or "utf-8"
         try:
             html = body.decode(encoding, errors="replace")

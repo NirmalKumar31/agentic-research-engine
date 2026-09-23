@@ -219,6 +219,10 @@ class Settings(BaseSettings):
     # --- Retrieval ---------------------------------------------------------
     fetch_timeout_seconds: float = Field(default=15.0, gt=0)
     max_page_bytes: int = Field(default=2_000_000, ge=10_000)
+    max_pdf_bytes: int = Field(
+        default=15_000_000, ge=10_000, description="PDFs are legitimately larger than pages"
+    )
+    max_pdf_pages: int = Field(default=60, ge=1, le=2_000)
     max_extract_chars: int = Field(default=12_000, ge=1_000)
     user_agent: str = (
         "AgenticResearchEngine/0.1 (+https://github.com/NirmalKumar31/agentic-research-engine)"
