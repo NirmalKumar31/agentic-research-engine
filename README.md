@@ -286,6 +286,7 @@ src/agentic_research/
     evidence/       deduplication, quality, store, quote verification
     citations/      resolution, verification, publication gate
     evaluation/     metrics, benchmark, A/B, attribution experiment
+    cli/            Typer commands, terminal progress rendering
     web/            FastAPI, recorded runs
 web/                React + Vite frontend
 tests/              unit (hermetic) · integration (opt-in)

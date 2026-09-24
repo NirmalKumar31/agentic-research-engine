@@ -2,8 +2,9 @@
 
 What it costs to give every piece of evidence a query-level lineage.
 
-78% of evidence in the measured run is `cross_attributed`: it answers a
-sub-question whose queries never retrieved that source. The cause is
+Under the production default, 79.6% of evidence on this corpus is
+`cross_attributed`: it answers a sub-question whose queries never
+retrieved that source. The cause is
 structural — `dispatch_extraction` shows every source every open
 sub-question. The obvious fix is to show each source only the
 sub-questions it was retrieved for, which drives cross-attribution to zero
