@@ -58,9 +58,10 @@ function stageNote(id: string, state: PipelineState): string | null {
   const failures = state.issues[id] ?? 0;
   if (!failures) return null;
   if (id === "retrieve") {
-    const { sources, sourcesFound } = state.counts;
-    if (sources !== null && sourcesFound !== null) {
-      return `${sources}/${sourcesFound} usable · ${failures} could not be fetched, research continued`;
+    const { sources, sourcesAttempted } = state.counts;
+    if (sources !== null && sourcesAttempted !== null) {
+      const noun = failures === 1 ? "source" : "sources";
+      return `${sources}/${sourcesAttempted} usable · ${failures} ${noun} could not be fetched`;
     }
   }
   const noun = failures === 1 ? "item" : "items";

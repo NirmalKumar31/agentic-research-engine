@@ -74,8 +74,9 @@ export interface PipelineState {
     subQuestions: number | null;
     searches: number | null;
     sources: number | null;
-    /** Unique pages the engine set out to fetch, before failures. */
-    sourcesFound: number | null;
+    /** Pages the budget selected for fetching -- the denominator that
+     *  Retrieve is actually judged against. */
+    sourcesAttempted: number | null;
     evidence: number | null;
     citations: number | null;
     coverage: { covered: number; total: number } | null;
@@ -94,7 +95,7 @@ export function emptyPipeline(): PipelineState {
       subQuestions: null,
       searches: null,
       sources: null,
-      sourcesFound: null,
+      sourcesAttempted: null,
       evidence: null,
       citations: null,
       coverage: null,
@@ -176,7 +177,12 @@ export function advance(prev: PipelineState, event: ProgressEvent): PipelineStat
       break;
     }
     case "sources_deduplicated":
-      next.counts.sourcesFound = num("unique");
+      // `selected`, not `unique`. Retrieve only ever attempts the pages
+      // the budget selected; `unique` counts every distinct URL the
+      // searches turned up, most of which were never going to be
+      // fetched. Using it rendered "5/30 usable" for a run that lost
+      // exactly one page out of six.
+      next.counts.sourcesAttempted = num("selected") ?? num("unique");
       break;
     case "sources_registered":
       next.counts.sources = num("usable");

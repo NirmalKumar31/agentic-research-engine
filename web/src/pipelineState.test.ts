@@ -41,7 +41,7 @@ describe("partial retrieval is a warning, not a failure", () => {
 
   it("lets the stage complete once usable sources are registered", () => {
     const state = fold([
-      ev("sources_deduplicated", { results: 48, unique: 6, avoided: 3 }),
+      ev("sources_deduplicated", { results: 48, unique: 30, selected: 6, avoided: 3 }),
       ev("source_failed", { source_id: "S2" }),
       ev("source_failed", { source_id: "S4" }),
       ev("sources_registered", { usable: 4 }),
@@ -51,7 +51,7 @@ describe("partial retrieval is a warning, not a failure", () => {
     expect(state.states.extract).toBe("active");
     expect(state.states.retrieve).toBe("warning");
     expect(state.counts.sources).toBe(4);
-    expect(state.counts.sourcesFound).toBe(6);
+    expect(state.counts.sourcesAttempted).toBe(6);
   });
 
   it("does not stop later stages from running", () => {
@@ -125,5 +125,24 @@ describe("heartbeats and unknown events do not advance the pipeline", () => {
     const after = advance(before, ev("something_unmapped"));
     expect(after.states).toEqual(before.states);
     expect(after.counts).toEqual(before.counts);
+  });
+});
+
+describe("the retrieve denominator is what was attempted", () => {
+  it("counts selected pages, not every unique URL found", () => {
+    // 30 distinct URLs across the searches, 6 chosen within budget.
+    // Retrieve is judged on the 6 it tried, not the 30 it saw.
+    const state = fold([
+      ev("sources_deduplicated", { results: 48, unique: 30, selected: 6, avoided: 3 }),
+      ev("source_failed", { source_id: "S2" }),
+      ev("sources_registered", { usable: 5 }),
+    ]);
+    expect(state.counts.sourcesAttempted).toBe(6);
+    expect(state.counts.sources).toBe(5);
+  });
+
+  it("falls back to unique for recordings without selected", () => {
+    const state = fold([ev("sources_deduplicated", { results: 48, unique: 6, avoided: 3 })]);
+    expect(state.counts.sourcesAttempted).toBe(6);
   });
 });
