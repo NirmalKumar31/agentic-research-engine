@@ -5,6 +5,7 @@ from __future__ import annotations
 from agentic_research.citations.publication import (
     ClaimKey,
     ClaimVerdict,
+    deduplicate_claims,
     filter_report_by_verification,
     key_of,
 )
@@ -34,6 +35,7 @@ from agentic_research.models import (
     CoverageAssessment,
     ReportSection,
     ResearchReport,
+    RunError,
     SubQuestion,
 )
 from agentic_research.observability import get_logger
@@ -46,10 +48,6 @@ log = get_logger(__name__)
 # exhaustive is the kind of metric this project exists not to publish.
 _DEFAULT_ENTAILMENT_SAMPLE = 10
 
-# A report is worth writing even when almost nothing can be verified, and
-# a floor keeps a tiny budget from producing an empty one.
-_MIN_CLAIM_BUDGET = 4
-
 # Headroom left when sizing the report: verification also spends a call
 # resolving structure, and a structured-output repair can cost another.
 _VERIFICATION_OVERHEAD = 2
@@ -58,21 +56,29 @@ _VERIFICATION_OVERHEAD = 2
 async def _claim_budget() -> int | None:
     """How many substantive claims this run can afford to verify.
 
-    Every substantive claim costs one entailment call, and an unverified
-    claim is not published. Generating more than the budget allows does
-    not lengthen the report; it just means the surplus is deleted after
-    being paid for. A live run generated 25 claims, could check 4, and
-    published 2.
+    Every substantive claim costs one entailment call, and under the
+    publication gate an unverified claim is not published. Generating
+    more than the budget allows does not lengthen the report; the surplus
+    is deleted after being paid for. A live run generated 25 claims,
+    could check 4, and published 2.
 
-    Returns None when the remaining budget is ample, so an unconstrained
-    local run is not told to write a short report for no reason.
+    Returns ``None`` when the remaining budget is ample, so an
+    unconstrained local run is not told to write a short report for no
+    reason, and ``0`` when the run cannot afford synthesis plus even one
+    verified claim -- the caller emits the evidence listing instead of
+    promising claims that would be removed on the way out.
+
+    Deliberately no floor. An earlier version asked for at least four
+    claims regardless of budget, which is a promise the run could not
+    keep: those claims were generated, went unverified and were then
+    dropped, so the floor bought nothing but spend.
     """
     remaining = await ctx().router.tracker.remaining()
     # One for synthesis itself, which has not been reserved yet.
     affordable = remaining - 1 - _VERIFICATION_OVERHEAD
     if affordable >= _DEFAULT_ENTAILMENT_SAMPLE:
         return None
-    return max(_MIN_CLAIM_BUDGET, affordable)
+    return max(0, affordable)
 
 
 async def synthesize_report(state: ResearchState) -> ResearchState:
@@ -106,8 +112,20 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                 "quotes could not be located in the source text"
             )
 
-        errors = []
+        errors: list[RunError] = []
         claim_budget = await _claim_budget()
+        if claim_budget == 0:
+            # Not enough budget left to synthesise *and* verify even one
+            # claim. Every claim written here would be removed by the
+            # publication gate, so the honest and cheaper answer is the
+            # evidence listing, which needs no model call at all.
+            log.warning("synthesis_skipped_no_verification_budget")
+            report = _fallback_report(
+                question, store, gaps, "the run's model-call budget was exhausted"
+            )
+            emit("synthesized", sections=0, findings=len(report.key_findings))
+            timing["evidence_items"] = package.evidence_count
+            return {"report": report, "stage_timings": [timing], "errors": errors}
         if claim_budget is not None:
             log.info("synthesis_claim_budget", claims=claim_budget)
         try:
@@ -338,6 +356,14 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         result = verify_structure(report, store, resolution_issues=resolution_issues)
         result.repaired = bool(resolution_issues)
 
+        # Before verification, so a claim repeated three times is checked
+        # once rather than spending three entailment calls on the same
+        # sentence -- which in a bounded run is three claims' worth of
+        # budget for one finding.
+        report, duplicates = deduplicate_claims(report)
+        if duplicates:
+            log.info("duplicate_claims_removed", count=duplicates)
+
         errors, verdicts = await _check_entailment(report, store, result, state)
 
         # Publication gate. Claims the verifier could not support are
@@ -489,15 +515,36 @@ async def _check_entailment(
 
 
 def _evidence_block(evidence_ids: list[str], store: EvidenceStore) -> str:
-    """Render exactly the evidence a claim references."""
-    lines = []
+    """Render the evidence a claim references, with who published it.
+
+    The quote alone is not enough to judge an attributed claim. A vendor
+    page recommending that AI governance sit with a CISO reads exactly
+    like the NIST framework requiring it, once the publisher is stripped
+    away -- and a human audit found the verifier passing precisely that
+    substitution. Naming the source makes the attribution checkable.
+
+    Quality score is deliberately absent. It is a retrieval heuristic
+    about document type and rank, and offering it to a verifier invites
+    it to be read as confidence in the claim.
+    """
+    blocks = []
     for evidence_id in evidence_ids[:6]:
         item = store.evidence_by_id(evidence_id)
         if item is None:
             continue
-        page = f" (p. {item.page})" if item.page else ""
-        lines.append(f'{item.id}{page}: "{item.quote[:300]}"')
-    return "\n".join(lines)
+        source = store.source(item.source_id)
+        title = (source.title if source else "") or "unknown"
+        domain = (source.domain if source else "") or "unknown"
+        kind = source.source_type.value if source else "unknown"
+        blocks.append(
+            f"Evidence: {item.id}\n"
+            f"Source: {title[:120]}\n"
+            f"Domain: {domain}\n"
+            f"Type: {kind}\n"
+            f"Page: {item.page if item.page else 'n/a'}\n"
+            f'Quote: "{item.quote[:300]}"'
+        )
+    return "\n\n".join(blocks)
 
 
 async def finalize(state: ResearchState) -> ResearchState:

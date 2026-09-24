@@ -103,6 +103,13 @@ Return an empty list when the source does not address any of the \
 sub-questions. An empty list is a correct and useful answer; an invented \
 finding is not.
 
+A finding must state something. A heading, a page title, a navigation \
+label or a topic name is not a finding, even when it is copied verbatim \
+and sits on the page: "Security Considerations in Large-Scale RAG \
+Deployments" names a subject without asserting anything about it. Quote \
+the sentence that makes the point, or report nothing for that \
+sub-question.
+
 Mark a finding as 'contradicts' when it cuts against what the other sources \
 or the conventional answer would suggest. Disagreement between sources is \
 valuable and must be preserved, not smoothed over."""
@@ -259,12 +266,30 @@ whether this evidence establishes it.
 'partially_supported' means the evidence is on topic but weaker, narrower, or \
 hedged relative to the claim.
 'unsupported' means the evidence does not establish the claim, even if both \
-concern the same subject."""
+concern the same subject.
+
+Each piece of evidence names the source it came from. Who published a \
+quote is part of what it establishes.
+
+Answer 'partially_supported' or 'unsupported' when the claim:
+
+- attributes a statement to an organisation or document, but the quote \
+comes from a different publisher and does not itself establish that \
+attribution — a vendor describing what a standard requires is not the \
+standard saying it;
+- turns one study's result into a general statement about the field;
+- turns 'may', 'can' or 'often' into 'does', 'will' or 'always';
+- turns guidance or a recommendation into a requirement;
+- turns an association or correlation into causation;
+- adds a threshold, ranking, superlative or quantity the evidence does \
+not state;
+- joins several assertions where any material part is unsupported, even \
+if the rest is fine."""
 
 
 def verifier_user(claim: str, evidence_block: str) -> str:
     return (
         f"Claim:\n{claim}\n\n"
         f"Cited evidence:\n{evidence_block}\n\n"
-        "Does this evidence support the claim?"
+        "Does this evidence, from these sources, support the claim?"
     )

@@ -4,7 +4,7 @@
     "id": "nist-ai-risk-framework",
     "label": "NIST AI Risk Management Framework (PDF)",
     "question": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
-    "description": "A standards question answered from the official NIST publication, so citations carry the page each quote came from.",
+    "description": "Includes page-aware evidence from the official NIST AI RMF PDF alongside secondary sources, so some citations carry the page each quote came from.",
     "mode": "local",
     "recorded_at": "2026-09-24T03:39:53.233139+00:00",
     "order": 2,

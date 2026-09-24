@@ -105,6 +105,13 @@ class SearchService:
         self._max_attempts = max_attempts
         self._semaphore = asyncio.Semaphore(settings.max_parallel_searches)
         self._client: httpx.AsyncClient | None = None
+        # Credits are reserved before dispatch, not counted after it.
+        # Checking `stats.credits + cost <= ceiling` and incrementing on
+        # completion leaves the whole request in between: every parallel
+        # worker reads the same remaining budget, every one of them passes,
+        # and the ceiling is exceeded by however many were in flight.
+        self._credit_lock = asyncio.Lock()
+        self._reserved_credits = 0.0
 
     async def __aenter__(self) -> SearchService:
         self._client = httpx.AsyncClient(
@@ -148,27 +155,23 @@ class SearchService:
 
         options = self.options_for(query)
         cost = self.provider.credits_for(options)
-        ceiling = self.settings.max_search_credits
-        # 0 means unlimited, matching the cloud budget convention.
-        if ceiling and self.stats.credits + cost > ceiling:
-            log.warning(
-                "search_budget_exhausted",
-                spent=self.stats.credits,
-                ceiling=ceiling,
-                query_id=query.id,
-            )
-            return self._failure(
-                query,
-                f"search credit budget exhausted ({self.stats.credits:g} of "
-                f"{ceiling:g} used); raise MAX_SEARCH_CREDITS",
-                time.perf_counter(),
-            )
-
         started = time.perf_counter()
 
         async with self._semaphore:
             last_error = "unknown error"
             for attempt in range(1, self._max_attempts + 1):
+                # Reserved per attempt, because a retry is another billed
+                # provider call rather than a free continuation of the
+                # first one.
+                if not await self._reserve_credits(cost):
+                    return self._failure(
+                        query,
+                        f"search credit budget exhausted "
+                        f"({self._reserved_credits:g} of "
+                        f"{self.settings.max_search_credits:g} reserved); "
+                        "raise MAX_SEARCH_CREDITS",
+                        started,
+                    )
                 try:
                     response = await self.provider.search(
                         self._client, query.text, options, query_id=query.id
@@ -194,6 +197,7 @@ class SearchService:
                     continue
 
                 self.stats.calls += 1
+                await self._settle_credits(reserved=cost, actual=response.credits)
                 self.stats.credits += response.credits
                 self.stats.latency_s += response.latency_s
                 self.stats.results += len(response.results)
@@ -224,6 +228,39 @@ class SearchService:
         self.stats.latency_s += time.perf_counter() - started
         key = type(exc).__name__
         self.stats.by_error[key] = self.stats.by_error.get(key, 0) + 1
+
+    async def _reserve_credits(self, cost: float) -> bool:
+        """Claim this call's credits, or refuse it.
+
+        The whole check-and-claim happens under one lock, so two workers
+        cannot both see the last credit as available. Reservation is the
+        figure the ceiling is enforced against; ``stats.credits`` remains
+        the record of what was actually spent.
+        """
+        ceiling = self.settings.max_search_credits
+        async with self._credit_lock:
+            # 0 means unlimited, matching the cloud budget convention.
+            if ceiling and self._reserved_credits + cost > ceiling:
+                log.warning(
+                    "search_budget_exhausted",
+                    reserved=self._reserved_credits,
+                    ceiling=ceiling,
+                )
+                return False
+            self._reserved_credits += cost
+            return True
+
+    async def _settle_credits(self, *, reserved: float, actual: float) -> None:
+        """Give back the difference when a call cost less than estimated.
+
+        Only ever releases, never claims: a call that cost more than its
+        estimate keeps the larger figure reserved, so the ceiling stays a
+        ceiling rather than becoming an average.
+        """
+        if actual >= reserved:
+            return
+        async with self._credit_lock:
+            self._reserved_credits = max(0.0, self._reserved_credits - (reserved - actual))
 
     def _failure(self, query: SearchQuery, error: str, started: float) -> SearchResponse:
         return SearchResponse(

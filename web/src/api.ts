@@ -96,7 +96,15 @@ function dispatch(block: string, handlers: StreamHandlers): void {
       handlers.onResult(payload as unknown as RunResult);
       break;
     case "error":
-      handlers.onError(String(payload.error ?? "The run failed."));
+      // The flag matters as much as the message: a quota failure must
+      // not be shown with a "try again" affordance, because the retry
+      // fails the same way and spends another provider request doing
+      // it. The plain-HTTP error path already forwarded this; the
+      // streamed one silently dropped it.
+      handlers.onError(
+        String(payload.error ?? "The run failed."),
+        Boolean(payload.capacity_reached),
+      );
       break;
     default:
       break;
@@ -210,3 +218,10 @@ export async function replayExample(
   }
   handlers.onDone();
 }
+
+/**
+ * Exposed for tests only. `dispatch` decides what a streamed frame means
+ * -- which handler fires, and with what flags -- and that decision is
+ * worth pinning directly rather than through a mocked fetch.
+ */
+export const __test = { dispatch };

@@ -176,10 +176,12 @@ class Settings(BaseSettings):
     # Zero disables a dimension rather than meaning "no spend allowed";
     # an explicitly zero-budget run would be indistinguishable from an
     # unconfigured one, so `0` is read as unlimited and documented as such.
-    # Ceiling on provider HTTP requests across all providers. Distinct from
+    # Ceiling on HTTP requests to the model provider. Distinct from
     # MAX_LLM_CALLS, which bounds logical model calls: one logical call can
     # emit several requests (repair, compatibility retry, transport retry)
     # and providers rate-limit on requests, not on our abstraction.
+    # Search is not counted here -- it is metered by the search provider
+    # in credits and bounded by MAX_SEARCH_CREDITS.
     max_provider_requests: int = Field(default=120, ge=0)
     # Cloud request ceiling. Named max_cloud_calls for continuity, but it is
     # now counted in provider requests rather than logical calls.

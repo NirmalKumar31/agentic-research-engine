@@ -29,7 +29,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from agentic_research.models import Claim, ResearchReport
+from agentic_research.models import Claim, ClaimKind, ResearchReport
 
 ClaimVerdict = Literal["supported", "partially_supported", "unsupported"]
 
@@ -69,6 +69,77 @@ def _keep(claim: Claim, verdicts: dict[ClaimKey, ClaimVerdict]) -> bool:
     # it has no verdict and is not published. That is the intended
     # reading of "published claims link to verified source passages".
     return verdicts.get(key_of(claim)) == _SUPPORTED
+
+
+def _normalised(text: str) -> str:
+    """Case- and whitespace-insensitive form, for exact-duplicate only.
+
+    Deliberately not fuzzy. Two claims that differ by a word are two
+    claims, and collapsing them would be an editorial judgement made by
+    a similarity threshold. This collapses only text that is already the
+    same sentence.
+    """
+    return " ".join(text.lower().split()).rstrip(".")
+
+
+def deduplicate_claims(report: ResearchReport) -> tuple[ResearchReport, int]:
+    """Drop repeats of a claim that already appears earlier in the report.
+
+    A synthesiser routinely states its strongest finding in the summary,
+    again under key findings, and again in the body. One recording
+    published the same sentence three times, which reads as three
+    findings and inflates every claim count derived from the report.
+
+    Identity is normalised text plus cited evidence ids -- the same
+    sentence citing different evidence is a different claim and is kept.
+    Order of precedence is fixed and documented: summary, then key
+    findings, then sections in order. The earliest occurrence survives,
+    because that is where the synthesiser chose to lead with it.
+
+    Sections emptied by this are dropped; an empty heading is not a
+    section.
+    """
+    seen: set[ClaimKey] = set()
+    removed = 0
+
+    def keep(claims: list[Claim]) -> list[Claim]:
+        nonlocal removed
+        kept: list[Claim] = []
+        for claim in claims:
+            # Framing is connective text. Two sections may legitimately
+            # open the same way, and it carries no evidence to compare.
+            if claim.kind is ClaimKind.FRAMING:
+                kept.append(claim)
+                continue
+            key = (_normalised(claim.text), ",".join(claim.evidence_ids))
+            if key in seen:
+                removed += 1
+                continue
+            seen.add(key)
+            kept.append(claim)
+        return kept
+
+    summary = keep(report.summary_claims)
+    findings = keep(report.key_findings)
+    sections = []
+    for section in report.sections:
+        claims = keep(section.claims)
+        if claims:
+            sections.append(section.model_copy(update={"claims": claims}))
+
+    if not removed:
+        return report, 0
+
+    return (
+        report.model_copy(
+            update={
+                "summary_claims": summary,
+                "key_findings": findings,
+                "sections": sections,
+            }
+        ),
+        removed,
+    )
 
 
 def filter_report_by_verification(

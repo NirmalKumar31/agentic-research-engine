@@ -7,7 +7,10 @@ name = "agentic-research-engine"
 version = "0.2.0"
 description = "A multi-stage agentic research engine on LangGraph, with evidence-level provenance, bounded research loops, and hybrid cloud/local model routing."
 readme = "README.md"
-requires-python = ">=3.11"
+# Bounded rather than open-ended: CI tests 3.11 and 3.12, and the
+# classifiers below claim exactly those. An unbounded floor invites an
+# install on 3.13 that nothing has ever run.
+requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
 authors = [{ name = "Nirmal Kumar" }]
 keywords = ["langgraph", "agents", "research", "llm", "rag", "citations"]
@@ -88,6 +91,7 @@ include = [
   "web/vite.config.ts",
   "pyproject.toml",
   "constraints.txt",
+  "constraints-dev.txt",
   "pricing.toml",
   "README.md",
   "LICENSE",

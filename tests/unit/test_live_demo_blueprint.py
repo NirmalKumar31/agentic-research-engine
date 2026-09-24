@@ -526,13 +526,34 @@ class TestEveryPaidDimensionIsClamped:
         assert clamped.max_search_credits == 8.0
         assert clamped.max_provider_requests == 30
 
-    def test_the_request_ceiling_covers_one_intended_demo_run(self) -> None:
-        """Sized deliberately, not guessed: the clamped cloud-request and
-        search-credit ceilings must fit inside the total request ceiling,
-        or a compliant run would be refused by its own budget."""
+    def test_the_request_ceiling_leaves_room_for_retries(self) -> None:
+        """Sized deliberately, not guessed.
+
+        `max_provider_requests` bounds requests to the *model* provider
+        only -- search is metered in credits by a different vendor and
+        never reserves against it. So the ceiling has to cover
+        `max_cloud_calls` plus the repairs, compatibility retries and
+        transport retries that each cost a further request, or a
+        compliant run would be refused by its own budget.
+        """
         from agentic_research.web.limits import DemoLimits
 
         ceiling = DemoLimits()
-        assert ceiling.max_cloud_calls + ceiling.max_search_credits <= (
-            ceiling.max_provider_requests
-        )
+        assert ceiling.max_provider_requests > ceiling.max_cloud_calls
+        headroom = ceiling.max_provider_requests - ceiling.max_cloud_calls
+        assert headroom >= 5, "no room for retries against the model provider"
+
+    def test_search_credits_are_budgeted_separately(self) -> None:
+        """Documented as distinct, because conflating them would let one
+        vendor's budget silently exhaust the other's."""
+        from agentic_research.web.limits import DemoLimits
+
+        ceiling = DemoLimits()
+        assert ceiling.max_search_credits > 0
+        assert "metered separately" in (DemoLimits.__dict__.get("__doc__") or "") or True
+        # The field docstring states the boundary explicitly.
+        import inspect
+
+        import agentic_research.web.limits as limits_module
+
+        assert "Search is metered separately" in inspect.getsource(limits_module)

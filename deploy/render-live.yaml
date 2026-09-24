@@ -63,7 +63,8 @@ services:
         value: "20000"
       - key: MAX_SEARCH_CREDITS
         value: "8"
-      # All provider HTTP requests in one run, search included.
+      # Model-provider HTTP requests in one run. Search is metered
+      # separately, by MAX_SEARCH_CREDITS.
       - key: MAX_PROVIDER_REQUESTS
         value: "30"
 

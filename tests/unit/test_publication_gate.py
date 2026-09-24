@@ -216,3 +216,116 @@ class TestNothingIsRewritten:
         assert removed == 0
         assert filtered is report
         assert filtered.limitations == ["pre-existing"]
+
+
+class TestExactDuplicatesAreRemoved:
+    """A synthesiser states its strongest finding in the summary, again
+    under key findings, and again in the body. One recording published
+    the same sentence three times, which reads as three findings and
+    inflates every count derived from the report.
+
+    Removal is exact, never fuzzy: two claims differing by a word are two
+    claims, and collapsing them would be an editorial judgement made by a
+    similarity threshold.
+    """
+
+    def test_the_same_claim_in_three_places_is_published_once(self) -> None:
+        from agentic_research.citations.publication import deduplicate_claims
+
+        repeated = claim("Precision-recall suits heavy imbalance.", ["S1-e1"])
+        report = ResearchReport(
+            title="T",
+            summary_claims=[repeated],
+            key_findings=[repeated],
+            sections=[ReportSection(heading="A", claims=[repeated])],
+        )
+        deduped, removed = deduplicate_claims(report)
+
+        assert removed == 2
+        assert published(deduped) == [repeated.text]
+
+    def test_the_first_occurrence_survives(self) -> None:
+        """Summary, then key findings, then sections in order."""
+        from agentic_research.citations.publication import deduplicate_claims
+
+        repeated = claim("Stated twice.", ["S1-e1"])
+        report = ResearchReport(
+            title="T",
+            summary_claims=[repeated],
+            sections=[ReportSection(heading="A", claims=[repeated])],
+        )
+        deduped, _ = deduplicate_claims(report)
+
+        assert [c.text for c in deduped.summary_claims] == ["Stated twice."]
+        assert deduped.sections == []
+
+    def test_casing_and_spacing_do_not_defeat_it(self) -> None:
+        from agentic_research.citations.publication import deduplicate_claims
+
+        report = ResearchReport(
+            title="T",
+            summary_claims=[claim("Recall  matters   here.", ["S1-e1"])],
+            key_findings=[claim("recall matters here", ["S1-e1"])],
+        )
+        _, removed = deduplicate_claims(report)
+        assert removed == 1
+
+    def test_the_same_text_citing_different_evidence_is_kept(self) -> None:
+        """Two sources establishing the same point is corroboration, not
+        repetition."""
+        from agentic_research.citations.publication import deduplicate_claims
+
+        report = ResearchReport(
+            title="T",
+            summary_claims=[claim("Both agree.", ["S1-e1"])],
+            key_findings=[claim("Both agree.", ["S2-e7"])],
+        )
+        _, removed = deduplicate_claims(report)
+        assert removed == 0
+
+    def test_a_nearly_identical_claim_is_not_touched(self) -> None:
+        """Exact only. One word apart is two claims."""
+        from agentic_research.citations.publication import deduplicate_claims
+
+        report = ResearchReport(
+            title="T",
+            summary_claims=[claim("Recall matters under imbalance.", ["S1-e1"])],
+            key_findings=[claim("Recall matters most under imbalance.", ["S1-e1"])],
+        )
+        _, removed = deduplicate_claims(report)
+        assert removed == 0
+
+    def test_framing_may_repeat(self) -> None:
+        """Connective text carries no evidence and two sections may
+        legitimately open the same way."""
+        from agentic_research.citations.publication import deduplicate_claims
+
+        framing = claim("This section compares the two.", [], ClaimKind.FRAMING)
+        report = ResearchReport(
+            title="T",
+            sections=[
+                ReportSection(heading="A", claims=[framing, claim("A fact.", ["S1-e1"])]),
+                ReportSection(heading="B", claims=[framing, claim("Another.", ["S1-e2"])]),
+            ],
+        )
+        _, removed = deduplicate_claims(report)
+        assert removed == 0
+
+    def test_an_unduplicated_report_is_returned_unchanged(self) -> None:
+        from agentic_research.citations.publication import deduplicate_claims
+
+        report = ResearchReport(title="T", summary_claims=[claim("Only once.", ["S1-e1"])])
+        deduped, removed = deduplicate_claims(report)
+        assert removed == 0
+        assert deduped is report
+
+    def test_deduplication_happens_before_verification_spends_calls(self) -> None:
+        """Three copies of one sentence would otherwise cost three
+        entailment calls -- three claims' worth of a bounded budget for
+        one finding."""
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        body = inspect.getsource(reporting.verify_citations)
+        assert body.index("deduplicate_claims") < body.index("_check_entailment")

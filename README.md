@@ -1,8 +1,8 @@
 # Agentic Research Engine
 
 A LangGraph research system that decomposes a question, searches the web in
-parallel, extracts evidence as verbatim quotes checked against the source
-text, and publishes only the claims its own verifier could support.
+parallel, extracts evidence as exact-normalized source quotes, and
+publishes only the claims its own verifier checked and supported.
 
 ---
 
@@ -20,10 +20,11 @@ This project separates them and measures whether the result holds.
   round so follow-ups do not repeat earlier searches.
 - **Deduplicates before fetching.** A page found by four sub-questions costs
   one fetch and one extraction call.
-- **Extracts evidence as verbatim quotes**, each checked against the source.
-  Only an exact match after whitespace and punctuation normalisation can
-  ground a citation.
-- **Reads PDFs with page provenance**, so a citation renders `[S4, p. 5]`.
+- **Extracts evidence as exact-normalized source quotes**, each checked
+  against the retrieved text. Only a match after whitespace and
+  punctuation normalisation can ground a citation.
+- **Reads PDFs page by page**, so a citation renders `[S4, p. 5]` when
+  page-aware PDF extraction succeeded.
 - **Assesses its own coverage** and loops on specific gaps, under hard
   limits on rounds, queries, sources and model calls.
 - **Verifies each claim against its own evidence**, then removes the claims
@@ -81,7 +82,8 @@ never aligned to its source, is dropped and reported.
 The chain has two halves with different guarantees:
 
 - **Guaranteed.** Every citation resolves to an exact evidence item, its
-  verbatim quote, its page where the source was a PDF, and its source.
+  exact-normalized source quote, its source, and its page when page-aware
+  PDF extraction succeeded for that source.
 - **Conditional.** The link back to a query exists only where that source
   was genuinely retrieved for that sub-question. Most evidence — 56% to 80%
   across the three recorded runs — is reused across sub-questions and is
@@ -196,9 +198,13 @@ repeats each, `qwen3:4b`.
 | Citable evidence | 27.3 | 17.7 | 18 |
 | Cross-attributed | 79.6% | 0% | 59.1% |
 
-Coverage was identical across all three repeats of every arm, so the
-difference is structural rather than sampling noise. Production kept
-all-open extraction. Scope and caveats:
+No variation was observed across the three repeats of any arm. Three
+draws cannot establish that sampling noise is absent; the defensible
+point is structural. On this corpus each source was retrieved for a mean
+of 1.17 sub-questions, so retrieved-only extraction mechanically limits
+how many sub-questions can reach a two-source coverage bar. Production
+uses all-open because this project prioritises multi-source coverage
+over complete query-level lineage. Scope and caveats:
 [`examples/attribution-experiment/`](examples/attribution-experiment/).
 
 An earlier local-versus-cloud comparison used a corpus whose source text had
@@ -219,8 +225,13 @@ attacker-influenced text to a model.
   redirect hop is revalidated and re-pinned. Certificate verification is
   preserved, and a wrong SNI is refused — tested against a real TLS server
   with a real certificate.
-- **Spend.** Request, token and cost ceilings are reserved before each
-  provider request, not counted after.
+- **Spend.** Ceilings are reserved before each provider request rather
+  than counted after it. The provider-request and output-token ceilings
+  are exact. The input-token and cost ceilings are *estimated* before
+  dispatch — input size is approximated and prices come from a local
+  table — so they bound the expected cost, not the invoice. For a public
+  deployment the provider account's own spend limit is the durable
+  backstop, and the deployment docs say so.
 - **Prompt injection.** Retrieved text is framed as untrusted data, the
   extractor has no tools, and a claim invented from a page references no
   evidence so it fails resolution.

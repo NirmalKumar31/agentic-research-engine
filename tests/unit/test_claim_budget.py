@@ -17,7 +17,6 @@ import pytest
 
 from agentic_research.graph.nodes.reporting import (
     _DEFAULT_ENTAILMENT_SAMPLE,
-    _MIN_CLAIM_BUDGET,
     _VERIFICATION_OVERHEAD,
     _claim_budget,
 )
@@ -70,14 +69,20 @@ class TestTheBudgetTracksWhatIsAffordable:
         budget_with(_DEFAULT_ENTAILMENT_SAMPLE + 1 + _VERIFICATION_OVERHEAD)
         assert await _claim_budget() is None
 
-    async def test_an_exhausted_budget_still_asks_for_a_few_claims(self, budget_with) -> None:
-        """A report worth writing beats an empty one; the floor holds."""
+    async def test_an_exhausted_budget_asks_for_no_claims(self, budget_with) -> None:
+        """Zero, not a floor. A claim the run cannot verify is removed on
+        the way out, so promising four of them buys nothing but spend.
+        The caller emits the evidence listing instead."""
         budget_with(0)
-        assert await _claim_budget() == _MIN_CLAIM_BUDGET
+        assert await _claim_budget() == 0
 
     async def test_the_budget_never_goes_negative(self, budget_with) -> None:
         budget_with(1)
-        assert await _claim_budget() >= _MIN_CLAIM_BUDGET
+        assert await _claim_budget() == 0
+
+    async def test_one_affordable_claim_is_still_worth_synthesising(self, budget_with) -> None:
+        budget_with(1 + _VERIFICATION_OVERHEAD + 1)
+        assert await _claim_budget() == 1
 
 
 class TestThePromptCarriesTheBudget:

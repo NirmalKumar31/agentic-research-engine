@@ -57,12 +57,17 @@ class DemoLimits:
     max_cloud_input_tokens: int = 120_000
     max_cloud_output_tokens: int = 20_000
     max_provider_requests: int = 30
-    """All provider HTTP requests in one run, search included.
+    """HTTP requests to the *model* provider in one run.
 
-    Sized for one demo run and no more: at most ``max_cloud_calls`` (20)
-    model requests plus ``max_search_credits`` (8) search requests is 28,
-    leaving two for transport retries. The engine's default of 120 is a
-    local-development figure and is far too loose to expose anonymously."""
+    Search is metered separately in provider credits and never reserves
+    against this; the two budgets bound different vendors and conflating
+    them would let one silently exhaust the other.
+
+    Sized for one demo run: ``max_cloud_calls`` (20) model requests plus
+    headroom for structured repairs, compatibility retries and transport
+    retries, each of which is a further request against the same ceiling.
+    The engine's default of 120 is a local-development figure and far too
+    loose to expose anonymously."""
 
 
 # A fresh instance carries the public-demo maxima. Operators configure the

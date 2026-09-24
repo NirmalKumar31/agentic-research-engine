@@ -95,9 +95,21 @@ generated and removed are kept in the verification record.
 
 ## Operations
 
-**Budget enforcement is per process.** Per-run request, token and cost
-ceilings are checked before dispatch and hold. The *daily* cap lives in
-memory, so a host that sleeps resets it on every cold start.
+**Budget enforcement is per process, and not all of it is exact.**
+Everything is reserved before dispatch rather than counted after, but the
+dimensions differ in what they can promise:
+
+- *Provider-request ceiling* and *output-token ceiling* — exact. Requests
+  are counted, and each reserves its role's output cap.
+- *Input-token accounting* — estimated at `len // 4` before the request
+  is built, so the reservation is an approximation of the real count.
+- *Pre-dispatch cost ceiling* — derived from the two above against a
+  local price table, so it bounds expected spend rather than the invoice.
+
+The *daily* run cap lives in memory, so a host that sleeps resets it on
+every cold start. The provider account's own spend limit is the only
+monetary control that survives a restart, and is the documented backstop
+for any public live deployment.
 
 **There is no durable or distributed quota**, which is why anonymous live
 research is off by default on the public deployment. Enabling it safely

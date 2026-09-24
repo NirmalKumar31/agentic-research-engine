@@ -1,26 +1,18 @@
-# Pinned runtime dependency set for reproducible deployment builds.
+# Pinned development and test tooling.
 #
-# Scope: the runtime and web closure only -- exactly `pip install ".[web]"`
-# and nothing else. This is what Dockerfile.web builds against, so anything
-# in here ships to the deployed service.
+# Scope: `pip install ".[web,dev]"` -- the runtime closure plus pytest,
+# mypy, ruff, respx, trustme and their transitive dependencies. Kept apart
+# from constraints.txt so that test tooling cannot end up in a deployment
+# image, which is how the Streamlit ecosystem got there.
 #
-# It is generated from a clean virtual environment, never from a developer
-# machine. A previous version was produced with `pip freeze` against a
-# working environment and pinned the entire Streamlit ecosystem, pytest,
-# mypy, ruff and pip-audit into the deployment image -- while omitting
-# fastapi, which the web extra actually needs.
-#
-# pyproject.toml keeps deliberately broad ranges because this is installed
-# as a library. This file pins what a *build* uses, so a container image is
-# reproducible and a transitive update cannot silently change behaviour
-# between deploys. Application installs are unaffected unless you ask:
-#     pip install -e . -c constraints.txt
+# Nothing reads this automatically:
+#     pip install -e ".[web,dev]" -c constraints-dev.txt
 #
 # Regenerate in a clean environment:
-#     python -m venv /tmp/fresh
-#     /tmp/fresh/bin/pip install ".[web]"
-#     /tmp/fresh/bin/pip freeze --exclude-editable \
-#       | grep -v '^agentic-research-engine' | sort > constraints.txt
+#     python -m venv /tmp/fresh-dev
+#     /tmp/fresh-dev/bin/pip install ".[web,dev]"
+#     /tmp/fresh-dev/bin/pip freeze --exclude-editable \
+#       | grep -v '^agentic-research-engine' | sort > constraints-dev.txt
 #
 PyYAML==6.0.3
 Pygments==2.21.0
@@ -28,11 +20,15 @@ aiosqlite==0.22.1
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1
+ast_serialize==0.11.2
 babel==2.18.0
 certifi==2026.7.22
+cffi==2.1.1
 charset-normalizer==3.5.1
 click==8.5.0
 courlan==1.4.0
+coverage==7.16.1
+cryptography==50.0.1
 dateparser==1.4.3
 distro==1.9.0
 fastapi==0.141.1
@@ -44,6 +40,7 @@ httptools==0.8.0
 httpx2==2.13.1
 httpx==0.28.1
 idna==3.20
+iniconfig==2.3.0
 jiter==0.17.0
 jsonpatch==1.33
 jsonpointer==3.1.1
@@ -58,26 +55,37 @@ langgraph-prebuilt==1.1.0
 langgraph-sdk==0.4.5
 langgraph==1.2.12
 langsmith==0.14.0
+librt==0.15.0
 lxml==6.1.3
 lxml_html_clean==0.4.5
 markdown-it-py==4.2.0
 mdurl==0.1.2
+mypy==2.3.1
+mypy_extensions==1.1.0
 ollama==0.6.2
 openai==3.19.2
 orjson==3.12.0
 ormsgpack==1.12.2
 packaging==26.3
+pathspec==1.1.1
+pluggy==1.6.0
+pycparser==3.0
 pydantic-settings==2.15.0
 pydantic==2.13.5
 pydantic_core==2.46.5
 pypdf==6.19.0
+pytest-asyncio==1.4.0
+pytest-cov==7.1.0
+pytest==9.1.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.3
 pytz==2026.4
 regex==2026.9.10
 requests-toolbelt==1.0.0
 requests==2.34.2
+respx==0.23.1
 rich==15.0.0
+ruff==0.16.9
 shellingham==1.5.4
 six==1.17.0
 sniffio==1.3.1
@@ -88,6 +96,7 @@ tenacity==9.1.4
 tiktoken==0.14.0
 tld==0.13.2
 trafilatura==2.2.0
+trustme==1.2.1
 truststore==0.10.4
 typer==0.27.2
 typing-inspection==0.4.4
