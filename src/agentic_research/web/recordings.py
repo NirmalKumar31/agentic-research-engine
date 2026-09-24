@@ -34,7 +34,13 @@ log = get_logger(__name__)
 # Ships inside the package so the wheel and the container carry it. A
 # top-level directory would be excluded by .dockerignore and the site would
 # deploy with no examples at all.
-RECORDINGS_DIR = Path(__file__).resolve().parent / "recordings"
+#
+# Named "recorded_runs" rather than "recordings" so it cannot collide with
+# this module. A sibling directory of the same name is a namespace package,
+# which import resolution ranks below a regular module -- so runtime still
+# finds this file -- but type checkers resolve the directory instead and
+# report every symbol here as missing.
+RECORDINGS_DIR = Path(__file__).resolve().parent / "recorded_runs"
 
 # Bumped when the recording payload changes shape. A committed example
 # outlives the code that produced it, and a silently-incompatible old file

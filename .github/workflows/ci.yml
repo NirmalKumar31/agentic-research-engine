@@ -46,10 +46,16 @@ jobs:
       - name: Format check
         run: ruff format --check src tests examples
 
-      # Examples are type-checked: ruff does not resolve attributes, so a
-      # renamed field in the package surfaces here rather than at runtime.
+      # Two invocations on purpose. Bare `mypy` uses the `packages` setting
+      # in pyproject.toml, resolving imports the way an importer does; that
+      # is what a contributor runs, and it catches package-resolution faults
+      # a path-based run silently tolerates. The second checks the examples,
+      # which are outside the package: ruff does not resolve attributes, so
+      # a renamed field surfaces here rather than at runtime.
       - name: Type check
-        run: mypy src/agentic_research examples
+        run: |
+          mypy
+          mypy examples
 
       # No credentials are configured for this job, so any test that reaches a
       # paid API would fail rather than silently spend money. Integration tests
