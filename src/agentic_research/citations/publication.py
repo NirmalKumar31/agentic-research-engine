@@ -29,7 +29,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from agentic_research.models import Claim, ClaimKind, ResearchReport
+from agentic_research.models import Claim, ResearchReport
 
 ClaimVerdict = Literal["supported", "partially_supported", "unsupported"]
 
@@ -56,7 +56,14 @@ def key_of(claim: Claim) -> ClaimKey:
 
 
 def _keep(claim: Claim, verdicts: dict[ClaimKey, ClaimVerdict]) -> bool:
-    if claim.kind is ClaimKind.FRAMING:
+    # Framing owes no evidence. An extracted finding owes a verbatim
+    # quote, which it already passed to be citable at all, and restates a
+    # single evidence item rather than synthesising across several --
+    # there is no inference for entailment to check. Gating it removed
+    # the entire degraded report when a provider outage stopped both
+    # synthesis and verification, discarding every finding the run had
+    # already paid to retrieve.
+    if not claim.kind.requires_entailment:
         return True
     # A substantive claim with no evidence never reaches the verifier, so
     # it has no verdict and is not published. That is the intended

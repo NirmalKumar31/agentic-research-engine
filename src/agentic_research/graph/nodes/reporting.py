@@ -119,7 +119,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
             )
         except LLMError as exc:
             log.error("synthesis_failed", error=str(exc)[:300])
-            report = _fallback_report(question, store, gaps, str(exc))
+            report = _fallback_report(question, store, gaps, _safe_failure_reason(exc))
             errors = [error_from("synthesize", exc, "emitted evidence-only report")]
         timing["evidence_items"] = package.evidence_count
 
@@ -194,6 +194,46 @@ def _dedupe_limitations(items: list[str]) -> list[str]:
     return kept
 
 
+def _safe_failure_reason(exc: BaseException) -> str:
+    """Why a step failed, in words safe to publish.
+
+    The raw exception is never used. A provider error body is not a
+    message written for a reader: it carries the account's organisation
+    id, the model name, the configured ceiling and sometimes a URL. One
+    was published verbatim in a live report --
+
+        "Rate limit reached for gpt-6-luna in organization org-..."
+
+    -- which put an account identifier in front of every visitor. The
+    same reasoning already governs the SSE error path; it simply had not
+    been applied here.
+
+    The full exception still goes to the logs, where it belongs.
+    """
+    from agentic_research.llm.base import (
+        BudgetExceededError,
+        ModelTimeoutError,
+        ModelUnavailableError,
+        ProviderRateLimited,
+        ProviderRejectedRequest,
+        StructuredOutputError,
+    )
+
+    if isinstance(exc, ProviderRateLimited):
+        return "the model provider's rate limit was reached"
+    if isinstance(exc, BudgetExceededError):
+        return "this run reached its configured budget"
+    if isinstance(exc, ModelTimeoutError):
+        return "the model did not respond in time"
+    if isinstance(exc, ModelUnavailableError):
+        return "the configured model was unreachable"
+    if isinstance(exc, StructuredOutputError):
+        return "the model did not return the required structure"
+    if isinstance(exc, ProviderRejectedRequest):
+        return "the provider rejected the request"
+    return "the model call did not complete"
+
+
 def _clipped(text: str, limit: int) -> str:
     """Shorten to a word boundary, marked as shortened.
 
@@ -221,7 +261,7 @@ def _fallback_report(
     provenanced, because each listed finding carries its own evidence id.
     """
     findings = [
-        Claim(text=item.claim, evidence_ids=[item.id], kind=ClaimKind.FACTUAL)
+        Claim(text=item.claim, evidence_ids=[item.id], kind=ClaimKind.EXTRACTED)
         for item in sorted(store.citable_evidence(), key=lambda e: -e.confidence)[:12]
     ]
     return ResearchReport(
@@ -229,14 +269,17 @@ def _fallback_report(
         summary_claims=[
             Claim(
                 text=(
-                    "Report synthesis failed, so this document lists the verified "
-                    "evidence gathered during the run without narrative synthesis."
+                    "Report synthesis did not run, so this lists the findings "
+                    "gathered during research instead. Each one restates a single "
+                    "quote that was matched verbatim against its source; unlike a "
+                    "normal report, they have not been entailment-checked against "
+                    "the evidence they cite."
                 ),
                 kind=ClaimKind.FRAMING,
             )
         ],
         key_findings=findings,
-        limitations=[f"synthesis step failed: {error[:200]}", *gaps],
+        limitations=[f"Report synthesis could not run: {error}.", *gaps],
     )
 
 

@@ -1,6 +1,11 @@
 /** Shapes mirroring the API's serialised result. */
 
-export type ClaimKind = "factual" | "synthesis" | "framing";
+/**
+ * `extracted` appears only in the degraded listing that replaces a report
+ * when synthesis fails: one evidence item restated, quote-verified but
+ * not entailment-checked.
+ */
+export type ClaimKind = "factual" | "synthesis" | "framing" | "extracted";
 
 export interface Claim {
   text: string;

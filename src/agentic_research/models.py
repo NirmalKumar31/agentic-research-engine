@@ -113,10 +113,25 @@ class ClaimKind(StrEnum):
     """Draws a conclusion across sources. Requires evidence, usually several."""
     FRAMING = "framing"
     """Non-substantive connective or structural text. Requires none."""
+    EXTRACTED = "extracted"
+    """One evidence item restated, not a claim written across sources.
+
+    Emitted only by the degraded evidence listing that replaces a report
+    when synthesis fails. Its guarantee is different in kind, not weaker
+    by omission: the quote was matched verbatim against its source, and
+    the text is the extractor's own summary of that one quote. There is
+    no synthesis to outrun the evidence, so entailment gating does not
+    apply -- and the report says so rather than presenting these as
+    entailment-verified claims."""
 
     @property
     def requires_evidence(self) -> bool:
         return self is not ClaimKind.FRAMING
+
+    @property
+    def requires_entailment(self) -> bool:
+        """Whether publication depends on an entailment verdict."""
+        return self in (ClaimKind.FACTUAL, ClaimKind.SYNTHESIS)
 
 
 class OutputFormat(StrEnum):
