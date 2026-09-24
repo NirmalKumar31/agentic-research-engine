@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import tomllib
 from functools import lru_cache
+from importlib import resources
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -31,26 +32,36 @@ class ModelPrice(BaseModel):
         ) / 1_000_000
 
 
-def _find_pricing_file() -> Path | None:
-    """Look beside the installed package, then walk up from the CWD.
+def _read_pricing() -> str | None:
+    """Prefer a local override, then fall back to the packaged table.
 
-    Covers both an editable checkout (file at the repo root) and a wheel
-    install where the user drops a pricing.toml next to their .env.
+    The packaged copy is what makes an installed wheel work: resolving
+    prices by walking up from the current directory meant cost reporting
+    silently returned nothing whenever the process ran outside a checkout.
+
+    A pricing.toml in the working directory still wins, so an operator can
+    correct a price without reinstalling.
     """
-    candidates = [Path.cwd() / _PRICING_FILENAME]
-    here = Path(__file__).resolve()
-    candidates.extend(parent / _PRICING_FILENAME for parent in here.parents[:5])
-    return next((c for c in candidates if c.is_file()), None)
+    local = Path.cwd() / _PRICING_FILENAME
+    if local.is_file():
+        try:
+            return local.read_text(encoding="utf-8")
+        except OSError:
+            pass
+    try:
+        return resources.files("agentic_research").joinpath(_PRICING_FILENAME).read_text("utf-8")
+    except (FileNotFoundError, OSError, ModuleNotFoundError):
+        return None
 
 
 @lru_cache(maxsize=1)
 def _load_table() -> dict[str, dict[str, ModelPrice]]:
-    path = _find_pricing_file()
-    if path is None:
+    text = _read_pricing()
+    if text is None:
         return {}
     try:
-        raw = tomllib.loads(path.read_text(encoding="utf-8"))
-    except (OSError, tomllib.TOMLDecodeError):
+        raw = tomllib.loads(text)
+    except tomllib.TOMLDecodeError:
         return {}
 
     table: dict[str, dict[str, ModelPrice]] = {}

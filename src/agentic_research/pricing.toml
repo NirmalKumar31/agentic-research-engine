@@ -1,0 +1,19 @@
+# Token pricing, in USD per 1,000,000 tokens.
+#
+# Source: OpenAI model documentation (https://developers.openai.com/api/docs/models),
+# retrieved 2026-09-22. Prices change and vary by region and tier; this file is
+# read at runtime so you can correct it without touching code.
+#
+# A model absent from this table is not guessed at. Its calls are still counted
+# and its tokens still tracked, but the run reports cost as unavailable rather
+# than inventing a number.
+
+[openai]
+"gpt-6-astra" = { input = 10.0, output = 50.0 }
+"gpt-6-sol"   = { input = 2.0,  output = 10.0 }
+"gpt-6-luna"  = { input = 0.1,  output = 0.5 }
+
+# Locally hosted models have no per-token vendor charge. This is marginal API
+# cost only: it excludes electricity, hardware amortisation and your time.
+[ollama]
+"*" = { input = 0.0, output = 0.0 }

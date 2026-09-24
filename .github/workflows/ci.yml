@@ -85,6 +85,36 @@ jobs:
       # checkout. If the recording JSON were not packaged, the deployed
       # demo would come up with nothing to show and the failure would
       # first appear on Render. Asserted here instead.
+      # Cost reporting used to resolve pricing.toml by walking up from the
+      # working directory, so an installed wheel run anywhere else silently
+      # reported no price at all. Checked from /tmp for that reason.
+      - name: Verify pricing resolves outside the repository
+        run: |
+          cd /tmp
+          /tmp/fresh/bin/python - <<'PY'
+          from agentic_research.config import Provider
+          from agentic_research.llm.pricing import get_price
+          price = get_price(Provider.OPENAI, "gpt-6-luna")
+          assert price is not None, "pricing not resolvable from an installed wheel"
+          print("pricing resolved outside the repo:", price)
+          PY
+
+      - name: Build the sdist and check for forbidden paths
+        run: |
+          python -m build --sdist
+          python - <<'PY'
+          import sys, tarfile, glob
+          forbidden = ("node_modules", "/dist/", ".tsbuildinfo", "__pycache__",
+                       ".pytest_cache", "outputs/", "checkpoints/", "htmlcov")
+          path = sorted(glob.glob("dist/*.tar.gz"))[-1]
+          names = tarfile.open(path).getnames()
+          bad = [n for n in names if any(f in n for f in forbidden)]
+          print(f"{len(names)} entries in {path}")
+          if bad:
+              print("forbidden paths in sdist:", bad[:20]); sys.exit(1)
+          print("sdist clean")
+          PY
+
       - name: Verify recordings ship inside the wheel
         run: |
           /tmp/fresh/bin/python - <<'PY'
@@ -190,6 +220,13 @@ jobs:
       - name: Install
         working-directory: web
         run: npm ci --no-audit --no-fund
+
+      # Production dependencies only: a vulnerability in a build-time tool
+      # does not ship to a visitor, and failing on those trains people to
+      # ignore the job.
+      - name: Audit production dependencies
+        working-directory: web
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Type check
         working-directory: web

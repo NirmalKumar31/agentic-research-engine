@@ -129,9 +129,7 @@ class TestVerdictHandling:
             summary_claims=[Claim(text=compound, evidence_ids=["S1-e1"], citation_ids=["S1"])],
         )
         verification = CitationVerification(
-            issues=[
-                _issue(CitationIssueType.PARTIALLY_SUPPORTED_CLAIM, compound, ["S1-e1"])
-            ]
+            issues=[_issue(CitationIssueType.PARTIALLY_SUPPORTED_CLAIM, compound, ["S1-e1"])]
         )
 
         filtered, removed = filter_report_by_verification(report, verification)
@@ -265,8 +263,6 @@ class TestRejectedKeys:
         assert ("c", "S3-e1") not in keys
 
 
-
-
 class TestPublicReportsCarryNoInternalTokens:
     """Coverage gaps are identifiers internally and must not stay that way.
 
@@ -290,9 +286,7 @@ class TestPublicReportsCarryNoInternalTokens:
         return _coverage_limitations(coverage, subs)
 
     def test_a_gap_is_named_by_its_question_not_its_identifier(self) -> None:
-        out = self._limitations(
-            ["SQ3"], [], [("SQ3", "How do the security implications compare?")]
-        )
+        out = self._limitations(["SQ3"], [], [("SQ3", "How do the security implications compare?")])
         assert out == [
             "The retrieved evidence did not answer: How do the security implications compare."
         ]
@@ -300,9 +294,7 @@ class TestPublicReportsCarryNoInternalTokens:
 
     def test_a_thin_dimension_reads_as_a_sentence(self) -> None:
         out = self._limitations([], ["SQ1"], [("SQ1", "What are the latency characteristics?")])
-        assert out == [
-            "Only limited evidence was found for: What are the latency characteristics."
-        ]
+        assert out == ["Only limited evidence was found for: What are the latency characteristics."]
 
     def test_critic_reasoning_in_the_gap_field_is_dropped(self) -> None:
         """The field holds identifiers. Prose in it is the model thinking

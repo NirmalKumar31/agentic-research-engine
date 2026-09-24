@@ -243,3 +243,142 @@ class TestClientCannotWidenTheLiveRun:
         assert limits.max_query_chars == 300
         with pytest.raises(ValueError, match="too long"):
             validate_query("x" * 301, limits)
+
+
+class TestDemoLimitsCannotBeWidened:
+    """A public live endpoint spends money, so the ceilings have to hold
+    against both a hostile client and a misconfigured environment.
+
+    Client input may narrow a run. Nothing may widen one.
+    """
+
+    @staticmethod
+    def _generous() -> Settings:
+        """An environment configured far above the demo ceilings."""
+        return Settings(
+            llm_mode="local",
+            demo_mode=True,
+            live_research_enabled=True,
+            tavily_api_key="tvly-test-key",
+            max_research_rounds=9,
+            max_sources=99,
+            max_sources_per_round=99,
+            max_search_queries=99,
+            max_llm_calls=999,
+            # Kept at the blueprint value: a larger per-run request ceiling
+            # means the daily quota affords zero runs, which is a separate
+            # (and correct) refusal tested below.
+            max_cloud_calls=20,
+            max_cloud_cost_usd=100.0,
+            max_search_credits=999.0,
+            _env_file=None,
+        )
+
+    def test_environment_values_are_clamped_to_the_demo_ceilings(self) -> None:
+        from agentic_research.web.limits import apply_demo_limits, limits_from_settings
+
+        settings = self._generous()
+        limits = limits_from_settings(settings)
+        clamped = apply_demo_limits(settings, limits)
+
+        assert clamped.max_research_rounds <= limits.max_rounds
+        assert clamped.max_sources <= limits.max_sources
+        assert clamped.max_sources_per_round <= limits.max_sources_per_round
+        assert clamped.max_search_queries <= limits.max_search_queries
+        assert clamped.max_llm_calls <= limits.max_llm_calls
+        assert clamped.max_cloud_cost_usd <= limits.max_cloud_cost_usd
+        assert clamped.max_search_credits <= limits.max_search_credits
+
+    def test_clamping_never_raises_a_value_that_was_already_lower(self) -> None:
+        """A locally tighter setting must survive: the clamp is a ceiling,
+        not an assignment."""
+        from agentic_research.web.limits import apply_demo_limits, limits_from_settings
+
+        settings = Settings(
+            llm_mode="local",
+            demo_mode=True,
+            live_research_enabled=True,
+            max_sources=2,
+            max_sources_per_round=2,
+            max_llm_calls=5,
+            max_cloud_cost_usd=0.01,
+            _env_file=None,
+        )
+        clamped = apply_demo_limits(settings, limits_from_settings(settings))
+        assert clamped.max_sources == 2
+        assert clamped.max_llm_calls == 5
+        assert clamped.max_cloud_cost_usd == 0.01
+
+    def test_cloud_fallback_and_persistence_are_forced_off(self) -> None:
+        from agentic_research.web.limits import apply_demo_limits, limits_from_settings
+
+        settings = self._generous().model_copy(
+            update={"allow_cloud_fallback": True, "persist_runs": True}
+        )
+        clamped = apply_demo_limits(settings, limits_from_settings(settings))
+        assert clamped.allow_cloud_fallback is False
+        assert clamped.persist_runs is False
+        assert clamped.checkpoint_backend == "memory"
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {"query": "a genuine research question", "max_rounds": 5},
+            {"query": "a genuine research question", "max_sources": 40},
+            {"query": "a genuine research question", "max_rounds": 5, "max_sources": 40},
+        ],
+    )
+    def test_a_client_cannot_widen_the_run_it_requests(
+        self, monkeypatch: pytest.MonkeyPatch, payload: dict
+    ) -> None:
+        """The request model caps these, and the server clamps again after."""
+        import agentic_research.web.api as api_module
+        from agentic_research.web.limits import DemoLimits
+
+        seen: list[Settings] = []
+
+        async def capture(query: str, settings: Settings, run_id: str = "") -> Any:
+            seen.append(settings)
+            if False:  # pragma: no cover - makes this an async generator
+                yield {}
+
+        monkeypatch.setattr(api_module, "stream_research", capture)
+        with TestClient(create_app(self._generous())) as client:
+            client.post("/api/research", json=payload)
+
+        assert seen, "the run never started"
+        used = seen[0]
+        limits = DemoLimits()
+        assert used.max_research_rounds <= limits.max_rounds
+        assert used.max_sources <= limits.max_sources
+
+    def test_a_client_cannot_reach_the_provider_request_ceiling(self) -> None:
+        """Nothing in the request schema names these, and that is the
+        point: the fields a client may send are an allowlist."""
+        from agentic_research.web.api import ResearchRequest
+
+        assert set(ResearchRequest.model_fields) == {"query", "max_rounds", "max_sources"}
+
+    def test_a_run_the_quota_cannot_pay_for_is_refused_up_front(self) -> None:
+        """If one run may emit more provider requests than the daily quota
+        allows, the honest answer is to refuse before starting rather than
+        to 429 halfway through."""
+        from agentic_research.web.limits import limits_from_settings
+
+        settings = self._generous().model_copy(update={"max_cloud_calls": 999})
+        assert limits_from_settings(settings).global_runs_per_day == 0
+
+        with TestClient(create_app(settings)) as client:
+            response = client.post("/api/research", json={"query": "a genuine research question"})
+        assert response.status_code == 429
+        assert "cannot cover" in response.json()["error"]
+
+    def test_query_length_is_bounded_on_both_sides(self) -> None:
+        from agentic_research.web.limits import DemoLimits, validate_query
+
+        limits = DemoLimits()
+        assert limits.max_query_chars == 300
+        with pytest.raises(ValueError, match="too long"):
+            validate_query("x" * (limits.max_query_chars + 1), limits)
+        with pytest.raises(ValueError, match="fuller question"):
+            validate_query("hi", limits)

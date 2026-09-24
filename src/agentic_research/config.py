@@ -19,6 +19,8 @@ from pathlib import Path
 from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from agentic_research import __version__ as _VERSION
+
 
 class LLMMode(StrEnum):
     """Where work runs by default."""
@@ -248,7 +250,8 @@ class Settings(BaseSettings):
     max_pdf_pages: int = Field(default=60, ge=1, le=2_000)
     max_extract_chars: int = Field(default=12_000, ge=1_000)
     user_agent: str = (
-        "AgenticResearchEngine/0.1 (+https://github.com/NirmalKumar31/agentic-research-engine)"
+        f"AgenticResearchEngine/{_VERSION}"
+        " (+https://github.com/NirmalKumar31/agentic-research-engine)"
     )
 
     # --- Output and persistence -------------------------------------------

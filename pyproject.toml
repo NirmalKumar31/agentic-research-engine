@@ -68,6 +68,50 @@ Repository = "https://github.com/NirmalKumar31/agentic-research-engine"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentic_research"]
+# Build output and caches can appear inside the package directory during
+# development; none of it belongs in a distribution.
+exclude = ["**/__pycache__", "**/*.pyc", "**/.DS_Store"]
+
+[tool.hatch.build.targets.sdist]
+# An sdist should carry what is needed to build and test, and nothing that
+# is regenerated. node_modules alone is hundreds of megabytes.
+include = [
+  "src/",
+  "tests/",
+  "examples/",
+  "docs/",
+  "web/src/",
+  "web/index.html",
+  "web/package.json",
+  "web/package-lock.json",
+  "web/tsconfig.json",
+  "web/vite.config.ts",
+  "pyproject.toml",
+  "constraints.txt",
+  "pricing.toml",
+  "README.md",
+  "LICENSE",
+  "Dockerfile",
+  "Dockerfile.web",
+  "render.yaml",
+  "deploy/",
+]
+exclude = [
+  "web/node_modules",
+  "web/dist",
+  "**/*.tsbuildinfo",
+  "**/__pycache__",
+  "**/*.pyc",
+  "**/.DS_Store",
+  ".pytest_cache",
+  ".mypy_cache",
+  ".ruff_cache",
+  "outputs/",
+  "checkpoints/",
+  "evaluations/",
+  "htmlcov/",
+  ".coverage",
+]
 
 [tool.ruff]
 line-length = 100

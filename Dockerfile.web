@@ -9,7 +9,10 @@ FROM node:24-slim AS frontend
 WORKDIR /build
 # Copy manifests first so a source-only change reuses the install layer.
 COPY web/package.json web/package-lock.json* ./
-RUN npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
+# npm ci, without a fallback. A committed lockfile should either satisfy
+# the install or fail loudly; falling back to npm install would resolve a
+# different tree than CI tested and hide the lockfile drift that caused it.
+RUN npm ci --no-audit --no-fund
 
 COPY web/ ./
 RUN npm run build
