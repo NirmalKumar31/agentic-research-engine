@@ -69,8 +69,15 @@ _EXACT_DOMAIN_TYPES: dict[str, SourceType] = {
     "theverge.com": SourceType.NEWS,
 }
 
-# Host prefixes that usually indicate first-party product documentation.
+# Host prefixes that indicate first-party documentation: docs.stripe.com is
+# Stripe's own documentation, and the subdomain is the evidence of that.
 _DOCS_PREFIXES = ("docs.", "developer.", "developers.", "api.", "learn.", "platform.")
+
+# A /docs/ path says the publisher documents *its own* product. It says
+# nothing about authority over the subject being researched: a vendor page
+# at example.com/docs/nist-ai-rmf is commentary on NIST, not a NIST
+# publication. Such pages classify as VENDOR, which scores below a
+# standards body or an academic source.
 _DOCS_PATH_HINTS = ("/docs/", "/documentation/", "/reference/", "/api/", "/guide/")
 
 _BLOG_PATH_HINTS = ("/blog/", "/posts/", "/news/")
@@ -103,8 +110,10 @@ def classify_source(url: str, domain: str) -> SourceType:
         if host == known or host.endswith("." + known):
             return source_type
 
-    if host.startswith(_DOCS_PREFIXES) or any(hint in path for hint in _DOCS_PATH_HINTS):
+    if host.startswith(_DOCS_PREFIXES):
         return SourceType.OFFICIAL_DOCS
+    if any(hint in path for hint in _DOCS_PATH_HINTS):
+        return SourceType.VENDOR
     if any(hint in path for hint in _BLOG_PATH_HINTS):
         return SourceType.BLOG
     return SourceType.OTHER

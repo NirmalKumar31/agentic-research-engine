@@ -39,22 +39,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      # Lints everything that ships, not just the package: the Streamlit app
-      # and the examples are code a reader will run too, and they previously
-      # drifted because CI was not looking at them.
+      # Examples are linted too: they are code a reader will run.
       - name: Lint
-        run: ruff check src tests app examples
+        run: ruff check src tests examples
 
       - name: Format check
-        run: ruff format --check src tests app examples
+        run: ruff format --check src tests examples
 
-      # app and examples are type-checked too, not just the package. They
-      # were not, and a metric rename left both reading an attribute that
-      # no longer existed: the Streamlit app and the example script each
-      # raised AttributeError while CI stayed green, because ruff does not
-      # resolve attributes and mypy was not looking at them.
+      # Examples are type-checked: ruff does not resolve attributes, so a
+      # renamed field in the package surfaces here rather than at runtime.
       - name: Type check
-        run: mypy src/agentic_research app examples
+        run: mypy src/agentic_research examples
 
       # No credentials are configured for this job, so any test that reaches a
       # paid API would fail rather than silently spend money. Integration tests

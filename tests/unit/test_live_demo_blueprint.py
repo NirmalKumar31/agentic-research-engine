@@ -39,12 +39,12 @@ class TestTheLiveBlueprint:
 
     @pytest.fixture
     def env(self) -> dict[str, str]:
-        return _blueprint("render-live.yaml")
+        return _blueprint("deploy/render-live.yaml")
 
     def test_secrets_are_prompted_never_committed(self, env: dict[str, str]) -> None:
         assert env["OPENAI_API_KEY"] == "<prompted>"
         assert env["TAVILY_API_KEY"] == "<prompted>"
-        raw = (REPO / "render-live.yaml").read_text(encoding="utf-8")
+        raw = (REPO / "deploy/render-live.yaml").read_text(encoding="utf-8")
         for marker in ("sk-", "tvly-"):
             assert marker not in raw, f"{marker} literal in a committed blueprint"
 

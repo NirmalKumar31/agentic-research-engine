@@ -199,7 +199,9 @@ class TestQuality:
             ("https://nist.gov/x", "nist.gov", SourceType.STANDARDS_BODY),
             ("https://mit.edu/x", "mit.edu", SourceType.ACADEMIC),
             ("https://docs.acme.io/api", "docs.acme.io", SourceType.OFFICIAL_DOCS),
-            ("https://acme.io/docs/setup", "acme.io", SourceType.OFFICIAL_DOCS),
+            # A /docs/ path is the publisher documenting its own product,
+            # not authority over whatever subject is being researched.
+            ("https://acme.io/docs/setup", "acme.io", SourceType.VENDOR),
             ("https://medium.com/@a/b", "medium.com", SourceType.BLOG),
             ("https://reddit.com/r/x", "reddit.com", SourceType.FORUM),
             ("https://reuters.com/a", "reuters.com", SourceType.NEWS),
@@ -406,3 +408,79 @@ class TestEvidenceStore:
         store = EvidenceStore([source("S1"), source("S2")], items)
         package = store.build_package(sqs, max_items_per_question=3)
         assert "contradicts" in package.text
+
+
+class TestSourceAuthorityNeedsOwnership:
+    """A /docs/ path is not evidence of authority over the subject.
+
+    Any URL containing /docs/ used to classify as OFFICIAL_DOCS, so a
+    vendor page about a standard outranked the standard itself. Authority
+    now requires the publisher to be the first party: a docs.* subdomain
+    is its own documentation, a /docs/ path on an arbitrary host is not.
+    """
+
+    def test_a_standards_body_publication_stays_authoritative(self) -> None:
+        from agentic_research.evidence.quality import classify_source
+        from agentic_research.models import SourceType
+
+        assert (
+            classify_source(
+                "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf", "nvlpubs.nist.gov"
+            )
+            is SourceType.STANDARDS_BODY
+        )
+
+    def test_a_vendor_docs_page_about_a_standard_is_not_official(self) -> None:
+        from agentic_research.evidence.quality import classify_source
+        from agentic_research.models import SourceType
+
+        result = classify_source(
+            "https://www.promptfoo.dev/docs/red-team/nist-ai-rmf/", "promptfoo.dev"
+        )
+        assert result is not SourceType.OFFICIAL_DOCS
+        assert result is SourceType.VENDOR
+
+    def test_an_unrelated_docs_path_is_not_first_party_authority(self) -> None:
+        from agentic_research.evidence.quality import classify_source
+        from agentic_research.models import SourceType
+
+        assert (
+            classify_source("https://example.com/docs/whatever", "example.com")
+            is not SourceType.OFFICIAL_DOCS
+        )
+
+    def test_a_docs_subdomain_is_still_first_party(self) -> None:
+        """docs.stripe.com genuinely is Stripe's documentation."""
+        from agentic_research.evidence.quality import classify_source
+        from agentic_research.models import SourceType
+
+        assert (
+            classify_source("https://docs.stripe.com/api/charges", "docs.stripe.com")
+            is SourceType.OFFICIAL_DOCS
+        )
+
+    def test_authority_ordering_puts_the_standard_above_commentary(self) -> None:
+        """The ranking, not just the label: a standards body must score
+        above a vendor page discussing it."""
+        from agentic_research.evidence.quality import score_source
+        from agentic_research.models import SourceType
+
+        standard, _ = score_source(
+            url="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+            domain="nvlpubs.nist.gov",
+            source_type=SourceType.STANDARDS_BODY,
+            search_score=0.5,
+            word_count=4000,
+            published=None,
+            recency_horizon_months=None,
+        )
+        vendor, _ = score_source(
+            url="https://www.promptfoo.dev/docs/red-team/nist-ai-rmf/",
+            domain="promptfoo.dev",
+            source_type=SourceType.VENDOR,
+            search_score=0.5,
+            word_count=4000,
+            published=None,
+            recency_horizon_months=None,
+        )
+        assert standard > vendor
