@@ -10,7 +10,19 @@ import type { Claim, RunResult } from "./types";
  * collapses below the report on narrow screens. Wrapping every paragraph
  * in a card would make a research report look like an admin panel.
  */
-export function ReportView({ result }: { result: RunResult }) {
+/** Covered/total as the engine reported it, when a run produced one. */
+export interface CoverageSummary {
+  covered: number;
+  total: number;
+}
+
+export function ReportView({
+  result,
+  coverage,
+}: {
+  result: RunResult;
+  coverage?: CoverageSummary | null;
+}) {
   const [openClaim, setOpenClaim] = useState<Claim | null>(null);
 
   const evidenceById = useMemo(
@@ -91,6 +103,17 @@ export function ReportView({ result }: { result: RunResult }) {
           <p className="hint">Select any citation to see the exact passage behind it.</p>
         </header>
 
+        {coverage && coverage.covered < coverage.total && (
+          <p className="notice notice--coverage">
+            <strong>Limited evidence coverage.</strong> Research completed within the
+            demo's one-round limit, but {coverage.total - coverage.covered} of{" "}
+            {coverage.total} research dimensions did not reach the evidence
+            threshold. The claims below are still verified against their own
+            sources; the question is covered less completely than a longer run
+            would manage.
+          </p>
+        )}
+
         {report.summary_claims.length > 0 && (
           <section>
             <h3>Summary</h3>
@@ -142,6 +165,10 @@ export function ReportView({ result }: { result: RunResult }) {
         <button type="button" onClick={download} className="btn btn--ghost btn--small">
           Download Markdown
         </button>
+        <p className="report__disclaimer muted small">
+          Research aid only. Verify important medical, legal, financial or other
+          high-stakes decisions against authoritative primary sources.
+        </p>
       </article>
 
       <aside className="rail">

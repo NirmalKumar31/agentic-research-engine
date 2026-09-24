@@ -1,14 +1,19 @@
-"""The publication gate: claims the evidence did not support are removed.
+"""The publication gate: only supported claims are published.
 
-A real recording published this:
+Two defects motivated this, both seen in real output.
+
+A recording published:
 
     "Vector databases become most favorable for RAG applications with
      minimum data requirements of 100+ documents..."
 
-cited to evidence that says only that RAG is commonly used for internal
-knowledge bots. The threshold is not in the source. A provenance demo that
-publishes a number its own evidence does not contain undercuts the entire
-claim of the project, so the gate exists to make that impossible.
+cited to evidence saying only that RAG is commonly used for internal
+knowledge bots. The threshold is not in the source.
+
+Then a bounded live run checked 1 of 6 eligible claims and published all
+six. The gate removed claims carrying a *failing* verdict, so a claim the
+verifier never reached carried no issue and survived. A deny-list cannot
+express "not verified"; the gate is an allow-list for that reason.
 
 It removes; it does not rewrite. Nothing is re-asked of a model and no
 replacement prose is invented.
@@ -19,13 +24,13 @@ from __future__ import annotations
 import pytest
 
 from agentic_research.citations.publication import (
+    ClaimKey,
+    ClaimVerdict,
+    claim_key,
     filter_report_by_verification,
-    rejected_keys,
+    key_of,
 )
 from agentic_research.models import (
-    CitationIssue,
-    CitationIssueType,
-    CitationVerification,
     Claim,
     ClaimKind,
     ReportSection,
@@ -40,310 +45,174 @@ BAD_CLAIM = (
 BAD_EVIDENCE_ID = "S2-e5"
 
 
-def _issue(kind: CitationIssueType, text: str, evidence_ids: list[str]) -> CitationIssue:
-    """Built the way the verifier builds it, including the truncation."""
-    return CitationIssue(
-        type=kind,
-        severity="warning",
-        claim_text=text[:200],
-        evidence_id=",".join(evidence_ids),
-        detail="the cited evidence does not establish the threshold",
-    )
+def claim(text: str, evidence_ids: list[str], kind: ClaimKind = ClaimKind.FACTUAL) -> Claim:
+    return Claim(text=text, evidence_ids=evidence_ids, citation_ids=[], kind=kind)
 
 
-class TestTheKnownRegression:
-    def test_the_hundred_documents_claim_is_removed(self) -> None:
-        bad = Claim(text=BAD_CLAIM, evidence_ids=[BAD_EVIDENCE_ID], citation_ids=["S2"])
-        good = Claim(
-            text="Vector databases are commonly used to power internal knowledge bots.",
-            evidence_ids=["S2-e1"],
-            citation_ids=["S2"],
-        )
-        report = ResearchReport(title="T", summary_claims=[bad], key_findings=[good])
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.UNSUPPORTED_CLAIM, BAD_CLAIM, [BAD_EVIDENCE_ID])]
-        )
-
-        filtered, removed = filter_report_by_verification(report, verification)
-
-        assert removed == 1
-        texts = [c.text for c in filtered.all_claims()]
-        assert BAD_CLAIM not in texts
-        assert good.text in texts
-
-    def test_the_removal_does_not_erase_the_audit_trail(self) -> None:
-        """A technical reviewer must still be able to see what failed and
-        why, after the claim has gone from the report."""
-        report = ResearchReport(
-            title="T",
-            summary_claims=[
-                Claim(text=BAD_CLAIM, evidence_ids=[BAD_EVIDENCE_ID], citation_ids=["S2"])
-            ],
-        )
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.UNSUPPORTED_CLAIM, BAD_CLAIM, [BAD_EVIDENCE_ID])]
-        )
-
-        filtered, _ = filter_report_by_verification(report, verification)
-
-        assert filtered.all_claims() == []
-        # The issue survives untouched.
-        assert len(verification.issues) == 1
-        assert verification.issues[0].type is CitationIssueType.UNSUPPORTED_CLAIM
-        assert BAD_CLAIM.startswith(verification.issues[0].claim_text[:60])
-
-    def test_it_never_appears_in_the_rendered_markdown(self) -> None:
-        from agentic_research.report import render_markdown
-
-        report = ResearchReport(
-            title="T",
-            summary_claims=[
-                Claim(text=BAD_CLAIM, evidence_ids=[BAD_EVIDENCE_ID], citation_ids=["S2"])
-            ],
-        )
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.UNSUPPORTED_CLAIM, BAD_CLAIM, [BAD_EVIDENCE_ID])]
-        )
-        filtered, _ = filter_report_by_verification(report, verification)
-        markdown = render_markdown(filtered, [], None, evidence=[])
-        assert "100+ documents" not in markdown
+def verdicts_for(*pairs: tuple[Claim, ClaimVerdict]) -> dict[ClaimKey, ClaimVerdict]:
+    return {key_of(c): v for c, v in pairs}
 
 
-class TestVerdictHandling:
-    def test_a_supported_claim_is_left_exactly_as_written(self) -> None:
-        claim = Claim(text="A supported claim.", evidence_ids=["S1-e1"], citation_ids=["S1"])
-        report = ResearchReport(title="T", summary_claims=[claim])
+def published(report: ResearchReport) -> list[str]:
+    out = [c.text for c in report.summary_claims] + [c.text for c in report.key_findings]
+    for section in report.sections:
+        out += [c.text for c in section.claims]
+    return out
 
-        filtered, removed = filter_report_by_verification(report, CitationVerification())
 
+class TestOnlySupportedClaimsSurvive:
+    def test_a_supported_claim_is_published(self) -> None:
+        good = claim("Precision-recall suits heavy imbalance.", ["S1-e1"])
+        report = ResearchReport(title="T", summary_claims=[good])
+
+        filtered, removed = filter_report_by_verification(report, verdicts_for((good, "supported")))
         assert removed == 0
-        assert filtered.summary_claims[0].text == "A supported claim."
-        assert filtered.limitations == []
+        assert published(filtered) == [good.text]
 
-    def test_a_partially_supported_claim_is_excluded_not_softened(self) -> None:
-        """Conservative on purpose: "mostly true" reads to a reader exactly
-        like "true", and the report offers no way to tell them apart."""
-        compound = "Latency improves and costs fall by half."
-        report = ResearchReport(
-            title="T",
-            summary_claims=[Claim(text=compound, evidence_ids=["S1-e1"], citation_ids=["S1"])],
-        )
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.PARTIALLY_SUPPORTED_CLAIM, compound, ["S1-e1"])]
-        )
+    @pytest.mark.parametrize("verdict", ["partially_supported", "unsupported"])
+    def test_a_failing_verdict_removes_the_claim(self, verdict: ClaimVerdict) -> None:
+        bad = claim(BAD_CLAIM, [BAD_EVIDENCE_ID])
+        report = ResearchReport(title="T", summary_claims=[bad])
 
-        filtered, removed = filter_report_by_verification(report, verification)
-
+        filtered, removed = filter_report_by_verification(report, verdicts_for((bad, verdict)))
         assert removed == 1
-        assert filtered.all_claims() == []
-        # Not rewritten into a narrower version of itself.
-        assert all(compound[:30] not in c.text for c in filtered.all_claims())
+        assert published(filtered) == []
 
-    def test_framing_claims_are_never_gated_on_evidence(self) -> None:
-        """They carry none by design; removing them would be a bug."""
-        framing = Claim(text="This section compares the two.", kind=ClaimKind.FRAMING)
-        report = ResearchReport(title="T", sections=[ReportSection(heading="H", claims=[framing])])
+    def test_an_unchecked_claim_is_not_published(self) -> None:
+        """The live defect. No verdict is not the same as no objection."""
+        never_checked = claim("Something the verifier never reached.", ["S1-e1"])
+        report = ResearchReport(title="T", summary_claims=[never_checked])
 
-        filtered, removed = filter_report_by_verification(report, CitationVerification())
-
-        assert removed == 0
-        assert filtered.sections[0].claims[0].text == framing.text
-
-    def test_other_issue_types_do_not_remove_claims(self) -> None:
-        """An unused source or a redundant citation is not grounds for
-        deleting a sentence."""
-        claim = Claim(text="A claim.", evidence_ids=["S1-e1"], citation_ids=["S1"])
-        report = ResearchReport(title="T", summary_claims=[claim])
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.UNUSED_SOURCE, "A claim.", ["S1-e1"])]
-        )
-
-        _, removed = filter_report_by_verification(report, verification)
-        assert removed == 0
-
-
-class TestFilteringIsConsistentEverywhere:
-    def test_a_restated_claim_is_removed_from_every_location(self) -> None:
-        """Leaving one copy would publish the exact text that failed."""
-        claim = Claim(text=BAD_CLAIM, evidence_ids=[BAD_EVIDENCE_ID], citation_ids=["S2"])
-        report = ResearchReport(
-            title="T",
-            summary_claims=[claim],
-            key_findings=[claim],
-            sections=[ReportSection(heading="Detail", claims=[claim])],
-        )
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.UNSUPPORTED_CLAIM, BAD_CLAIM, [BAD_EVIDENCE_ID])]
-        )
-
-        filtered, removed = filter_report_by_verification(report, verification)
-
-        assert removed == 3
-        assert filtered.all_claims() == []
-
-    def test_a_section_left_empty_is_dropped(self) -> None:
-        report = ResearchReport(
-            title="T",
-            sections=[
-                ReportSection(
-                    heading="Gone",
-                    claims=[Claim(text=BAD_CLAIM, evidence_ids=["S2-e5"], citation_ids=["S2"])],
-                ),
-                ReportSection(
-                    heading="Kept",
-                    claims=[Claim(text="Fine.", evidence_ids=["S1-e1"], citation_ids=["S1"])],
-                ),
-            ],
-        )
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.UNSUPPORTED_CLAIM, BAD_CLAIM, ["S2-e5"])]
-        )
-
-        filtered, _ = filter_report_by_verification(report, verification)
-
-        assert [s.heading for s in filtered.sections] == ["Kept"]
-
-    def test_removal_adds_one_plain_limitation(self) -> None:
-        """No internal labels, no verifier reasoning, no SQ tokens."""
-        report = ResearchReport(
-            title="T",
-            summary_claims=[
-                Claim(text=BAD_CLAIM, evidence_ids=["S2-e5"], citation_ids=["S2"]),
-                Claim(text="Another bad one.", evidence_ids=["S3-e1"], citation_ids=["S3"]),
-            ],
-        )
-        verification = CitationVerification(
-            issues=[
-                _issue(CitationIssueType.UNSUPPORTED_CLAIM, BAD_CLAIM, ["S2-e5"]),
-                _issue(CitationIssueType.UNSUPPORTED_CLAIM, "Another bad one.", ["S3-e1"]),
-            ]
-        )
-
-        filtered, removed = filter_report_by_verification(report, verification)
-
-        assert removed == 2
-        note = filtered.limitations[-1]
-        assert note == (
-            "2 generated claim(s) were excluded because the cited evidence "
-            "did not fully support them."
-        )
-        for forbidden in ("S2-e5", "SQ", "unsupported", "verifier"):
-            assert forbidden not in note
-
-    def test_identity_uses_evidence_not_text_alone(self) -> None:
-        """Two claims can share wording while citing different evidence;
-        only the one that failed should go."""
-        text = "Latency improves under load."
-        failed = Claim(text=text, evidence_ids=["S1-e1"], citation_ids=["S1"])
-        other = Claim(text=text, evidence_ids=["S9-e9"], citation_ids=["S9"])
-        report = ResearchReport(title="T", summary_claims=[failed], key_findings=[other])
-        verification = CitationVerification(
-            issues=[_issue(CitationIssueType.UNSUPPORTED_CLAIM, text, ["S1-e1"])]
-        )
-
-        filtered, removed = filter_report_by_verification(report, verification)
-
+        filtered, removed = filter_report_by_verification(report, {})
         assert removed == 1
-        assert filtered.key_findings[0].evidence_ids == ["S9-e9"]
-        assert filtered.summary_claims == []
+        assert published(filtered) == []
+
+    def test_a_substantive_claim_with_no_evidence_is_not_published(self) -> None:
+        """It can never be checked, so it can never earn publication."""
+        uncited = claim("An assertion with nothing behind it.", [])
+        report = ResearchReport(title="T", summary_claims=[uncited])
+
+        filtered, removed = filter_report_by_verification(report, {})
+        assert removed == 1
+        assert published(filtered) == []
+
+    def test_framing_survives_without_a_verdict(self) -> None:
+        framing = claim("This report compares two approaches.", [], ClaimKind.FRAMING)
+        report = ResearchReport(title="T", summary_claims=[framing])
+
+        filtered, removed = filter_report_by_verification(report, {})
+        assert removed == 0
+        assert published(filtered) == [framing.text]
 
 
-class TestRejectedKeys:
-    def test_collects_both_failing_verdicts(self) -> None:
-        verification = CitationVerification(
-            issues=[
-                _issue(CitationIssueType.UNSUPPORTED_CLAIM, "a", ["S1-e1"]),
-                _issue(CitationIssueType.PARTIALLY_SUPPORTED_CLAIM, "b", ["S2-e1"]),
-                _issue(CitationIssueType.UNUSED_SOURCE, "c", ["S3-e1"]),
-            ]
-        )
-        keys = rejected_keys(verification)
-        assert ("a", "S1-e1") in keys
-        assert ("b", "S2-e1") in keys
-        assert ("c", "S3-e1") not in keys
-
-
-class TestPublicReportsCarryNoInternalTokens:
-    """Coverage gaps are identifiers internally and must not stay that way.
-
-    A real recording published this limitation verbatim:
-
-        "no evidence for For SQ1: The evidence mentions performance metrics
-         but doesn't provide specific numbers..."
-
-    Two faults in one line. "no evidence for SQ1" means nothing to a
-    reader, and the rest is the critic's own reasoning, returned in a field
-    meant to hold sub-question identifiers.
-    """
+class TestTheBoundedLiveScenario:
+    """12 checkable, 10 selected, 8 supported, 1 partial, 1 unsupported,
+    2 never reached. Exactly 8 substantive claims may be published."""
 
     @staticmethod
-    def _limitations(missing: list[str], weak: list[str], questions: list[tuple[str, str]]):
-        from agentic_research.graph.nodes.reporting import _coverage_limitations
-        from agentic_research.models import CoverageAssessment, SubQuestion
-
-        coverage = CoverageAssessment(round_number=1, missing=missing, weak=weak)
-        subs = [SubQuestion(id=i, text=t, rationale="r") for i, t in questions]
-        return _coverage_limitations(coverage, subs)
-
-    def test_a_gap_is_named_by_its_question_not_its_identifier(self) -> None:
-        out = self._limitations(["SQ3"], [], [("SQ3", "How do the security implications compare?")])
-        assert out == [
-            "The retrieved evidence did not answer: How do the security implications compare."
-        ]
-        assert not any("SQ3" in line for line in out)
-
-    def test_a_thin_dimension_reads_as_a_sentence(self) -> None:
-        out = self._limitations([], ["SQ1"], [("SQ1", "What are the latency characteristics?")])
-        assert out == ["Only limited evidence was found for: What are the latency characteristics."]
-
-    def test_critic_reasoning_in_the_gap_field_is_dropped(self) -> None:
-        """The field holds identifiers. Prose in it is the model thinking
-        out loud, and publishing that is worse than publishing nothing."""
-        reasoning = (
-            "For SQ1: The evidence mentions performance metrics but doesn't provide "
-            "specific numbers, and I need to check if there are critical gaps."
-        )
-        out = self._limitations([reasoning], [], [("SQ1", "What are the latency traits?")])
-        assert out == []
-
-    @pytest.mark.parametrize(
-        "forbidden",
-        ["no evidence for SQ", "thin evidence for SQ", "I need to check", "I should verify"],
-    )
-    def test_forbidden_phrases_never_reach_a_rendered_report(self, forbidden: str) -> None:
-        from agentic_research.report import render_markdown
+    def _build() -> tuple[ResearchReport, dict[ClaimKey, ClaimVerdict]]:
+        supported = [claim(f"Supported finding {i}.", [f"S1-e{i}"]) for i in range(8)]
+        partial = claim("Partially supported finding.", ["S1-e8"])
+        unsupported = claim("Unsupported finding.", ["S1-e9"])
+        unchecked = [claim(f"Unreached finding {i}.", [f"S1-e{10 + i}"]) for i in range(2)]
 
         report = ResearchReport(
             title="T",
-            summary_claims=[Claim(text="A claim.", evidence_ids=["S1-e1"], citation_ids=["S1"])],
-            limitations=self._limitations(
-                [f"{forbidden} something"], [], [("SQ1", "A real question?")]
-            ),
+            summary_claims=supported[:3],
+            key_findings=supported[3:6],
+            sections=[
+                ReportSection(heading="A", claims=[*supported[6:], partial]),
+                ReportSection(heading="B", claims=[unsupported, *unchecked]),
+            ],
         )
-        markdown = render_markdown(report, [], None, evidence=[])
-        assert forbidden not in markdown
+        verdicts = verdicts_for(
+            *[(c, "supported") for c in supported],
+            (partial, "partially_supported"),
+            (unsupported, "unsupported"),
+        )
+        return report, verdicts
 
-    def test_the_committed_recordings_contain_no_internal_tokens(self) -> None:
-        """Runs against the shipped recordings, so a future one cannot
-        reintroduce this silently."""
-        import json
-        import re
+    def test_exactly_the_eight_supported_claims_are_published(self) -> None:
+        report, verdicts = self._build()
+        assert len(report.substantive_claims()) == 12
 
-        from agentic_research.web.recordings import RECORDINGS_DIR
+        filtered, removed = filter_report_by_verification(report, verdicts)
 
-        patterns = [
-            re.compile(r"no evidence for SQ\d+"),
-            re.compile(r"thin evidence for SQ\d+"),
-            re.compile(r"\bI need to check\b"),
-            re.compile(r"\bI should verify\b"),
-        ]
-        offenders: list[str] = []
-        for path in sorted(RECORDINGS_DIR.glob("*.json")):
-            payload = json.loads(path.read_text(encoding="utf-8"))
-            report = payload.get("result", {}).get("report") or {}
-            markdown = payload.get("result", {}).get("markdown", "")
-            text = json.dumps(report) + markdown
-            for pattern in patterns:
-                if pattern.search(text):
-                    offenders.append(f"{path.name}: {pattern.pattern}")
-        assert offenders == [], offenders
+        assert len(filtered.substantive_claims()) == 8
+        assert removed == 4, "1 partial + 1 unsupported + 2 unchecked"
+        assert all(t.startswith("Supported finding") for t in published(filtered))
+
+    def test_the_two_unchecked_claims_do_not_survive(self) -> None:
+        report, verdicts = self._build()
+        filtered, _ = filter_report_by_verification(report, verdicts)
+        assert not any("Unreached" in t for t in published(filtered))
+
+    def test_a_section_emptied_by_the_gate_is_dropped(self) -> None:
+        report, verdicts = self._build()
+        filtered, _ = filter_report_by_verification(report, verdicts)
+        # Section B held only an unsupported claim and two unchecked ones.
+        assert [s.heading for s in filtered.sections] == ["A"]
+
+    def test_the_removal_is_disclosed_in_the_limitations(self) -> None:
+        report, verdicts = self._build()
+        filtered, removed = filter_report_by_verification(report, verdicts)
+        assert any(str(removed) in limit for limit in filtered.limitations)
+
+
+class TestIdentityIsExactNotFuzzy:
+    def test_the_same_text_with_different_evidence_is_a_different_claim(self) -> None:
+        a = claim("Identical wording.", ["S1-e1"])
+        b = claim("Identical wording.", ["S2-e9"])
+        report = ResearchReport(title="T", summary_claims=[a], key_findings=[b])
+
+        filtered, removed = filter_report_by_verification(
+            report, verdicts_for((a, "supported"), (b, "unsupported"))
+        )
+        assert removed == 1
+        assert [c.evidence_ids for c in filtered.summary_claims] == [["S1-e1"]]
+        assert filtered.key_findings == []
+
+    def test_a_claim_repeated_verbatim_is_resolved_once(self) -> None:
+        """One key, so both copies share a verdict and move together."""
+        repeated = claim("Stated in two places.", ["S1-e1"])
+        report = ResearchReport(
+            title="T",
+            summary_claims=[repeated],
+            sections=[ReportSection(heading="A", claims=[repeated])],
+        )
+        filtered, removed = filter_report_by_verification(
+            report, verdicts_for((repeated, "unsupported"))
+        )
+        assert removed == 2
+        assert published(filtered) == []
+
+    def test_the_key_truncates_where_the_issue_record_truncates(self) -> None:
+        long_text = "x" * 400
+        assert claim_key(long_text, ["S1-e1"]) == (long_text[:200], "S1-e1")
+
+
+class TestTheMotivatingRegression:
+    def test_the_100_documents_claim_cannot_be_published_unverified(self) -> None:
+        bad = claim(BAD_CLAIM, [BAD_EVIDENCE_ID])
+        report = ResearchReport(title="T", summary_claims=[bad])
+
+        # Not checked at all: previously this published.
+        filtered, _ = filter_report_by_verification(report, {})
+        assert BAD_CLAIM not in published(filtered)
+
+
+class TestNothingIsRewritten:
+    def test_surviving_claim_text_is_untouched(self) -> None:
+        good = claim("Exact wording preserved.", ["S1-e1"])
+        report = ResearchReport(title="T", summary_claims=[good])
+        filtered, _ = filter_report_by_verification(report, verdicts_for((good, "supported")))
+        assert filtered.summary_claims[0].text == "Exact wording preserved."
+        assert filtered.summary_claims[0].evidence_ids == ["S1-e1"]
+
+    def test_an_unfiltered_report_is_returned_unchanged(self) -> None:
+        good = claim("All fine.", ["S1-e1"])
+        report = ResearchReport(title="T", summary_claims=[good], limitations=["pre-existing"])
+        filtered, removed = filter_report_by_verification(report, verdicts_for((good, "supported")))
+        assert removed == 0
+        assert filtered is report
+        assert filtered.limitations == ["pre-existing"]

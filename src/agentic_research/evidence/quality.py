@@ -21,10 +21,12 @@ from datetime import UTC, datetime
 
 from agentic_research.models import SourceType
 
-# Domain patterns, most specific first.
+# Generic suffix fallback, consulted *last*. A suffix says who operates a
+# host, not what kind of document it publishes, so an explicit mapping
+# always wins over one of these.
 _SUFFIX_TYPES: tuple[tuple[str, SourceType], ...] = (
-    (".gov", SourceType.STANDARDS_BODY),
-    (".mil", SourceType.STANDARDS_BODY),
+    (".gov", SourceType.GOVERNMENT),
+    (".mil", SourceType.GOVERNMENT),
     (".edu", SourceType.ACADEMIC),
     (".ac.uk", SourceType.ACADEMIC),
 )
@@ -34,6 +36,7 @@ _EXACT_DOMAIN_TYPES: dict[str, SourceType] = {
     "aclanthology.org": SourceType.ACADEMIC,
     "openreview.net": SourceType.ACADEMIC,
     "pubmed.ncbi.nlm.nih.gov": SourceType.ACADEMIC,
+    "pmc.ncbi.nlm.nih.gov": SourceType.ACADEMIC,
     "dl.acm.org": SourceType.ACADEMIC,
     "ieeexplore.ieee.org": SourceType.ACADEMIC,
     "nature.com": SourceType.ACADEMIC,
@@ -89,6 +92,8 @@ _TYPE_BASE: dict[SourceType, float] = {
     SourceType.STANDARDS_BODY: 0.90,
     SourceType.OFFICIAL_DOCS: 0.85,
     SourceType.ACADEMIC: 0.85,
+    # Authoritative as a publisher, but not a standards authority.
+    SourceType.GOVERNMENT: 0.80,
     SourceType.NEWS: 0.60,
     SourceType.VENDOR: 0.55,
     SourceType.BLOG: 0.45,
@@ -102,16 +107,26 @@ def classify_source(url: str, domain: str) -> SourceType:
     host = domain.lower()
     path = url.lower()
 
-    for suffix, source_type in _SUFFIX_TYPES:
-        if host.endswith(suffix):
-            return source_type
-
+    # Order is the whole correctness of this function, and it was wrong.
+    # The suffix table ran first, so pubmed.ncbi.nlm.nih.gov matched
+    # ".gov" and was labelled a standards body -- its explicit ACADEMIC
+    # entry was unreachable. Specific knowledge must beat a guess derived
+    # from a TLD.
+    #
+    #   1. exact or parent-domain mappings
+    #   2. first-party documentation patterns
+    #   3. generic suffix fallback
     for known, source_type in _EXACT_DOMAIN_TYPES.items():
         if host == known or host.endswith("." + known):
             return source_type
 
     if host.startswith(_DOCS_PREFIXES):
         return SourceType.OFFICIAL_DOCS
+
+    for suffix, source_type in _SUFFIX_TYPES:
+        if host.endswith(suffix):
+            return source_type
+
     if any(hint in path for hint in _DOCS_PATH_HINTS):
         return SourceType.VENDOR
     if any(hint in path for hint in _BLOG_PATH_HINTS):

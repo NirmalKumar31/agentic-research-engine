@@ -50,14 +50,22 @@ class AnalysisOut(BaseModel):
 
 class SubQuestionOut(BaseModel):
     text: str = Field(description="A focused, independently researchable question")
-    rationale: str = Field(description="Why the parent question cannot be answered without this")
     priority: int = Field(description="1 = essential, 2 = useful, 3 = nice to have")
 
 
 class PlanOut(BaseModel):
-    """Decomposition of the question into research dimensions."""
+    """Decomposition of the question into research dimensions.
 
-    strategy_note: str = Field(description="One sentence on the overall approach")
+    Carries only what the engine consumes. ``strategy_note`` and a
+    per-sub-question ``rationale`` used to be required here and were
+    written, stored and never read -- no query, coverage or synthesis step
+    consumed either. They were not free: a 4B planner spent most of its
+    2,000-token output allowance narrating, then truncated mid-JSON before
+    finishing the sub-question list, and the run fell back to a single
+    dimension. Asking only for the fields that are used is the fix; raising
+    the cap would just buy more room for prose.
+    """
+
     sub_questions: list[SubQuestionOut] = Field(
         description=(
             "Distinct dimensions of the question. Each must be researchable on its own and "

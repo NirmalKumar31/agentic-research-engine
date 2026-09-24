@@ -15,15 +15,18 @@ export function Pipeline({ state, live }: { state: PipelineState; live: boolean 
       <ol className="pipeline__track">
         {STAGES.map((stage, i) => {
           const status = state.states[stage.id];
+          const note = stageNote(stage.id, state);
           return (
-            <li key={stage.id} className={`stage stage--${status}`}>
+            <li key={stage.id} className={`stage stage--${status}`} title={note ?? undefined}>
               <span className="stage__dot" aria-hidden="true">
-                {status === "done" ? "✓" : status === "failed" ? "!" : i + 1}
+                {status === "done" ? "✓" : status === "warning" ? "!" : status === "failed" ? "✕" : i + 1}
               </span>
               <span className="stage__label">{stage.label}</span>
+              {note && <span className="stage__note muted">{note}</span>}
               {i < STAGES.length - 1 && <span className="stage__link" aria-hidden="true" />}
               <span className="sr-only">
                 {stage.label}: {status}
+                {note ? `. ${note}` : ""}
               </span>
             </li>
           );
@@ -42,6 +45,26 @@ export function Pipeline({ state, live }: { state: PipelineState; live: boolean 
       <Counters state={state} live={live} />
     </div>
   );
+}
+
+/**
+ * Short line under a stage that lost something but carried on.
+ *
+ * Says what survived, not just that something broke: "4/6 usable" is the
+ * fact a reader needs, where a bare warning icon reads as "retrieval
+ * failed" for a stage that did produce the evidence behind the report.
+ */
+function stageNote(id: string, state: PipelineState): string | null {
+  const failures = state.issues[id] ?? 0;
+  if (!failures) return null;
+  if (id === "retrieve") {
+    const { sources, sourcesFound } = state.counts;
+    if (sources !== null && sourcesFound !== null) {
+      return `${sources}/${sourcesFound} usable · ${failures} could not be fetched, research continued`;
+    }
+  }
+  const noun = failures === 1 ? "item" : "items";
+  return `${failures} ${noun} failed, research continued`;
 }
 
 /** The fan-out, shown only while searches are in flight. */

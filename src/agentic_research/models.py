@@ -49,6 +49,12 @@ class SourceType(StrEnum):
     OFFICIAL_DOCS = "official_docs"
     ACADEMIC = "academic"
     STANDARDS_BODY = "standards_body"
+    GOVERNMENT = "government"
+    """A government publisher that is not a standards authority.
+
+    Distinct from STANDARDS_BODY because publishing under .gov does not
+    make an organisation one. NIST issues standards; a county health page
+    does not, and scoring them alike overstates the second."""
     NEWS = "news"
     VENDOR = "vendor"
     BLOG = "blog"
@@ -148,7 +154,13 @@ class SubQuestion(BaseModel):
 
     id: str = Field(description="Stable human-readable id, e.g. SQ1")
     text: str
-    rationale: str = Field(description="Why answering the parent question needs this")
+    rationale: str = Field(
+        default="",
+        description=(
+            "Why answering the parent question needs this. Engine-populated for "
+            "follow-ups and fallbacks; the planner no longer emits it."
+        ),
+    )
     priority: int = Field(default=2, ge=1, le=3, description="1 = highest")
     round_introduced: int = Field(default=1, ge=1)
     is_followup: bool = False
@@ -161,6 +173,8 @@ class ResearchPlan(BaseModel):
     analysis: QueryAnalysis
     sub_questions: list[SubQuestion]
     strategy_note: str = ""
+    """Retained with a default so historical artifacts still load. The
+    planner no longer emits it and nothing reads it."""
 
     def by_id(self, sub_question_id: str) -> SubQuestion | None:
         return next((q for q in self.sub_questions if q.id == sub_question_id), None)
@@ -628,6 +642,12 @@ class CitationVerification(BaseModel):
     """Claims actually put through entailment checking."""
     checkable_claims: int = 0
     """Claims eligible for entailment checking, whether or not sampled."""
+    not_checked_claims: int = 0
+    """Eligible claims the bounded verifier never reached.
+
+    Reported rather than inferred. These are the claims that used to be
+    published unverified: the gate removed only claims with a *failing*
+    verdict, so an unchecked claim carried no issue and survived."""
     entailment_exhaustive: bool = False
     """True when every eligible claim was checked (benchmark mode)."""
 

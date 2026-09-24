@@ -484,3 +484,61 @@ class TestSourceAuthorityNeedsOwnership:
             recency_horizon_months=None,
         )
         assert standard > vendor
+
+
+class TestSpecificDomainsBeatTheSuffixGuess:
+    """Precedence, which a real live medical run showed was inverted.
+
+    The suffix table ran before the exact-domain table, so
+    pubmed.ncbi.nlm.nih.gov matched ".gov" and was reported as a
+    standards body. Its explicit ACADEMIC entry was unreachable, and a
+    peer-reviewed index was scored as a standards authority.
+    """
+
+    @pytest.mark.parametrize(
+        ("url", "domain", "expected"),
+        [
+            # Medical literature indexes: academic, despite the .gov host.
+            (
+                "https://pubmed.ncbi.nlm.nih.gov/39148208",
+                "pubmed.ncbi.nlm.nih.gov",
+                SourceType.ACADEMIC,
+            ),
+            (
+                "https://pmc.ncbi.nlm.nih.gov/articles/PMC12985573",
+                "pmc.ncbi.nlm.nih.gov",
+                SourceType.ACADEMIC,
+            ),
+            # A genuine standards authority keeps its label, including on
+            # the publications subdomain the NIST recording actually used.
+            (
+                "https://www.nist.gov/itl/ai-risk-management-framework",
+                "nist.gov",
+                SourceType.STANDARDS_BODY,
+            ),
+            (
+                "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+                "nvlpubs.nist.gov",
+                SourceType.STANDARDS_BODY,
+            ),
+            # Ordinary government publishers are not standards bodies.
+            ("https://www.fda.gov/drugs/information", "fda.gov", SourceType.GOVERNMENT),
+            ("https://www.nih.gov/about-nih", "nih.gov", SourceType.GOVERNMENT),
+            ("https://www.army.mil/article/1", "army.mil", SourceType.GOVERNMENT),
+        ],
+    )
+    def test_classification_precedence(self, url: str, domain: str, expected: SourceType) -> None:
+        assert classify_source(url, domain) == expected
+
+    def test_a_government_publisher_scores_below_a_standards_body(self) -> None:
+        from agentic_research.evidence.quality import _TYPE_BASE
+
+        assert _TYPE_BASE[SourceType.GOVERNMENT] < _TYPE_BASE[SourceType.STANDARDS_BODY]
+        assert _TYPE_BASE[SourceType.GOVERNMENT] > _TYPE_BASE[SourceType.VENDOR]
+
+    def test_every_source_type_has_a_base_score(self) -> None:
+        """A new enum member without a score would silently rank last."""
+        from agentic_research.evidence.quality import _TYPE_BASE
+
+        missing = [t.value for t in SourceType if t not in _TYPE_BASE]
+        assert missing == [], f"no base score for {missing}"

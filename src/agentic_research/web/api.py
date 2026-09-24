@@ -15,8 +15,8 @@ import asyncio
 import json
 import os
 import time
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator, AsyncIterator
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -81,6 +81,21 @@ _FRONTEND_DIST = _find_frontend_dist()
 # run is not worth watching in real time, and the events are real either
 # way; only the spacing is cosmetic.
 _REPLAY_EVENT_DELAY_S = 0.35
+
+# An SSE comment. Standard, ignored by every conforming client, and
+# deliberately not a fake event: a synthetic "still working" event would
+# advance the pipeline UI and be counted as engine output.
+_SSE_HEARTBEAT = ": keepalive\n\n"
+
+# Comfortably inside the 30-60s idle window proxies typically enforce,
+# and unrelated to uvicorn's --timeout-keep-alive, which governs idle
+# connections *between* requests rather than an active response.
+_HEARTBEAT_SECONDS = 15.0
+
+_TIMED_OUT = {
+    "error": "This demo run exceeded its time limit and was stopped.",
+    "timeout": True,
+}
 
 
 class ResearchRequest(BaseModel):
@@ -372,42 +387,77 @@ async def _event_stream(
 ) -> AsyncIterator[str]:
     """Forward graph events to the browser, then release the slot.
 
-    Wrapped in a timeout and a disconnect check: a hosted demo must reclaim
-    capacity when a visitor closes the tab mid-run, or the concurrency slot
-    leaks and the next visitor is told the demo is busy.
+    Three things this has to get right, all of them cleanup rather than
+    happy path.
+
+    *The slot is released exactly once, on every exit.* A hosted demo that
+    leaks a concurrency slot when a visitor closes the tab tells the next
+    visitor it is busy, forever.
+
+    *The underlying generator is closed explicitly.* Breaking out of the
+    loop on disconnect or timeout leaves ``stream_research`` suspended
+    mid-run, holding its HTTP clients and graph state until the collector
+    happens to run. ``aclose()`` unwinds it deterministically.
+
+    *Nothing is yielded from a cancellation path.* ``done`` used to be
+    emitted from ``finally``, which runs while the generator is being
+    closed; yielding there raises "async generator ignored GeneratorExit"
+    and turns a clean disconnect into an error. It is emitted after
+    cleanup instead, and only if the client is still there to read it.
     """
     started = time.monotonic()
     deadline = state.limits.max_runtime_seconds
+    stream: AsyncGenerator[dict[str, Any], None] | None = None
+    pending: asyncio.Task[dict[str, Any]] | None = None
+    disconnected = False
+
     try:
         yield _sse("started", {"run_id": run_id, "query": query})
 
-        stream = stream_research(query, settings, run_id=run_id)
+        # Two names on purpose: `events` is what the loop iterates and is
+        # never None, `stream` is what `finally` closes and may be None if
+        # construction itself raised.
+        events = stream_research(query, settings, run_id=run_id)
+        stream = events
         while True:
             if await request.is_disconnected():
                 log.info("web_client_disconnected", run_id=run_id)
+                disconnected = True
                 break
+
             remaining = deadline - (time.monotonic() - started)
             if remaining <= 0:
-                yield _sse(
-                    "error",
-                    {
-                        "error": "This demo run exceeded its time limit and was stopped.",
-                        "timeout": True,
-                    },
-                )
+                yield _sse("error", _TIMED_OUT)
                 break
+
+            # Wake at the heartbeat interval even when the engine is
+            # silent. A cloud model can take tens of seconds, and a
+            # connection with no bytes on it looks dead to proxies and to
+            # the browser alike.
+            #
+            # The pending step is a task held *across* heartbeats, not a
+            # fresh `wait_for` each time. `wait_for` cancels its awaitable
+            # on timeout, so re-awaiting `__anext__` would abandon the
+            # engine's in-flight work at every heartbeat and restart it --
+            # a run that never finishes, and an async generator left in a
+            # broken state.
+            if pending is None:
+                pending = asyncio.ensure_future(events.__anext__())
+            finished, _ = await asyncio.wait({pending}, timeout=min(_HEARTBEAT_SECONDS, remaining))
+            if not finished:
+                if time.monotonic() - started >= deadline:
+                    yield _sse("error", _TIMED_OUT)
+                    break
+                # Silence, not expiry: keep the connection warm and let the
+                # same step carry on. A comment is not an event, so the
+                # client parses nothing and the pipeline does not advance.
+                yield _SSE_HEARTBEAT
+                continue
+
+            step, pending = pending, None
             try:
-                event = await asyncio.wait_for(stream.__anext__(), timeout=remaining)
+                event = step.result()
             except StopAsyncIteration:
-                break
-            except TimeoutError:
-                yield _sse(
-                    "error",
-                    {
-                        "error": "This demo run exceeded its time limit and was stopped.",
-                        "timeout": True,
-                    },
-                )
                 break
 
             if event.get("event") == "result":
@@ -437,7 +487,21 @@ async def _event_stream(
         # a URL, a model name or a provider error that reveals configuration.
         yield _sse("error", {"error": "The research run failed. Please try again."})
     finally:
+        # Cleanup only. GeneratorExit and CancelledError pass straight
+        # through this block and skip the `done` below, which is what
+        # keeps a cancelled stream from yielding.
+        if pending is not None:
+            # An in-flight step outlives the response otherwise, holding
+            # the graph and its clients open with nobody reading it.
+            pending.cancel()
+            with suppress(BaseException):
+                await pending
+        if stream is not None:
+            with suppress(Exception):
+                await stream.aclose()
         await state.limiter.release()
+
+    if not disconnected:
         yield _sse("done", {"run_id": run_id})
 
 

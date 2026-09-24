@@ -9,7 +9,18 @@ import type { ProgressEvent } from "./types";
  * stays active and the later stages stay idle -- which is the truth.
  */
 
-export type StageState = "idle" | "active" | "done" | "failed";
+/**
+ * `warning` means the stage completed with partial loss -- some sources
+ * could not be fetched, some queries failed -- and the run continued on
+ * what it did get. `failed` means the stage produced nothing usable.
+ *
+ * The distinction is not cosmetic. A live run fetched 4 of 6 sources,
+ * one of them a 403 from a publisher that blocks automated access, and
+ * the whole Retrieve stage rendered as failed. That told the visitor
+ * retrieval had failed when it had in fact produced the evidence the
+ * report was built from.
+ */
+export type StageState = "idle" | "active" | "done" | "warning" | "failed";
 
 export interface Stage {
   id: string;
@@ -42,7 +53,9 @@ function stageFor(event: string): string | null {
   return null;
 }
 
-const FAILURE_EVENTS = new Set(["search_failed", "source_failed"]);
+// Per-item failures. One source or one query, not the stage: the engine
+// degrades and carries on, so these mark the stage rather than stop it.
+const PARTIAL_FAILURE_EVENTS = new Set(["search_failed", "source_failed"]);
 
 export interface FanOutQuery {
   id: string;
@@ -52,6 +65,8 @@ export interface FanOutQuery {
 
 export interface PipelineState {
   states: Record<string, StageState>;
+  /** Per-stage count of items that failed while the stage carried on. */
+  issues: Record<string, number>;
   /** Queries seen this run, for the fan-out visualisation. */
   queries: FanOutQuery[];
   /** Counts the engine reported. Absent until it does. */
@@ -59,6 +74,8 @@ export interface PipelineState {
     subQuestions: number | null;
     searches: number | null;
     sources: number | null;
+    /** Unique pages the engine set out to fetch, before failures. */
+    sourcesFound: number | null;
     evidence: number | null;
     citations: number | null;
     coverage: { covered: number; total: number } | null;
@@ -71,11 +88,13 @@ export function emptyPipeline(): PipelineState {
   for (const stage of STAGES) states[stage.id] = "idle";
   return {
     states,
+    issues: {},
     queries: [],
     counts: {
       subQuestions: null,
       searches: null,
       sources: null,
+      sourcesFound: null,
       evidence: null,
       citations: null,
       coverage: null,
@@ -98,6 +117,7 @@ export function advance(prev: PipelineState, event: ProgressEvent): PipelineStat
   const next: PipelineState = {
     ...prev,
     states: { ...prev.states },
+    issues: { ...prev.issues },
     queries: prev.queries,
     counts: { ...prev.counts },
   };
@@ -116,11 +136,17 @@ export function advance(prev: PipelineState, event: ProgressEvent): PipelineStat
   const index = STAGES.findIndex((s) => s.id === id);
   if (index >= 0) {
     for (let i = 0; i < index; i += 1) {
-      if (next.states[STAGES[i].id] !== "failed") next.states[STAGES[i].id] = "done";
+      const earlier = STAGES[i].id;
+      // A warning survives completion: the stage finished, but it lost
+      // something doing so and the visitor should still see that.
+      if (next.states[earlier] !== "failed" && next.states[earlier] !== "warning") {
+        next.states[earlier] = "done";
+      }
     }
-    if (FAILURE_EVENTS.has(name)) {
-      next.states[id] = "failed";
-    } else if (next.states[id] !== "failed") {
+    if (PARTIAL_FAILURE_EVENTS.has(name)) {
+      next.states[id] = "warning";
+      next.issues[id] = (prev.issues[id] ?? 0) + 1;
+    } else if (next.states[id] !== "failed" && next.states[id] !== "warning") {
       next.states[id] = "active";
     }
   }
@@ -149,6 +175,9 @@ export function advance(prev: PipelineState, event: ProgressEvent): PipelineStat
       ];
       break;
     }
+    case "sources_deduplicated":
+      next.counts.sourcesFound = num("unique");
+      break;
     case "sources_registered":
       next.counts.sources = num("usable");
       break;
@@ -160,11 +189,20 @@ export function advance(prev: PipelineState, event: ProgressEvent): PipelineStat
       break;
     case "coverage_evaluated": {
       const covered = num("covered");
-      const ratio = typeof event.ratio === "number" ? (event.ratio as number) : null;
-      if (covered !== null && ratio && ratio > 0) {
-        next.counts.coverage = { covered, total: Math.round(covered / ratio) };
-      } else if (covered !== null) {
-        next.counts.coverage = { covered, total: covered };
+      if (covered !== null) {
+        // The engine now states the denominator. Deriving it as
+        // covered/ratio is impossible when nothing is covered, which
+        // rendered "0/0" for a run that had six research dimensions.
+        // Older recordings predate the field, so fall back to the plan
+        // size and only then to the covered count itself.
+        const total =
+          num("total") ??
+          prev.counts.subQuestions ??
+          (() => {
+            const ratio = typeof event.ratio === "number" ? (event.ratio as number) : 0;
+            return ratio > 0 ? Math.round(covered / ratio) : covered;
+          })();
+        next.counts.coverage = { covered, total };
       }
       break;
     }

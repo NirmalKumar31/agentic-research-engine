@@ -249,7 +249,16 @@ code, kbd { font-family: var(--mono); font-size: 0.86em; }
   animation: halo 1.8s ease-out infinite;
 }
 .stage--active .stage__label { color: var(--ink); font-weight: 550; }
-.stage--failed .stage__dot { border-color: var(--warn); color: var(--warn); }
+/* Amber for a stage that lost items but produced usable output; red for
+   one that produced nothing. The two used to render identically, so a run
+   that fetched 4 of 6 sources looked like retrieval had failed. */
+.stage--warning .stage__dot { border-color: var(--warn); color: var(--warn); }
+.stage--failed .stage__dot { border-color: var(--danger, #c0392b); color: var(--danger, #c0392b); }
+.stage__note {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  margin-top: 0.2rem; font-size: 0.68rem; white-space: nowrap;
+  max-width: 14rem; overflow: hidden; text-overflow: ellipsis;
+}
 @keyframes halo {
   0% { box-shadow: 0 0 0 0 var(--accent-soft); }
   70% { box-shadow: 0 0 0 9px transparent; }
@@ -444,3 +453,14 @@ code, kbd { font-family: var(--mono); font-size: 0.86em; }
   }
   .topology__pulse { display: none; }
 }
+
+/* Coverage caveat and the standing high-stakes note. Both are restrained
+   on purpose: the report is still the thing being read, and a banner that
+   shouts would imply the run failed when it did not. */
+.notice--coverage {
+  border-left: 3px solid var(--warn); background: var(--warn-soft);
+  padding: 0.7rem 0.9rem; border-radius: var(--radius);
+  font-size: 0.88rem; margin: 0 0 1.2rem;
+}
+.ask__disclaimer, .report__disclaimer { margin-top: 0.75rem; font-size: 0.75rem; }
+.report__disclaimer { border-top: 1px solid var(--line); padding-top: 0.75rem; }

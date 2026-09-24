@@ -190,6 +190,10 @@ export default function App() {
               )}
             </span>
           </div>
+          <p className="ask__disclaimer muted small">
+            Research aid only. Verify important medical, legal, financial or other
+            high-stakes decisions against authoritative primary sources.
+          </p>
         </section>
       ) : (
         <section className="notice">
@@ -287,7 +291,7 @@ export default function App() {
         </section>
       )}
 
-      {result && <ReportView result={result} />}
+      {result && <ReportView result={result} coverage={pipeline.counts.coverage} />}
 
       <section id="how" className="how">
         <h2>How it works</h2>

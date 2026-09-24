@@ -73,6 +73,9 @@ function dispatch(block: string, handlers: StreamHandlers): void {
     if (line.startsWith("event: ")) name = line.slice(7).trim();
     else if (line.startsWith("data: ")) raw += line.slice(6);
   }
+  // Server heartbeats arrive as SSE comments (": keepalive"), which carry
+  // neither field. Dropping them here is what keeps them from advancing
+  // pipeline state or being counted as engine events.
   if (!name || !raw) return;
 
   let payload: Record<string, unknown>;

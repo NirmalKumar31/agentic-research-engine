@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import time
 import uuid
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncGenerator, Callable
 from contextlib import AsyncExitStack
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -90,7 +90,7 @@ async def stream_research(
     *,
     run_id: str | None = None,
     exhaustive_verification: bool = False,
-) -> AsyncIterator[dict[str, Any]]:
+) -> AsyncGenerator[dict[str, Any], None]:
     """Run research, yielding progress events as they happen.
 
     The final event is ``{"event": "result", "result": RunResult}``. Streaming

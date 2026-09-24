@@ -138,6 +138,11 @@ async def assess_coverage(state: ResearchState) -> ResearchState:
         ratio=ratio,
         sufficient=sufficient,
         covered=len(covered),
+        # Emitted explicitly rather than left to be derived. A client
+        # reconstructing the denominator as covered/ratio cannot do it when
+        # nothing is covered, and rendered "0/0 covered" for a run with six
+        # research dimensions.
+        total=len(covered) + len(weak) + len(missing),
         weak=len(weak),
         missing=len(missing),
     )

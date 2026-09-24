@@ -116,11 +116,9 @@ async def plan_research(state: ResearchState) -> ResearchState:
                 .structured(PlanOut, PLANNER_SYSTEM, planner_user(_analysis_block(analysis)))
             )
             raw = out.sub_questions[:8]
-            strategy = out.strategy_note
         except LLMError as exc:
             log.warning("planning_failed_using_single_dimension", error=str(exc)[:200])
             raw = []
-            strategy = "planning failed; researching the question as a single dimension"
             errors = [error_from("plan_research", exc, "single-dimension fallback")]
 
         ids = numbered("SQ", 1, len(raw))
@@ -128,7 +126,6 @@ async def plan_research(state: ResearchState) -> ResearchState:
             SubQuestion(
                 id=sq_id,
                 text=item.text,
-                rationale=item.rationale,
                 priority=min(max(item.priority, 1), 3),
                 round_introduced=1,
             )
@@ -144,7 +141,7 @@ async def plan_research(state: ResearchState) -> ResearchState:
                 )
             ]
 
-        plan = ResearchPlan(analysis=analysis, sub_questions=sub_questions, strategy_note=strategy)
+        plan = ResearchPlan(analysis=analysis, sub_questions=sub_questions)
 
     log.info("plan_generated", sub_questions=len(sub_questions))
     emit(

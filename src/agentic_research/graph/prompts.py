@@ -47,7 +47,10 @@ Rules:
 - No sub-question may be answerable by simply rephrasing another.
 - Prefer four to six sub-questions. Use more only for genuinely broad questions.
 - Include the dimension a naive answer would overlook, such as failure modes, \
-hidden costs, or the conditions under which the obvious answer is wrong."""
+hidden costs, or the conditions under which the obvious answer is wrong.
+- Return only the sub-questions and their priorities. Do not explain your \
+approach or justify each choice: that output is discarded, and writing it has \
+cost smaller models the tokens they needed to finish the list."""
 
 
 def planner_user(analysis_block: str) -> str:

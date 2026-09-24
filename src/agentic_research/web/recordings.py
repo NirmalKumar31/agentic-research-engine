@@ -68,7 +68,9 @@ _TRACE_FIELDS: dict[str, frozenset[str]] = {
     "sources_registered": frozenset({"usable", "duplicates", "extracting"}),
     "evidence_extracted": frozenset({"source_id", "items"}),
     "assessing_coverage": frozenset({"round"}),
-    "coverage_evaluated": frozenset({"round", "ratio", "covered", "weak", "missing", "sufficient"}),
+    "coverage_evaluated": frozenset(
+        {"round", "ratio", "covered", "total", "weak", "missing", "sufficient"}
+    ),
     "synthesizing": frozenset({"evidence"}),
     "synthesized": frozenset({"sections", "findings"}),
     "verifying_citations": frozenset(),

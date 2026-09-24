@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from agentic_research.citations.publication import filter_report_by_verification
+from agentic_research.citations.publication import (
+    ClaimKey,
+    ClaimVerdict,
+    filter_report_by_verification,
+    key_of,
+)
 from agentic_research.citations.verifier import (
     resolve_report,
     strip_markers,
@@ -253,13 +258,13 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         result = verify_structure(report, store, resolution_issues=resolution_issues)
         result.repaired = bool(resolution_issues)
 
-        errors = await _check_entailment(report, store, result, state)
+        errors, verdicts = await _check_entailment(report, store, result, state)
 
         # Publication gate. Claims the verifier could not support are
         # removed rather than rewritten; the issues explaining why stay in
         # the verification record so the removal remains auditable.
         result.generated_substantive_claims = len(report.substantive_claims())
-        report, removed = filter_report_by_verification(report, result)
+        report, removed = filter_report_by_verification(report, verdicts)
         result.removed_after_verification = removed
         result.final_published_claims = len(report.substantive_claims())
         if removed:
@@ -271,6 +276,7 @@ async def verify_citations(state: ResearchState) -> ResearchState:
                 update={
                     "checked_claims": result.checked_claims,
                     "checkable_claims": result.checkable_claims,
+                    "not_checked_claims": result.not_checked_claims,
                     "supported_claims": result.supported_claims,
                     "partially_supported_claims": result.partially_supported_claims,
                     "unsupported_claims": result.unsupported_claims,
@@ -304,6 +310,7 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         evidence_integrity=result.evidence_integrity_rate,
         support=result.support_breakdown,
         exhaustive=result.entailment_exhaustive,
+        not_checked=result.not_checked_claims,
         removed=result.removed_after_verification,
         published=result.final_published_claims,
     )
@@ -320,7 +327,7 @@ async def _check_entailment(
     store: EvidenceStore,
     result: CitationVerification,
     state: ResearchState,
-) -> list:
+) -> tuple[list, dict[ClaimKey, ClaimVerdict]]:
     """Ask the verifier model whether a claim's own evidence supports it.
 
     The evidence shown is exactly the evidence the claim references. The
@@ -328,10 +335,11 @@ async def _check_entailment(
     *source*, which frequently meant judging a claim against text that played
     no part in producing it.
     """
+    verdicts: dict[ClaimKey, ClaimVerdict] = {}
     candidates = [c for c in report.substantive_claims() if c.evidence_ids]
     result.checkable_claims = len(candidates)
     if not candidates:
-        return []
+        return [], verdicts
 
     exhaustive = bool(state.get("exhaustive_verification"))
     if exhaustive:
@@ -363,6 +371,7 @@ async def _check_entailment(
             break
 
         result.checked_claims += 1
+        verdicts[key_of(claim)] = out.verdict
         if out.verdict == "supported":
             result.supported_claims += 1
         elif out.verdict == "partially_supported":
@@ -387,7 +396,8 @@ async def _check_entailment(
                     detail=out.reason[:200],
                 )
             )
-    return errors
+    result.not_checked_claims = max(0, result.checkable_claims - result.checked_claims)
+    return errors, verdicts
 
 
 def _evidence_block(evidence_ids: list[str], store: EvidenceStore) -> str:
