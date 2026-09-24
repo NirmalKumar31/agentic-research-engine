@@ -57,9 +57,9 @@ export function describe(event: ProgressEvent): string | null {
     case "synthesized":
       return `Draft written: ${n("sections")} sections, ${n("findings")} findings`;
     case "verifying_citations":
-      return "Verifying citations against their evidence";
+      return "Checking citations against their evidence";
     case "citations_verified":
-      return `Verified ${n("total")} citations`;
+      return `Resolved ${n("total")} citations`;
     case "completed":
       return `Complete (${s("stop_reason")})`;
     default:

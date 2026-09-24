@@ -60,7 +60,7 @@ export interface PipelineState {
     searches: number | null;
     sources: number | null;
     evidence: number | null;
-    claims: number | null;
+    citations: number | null;
     coverage: { covered: number; total: number } | null;
   };
   finished: boolean;
@@ -77,7 +77,7 @@ export function emptyPipeline(): PipelineState {
       searches: null,
       sources: null,
       evidence: null,
-      claims: null,
+      citations: null,
       coverage: null,
     },
     finished: false,
@@ -156,7 +156,7 @@ export function advance(prev: PipelineState, event: ProgressEvent): PipelineStat
       next.counts.evidence = num("evidence");
       break;
     case "citations_verified":
-      next.counts.claims = num("total");
+      next.counts.citations = num("total");
       break;
     case "coverage_evaluated": {
       const covered = num("covered");
@@ -210,7 +210,7 @@ export function humanise(event: ProgressEvent): string | null {
     case "synthesizing":
       return `Writing the report from ${n("evidence")} evidence items`;
     case "citations_verified":
-      return `Verified ${n("total")} citations against their evidence`;
+      return `Resolved ${n("total")} citations against their evidence`;
     case "completed":
       return `Finished — ${s("stop_reason")}`;
     default:

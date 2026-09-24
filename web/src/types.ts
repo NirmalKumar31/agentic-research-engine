@@ -65,12 +65,10 @@ export interface Source {
 export interface SubQuestion {
   id: string;
   text: string;
-  rationale: string;
   is_followup: boolean;
 }
 
 export interface Plan {
-  strategy: string;
   sub_questions: SubQuestion[];
 }
 

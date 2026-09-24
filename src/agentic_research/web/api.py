@@ -124,7 +124,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version=__version__,
         lifespan=lifespan,
         # No interactive docs in demo mode: they invite poking at an endpoint
-        # that spends money, and add nothing for a portfolio visitor.
+        # that spends money, and add nothing for a demo visitor.
         docs_url=None if state.demo_mode else "/docs",
         redoc_url=None,
     )
@@ -242,8 +242,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return JSONResponse(
                 {
                     "error": (
-                        "Live research is disabled on the public portfolio "
-                        "instance. Explore a recorded run, or run the project "
+                        "Live research is disabled on this public demo. "
+                        "Explore a recorded run, or run the project "
                         "locally for live research."
                     ),
                     "live_disabled": True,

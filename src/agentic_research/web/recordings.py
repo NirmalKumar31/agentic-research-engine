@@ -45,7 +45,9 @@ RECORDINGS_DIR = Path(__file__).resolve().parent / "recorded_runs"
 # Bumped when the recording payload changes shape. A committed example
 # outlives the code that produced it, and a silently-incompatible old file
 # renders as a subtly broken demo rather than an obvious error.
-RECORDING_SCHEMA_VERSION = 1
+# 2: planner free prose (plan.strategy, sub_question.rationale) removed
+#    from the public payload -- both carried model self-talk.
+RECORDING_SCHEMA_VERSION = 2
 
 # Progress events are copied into a committed, publicly served file, so the
 # fields that survive are listed rather than filtered. An allowlist cannot
@@ -220,6 +222,79 @@ def assert_no_secrets(recording_id: str, payload: Any) -> None:
                     )
 
 
+# Free-text fields a model writes about its own process, as opposed to
+# about the research. None of these should reach a public payload, so the
+# check is by key name and applies wherever the key appears.
+_INTERNAL_REASONING_KEYS = frozenset(
+    {"strategy", "strategy_note", "rationale", "reasoning", "thinking"}
+)
+
+# First-person planning talk. Matched only to catch a *new* free-text field
+# that slips past the key check -- the key check is the primary defence,
+# because it cannot be defeated by a model phrasing itself differently.
+_SELF_TALK = re.compile(
+    r"\b("
+    r"the user (?:wants|asked|is asking|needs) me"
+    # No trailing "to": the narration is "I should focus" and "I will now
+    # generate" as often as "I need to". Requiring "to" missed both.
+    r"|I (?:need|have|want|will|shall|should|would|could|can|must|am)\b"
+    r"|I'(?:ll|m|ve|d)\b"
+    r"|let me\b"
+    r"|let's\b"
+    r"|as an AI\b"
+    r"|my task\b"
+    r"|first,? I\b"
+    r")",
+    re.IGNORECASE,
+)
+
+# Text this engine did not write: verbatim source quotes, page titles, the
+# visitor's own question, and the rendered report that embeds the quotes.
+# A source page is free to contain "let me explain"; flagging that would be
+# a false positive that takes the whole recording out of the demo. Claim
+# text and sub-question prose are *not* exempt -- those the model wrote, and
+# they are checked directly rather than only via the rendered markdown.
+_THIRD_PARTY_TEXT = re.compile(
+    r"""^\$
+    (
+      \.result\.evidence\[\d+\]\.quote
+     |\.result\.sources\[\d+\]\.title
+     |\.result\.markdown
+     |\.meta\.question
+     |\.trace\[\d+\]\.(query|title)
+    )$""",
+    re.VERBOSE,
+)
+
+
+def assert_no_internal_reasoning(recording_id: str, payload: Any) -> None:
+    """Refuse a public payload carrying model self-talk.
+
+    Two checks, for the same reason ``assert_no_secrets`` has two. The key
+    check is exact and cannot be worded around. The value scan is the
+    backstop for a free-text field added later, and is deliberately narrow:
+    it looks for first-person process narration, not for the word "I",
+    because a quoted source passage may legitimately contain either.
+    """
+    stack: list[tuple[str, Any]] = [("$", payload)]
+    while stack:
+        where, node = stack.pop()
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if str(key).lower() in _INTERNAL_REASONING_KEYS:
+                    raise ValueError(
+                        f"recording {recording_id!r} exposes internal reasoning "
+                        f"field {str(key)!r} at {where}"
+                    )
+                stack.append((f"{where}.{key}", value))
+        elif isinstance(node, list):
+            stack.extend((f"{where}[{i}]", item) for i, item in enumerate(node))
+        elif (
+            isinstance(node, str) and not _THIRD_PARTY_TEXT.match(where) and _SELF_TALK.search(node)
+        ):
+            raise ValueError(f"recording {recording_id!r} contains model self-talk at {where}")
+
+
 def _summary_from(recording_id: str, payload: dict[str, Any]) -> RecordingSummary:
     meta = payload.get("meta", {})
     result = payload.get("result", {})
@@ -280,6 +355,7 @@ def _index() -> dict[str, dict[str, Any]]:
             )
             continue
         assert_no_secrets(recording_id, payload)
+        assert_no_internal_reasoning(recording_id, payload)
         loaded[recording_id] = payload
 
     log.info("recordings_loaded", count=len(loaded), ids=sorted(loaded))
@@ -379,17 +455,19 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
             ],
             "limitations": list(report.limitations),
         },
+        # The planner's free-prose fields -- its strategy note and each
+        # sub-question's rationale -- are omitted deliberately. Both are
+        # text a model wrote to itself while deciding how to decompose the
+        # question, and both reliably contain first-person planning talk
+        # ("the user wants me to...", "I can find this in..."). Neither is
+        # rendered anywhere. What ships is the structured plan: the
+        # sub-questions themselves, which describe the research rather than
+        # the deliberation that produced it.
         "plan": None
         if plan is None
         else {
-            "strategy": plan.strategy_note,
             "sub_questions": [
-                {
-                    "id": q.id,
-                    "text": q.text,
-                    "rationale": q.rationale,
-                    "is_followup": q.is_followup,
-                }
+                {"id": q.id, "text": q.text, "is_followup": q.is_followup}
                 for q in plan.sub_questions
             ],
         },

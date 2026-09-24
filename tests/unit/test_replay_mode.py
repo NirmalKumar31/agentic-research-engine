@@ -24,6 +24,7 @@ from fastapi.testclient import TestClient
 from agentic_research.config import Settings
 from agentic_research.web import recordings
 from agentic_research.web.api import create_app
+from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
 
 
 def _settings(**overrides: Any) -> Settings:
@@ -60,7 +61,7 @@ FAKE_CREDENTIALS = (
 
 
 RECORDING = {
-    "recording_schema_version": 1,
+    "recording_schema_version": RECORDING_SCHEMA_VERSION,
     "meta": {
         "id": "example-run",
         "label": "Fraud detection on imbalanced data",
@@ -77,18 +78,15 @@ RECORDING = {
     "result": {
         "run_id": "recorded",
         "plan": {
-            "strategy": "cover models, metrics and failure modes",
             "sub_questions": [
                 {
                     "id": "SQ1",
                     "text": "Which metrics suit heavy class imbalance?",
-                    "rationale": "accuracy is misleading here",
                     "is_followup": False,
                 },
                 {
                     "id": "SQ2",
                     "text": "Which resampling methods are used?",
-                    "rationale": "the standard first lever",
                     "is_followup": False,
                 },
             ],
@@ -686,3 +684,124 @@ class TestUntrustedTextIsNotInterpreted:
             if "dangerouslySetInnerHTML" in path.read_text(encoding="utf-8")
         ]
         assert not offenders, f"raw HTML injection reintroduced in {offenders}"
+
+
+class TestNoInternalReasoningIsPublished:
+    """Public payloads carry research, not the model's deliberation.
+
+    The planner's strategy note is free prose a model writes to itself
+    while deciding how to decompose a question, and it reliably opens with
+    "The user wants me to...". It was committed in all three recordings
+    and served to anonymous visitors before this check existed.
+    """
+
+    SELF_TALK = [
+        "The user wants me to decompose this question",
+        "I need to create sub-questions that cover different angles",
+        "Let me think through this carefully",
+        "I should focus on the technical dimensions first",
+        "As an AI language model, I will break this down",
+        "I will now generate the sub-questions",
+        "I'll approach this by splitting the question",
+        "My task is to plan the research",
+    ]
+
+    def test_the_canonical_recordings_are_clean(self) -> None:
+        """The shipped artifacts, scanned as committed."""
+        from agentic_research.web.recordings import (
+            RECORDINGS_DIR,
+            assert_no_internal_reasoning,
+        )
+
+        paths = sorted(RECORDINGS_DIR.glob("*.json"))
+        assert paths, "no recordings found to scan"
+        for path in paths:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            assert_no_internal_reasoning(path.stem, payload)
+
+    def test_no_recording_carries_a_plan_strategy(self) -> None:
+        from agentic_research.web.recordings import RECORDINGS_DIR
+
+        for path in sorted(RECORDINGS_DIR.glob("*.json")):
+            plan = json.loads(path.read_text(encoding="utf-8"))["result"].get("plan") or {}
+            assert "strategy" not in plan, path.name
+            assert plan.get("sub_questions"), f"{path.name} lost its sub-questions"
+
+    @pytest.mark.parametrize("phrase", SELF_TALK)
+    def test_each_self_talk_phrase_is_rejected(self, phrase: str) -> None:
+        """Placed in an ordinary field, not the removed one: the check has
+        to catch a *new* free-text field, not just the known offender."""
+        from agentic_research.web.recordings import assert_no_internal_reasoning
+
+        payload = {"result": {"plan": {"sub_questions": [{"id": "SQ1", "text": phrase}]}}}
+        with pytest.raises(ValueError, match="self-talk"):
+            assert_no_internal_reasoning("probe", payload)
+
+    def test_a_reinstated_strategy_field_is_rejected_by_name(self) -> None:
+        """Even holding innocuous text. The key itself is the defect."""
+        from agentic_research.web.recordings import assert_no_internal_reasoning
+
+        payload = {"result": {"plan": {"strategy": "Compare the two approaches."}}}
+        with pytest.raises(ValueError, match="internal reasoning"):
+            assert_no_internal_reasoning("probe", payload)
+
+    def test_a_quoted_source_passage_is_not_a_false_positive(self) -> None:
+        """Evidence quotes are verbatim third-party text. A page that says
+        "let me explain" must not take the recording out of the demo."""
+        from agentic_research.web.recordings import assert_no_internal_reasoning
+
+        payload = {
+            "result": {
+                "evidence": [{"quote": "Let me explain why recall matters here."}],
+                "sources": [{"title": "I need to understand caching"}],
+                "markdown": "As an AI practitioner, let me note the trade-off.",
+            },
+            "meta": {"question": "I need to compare vector databases"},
+        }
+        assert_no_internal_reasoning("probe", payload)
+
+    def test_the_live_serialiser_omits_the_strategy_note(self) -> None:
+        """Replay and live share one serialiser, so the live path must be
+        clean for the same reason -- asserted directly rather than
+        inferred from the recordings."""
+        from test_web_api import sample_result
+
+        from agentic_research.models import QueryAnalysis, ResearchPlan, SubQuestion
+        from agentic_research.web.recordings import (
+            assert_no_internal_reasoning,
+            serialise_result,
+        )
+
+        result = sample_result()
+        # A plan carrying exactly the prose this check exists to stop, so
+        # the assertion cannot pass merely because the plan was absent.
+        result.state["plan"] = ResearchPlan(
+            analysis=QueryAnalysis(original_query="q", normalized_query="q", intent="compare"),
+            strategy_note="The user wants me to compare these approaches. I need to split it.",
+            sub_questions=[
+                SubQuestion(
+                    id="SQ1",
+                    text="Which metrics suit imbalance?",
+                    # Internal field, deliberately not published.
+                    rationale="I can find this in the retrieved pages.",
+                )
+            ],
+        )
+
+        payload = serialise_result(result)
+        assert payload["plan"] is not None
+        assert "strategy" not in payload["plan"]
+        assert payload["plan"]["sub_questions"]
+        assert_no_internal_reasoning("live", {"result": payload})
+
+    def test_the_served_api_payload_is_clean(self) -> None:
+        """End to end, through the route an anonymous visitor hits."""
+        from agentic_research.web.recordings import assert_no_internal_reasoning
+
+        settings = Settings(
+            llm_mode="local", demo_mode=True, live_research_enabled=False, _env_file=None
+        )
+        with TestClient(create_app(settings)) as client:
+            for example in client.get("/api/examples").json()["examples"]:
+                body = client.get(f"/api/examples/{example['id']}").json()
+                assert_no_internal_reasoning(example["id"], body)

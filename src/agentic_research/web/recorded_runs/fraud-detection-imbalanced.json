@@ -1,5 +1,5 @@
 {
-  "recording_schema_version": 1,
+  "recording_schema_version": 2,
   "meta": {
     "id": "fraud-detection-imbalanced",
     "label": "Fraud detection under class imbalance",
@@ -424,42 +424,35 @@
       ]
     },
     "plan": {
-      "strategy": "The user wants me to decompose a research question about fraud detection in highly imbalanced transaction datasets into meaningful research dimensions. I need to create sub-questions that cover genuinely different angles, each answerable by its own web research, without rephrasing other sub-questions. I should aim for 4-6 sub-questions, and include dimensions a naive answer would overlook. The expected answer shape is a timeline, so I'll make sure the decomposition leads to a chronological or phased approach to research.",
       "sub_questions": [
         {
           "id": "SQ1",
           "text": "What are the most effective machine learning models for fraud detection in highly imbalanced transaction datasets, considering recent performance benchmarks?",
-          "rationale": "This covers the core technical approach. A naive answer might focus on general models without considering imbalanced data specifically. This sub-question targets current best practices and recent benchmarks, which is crucial for modern applications. It's answerable by researching recent ML model performance in imbalanced fraud detection contexts.",
           "is_followup": false
         },
         {
           "id": "SQ2",
           "text": "How do data preprocessing techniques for highly imbalanced transaction datasets impact model performance in fraud detection?",
-          "rationale": "This addresses a critical but often overlooked aspect: data preparation. Naive answers might skip preprocessing, but in imbalanced data, techniques like SMOTE, ADASYN, or threshold adjustments are essential. This sub-question focuses on how preprocessing affects outcomes, which is a dimension that's frequently overlooked in basic fraud detection discussions.",
           "is_followup": false
         },
         {
           "id": "SQ3",
           "text": "What are the most appropriate evaluation metrics for fraud detection models in highly imbalanced datasets, beyond accuracy?",
-          "rationale": "This tackles the evaluation dimension. A naive answer might use accuracy, which is misleading in imbalanced data. This sub-question specifically asks for metrics that account for class imbalance (e.g., F1-score, AUC-ROC, precision-recall curves), which is critical for fraud detection where false negatives are costly. It's answerable by researching evaluation metrics in imbalanced contexts.",
           "is_followup": false
         },
         {
           "id": "SQ4",
           "text": "What are the hidden costs and failure modes of deploying fraud detection models in real-world transaction systems?",
-          "rationale": "This covers the overlooked dimension of real-world deployment. Naive answers might focus on model performance in isolation, but deployment involves latency, false positives (blocking legitimate transactions), and system failures. This sub-question addresses hidden costs and failure modes, which are critical for practical adoption but often ignored in theoretical discussions.",
           "is_followup": false
         },
         {
           "id": "SQ5",
           "text": "How do regulatory and compliance requirements affect the design and evaluation of fraud detection models in highly imbalanced transaction datasets?",
-          "rationale": "This addresses the regulatory angle, which is a dimension a naive answer would overlook. Fraud detection often involves legal and compliance constraints (e.g., GDPR, PCI DSS), which can impact model choices and evaluation. This sub-question ensures we consider external constraints that might invalidate a 'best' model in practice.",
           "is_followup": false
         },
         {
           "id": "SQ6",
           "text": "What are the conditions under which the most effective fraud detection models become obsolete or require significant retraining?",
-          "rationale": "This covers model longevity and adaptability. A naive answer might assume models are static, but fraud patterns evolve rapidly. This sub-question addresses when models need updates (e.g., due to new fraud tactics), which is crucial for long-term effectiveness. It's answerable by researching model drift and retraining cycles in fraud detection.",
           "is_followup": false
         }
       ]

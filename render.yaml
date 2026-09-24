@@ -1,19 +1,15 @@
 # Render blueprint for the public replay demo.
 #
-# This Blueprint declares NO secrets, and needs none. The public site is
-# replay-only: it serves research runs recorded earlier and committed
-# inside the package, so it calls no model and no search provider. There is
-# deliberately no TAVILY_API_KEY or OPENAI_API_KEY entry here -- every
-# sync:false variable prompts for a value at Blueprint creation, which
-# would demand two credentials for a site that uses neither.
+# Declares NO secrets and needs none. The site is replay-only: it serves
+# research runs recorded earlier and committed inside the package, so it
+# calls no model and no search provider. Every sync:false variable prompts
+# for a value at Blueprint creation, so declaring the two API keys would
+# demand credentials for a site that uses neither.
 #
-# Free instances have limited CPU and RAM, spin down when idle and use an
-# ephemeral filesystem. A cold start after inactivity takes roughly a
-# minute. Replay makes that cheap rather than merely tolerable: the request
-# that wakes the service spends no API credit at all.
+# Free instances spin down when idle; a cold start takes roughly a minute.
+# Replay makes that cheap, because waking the service spends nothing.
 #
-# This is a portfolio demo, not production infrastructure: no persistence,
-# in-memory checkpointing, and no local model server.
+# For the live variant, deploy deploy/render-live.yaml instead.
 
 services:
   - type: web
@@ -26,41 +22,21 @@ services:
     autoDeploy: false
 
     envVars:
-      # --- live research is off, and that is the point ------------------
-      # The daily run cap lives in process memory. A free instance spins
-      # down when idle, and every cold start resets it, so it cannot bound
-      # a 50-request/day account quota. Per-run request and spend ceilings
-      # still hold; the cross-restart daily budget does not. The site
-      # therefore serves recorded runs, which costs nothing and cannot be
-      # exhausted. Enabling this without a persistent atomic quota store
-      # means handing the API budget to anyone who finds the URL.
+      # Off because the daily run cap is process-local and a free instance
+      # resets it on every cold start, so it cannot bound an account-level
+      # quota. Per-run ceilings are unaffected.
       - key: LIVE_RESEARCH_ENABLED
         value: "false"
 
-      # --- no secrets, deliberately --------------------------------------
-      # TAVILY_API_KEY and OPENAI_API_KEY are absent rather than declared
-      # with sync:false. Every sync:false variable prompts for a value when
-      # the Blueprint is created, so declaring them would demand two
-      # credentials from someone deploying a site that never calls either
-      # provider -- including someone who has no account with them.
-      #
-      # To enable live research later: add OPENAI_API_KEY and
-      # TAVILY_API_KEY in the Render Dashboard, then set LLM_MODE=cloud and
-      # LIVE_RESEARCH_ENABLED=true together. Read the note on LLM_MODE
-      # below before doing so.
-
-      # --- hosted demo posture ------------------------------------------
       - key: DEMO_MODE
         value: "true"
-      # No model is used while the service only replays recordings, and
-      # LLM_MODE=cloud would refuse to start without OPENAI_API_KEY --
-      # failing the deploy on a credential the replay site never touches.
-      # Set this to `cloud` at the same time as LIVE_RESEARCH_ENABLED=true,
-      # never separately: there is no Ollama on a free instance, so `local`
-      # plus live research would fail preflight on the first request.
+      # Replay reaches no model. LLM_MODE=cloud would refuse to start
+      # without OPENAI_API_KEY, failing the deploy on a credential this
+      # site never uses. To go live, set this to `cloud` and
+      # LIVE_RESEARCH_ENABLED=true together -- there is no Ollama here, so
+      # `local` plus live research fails preflight on the first request.
       - key: LLM_MODE
         value: local
-      # Start on the cheap model. Validate cost before considering Sol.
       - key: OPENAI_MODEL
         value: gpt-6-luna
       - key: OPENAI_FAST_MODEL
@@ -68,7 +44,8 @@ services:
       - key: ALLOW_CLOUD_FALLBACK
         value: "false"
 
-      # --- spend ceilings, enforced before dispatch ----------------------
+      # Per-run ceilings, reserved before dispatch. Inert while replaying;
+      # they apply the moment live research is enabled.
       - key: MAX_CLOUD_COST_USD
         value: "0.05"
       - key: MAX_CLOUD_CALLS
@@ -79,13 +56,14 @@ services:
         value: "20000"
       - key: MAX_SEARCH_CREDITS
         value: "8"
-      # Measured on the validation account: gpt-6-luna allowed 50 requests
-      # per day and one run costs ~22. Raise this only when the plan is
-      # raised; the daily run cap is derived from it.
+      - key: MAX_PROVIDER_REQUESTS
+        value: "30"
+      # Conservative configured value for the account quota the daily run
+      # cap is derived from. Raise only with the provider plan.
       - key: DEMO_PROVIDER_REQUESTS_PER_DAY
         value: "50"
 
-      # --- run shape -----------------------------------------------------
+      # Run shape.
       - key: MAX_RESEARCH_ROUNDS
         value: "1"
       - key: MAX_SOURCES
@@ -99,7 +77,7 @@ services:
       - key: SEARCH_DEPTH
         value: basic
 
-      # --- ephemeral by design -------------------------------------------
+      # Ephemeral filesystem; persisting is pointless and slow here.
       - key: PERSIST_RUNS
         value: "false"
       - key: CHECKPOINT_BACKEND

@@ -108,8 +108,12 @@ would need a persistent atomic quota store.
 **Input token estimation is `len // 4`** — conservative for prose, wrong
 for code-heavy or non-Latin content.
 
-**No retry budget across a run.** Individual calls back off; nothing caps
-the total.
+**No separate retry budget.** Retries, structured repairs and
+compatibility retries are each a distinct provider request and reserve
+against the same `max_provider_requests` and `max_cloud_calls` ceilings as
+any other, so they are bounded — but nothing limits what share of the
+budget they may consume. A run that retries heavily can exhaust its
+request ceiling and stop early rather than overspend.
 
 **Checkpoint recovery is untested under load.** No test resumes an
 interrupted run.
@@ -144,5 +148,3 @@ safety is React's.
 
 **The public demo replays recorded runs by default.** Live research is a
 separate deployment configuration.
-
-**No user has ever used it** other than its author.

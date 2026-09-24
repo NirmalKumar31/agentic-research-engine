@@ -6,7 +6,7 @@ structural: :func:`~agentic_research.graph.routing.dispatch_extraction` shows
 every source every open sub-question, so the extractor is invited to find
 something for a question that page was never fetched for.
 
-The obvious fix is to show each source only the sub-questions it was
+Narrowing extraction shows each source only the sub-questions it was
 retrieved for. That would drive cross-attribution to zero **by construction**,
 which is why "does it work?" is the wrong question -- it cannot fail. The
 question this module exists to answer is what it *costs*: how much citable

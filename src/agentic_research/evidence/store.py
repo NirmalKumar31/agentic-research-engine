@@ -219,13 +219,13 @@ class EvidenceStore:
 
         if distinct_sources >= 2 and len(verified) >= 2:
             verdict = "covered"
-            note = f"{len(verified)} verified items across {distinct_sources} sources"
+            note = f"{len(verified)} exact-match items across {distinct_sources} sources"
         elif verified:
             verdict = "weak"
-            note = f"only {len(verified)} verified item(s) from {distinct_sources} source(s)"
+            note = f"only {len(verified)} exact-match item(s) from {distinct_sources} source(s)"
         else:
             verdict = "uncovered"
-            note = "no verified evidence"
+            note = "no exact-match evidence"
 
         return SubQuestionCoverage(
             sub_question_id=sub_question.id,

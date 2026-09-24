@@ -98,8 +98,8 @@ unaffected and still enforced before dispatch; the *daily* one does not
 survive a restart.
 
 The alternative was a persistent atomic quota store whose only purpose
-would be letting anonymous visitors spend the API budget. For a portfolio
-demo that is architecture bought for nothing.
+would be letting anonymous visitors spend the API budget. At this scale
+that is infrastructure bought for nothing.
 
 The gate is enforced in the route, before query validation and before
 anything constructs a run, because disabling a button in React leaves the
@@ -143,7 +143,7 @@ Blue nodes are barriers. The orange node is the only back-edge.
 
 ### 3.1 Why stage-level fan-out
 
-The obvious design gives each "researcher" a sub-question and has it search,
+The straightforward design gives each "researcher" a sub-question and has it search,
 fetch and extract. It is easier to draw and it is worse, for one reason: **a
 worker cannot see its siblings.**
 
@@ -164,9 +164,7 @@ The cost is two extra synchronisation points, which add latency equal to the
 slowest worker in each stage. The benefit is that redundant work is eliminated
 rather than merely counted.
 
-How much this saves depends entirely on how much the sub-questions overlap,
-and it is worth being precise about that rather than quoting a flattering
-number:
+How much this saves depends on how much the sub-questions overlap:
 
 - A unit test pins the *mechanism*: three queries returning the same three
   URLs produce exactly three fetches, not nine.
@@ -191,10 +189,11 @@ to it has settled. The alternative is to track completions in state and
 re-check on each pass, which is a hand-written barrier with the usual race
 between the last worker's write and the checker's read.
 
-### 3.3 Two behaviours found by testing
+### 3.3 LangGraph behaviours the design accounts for
 
-Neither appears in the documentation examples. Both were verified against
-LangGraph 1.2.x with standalone scripts before the design depended on them.
+Three behaviours that do not appear in the documentation examples. Each
+was verified against LangGraph 1.2.x with a standalone script before the
+design was allowed to depend on it.
 
 **`error_handler` does not fire for `Send`-dispatched nodes.**
 
@@ -204,24 +203,21 @@ graph.add_node("worker", worker, error_handler=handler)  # plain node: works
 ```
 
 An exception escaping one parallel worker therefore destroys its siblings'
-completed work. Every worker in this engine catches its own exceptions and
-writes a `RunError` into state. This is not defensive padding — a real
-`httpx.ReadTimeout` from Ollama took out an entire extraction round during
-development, because the worker caught only `LLMError` and the router had
-mapped connection errors but not timeouts.
+completed work. Every worker consequently catches its own exceptions —
+broadly, not just the provider-specific ones — and writes a `RunError`
+into state, so one worker's failure costs its own result and nothing else.
 
 **`draw_mermaid()` mis-renders this graph.**
 
-A third, less dangerous one, found while generating the diagrams.
-``compiled.get_graph().draw_mermaid()`` drops ``finalize -> END`` and invents
-three conditional edges that were never declared, including
-``finalize -> register_sources``. Bisecting showed it appears once the
-``dedupe_sources`` branch is added, and it reproduces with placeholder nodes.
-Execution is unaffected — ``builder.edges`` and ``builder.branches`` are
-correct, and a test asserts ``finalize`` runs exactly once — but a published
-diagram showing a loop that does not exist is worse than none. The
-``graph`` CLI command therefore renders Mermaid from the builder's own
-structures, and a test pins that rendering against them.
+``compiled.get_graph().draw_mermaid()`` drops ``finalize -> END`` and
+invents three conditional edges that were never declared, including
+``finalize -> register_sources``. It appears once the ``dedupe_sources``
+branch is added and reproduces with placeholder nodes. Execution is
+unaffected — ``builder.edges`` and ``builder.branches`` are correct, and a
+test asserts ``finalize`` runs exactly once — but the rendered diagram is
+a published artifact, so the ``graph`` CLI command renders Mermaid from
+the builder's own structures instead, and a test pins that rendering
+against them.
 
 **A conditional edge returning `[]` silently ends the graph.**
 
@@ -312,15 +308,15 @@ together.
 
 ### 5.1 Evidence-first claims
 
-The first version of this system stored citations as source ids on each
-claim. That looked like provenance and was not: nothing recorded *which
-evidence* produced a sentence. When verification later needed to check
-whether a source supported a claim, it had no way to know which span was
-responsible, so it sampled the first three evidence items belonging to the
-cited source and judged against those. Frequently that meant grading a
-claim against text that played no part in writing it.
+The rejected alternative is to store citations as source ids on each
+claim. That resembles provenance without being it: nothing records *which
+evidence* produced a sentence. Verification then cannot know which span is
+responsible, and the best it can do is judge the claim against some subset
+of the cited source's evidence — frequently text that played no part in
+writing it.
 
-The fix is to make evidence the primary link and derive everything else:
+Evidence is therefore the primary link, and everything else derives from
+it:
 
 ```python
 class Claim(BaseModel):
@@ -348,7 +344,7 @@ graph LR
 
 Read right to left, every arrow is stored rather than inferred.
 
-**A consequence worth stating plainly:** `citation_integrity` — the metric
+**A consequence:** `citation_integrity` — the metric
 previously published as "citation validity" and reported at 100% — is now
 true by construction, because citations only exist for evidence that
 already resolved. It is an engine invariant, not a quality signal. The
@@ -795,5 +791,5 @@ budget does not stop a local run.
   guarded title similarity catches the overwhelming majority at zero
   additional cost.
 - **A vector store.** Evidence is tens of items scoped to one run, not a
-  corpus. A dict lookup is the right data structure; adding a vector database
-  here would be resume-driven development.
+  corpus. A dict lookup is the right data structure; a vector database here
+  would add an index, a dependency and a failure mode for no retrieval gain.

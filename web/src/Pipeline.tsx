@@ -73,7 +73,7 @@ function Counters({ state, live }: { state: PipelineState; live: boolean }) {
   if (c.subQuestions !== null) items.push([String(c.subQuestions), "questions"]);
   if (c.sources !== null) items.push([String(c.sources), "sources"]);
   if (c.evidence !== null) items.push([String(c.evidence), "evidence"]);
-  if (c.claims !== null) items.push([String(c.claims), "citations"]);
+  if (c.citations !== null) items.push([String(c.citations), "citations"]);
   if (c.coverage) items.push([`${c.coverage.covered}/${c.coverage.total}`, "covered"]);
   if (items.length === 0) return null;
 

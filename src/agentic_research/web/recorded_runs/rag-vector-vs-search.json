@@ -1,5 +1,5 @@
 {
-  "recording_schema_version": 1,
+  "recording_schema_version": 2,
   "meta": {
     "id": "rag-vector-vs-search",
     "label": "Vector databases vs search engines for RAG",
@@ -408,42 +408,35 @@
       ]
     },
     "plan": {
-      "strategy": "The user wants me to decompose the research question about practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation into meaningful research dimensions. I need to create sub-questions that cover genuinely different angles while following the rules provided. Let me think through this carefully.",
       "sub_questions": [
         {
           "id": "SQ1",
           "text": "What are the specific performance metrics (latency, throughput, accuracy) for vector databases versus traditional search engines when handling real-world RAG workloads?",
-          "rationale": "This addresses capability - how well each technology performs under actual usage conditions. It focuses on measurable performance metrics rather than vague claims. A naive answer might overlook the importance of real-world workloads rather than theoretical benchmarks.",
           "is_followup": false
         },
         {
           "id": "SQ2",
           "text": "What are the hidden costs associated with implementing and maintaining vector databases compared to traditional search engines in RAG systems?",
-          "rationale": "This covers cost beyond simple licensing fees - including infrastructure, specialized skills, and potential over-provisioning. A naive answer would likely focus only on direct costs while overlooking operational expenses and hidden costs of specialized implementations.",
           "is_followup": false
         },
         {
           "id": "SQ3",
           "text": "How does the operational complexity of vector databases compare to traditional search engines in terms of deployment, scaling, and integration with existing RAG pipelines?",
-          "rationale": "This addresses operational complexity - the practical challenges of implementing and maintaining each technology. It goes beyond just technical complexity to include integration with existing systems and scaling requirements. A naive answer might overlook the integration challenges with existing RAG pipelines.",
           "is_followup": false
         },
         {
           "id": "SQ4",
           "text": "What security and privacy implications arise from using vector databases versus traditional search engines in RAG applications, particularly regarding data leakage and model protection?",
-          "rationale": "This covers security - a critical dimension that's often overlooked in RAG discussions. Traditional search engines might have different security models than vector databases, and this question specifically addresses data leakage and model protection concerns.",
           "is_followup": false
         },
         {
           "id": "SQ5",
           "text": "What are the failure modes and recovery mechanisms for each technology when handling large-scale RAG deployments, and how do they impact system reliability?",
-          "rationale": "This addresses failure modes - a dimension that a naive answer would overlook. It focuses on how each technology handles failures and what the recovery mechanisms look like in practice for large-scale deployments.",
           "is_followup": false
         },
         {
           "id": "SQ6",
           "text": "Under what specific conditions does the obvious advantage of one technology (vector databases or traditional search engines) become a disadvantage in RAG applications?",
-          "rationale": "This covers the conditions under which the obvious answer is wrong - a critical dimension that's often overlooked. It helps identify edge cases where one technology might seem better but actually performs worse in specific scenarios.",
           "is_followup": false
         }
       ]

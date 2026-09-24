@@ -1,5 +1,5 @@
 {
-  "recording_schema_version": 1,
+  "recording_schema_version": 2,
   "meta": {
     "id": "nist-ai-risk-framework",
     "label": "NIST AI Risk Management Framework (PDF)",
@@ -383,42 +383,35 @@
       ]
     },
     "plan": {
-      "strategy": "The user wants me to decompose a research question about the NIST AI Risk Management Framework 1.0 into distinct research dimensions that can be investigated separately. I need to create sub-questions that cover genuinely different angles while following the rules provided. The goal is to have 4-6 sub-questions that are answerable by web research, don't rephrase each other, and include dimensions a naive answer might overlook (like failure modes, hidden costs, etc.). I should focus on the NIST AI Risk Management Framework 1.0 publication as the primary source, and include page-level evidence where available.",
       "sub_questions": [
         {
           "id": "SQ1",
           "text": "What are the specific core functions defined in NIST AI RMF 1.0 and how do they interrelate?",
-          "rationale": "This addresses the 'core functions' dimension directly. The framework has specific core functions that need to be identified and understood in relation to each other. A naive answer might overlook how these functions interact or depend on each other, so this sub-question covers that nuance. I can find this information in the NIST publication, likely in the sections describing the framework structure.",
           "is_followup": false
         },
         {
           "id": "SQ2",
           "text": "What governance structures and responsibilities are explicitly outlined in NIST AI RMF 1.0 for AI risk management?",
-          "rationale": "This covers the 'governance role' dimension. The framework specifies who is responsible for what in governance, which is crucial for implementation. A naive answer might overlook the specific roles and responsibilities rather than just saying 'governance is important'. This sub-question is answerable by researching the governance section of the NIST publication.",
           "is_followup": false
         },
         {
           "id": "SQ3",
           "text": "How does NIST AI RMF 1.0 define and structure the practical application of risk management for AI systems?",
-          "rationale": "This addresses the 'practical use' dimension. The framework has specific guidance on how to apply the risk management process in real-world scenarios. A naive answer might overlook the practical implementation details, so this sub-question focuses on the actionable aspects. I can find this in the sections discussing implementation or practical use cases.",
           "is_followup": false
         },
         {
           "id": "SQ4",
           "text": "What are the page-level references in NIST AI RMF 1.0 that describe the framework's maturity levels and their implications for risk management?",
-          "rationale": "This covers the 'maturity' dimension that a naive answer might overlook. The framework includes maturity levels that affect how risk management is applied, and having page-level evidence is crucial for supporting claims. This sub-question ensures we get specific page references rather than just general descriptions, which aligns with the requirement for page-level evidence.",
           "is_followup": false
         },
         {
           "id": "SQ5",
           "text": "What failure modes or hidden costs are associated with implementing NIST AI RMF 1.0 in real-world AI systems?",
-          "rationale": "This addresses the dimension of 'failure modes' and 'hidden costs' that a naive answer might overlook. The framework itself might not explicitly mention these, but understanding implementation challenges and potential pitfalls is critical. This sub-question ensures we look beyond the obvious to uncover practical challenges that could affect adoption.",
           "is_followup": false
         },
         {
           "id": "SQ6",
           "text": "Under what specific conditions does the NIST AI RMF 1.0 framework provide incorrect or incomplete guidance for AI risk management?",
-          "rationale": "This covers the dimension of 'conditions under which the obvious answer is wrong' - a key dimension that a naive answer might overlook. The framework has limitations or edge cases where it might not apply well, and identifying these conditions is crucial for practical implementation. This sub-question ensures we look for the framework's boundaries and potential misapplications.",
           "is_followup": false
         }
       ]

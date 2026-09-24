@@ -24,6 +24,7 @@ from agentic_research.config import Settings
 from agentic_research.llm.base import ProviderRateLimited
 from agentic_research.web import recordings
 from agentic_research.web.api import create_app
+from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -74,6 +75,7 @@ class TestTheLiveBlueprint:
         assert env["MAX_CLOUD_INPUT_TOKENS"] == "120000"
         assert env["MAX_CLOUD_OUTPUT_TOKENS"] == "20000"
         assert env["MAX_SEARCH_CREDITS"] == "8"
+        assert env["MAX_PROVIDER_REQUESTS"] == "30"
 
     def test_the_run_stays_small(self, env: dict[str, str]) -> None:
         assert env["MAX_RESEARCH_ROUNDS"] == "1"
@@ -124,7 +126,7 @@ class TestTheReplayBlueprintStaysSafe:
 
 
 RECORDING = {
-    "recording_schema_version": 1,
+    "recording_schema_version": RECORDING_SCHEMA_VERSION,
     "meta": {"id": "demo", "label": "Demo", "question": "q", "order": 1},
     "result": {
         "run_id": "r",
@@ -362,10 +364,17 @@ class TestDemoLimitsCannotBeWidened:
     def test_a_run_the_quota_cannot_pay_for_is_refused_up_front(self) -> None:
         """If one run may emit more provider requests than the daily quota
         allows, the honest answer is to refuse before starting rather than
-        to 429 halfway through."""
+        to 429 halfway through.
+
+        Reached here by shrinking the quota rather than by inflating
+        ``max_cloud_calls``: that field is now clamped to the demo ceiling,
+        so a configured 999 genuinely becomes 20 and the quota really can
+        afford a run. The refusal must still fire when the quota itself is
+        too small to cover one clamped run.
+        """
         from agentic_research.web.limits import limits_from_settings
 
-        settings = self._generous().model_copy(update={"max_cloud_calls": 999})
+        settings = self._generous().model_copy(update={"demo_provider_requests_per_day": 10})
         assert limits_from_settings(settings).global_runs_per_day == 0
 
         with TestClient(create_app(settings)) as client:
@@ -382,3 +391,148 @@ class TestDemoLimitsCannotBeWidened:
             validate_query("x" * (limits.max_query_chars + 1), limits)
         with pytest.raises(ValueError, match="fuller question"):
             validate_query("hi", limits)
+
+
+class TestEveryPaidDimensionIsClamped:
+    """The ceilings that cost money, asserted individually.
+
+    An earlier version clamped rounds, sources, queries, logical calls and
+    cost, but left the provider-request and cloud-token budgets at their
+    local-development defaults. The engine refuses a run whose reservation
+    breaches *any* ceiling, so an unclamped request or token budget is a
+    way to spend past the intended envelope while the dollar figure still
+    reads correctly.
+    """
+
+    @staticmethod
+    def _hostile_environment() -> Settings:
+        """Every paid dimension configured absurdly high."""
+        return Settings(
+            llm_mode="local",
+            demo_mode=True,
+            live_research_enabled=True,
+            tavily_api_key="tvly-test-key",
+            max_cloud_calls=999_999,
+            max_cloud_input_tokens=99_999_999,
+            max_cloud_output_tokens=99_999_999,
+            max_cloud_cost_usd=1_000.0,
+            max_search_credits=9_999.0,
+            max_provider_requests=100_000,
+            max_research_rounds=9,
+            max_sources=99,
+            max_sources_per_round=99,
+            max_search_queries=99,
+            max_llm_calls=999,
+            _env_file=None,
+        )
+
+    def test_the_paid_dimensions_are_all_clamped(self) -> None:
+        from agentic_research.web.limits import apply_demo_limits, limits_from_settings
+
+        settings = self._hostile_environment()
+        limits = limits_from_settings(settings)
+        clamped = apply_demo_limits(settings, limits)
+
+        assert clamped.max_cloud_calls == 20
+        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_output_tokens == 20_000
+        assert clamped.max_cloud_cost_usd == 0.05
+        assert clamped.max_search_credits == 8.0
+        assert clamped.max_provider_requests == 30
+
+    def test_the_operator_tunable_ceilings_cannot_be_raised(self) -> None:
+        """Runtime, concurrency and per-IP rate are read from configuration,
+        so without a clamp the dataclass ceiling is decorative."""
+        from agentic_research.web.limits import DemoLimits, limits_from_settings
+
+        settings = self._hostile_environment().model_copy(
+            update={
+                "demo_max_runtime_seconds": 99_999.0,
+                "demo_runs_per_hour": 1_000,
+                "demo_max_concurrent_runs": 500,
+                "demo_provider_requests_per_day": 100_000,
+            }
+        )
+        limits = limits_from_settings(settings)
+        ceiling = DemoLimits()
+
+        assert limits.max_runtime_seconds == ceiling.max_runtime_seconds
+        assert limits.runs_per_ip_per_hour == ceiling.runs_per_ip_per_hour
+        assert limits.max_concurrent_runs == ceiling.max_concurrent_runs
+        # demo_provider_requests_per_day is intentionally absent: it states
+        # what the provider account allows, not what this demo may spend.
+
+    def test_a_lower_operator_value_still_wins(self) -> None:
+        """The clamp is a ceiling, not an assignment."""
+        from agentic_research.web.limits import apply_demo_limits, limits_from_settings
+
+        settings = Settings(
+            llm_mode="local",
+            demo_mode=True,
+            live_research_enabled=True,
+            tavily_api_key="tvly-test-key",
+            max_cloud_calls=5,
+            max_cloud_input_tokens=1_000,
+            max_cloud_output_tokens=500,
+            max_cloud_cost_usd=0.01,
+            max_search_credits=2.0,
+            max_provider_requests=10,
+            demo_max_runtime_seconds=60.0,
+            demo_runs_per_hour=1,
+            demo_max_concurrent_runs=1,
+            _env_file=None,
+        )
+        limits = limits_from_settings(settings)
+        clamped = apply_demo_limits(settings, limits)
+
+        assert clamped.max_cloud_calls == 5
+        assert clamped.max_cloud_input_tokens == 1_000
+        assert clamped.max_cloud_output_tokens == 500
+        assert clamped.max_cloud_cost_usd == 0.01
+        assert clamped.max_search_credits == 2.0
+        assert clamped.max_provider_requests == 10
+        assert limits.max_runtime_seconds == 60.0
+        assert limits.runs_per_ip_per_hour == 1
+        assert limits.max_concurrent_runs == 1
+
+    def test_zero_is_read_as_unlimited_and_does_not_fail_open(self) -> None:
+        """The engine reads 0 as "no ceiling on this dimension".
+
+        A plain ``min`` would therefore turn ``MAX_CLOUD_CALLS=0`` into a
+        clamped 0 while actually disabling the limit. The demo maximum has
+        to win instead.
+        """
+        from agentic_research.web.limits import apply_demo_limits, limits_from_settings
+
+        settings = Settings(
+            llm_mode="local",
+            demo_mode=True,
+            live_research_enabled=True,
+            tavily_api_key="tvly-test-key",
+            max_cloud_calls=0,
+            max_cloud_input_tokens=0,
+            max_cloud_output_tokens=0,
+            max_cloud_cost_usd=0.0,
+            max_search_credits=0.0,
+            max_provider_requests=0,
+            _env_file=None,
+        )
+        clamped = apply_demo_limits(settings, limits_from_settings(settings))
+
+        assert clamped.max_cloud_calls == 20
+        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_output_tokens == 20_000
+        assert clamped.max_cloud_cost_usd == 0.05
+        assert clamped.max_search_credits == 8.0
+        assert clamped.max_provider_requests == 30
+
+    def test_the_request_ceiling_covers_one_intended_demo_run(self) -> None:
+        """Sized deliberately, not guessed: the clamped cloud-request and
+        search-credit ceilings must fit inside the total request ceiling,
+        or a compliant run would be refused by its own budget."""
+        from agentic_research.web.limits import DemoLimits
+
+        ceiling = DemoLimits()
+        assert ceiling.max_cloud_calls + ceiling.max_search_credits <= (
+            ceiling.max_provider_requests
+        )

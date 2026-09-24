@@ -1,39 +1,20 @@
-# Render blueprint for the LIVE demo: recorded runs *and* a real research box.
+# Render blueprint for the LIVE demo: recorded runs and a real research box.
 #
-# Deliberately a separate file. render.yaml stays the safe zero-credential
-# replay deployment; weakening it to add live research would mean there was
-# no longer a configuration that is safe by construction. Deploy whichever
-# one you want, and the difference is visible in the filename rather than
-# buried in a dashboard override.
+# Separate from render.yaml so one configuration stays safe by construction:
+# render.yaml needs no credentials, this one needs two and spends real money.
 #
-# This one needs two API keys and spends real money. Read the ceilings
-# below before creating it.
+# What bounds the spend, in increasing order of trustworthiness:
+#   1. Per run: the MAX_CLOUD_* ceilings below are reserved before each
+#      provider request is sent, so one run cannot exceed them.
+#   2. Per day: DEMO_PROVIDER_REQUESTS_PER_DAY / MAX_CLOUD_CALLS. This
+#      counter is process-local, and Render Free resets it on every cold
+#      start, so it cannot bound an account-level quota.
+#   3. Your OpenAI account limit. The only one a restart cannot bypass.
 #
-# ---------------------------------------------------------------------
-# WHAT ACTUALLY BOUNDS THE SPEND
-# ---------------------------------------------------------------------
-# Three limits, in increasing order of trustworthiness:
+# SET A HARD MONTHLY BUDGET IN THE OPENAI DASHBOARD BEFORE DEPLOYING.
 #
-#   1. Per run, in process: MAX_CLOUD_CALLS, MAX_CLOUD_COST_USD and the
-#      token ceilings are reserved *before* each provider request is sent,
-#      so a single run cannot exceed them. Reliable.
-#
-#   2. Per day, in process: DEMO_PROVIDER_REQUESTS_PER_DAY divided by
-#      MAX_CLOUD_CALLS gives the daily run cap -- currently 50/20 = 2 runs.
-#      This counter lives in memory. Render Free sleeps when idle, and a
-#      cold start resets it. Best effort, not a guarantee.
-#
-#   3. Your OpenAI account limits. This is the one that cannot be bypassed
-#      by a restart, and it is the real backstop.
-#
-# SET A HARD MONTHLY BUDGET IN THE OPENAI DASHBOARD BEFORE DEPLOYING THIS.
-# Settings -> Limits. Five dollars is generous: a run costs about $0.008.
-#
-# Adding credit to OpenAI also raises your rate limits, and the daily run
-# cap follows automatically because it is derived from
-# DEMO_PROVIDER_REQUESTS_PER_DAY rather than hardcoded. Raise that value to
-# match whatever your tier actually allows -- never above it, or visitors
-# hit a provider 429 mid-run instead of an honest refusal up front.
+# The server clamps every value here to its own DemoLimits maximum, so a
+# raised value has no effect; a lowered one does.
 
 services:
   - type: web
@@ -46,42 +27,32 @@ services:
     autoDeploy: false
 
     envVars:
-      # --- secrets: Render prompts for these, never committed -----------
-      # sync:false means Render asks for the value when the Blueprint is
-      # created. Nothing is stored in git.
+      # Render prompts for these at Blueprint creation; never committed.
       - key: OPENAI_API_KEY
         sync: false
       - key: TAVILY_API_KEY
         sync: false
 
-      # --- live research on, and cloud because Render has no Ollama -----
-      # These two belong together. LLM_MODE=local with live research
-      # enabled would fail preflight on the very first request.
+      # Live research needs a reachable model, and Render has no Ollama.
       - key: LIVE_RESEARCH_ENABLED
         value: "true"
       - key: LLM_MODE
         value: cloud
-
-      # Server-controlled ceilings. A client value can only ever make a run
-      # smaller, never larger.
       - key: DEMO_MODE
         value: "true"
 
-      # --- models: Luna only --------------------------------------------
-      # Both roles point at the cheap model. Sol and Astra are never used
-      # here; the fast model is the same one on purpose.
+      # Luna only. Fallback off so an unreachable model fails rather than
+      # escalating to a more expensive one.
       - key: OPENAI_MODEL
         value: gpt-6-luna
       - key: OPENAI_FAST_MODEL
         value: gpt-6-luna
-      # A missing or unreachable model must fail, not quietly escalate to
-      # a more expensive one.
       - key: ALLOW_CLOUD_FALLBACK
         value: "false"
       - key: SEARCH_PROVIDER
         value: tavily
 
-      # --- per-run spend ceilings, checked before dispatch --------------
+      # Per-run ceilings, reserved before dispatch.
       - key: MAX_CLOUD_CALLS
         value: "20"
       - key: MAX_CLOUD_COST_USD
@@ -92,8 +63,11 @@ services:
         value: "20000"
       - key: MAX_SEARCH_CREDITS
         value: "8"
+      # All provider HTTP requests in one run, search included.
+      - key: MAX_PROVIDER_REQUESTS
+        value: "30"
 
-      # --- how much work one run may do ---------------------------------
+      # How much work one run may do.
       - key: MAX_RESEARCH_ROUNDS
         value: "1"
       - key: MAX_SOURCES
@@ -107,23 +81,21 @@ services:
       - key: SEARCH_DEPTH
         value: basic
 
-      # --- traffic shaping ----------------------------------------------
-      # One at a time: a free instance has little CPU, and two concurrent
-      # runs would make both slow rather than serving two people well.
+      # One run at a time: a free instance has little CPU.
       - key: DEMO_MAX_CONCURRENT_RUNS
         value: "1"
       - key: DEMO_RUNS_PER_HOUR
         value: "2"
-      # The account-level quota the daily run cap is derived from. Raise
-      # this only when your OpenAI tier actually rises.
+      # Account-level quota the daily run cap is derived from. Raise only
+      # when the OpenAI tier actually rises; above the real tier, visitors
+      # hit a provider 429 mid-run instead of an honest refusal up front.
       - key: DEMO_PROVIDER_REQUESTS_PER_DAY
         value: "50"
-      # A cloud run took 76s when measured. 240s leaves room for a slow
-      # one without holding the single run slot indefinitely.
+      # Caps how long one run may hold the single slot.
       - key: DEMO_MAX_RUNTIME_SECONDS
         value: "240"
 
-      # --- ephemeral by design -------------------------------------------
+      # Ephemeral filesystem; persisting is pointless and slow here.
       - key: PERSIST_RUNS
         value: "false"
       - key: CHECKPOINT_BACKEND

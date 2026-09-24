@@ -37,26 +37,58 @@ class DemoLimits:
     max_concurrent_runs: int = 2
     runs_per_ip_per_hour: int = 2
     global_runs_per_day: int = 1
-    """Deliberately tiny, and derived rather than guessed.
+    """Derived from the configured quota rather than written down.
 
-    A run's worst case is its provider-request ceiling, not the ~22 one run
-    happened to use. On the validated 50-requests-per-day account that
-    affords a single run. The earlier default of 60 would have drained the
-    quota within three visitors and failed opaquely for everyone after."""
+    A run's worst case is its provider-request ceiling, not whatever a
+    given run happens to use, so the cap is computed from the ceiling. A
+    fixed larger default would drain a small quota within a few visitors
+    and then fail opaquely for everyone after."""
     max_cloud_cost_usd: float = 0.05
     max_search_credits: float = 8.0
     max_provider_requests_per_day: int = 50
-    """The account-level ceiling the run caps are derived from. Raise this
-    with the plan, not independently."""
+    """Conservative default for the account-level quota the run caps are
+    derived from. Raise this with the provider plan, not independently."""
+
+    # Paid dimensions the engine reserves against before each request.
+    # Every one of these must be clamped, not just the cost: a run bounded
+    # only by dollars can still exhaust a request or token quota, and the
+    # engine refuses a run whose reservation exceeds any single ceiling.
+    max_cloud_calls: int = 20
+    max_cloud_input_tokens: int = 120_000
+    max_cloud_output_tokens: int = 20_000
+    max_provider_requests: int = 30
+    """All provider HTTP requests in one run, search included.
+
+    Sized for one demo run and no more: at most ``max_cloud_calls`` (20)
+    model requests plus ``max_search_credits`` (8) search requests is 28,
+    leaving two for transport retries. The engine's default of 120 is a
+    local-development figure and is far too loose to expose anonymously."""
+
+
+# A fresh instance carries the public-demo maxima. Operators configure the
+# few tunable dimensions downward from here; `limits_from_settings` clamps
+# so a configured value can never exceed the ceiling declared above.
+_MAX = DemoLimits()
+
+
+def _at_most(configured: float, ceiling: float) -> float:
+    """Clamp a configured budget, reading 0 as the engine reads it.
+
+    Zero means *unlimited* to the budget code, so a plain ``min`` would let
+    ``MAX_CLOUD_CALLS=0`` clamp every other run to zero while actually
+    disabling the ceiling. Treat it as "unset" and fall back to the demo
+    maximum instead.
+    """
+    return ceiling if configured <= 0 else min(configured, ceiling)
 
 
 def runs_affordable(provider_requests_per_day: int, worst_case_requests_per_run: int = 40) -> int:
     """How many demo runs a provider quota can safely support.
 
-    Derived from the **worst case** a run may emit, not the average it
-    happened to emit once. A run reserves up to MAX_CLOUD_CALLS provider
-    requests, and structured repairs and compatibility retries each consume
-    one, so the observed ~22 is a floor rather than a bound.
+    Derived from the **worst case** a run may emit, not from an average.
+    A run reserves up to MAX_CLOUD_CALLS provider requests, and structured
+    repairs and compatibility retries each consume one, so any figure taken
+    from a single observed run is a floor rather than a bound.
 
     Returns **0** when the quota cannot afford even one safe run. An earlier
     version used ``max(1, ...)``, which promised a run the quota could not
@@ -73,17 +105,29 @@ def limits_from_settings(settings: Settings) -> DemoLimits:
     Runtime in particular has to be tunable: 240s is right for a cloud
     model and nowhere near enough for a local one, and hard-coding it would
     make the web path untestable against Ollama.
+
+    Configuration may only move a ceiling **down**. Without the clamps
+    below, ``DEMO_RUNS_PER_HOUR=1000`` in the environment would simply
+    become the limit, which makes the whole dataclass decorative -- the
+    server has to enforce its own maximum rather than trust its own
+    deployment config.
     """
+    cloud_calls = int(_at_most(settings.max_cloud_calls, _MAX.max_cloud_calls))
     return DemoLimits(
-        max_runtime_seconds=settings.demo_max_runtime_seconds,
-        runs_per_ip_per_hour=settings.demo_runs_per_hour,
-        max_concurrent_runs=settings.demo_max_concurrent_runs,
+        max_runtime_seconds=min(settings.demo_max_runtime_seconds, _MAX.max_runtime_seconds),
+        runs_per_ip_per_hour=min(settings.demo_runs_per_hour, _MAX.runs_per_ip_per_hour),
+        max_concurrent_runs=min(settings.demo_max_concurrent_runs, _MAX.max_concurrent_runs),
+        # Deliberately *not* clamped. This one describes an external fact --
+        # what the provider account actually allows per day -- rather than
+        # how much of it this demo may spend. Capping it at the default
+        # would not make anything safer; it would make the derived run cap
+        # wrong for anyone on a larger plan.
         max_provider_requests_per_day=settings.demo_provider_requests_per_day,
         global_runs_per_day=runs_affordable(
             settings.demo_provider_requests_per_day,
-            # The worst case a single run may emit, so capacity is never
-            # promised beyond what the quota can actually pay for.
-            worst_case_requests_per_run=max(1, settings.max_cloud_calls),
+            # The worst case a single run may emit *after clamping*, so
+            # capacity is never promised beyond what the quota can pay for.
+            worst_case_requests_per_run=max(1, cloud_calls),
         ),
     )
 
@@ -103,13 +147,22 @@ def apply_demo_limits(settings: Settings, limits: DemoLimits) -> Settings:
             ),
             "max_search_queries": min(settings.max_search_queries, limits.max_search_queries),
             "max_llm_calls": min(settings.max_llm_calls, limits.max_llm_calls),
-            "max_cloud_cost_usd": min(
-                settings.max_cloud_cost_usd or limits.max_cloud_cost_usd,
-                limits.max_cloud_cost_usd,
+            # Every paid dimension the engine reserves against. Clamping
+            # cost alone is not enough: the reservation check refuses a run
+            # that would breach *any* ceiling, so an unclamped request or
+            # token budget is a way to spend past the intended envelope
+            # while the dollar figure still looks correct.
+            "max_cloud_cost_usd": _at_most(settings.max_cloud_cost_usd, limits.max_cloud_cost_usd),
+            "max_search_credits": _at_most(settings.max_search_credits, limits.max_search_credits),
+            "max_cloud_calls": int(_at_most(settings.max_cloud_calls, limits.max_cloud_calls)),
+            "max_cloud_input_tokens": int(
+                _at_most(settings.max_cloud_input_tokens, limits.max_cloud_input_tokens)
             ),
-            "max_search_credits": min(
-                settings.max_search_credits or limits.max_search_credits,
-                limits.max_search_credits,
+            "max_cloud_output_tokens": int(
+                _at_most(settings.max_cloud_output_tokens, limits.max_cloud_output_tokens)
+            ),
+            "max_provider_requests": int(
+                _at_most(settings.max_provider_requests, limits.max_provider_requests)
             ),
             # A hosted demo never falls back to a paid provider implicitly.
             "allow_cloud_fallback": False,

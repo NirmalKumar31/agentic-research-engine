@@ -1,6 +1,6 @@
 """Graph state, reducers and runtime context.
 
-Two containers, split by a rule worth stating plainly:
+Two containers, split by one rule:
 
 * **State** is data the graph produces. It is a ``TypedDict`` of plain values
   and Pydantic models, and it is what gets checkpointed. Everything in it must

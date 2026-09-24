@@ -142,8 +142,8 @@ export default function App() {
         <div className="hero__copy">
           <h1>Research that shows its work.</h1>
           <p className="hero__sub">
-            Multi-agent web research with evidence-level provenance. Every substantive claim
-            can be traced to the exact source passage behind it.
+            Multi-stage agentic research with evidence-level provenance. Published claims
+            link to the source passages that passed evidence verification.
           </p>
         </div>
         <HeroDiagram />
