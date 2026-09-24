@@ -805,3 +805,91 @@ class TestNoInternalReasoningIsPublished:
             for example in client.get("/api/examples").json()["examples"]:
                 body = client.get(f"/api/examples/{example['id']}").json()
                 assert_no_internal_reasoning(example["id"], body)
+
+
+class TestTheFrontendIsFoundWhenInstalled:
+    """The site is served from an installed wheel, not a source checkout.
+
+    `_FRONTEND_DIST` walked three parents up from api.py, which reaches
+    the repo root from `src/agentic_research/web/` but reaches the
+    interpreter's lib directory from `site-packages/agentic_research/web/`.
+    The deployed container therefore served a JSON 404 at `/` while
+    `/api/health` stayed green.
+    """
+
+    def test_the_working_directory_is_searched(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """What rescues the container: WORKDIR holds web/dist."""
+        from agentic_research.web.api import _find_frontend_dist
+
+        dist = tmp_path / "web" / "dist"
+        dist.mkdir(parents=True)
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.delenv("FRONTEND_DIST", raising=False)
+
+        assert _find_frontend_dist() == dist
+
+    def test_an_explicit_override_wins(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from agentic_research.web.api import _find_frontend_dist
+
+        explicit = tmp_path / "elsewhere"
+        explicit.mkdir()
+        cwd_dist = tmp_path / "web" / "dist"
+        cwd_dist.mkdir(parents=True)
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("FRONTEND_DIST", str(explicit))
+
+        assert _find_frontend_dist() == explicit
+
+    def test_it_always_returns_a_path_and_never_raises(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """No build anywhere is a supported state: the API still serves and
+        the 404 handler returns JSON rather than a broken shell.
+
+        Absence is not asserted here, because the repo-relative fallback
+        legitimately resolves in a development checkout that has run a
+        build. The contract under test is that resolution is total -- it
+        yields a Path rather than None or an exception.
+        """
+        from agentic_research.web.api import _find_frontend_dist
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.delenv("FRONTEND_DIST", raising=False)
+
+        assert isinstance(_find_frontend_dist(), Path)
+
+    def test_a_stale_override_does_not_win(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """An override pointing at nothing must fall through rather than
+        take the service down with an unservable path."""
+        from agentic_research.web.api import _find_frontend_dist
+
+        cwd_dist = tmp_path / "web" / "dist"
+        cwd_dist.mkdir(parents=True)
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("FRONTEND_DIST", str(tmp_path / "does-not-exist"))
+
+        assert _find_frontend_dist() == cwd_dist
+
+    def test_the_shell_is_served_when_a_build_exists(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """End to end: a client-side route returns the shell, not JSON."""
+        dist = tmp_path / "dist"
+        (dist / "assets").mkdir(parents=True)
+        (dist / "index.html").write_text('<div id="root"></div>', encoding="utf-8")
+        monkeypatch.setattr("agentic_research.web.api._FRONTEND_DIST", dist)
+
+        with TestClient(create_app(_settings())) as client:
+            root = client.get("/")
+            assert root.status_code == 200
+            assert 'id="root"' in root.text
+
+            # Unknown API paths stay JSON even with a build present.
+            assert client.get("/api/nope").status_code == 404
+            assert client.get("/api/nope").json()["error"]

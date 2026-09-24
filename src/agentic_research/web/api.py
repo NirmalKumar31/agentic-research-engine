@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -46,7 +47,35 @@ from agentic_research.web.recordings import serialise_result as _serialise_resul
 
 log = get_logger(__name__)
 
-_FRONTEND_DIST = Path(__file__).resolve().parents[3] / "web" / "dist"
+
+def _find_frontend_dist() -> Path:
+    """Locate the built frontend in both layouts this runs in.
+
+    A source checkout has ``<repo>/web/dist`` three levels above this file.
+    An installed wheel does not: the same walk lands in the interpreter's
+    lib directory, so the container served JSON 404s at ``/`` while
+    ``/api/health`` stayed green -- which is exactly what CI was probing.
+
+    Candidates, in order of how explicit they are. The env var wins so a
+    deployment can state the path outright; the working directory covers
+    the container, whose WORKDIR holds ``web/dist``; the repo-relative walk
+    covers development.
+    """
+    override = os.environ.get("FRONTEND_DIST")
+    candidates = [
+        *([Path(override)] if override else []),
+        Path.cwd() / "web" / "dist",
+        Path(__file__).resolve().parents[3] / "web" / "dist",
+    ]
+    for candidate in candidates:
+        if candidate.is_dir():
+            return candidate
+    # Nothing found: return the development path so the value is stable and
+    # `is_dir()` stays false, which the 404 handler already copes with.
+    return candidates[-1]
+
+
+_FRONTEND_DIST = _find_frontend_dist()
 
 # Recorded traces are replayed faster than they happened. An 18-minute local
 # run is not worth watching in real time, and the events are real either

@@ -307,5 +307,21 @@ jobs:
           print("replay service verified with zero credentials")
           PY
 
-          curl -sf http://127.0.0.1:8000/ | head -c 120; echo
+          # The app shell, asserted rather than eyeballed. This previously
+          # read `curl -sf ... | head -c 120`, whose exit status is head's,
+          # not curl's -- so the container served a JSON 404 at / while this
+          # step stayed green and only /api/health was really being checked.
+          code=$(curl -s -o /tmp/root.html -w '%{http_code}' http://127.0.0.1:8000/)
+          echo "GET / -> $code"
+          head -c 200 /tmp/root.html; echo
+          test "$code" = "200" || { echo "the frontend is not being served"; docker logs web; exit 1; }
+          grep -qi '<div id="root"' /tmp/root.html || {
+            echo "/ did not return the app shell"; docker logs web; exit 1; }
+
+          # A hashed asset, so a shell served without its bundle also fails.
+          asset=$(grep -oE '/assets/[A-Za-z0-9._-]+\.js' /tmp/root.html | head -1)
+          test -n "$asset" || { echo "no bundle referenced by the shell"; exit 1; }
+          curl -sf "http://127.0.0.1:8000${asset}" -o /dev/null || {
+            echo "bundle ${asset} is not served"; docker logs web; exit 1; }
+          echo "frontend served: shell + ${asset}"
           docker rm -f web
