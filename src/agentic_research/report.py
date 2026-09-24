@@ -33,6 +33,11 @@ def render_markdown(
     store = EvidenceStore(sources, list(evidence or []))
     cited = report.cited_ids()
     lines: list[str] = [f"# {report.title}", ""]
+    # The question in full, once, under the title. A title is a label and
+    # gets shortened; the question is the thing the report answers and
+    # must never be delivered half-finished.
+    if metrics is not None and metrics.query:
+        lines += [f"**Question:** {metrics.query}", ""]
 
     if report.summary_claims:
         lines += ["## Summary", ""]

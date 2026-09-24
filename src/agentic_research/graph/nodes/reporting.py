@@ -95,7 +95,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                 )
             )
             report = ResearchReport(
-                title=out.title.strip() or question[:120],
+                title=out.title.strip() or _clipped(question, 80),
                 summary_claims=[_to_claim(c) for c in out.summary_claims],
                 sections=[
                     ReportSection(
@@ -265,7 +265,12 @@ def _fallback_report(
         for item in sorted(store.citable_evidence(), key=lambda e: -e.confidence)[:12]
     ]
     return ResearchReport(
-        title=f"Evidence summary: {_clipped(question, 100)}",
+        # Deliberately not the question. Echoing a 160-character research
+        # question into a heading and cutting it produced titles like
+        # "...open total arch replacement (including redo...", which
+        # reads as a generation that broke off rather than a label. The
+        # question is rendered in full below the title instead.
+        title="Evidence summary",
         summary_claims=[
             Claim(
                 text=(
