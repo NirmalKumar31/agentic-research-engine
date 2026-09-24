@@ -18,7 +18,7 @@ import type { ProgressEvent, RunResult } from "./types";
 const BADGES: Record<string, string> = {
   "rag-vector-vs-search": "Multi-source research",
   "nist-ai-risk-framework": "PDF page provenance",
-  "fraud-detection-imbalanced": "Planner fallback",
+  "fraud-detection-imbalanced": "6 research dimensions",
 };
 
 export default function App() {
