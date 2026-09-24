@@ -542,3 +542,36 @@ class TestSpecificDomainsBeatTheSuffixGuess:
 
         missing = [t.value for t in SourceType if t not in _TYPE_BASE]
         assert missing == [], f"no base score for {missing}"
+
+
+class TestCoverageSufficiencyUsesFinalCounts:
+    """Sufficiency must be decided on the counts the report shows.
+
+    The ratio was computed from the mechanical counts and then the critic
+    was allowed to demote sub-questions from covered to weak, without the
+    ratio being recomputed. A live run displayed "0/5 covered" beside
+    "Stopped because: coverage judged sufficient" -- the demotions had
+    emptied `covered` while sufficiency still credited the stale value.
+    """
+
+    def test_demotions_lower_the_ratio(self) -> None:
+        covered = ["SQ1", "SQ2", "SQ3", "SQ4"]
+        weak = ["SQ5"]
+        per_question = 5
+
+        before = round(len(covered) / per_question, 4)
+        assert before >= 0.7, "precondition: mechanically this looked sufficient"
+
+        # The critic demotes every covered sub-question.
+        weak = list(dict.fromkeys(weak + covered))
+        covered = [q for q in covered if q not in weak]
+        after = round(len(covered) / per_question, 4)
+
+        assert covered == []
+        assert after == 0.0
+        assert after < 0.7, "a fully demoted run must not read as sufficient"
+
+    def test_the_threshold_is_unchanged(self) -> None:
+        from agentic_research.graph.nodes.critique import _SUFFICIENT_RATIO
+
+        assert _SUFFICIENT_RATIO == 0.7

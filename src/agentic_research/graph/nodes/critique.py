@@ -100,6 +100,13 @@ async def assess_coverage(state: ResearchState) -> ResearchState:
         weak = list(dict.fromkeys(weak + [w for w in llm_weak if w not in missing]))
         covered = [sq_id for sq_id in covered if sq_id not in weak]
 
+        # Recomputed, because the demotions above changed what `covered`
+        # means. The first value was derived from the mechanical counts
+        # alone; deciding sufficiency on it credited coverage the critic
+        # had just withdrawn. A run whose every sub-question was demoted
+        # to weak reported "coverage judged sufficient" beside 0/5.
+        ratio = round(len(covered) / len(per_question), 4) if per_question else 0.0
+
         recommended = [f"gap: {m}" for m in llm_missing[:4]] + [
             f"weak coverage for {sq_id}" for sq_id in weak[:3]
         ]
