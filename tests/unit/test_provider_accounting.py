@@ -18,8 +18,10 @@ from pydantic import BaseModel
 
 from agentic_research.config import ModelRole, ModelSpec, Provider, Settings
 from agentic_research.llm.base import (
+    AttemptKind,
     BudgetExceededError,
     CloudBudgetExceededError,
+    ProviderAttempt,
     ProviderRateLimited,
     ProviderRejectedRequest,
     StructuredOutputError,
@@ -337,3 +339,120 @@ class TestNoInvisibleRequests:
         """Local retries cost nothing and hit no provider quota."""
         settings = Settings(llm_mode="local", llm_max_retries=3, _env_file=None)
         ModelRouter(settings).get(ModelRole.RESEARCHER)
+
+
+class TestUnusedOutputIsReleased:
+    """Worst-case reservation must not starve the run that stays inside it.
+
+    Reservations were never reconciled, so the output budget drained at
+    the worst case while the run emitted a fraction of it. A live cloud
+    run reserved 19,500 of 20,000 output tokens having emitted 5,221, and
+    synthesis -- the largest consumer and the last to reserve -- was
+    refused at 26% real utilisation. The report degraded to a bare
+    evidence list and verification fell back to sampling one claim.
+    """
+
+    async def test_a_frugal_request_gives_its_remainder_back(self) -> None:
+        tracker = UsageTracker(20, cloud_budget())
+        cap = tracker._output_cap_for(ModelRole.SYNTHESIZER)
+
+        await tracker.reserve_provider_request(
+            Provider.OPENAI, role=ModelRole.SYNTHESIZER, model="gpt-6-luna"
+        )
+        assert tracker._reserved_output_tokens == cap
+
+        tracker.record_attempt(
+            ProviderAttempt(
+                role=ModelRole.SYNTHESIZER,
+                provider=Provider.OPENAI,
+                model="gpt-6-luna",
+                schema="S",
+                kind=AttemptKind.INITIAL,
+                latency_s=0.1,
+                input_tokens=100,
+                output_tokens=50,
+            )
+        )
+        assert tracker._reserved_output_tokens == 50, "the unused remainder was not released"
+
+    async def test_synthesis_is_not_starved_by_earlier_frugal_calls(self) -> None:
+        """The reported failure, reproduced end to end.
+
+        Enough small calls to exhaust the budget at worst case, then a
+        synthesis request that must still be admitted because the earlier
+        calls barely used their allowance.
+        """
+        budget = cloud_budget(max_cloud_output_tokens=20_000)
+        tracker = UsageTracker(60, budget)
+
+        for _ in range(8):
+            await tracker.reserve_provider_request(
+                Provider.OPENAI, role=ModelRole.RESEARCHER, model="gpt-6-luna"
+            )
+            tracker.record_attempt(
+                ProviderAttempt(
+                    role=ModelRole.RESEARCHER,
+                    provider=Provider.OPENAI,
+                    model="gpt-6-luna",
+                    schema="S",
+                    kind=AttemptKind.INITIAL,
+                    latency_s=0.1,
+                    input_tokens=500,
+                    output_tokens=400,
+                )
+            )
+
+        # Worst case for these eight is 8 * 3000 = 24,000, past the ceiling.
+        # Actual is 3,200, so synthesis must still fit.
+        await tracker.reserve_provider_request(
+            Provider.OPENAI, role=ModelRole.SYNTHESIZER, model="gpt-6-luna"
+        )
+
+    async def test_the_ceiling_still_bounds_tokens_actually_emitted(self) -> None:
+        """Releasing the remainder must not turn the ceiling into a
+        suggestion: a run that really does emit its allowance is refused."""
+        budget = cloud_budget(max_cloud_output_tokens=12_000)
+        tracker = UsageTracker(60, budget)
+        cap = tracker._output_cap_for(ModelRole.SYNTHESIZER)
+
+        for _ in range(2):
+            await tracker.reserve_provider_request(
+                Provider.OPENAI, role=ModelRole.SYNTHESIZER, model="gpt-6-luna"
+            )
+            tracker.record_attempt(
+                ProviderAttempt(
+                    role=ModelRole.SYNTHESIZER,
+                    provider=Provider.OPENAI,
+                    model="gpt-6-luna",
+                    schema="S",
+                    kind=AttemptKind.INITIAL,
+                    latency_s=0.1,
+                    input_tokens=100,
+                    output_tokens=cap,  # used every token it reserved
+                )
+            )
+
+        with pytest.raises(CloudBudgetExceededError):
+            await tracker.reserve_provider_request(
+                Provider.OPENAI, role=ModelRole.SYNTHESIZER, model="gpt-6-luna"
+            )
+
+    async def test_a_local_attempt_changes_nothing(self) -> None:
+        tracker = UsageTracker(20, cloud_budget())
+        await tracker.reserve_provider_request(
+            Provider.OPENAI, role=ModelRole.SYNTHESIZER, model="gpt-6-luna"
+        )
+        before = tracker._reserved_output_tokens
+        tracker.record_attempt(
+            ProviderAttempt(
+                role=ModelRole.SYNTHESIZER,
+                provider=Provider.OLLAMA,
+                model="qwen3:4b",
+                schema="S",
+                kind=AttemptKind.INITIAL,
+                latency_s=0.1,
+                input_tokens=10,
+                output_tokens=5,
+            )
+        )
+        assert tracker._reserved_output_tokens == before

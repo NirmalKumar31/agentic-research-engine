@@ -386,6 +386,43 @@ class UsageTracker:
 
     def record_attempt(self, attempt: ProviderAttempt) -> None:
         self.attempts.append(attempt)
+        self._release_unused_output(attempt)
+
+    def _release_unused_output(self, attempt: ProviderAttempt) -> None:
+        """Return the output allowance this request reserved but did not use.
+
+        Reservation is worst case, which is what makes the ceiling a
+        guarantee. Without giving the remainder back, though, a run
+        exhausts its output budget at a fraction of real usage: a live
+        run reserved 19,500 of 20,000 tokens while emitting 5,221, and
+        synthesis -- the largest consumer and the last to reserve -- was
+        refused at 26% real utilisation. The report then degraded to an
+        evidence list and verification fell back to sampling one claim.
+
+        Only the output *token* reservation is released, and deliberately
+        not the cost one. Cost is reserved from an estimated input
+        (``len // 4``), which can undershoot on code-heavy or non-Latin
+        text; the output-cap padding is what keeps reserved cost above
+        actual when it does. Releasing it broke exactly that invariant,
+        and the accounting tests caught it. Cost was never the binding
+        dimension here anyway -- the failing run spent $0.0033 of $0.05.
+
+        The hard ceiling survives. Before each request the check is
+        ``reserved + cap <= max``, and after reconciliation ``reserved``
+        equals actual so far, so the worst case following any admitted
+        request is still at or below the ceiling. What changes is that the
+        ceiling now bounds tokens actually emitted rather than tokens
+        hypothetically reservable.
+
+        Safe without the lock: asyncio runs these coroutines on one thread
+        and there is no await between the read and the write.
+        """
+        if self._cloud is None or attempt.provider is not Provider.OPENAI:
+            return
+        unused = self._output_cap_for(attempt.role) - attempt.output_tokens
+        if unused <= 0:
+            return
+        self._reserved_output_tokens = max(0, self._reserved_output_tokens - unused)
 
     def totals(self) -> UsageTotals:
         totals = UsageTotals()

@@ -189,6 +189,22 @@ def _dedupe_limitations(items: list[str]) -> list[str]:
     return kept
 
 
+def _clipped(text: str, limit: int) -> str:
+    """Shorten to a word boundary, marked as shortened.
+
+    A raw slice cuts mid-word and produces a heading that reads like the
+    generation broke off -- "...neck-vessel bypass followed b" was a real
+    published title. Ending on a whole word with an ellipsis reads as a
+    deliberate abbreviation, which is what it is.
+    """
+    collapsed = " ".join((text or "").split())
+    if len(collapsed) <= limit:
+        return collapsed
+    clipped = collapsed[:limit].rsplit(" ", 1)[0].rstrip(",;:.-")
+    # A single word longer than the limit has no boundary to fall back to.
+    return f"{clipped or collapsed[:limit]}…"
+
+
 def _fallback_report(
     question: str, store: EvidenceStore, gaps: list[str], error: str
 ) -> ResearchReport:
@@ -204,7 +220,7 @@ def _fallback_report(
         for item in sorted(store.citable_evidence(), key=lambda e: -e.confidence)[:12]
     ]
     return ResearchReport(
-        title=f"Evidence summary: {question[:100]}",
+        title=f"Evidence summary: {_clipped(question, 100)}",
         summary_claims=[
             Claim(
                 text=(
