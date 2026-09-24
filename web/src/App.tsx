@@ -345,7 +345,7 @@ export default function App() {
             Architecture
           </a>
           <a
-            href="https://github.com/NirmalKumar31/agentic-research-engine/blob/main/docs/REVIEW.md"
+            href="https://github.com/NirmalKumar31/agentic-research-engine/blob/main/docs/LIMITATIONS.md"
             target="_blank"
             rel="noreferrer noopener"
           >

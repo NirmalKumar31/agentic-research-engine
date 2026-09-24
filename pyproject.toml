@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "agentic-research-engine"
 version = "0.2.0"
-description = "A LangGraph deep-research engine with source-to-claim provenance, bounded iterative research loops, and hybrid cloud/local model routing."
+description = "A multi-stage agentic research engine on LangGraph, with evidence-level provenance, bounded research loops, and hybrid cloud/local model routing."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }

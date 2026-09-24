@@ -52,7 +52,7 @@ export function EvidenceDrawer({
       >
         <header className="drawer__head">
           <span className="drawer__eyebrow">
-            {items.every((i) => i.citable) ? "Verified evidence" : "Evidence"}
+            {items.every((i) => i.citable) ? "Exact-match evidence" : "Evidence"}
           </span>
           <button type="button" className="drawer__close" onClick={onClose} aria-label="Close">
             ✕

@@ -6,8 +6,8 @@ checkpointer, streaming progress to a callback, assembling metrics and writing
 artifacts.
 
 Keeping this out of the graph means the graph file stays a readable
-description of the research process, and means the CLI, the Streamlit app and
-the evaluation harness all drive runs through one code path.
+description of the research process, and means the CLI, the web API and the
+evaluation harness all drive runs through one code path.
 """
 
 from __future__ import annotations

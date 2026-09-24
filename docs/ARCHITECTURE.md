@@ -32,7 +32,6 @@ graph TB
     subgraph Interfaces
         CLI[CLI<br/>typer + rich]
         WEB[React/Vite SPA<br/>+ FastAPI over SSE]
-        UI[Streamlit<br/>local debug only]
         EV[Evaluation harness]
     end
 
@@ -60,7 +59,6 @@ graph TB
 
     CLI --> RUN
     WEB --> RUN
-    UI --> RUN
     EV --> RUN
     RUN --> GRAPH
     GRAPH --> ROUTER
@@ -75,12 +73,8 @@ graph TB
 
 Interfaces never touch providers. They drive `runner.stream_research`, which
 builds the runtime context and runs the graph. This is why the CLI, the web
-API, the Streamlit app and the evaluation harness contain no research logic
-at all.
-
-The React/FastAPI app is the portfolio interface and the one that matters.
-Streamlit came first and is kept as a local debugging surface; it is not
-what gets deployed.
+API and the evaluation harness contain no research logic at all: each one
+consumes the same event stream and renders it differently.
 
 ### 2.1 Two deployment modes
 
@@ -176,13 +170,15 @@ number:
 
 - A unit test pins the *mechanism*: three queries returning the same three
   URLs produce exactly three fetches, not nine.
-- On the live run recorded in the README, overlap was low — 48 real Tavily
-  results contained only 2 duplicate URLs (4%), because six genuinely
-  different sub-questions return genuinely different pages.
+- Across the three recorded runs, duplicate URLs were 6%, 11% and 46% of
+  search results, avoiding 3, 5 and 22 fetches respectively.
 
-So the barrier is cheap insurance rather than a large constant saving. It
-matters most where sub-questions are closely related, which is exactly the
-case where a per-researcher design would waste the most.
+The saving is therefore not a constant; it tracks how far the sub-questions
+converge. It is smallest when they explore genuinely different pages, and
+largest when they all point at one document — the 46% run is the NIST
+question, which names a single publication. That is the case where a
+per-researcher design would waste the most, so the barrier pays off exactly
+where it is needed.
 
 ### 3.2 Fan-in with `defer`
 
@@ -203,7 +199,7 @@ LangGraph 1.2.x with standalone scripts before the design depended on them.
 **`error_handler` does not fire for `Send`-dispatched nodes.**
 
 ```python
-graph.add_node("worker", worker, error_handler=handler)   # plain node: works
+graph.add_node("worker", worker, error_handler=handler)  # plain node: works
 # same registration, dispatched via Send: handler never runs, super-step dies
 ```
 
@@ -231,7 +227,7 @@ structures, and a test pins that rendering against them.
 
 ```python
 def dispatch(state):
-    return [Send("worker", x) for x in items]   # items empty -> graph just stops
+    return [Send("worker", x) for x in items]  # items empty -> graph just stops
 ```
 
 No error is raised; the downstream node never runs. Every dispatcher here
@@ -241,7 +237,7 @@ returns an explicit fallback node name when it has nothing to send:
 def dispatch_searches(state):
     queries = state.get("pending_queries", [])
     if not queries:
-        return "assess_coverage"      # fall through rather than vanish
+        return "assess_coverage"  # fall through rather than vanish
     return [Send("search_worker", {"query": q}) for q in queries]
 ```
 
@@ -266,7 +262,7 @@ class ResearchState(TypedDict, total=False):
     sources: Annotated[list[SourceDocument], merge_sources]
     evidence: Annotated[list[EvidenceItem], operator.add]
     counters: Annotated[dict[str, int], sum_counters]
-    pending_queries: list[SearchQuery]          # single writer, plain replace
+    pending_queries: list[SearchQuery]  # single writer, plain replace
 ```
 
 A channel needs a reducer exactly when more than one node — or more than one
@@ -296,8 +292,8 @@ return {"round_results": Overwrite(value=[])}
 class RunContext:
     settings: Settings
     router: ModelRouter
-    search: SearchService     # holds an open httpx.AsyncClient
-    fetcher: PageFetcher      # holds semaphores
+    search: SearchService  # holds an open httpx.AsyncClient
+    fetcher: PageFetcher  # holds semaphores
     budget: RunBudget
 ```
 
@@ -329,8 +325,8 @@ The fix is to make evidence the primary link and derive everything else:
 ```python
 class Claim(BaseModel):
     text: str
-    evidence_ids: list[str]   # the model supplies only this
-    citation_ids: list[str]   # the ENGINE derives this
+    evidence_ids: list[str]  # the model supplies only this
+    citation_ids: list[str]  # the ENGINE derives this
     kind: ClaimKind
 ```
 
@@ -373,7 +369,7 @@ They are now `DiscoveryRef(query_id, sub_question_id)` pairs. An evidence
 item records the path matching *its own* sub-question:
 
 ```python
-discovery = source.discovery_for(sub_question_id)   # None if no such path
+discovery = source.discovery_for(sub_question_id)  # None if no such path
 cross_attributed = discovery is None
 ```
 
@@ -423,11 +419,16 @@ still see everything that was extracted.
 
 ```python
 def route_after_coverage(state) -> str:
-    if coverage.sufficient:                                    return "synthesize"
-    if round_number >= budget.max_research_rounds:             return "synthesize"
-    if len(completed_queries) >= budget.max_search_queries:    return "synthesize"
-    if len(sources) >= budget.max_sources:                     return "synthesize"
-    if not coverage.recommended_followups and not missing:     return "synthesize"
+    if coverage.sufficient:
+        return "synthesize"
+    if round_number >= budget.max_research_rounds:
+        return "synthesize"
+    if len(completed_queries) >= budget.max_search_queries:
+        return "synthesize"
+    if len(sources) >= budget.max_sources:
+        return "synthesize"
+    if not coverage.recommended_followups and not missing:
+        return "synthesize"
     return "generate_followups"
 ```
 
@@ -439,7 +440,7 @@ a test that does exactly that.
 
 Splitting this was deliberate.
 
-**Counted mechanically:** verified evidence items per sub-question, distinct
+**Counted mechanically:** exact-match evidence items per sub-question, distinct
 sources per sub-question, contradictions present, domain concentration.
 
 ```
@@ -518,45 +519,38 @@ fallback that quietly overrides that is a bad surprise either way.
 
 ---
 
-## 8. What running on a 4B local model actually taught us
+## 8. Constraints imposed by a 4B local model
 
-Measured on `qwen3:4b`, same question, same sources.
+Three properties of `qwen3:4b` shaped the design rather than merely being
+worked around.
 
-**Structured output works; prose instructions do not.** The synthesis prompt
-asked for citation markers like `[S3]` in claim text. The model produced a
-complete, well-organised report containing **zero** markers. Moving citations
-from a prose convention to a required `source_ids` schema field fixed it
-immediately:
-
-| | prose markers | schema field |
-|---|---|---|
-| Citations emitted | 0 | 9 |
-| Citation validity | n/a | 100% |
-
-The general rule, and the reason it is worth writing down: **if a model must
-produce something reliably, put it in the schema, not the instructions.**
+**A required schema field is obeyed; a prose instruction is not.** The
+synthesis prompt asked for citation markers like `[S3]` in claim text and
+got a complete, well-organised report containing zero of them. Moving
+citations to a required schema field produced nine on the same question and
+sources. Anything the engine depends on is therefore a field, not an
+instruction — which is also why claims carry `evidence_ids` rather than
+being parsed out of prose.
 
 **Quotation is reliable; judgement is not.** Extraction asks the model to
-copy text; verification asks it to decide whether one sentence establishes
-another. Those are not equally hard for a 4B model, and that asymmetry is
-why hybrid mode puts extraction local and verification in the cloud —
-rather than an assumption about parameter count.
+copy text. Verification asks it to decide whether one sentence establishes
+another. Those are not equally hard at this size, and that asymmetry, not
+an assumption about parameter count, is why hybrid mode places extraction
+locally and reasoning in the cloud.
 
-Current numbers, all exact-only quote matching on `qwen3:4b`:
+Exact-only quote fidelity on `qwen3:4b`:
 
-| | Value | n | Source |
-|---|---|---|---|
-| Quote fidelity | 74% | 1 run | README local run |
-| Quote fidelity | 75.9% (72.2–80.6) | 3 repeats | [attribution experiment](../examples/attribution-experiment/) |
+| Source | Value | n |
+|---|---|---|
+| Recorded runs | 97%, 67%, 70% | 1 run each |
+| [Attribution experiment](../examples/attribution-experiment/) | 75.9% (72.2–80.6) | 3 repeats |
 
-> **The support-rate comparison is not yet re-measured.** Earlier drafts
-> quoted 83% fidelity with 33% and 60% support. Those came from a previous
-> generation of the evaluator, before quote matching was tightened to
-> exact-only and before `citation_validity` was split into
-> `evidence_integrity` and `claim_support`. They are not comparable to the
-> figures above and are therefore withdrawn rather than restated. A clean
-> frozen-corpus comparison of local versus cloud verification is the
-> measurement that would replace them, and it has not been run.
+The lowest of those runs is the one reading a PDF, whose extracted text
+carries layout artefacts a copied quote must reproduce exactly. That is a
+plausible cause, not a measured one: n=1 per run, and document type was
+not varied under control. Local-versus-cloud verification quality has not
+been measured on a clean corpus either — see
+[LIMITATIONS.md](LIMITATIONS.md).
 
 **Local models do not parallelise.** Ollama serves one model largely
 serially. Fanning eight extraction calls at it produced queueing and read
@@ -622,12 +616,13 @@ end it.**
 |---|---|
 | One search query fails | Retry with backoff, then record and continue |
 | Auth / out of credits | Fail that query immediately — retrying cannot help |
-| Page 404s, times out, is a PDF | Classify, mark the source unusable, continue |
+| Page 404s or times out | Classify, mark the source unusable, continue |
+| PDF fetch fails | Fall back to provider text, with a warning and no page numbers |
 | Page is JavaScript-only | `EMPTY` status; not counted as evidence |
 | Extraction call fails | Record, continue with the other sources |
 | Structured output malformed | One repair attempt with the validation error |
 | Planning fails | Fall back to the question as a single dimension |
-| **Synthesis fails** | Emit the verified evidence as a list |
+| **Synthesis fails** | Emit the exact-match evidence as a list |
 | Local model missing | Stop with the `ollama pull` command, or fall back if allowed |
 | Budget exhausted | Stop research, still produce a report, state the limitation |
 
@@ -734,7 +729,7 @@ The connection is therefore made to the address that was actually
 validated:
 
 ```python
-target = validate_url(current)            # resolves and checks every address
+target = validate_url(current)  # resolves and checks every address
 url, headers, ext = target.pinned_request()
 # url     -> https://93.184.216.34/path      (the checked address)
 # headers -> {"Host": "example.com"}         (virtual hosting still works)
@@ -792,8 +787,8 @@ budget does not stop a local run.
 
 - **A crawler.** The fetcher retrieves chosen URLs and stops. No link
   discovery, no frontier, no cross-run crawl budget.
-- **PDF extraction.** PDFs are classified `UNSUPPORTED_TYPE` and skipped. A
-  real gap for academic sources, listed in the roadmap.
+- **OCR.** PDFs are fetched and read with page provenance, but a scanned
+  PDF carries no text layer. It is detected and reported, not read.
 - **Headless rendering.** JavaScript-only pages yield no text and are marked
   `EMPTY`. Playwright would fix it and would roughly double install size.
 - **Semantic deduplication via embeddings.** URL plus content-hash plus

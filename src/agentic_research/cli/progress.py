@@ -1,6 +1,6 @@
 """Terminal rendering of run progress.
 
-Consumes the same event stream the Streamlit app and the evaluation harness
+Consumes the same event stream the web API and the evaluation harness
 consume. Presentation lives here; nothing in the graph knows a terminal
 exists.
 """
