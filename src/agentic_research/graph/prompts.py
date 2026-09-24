@@ -213,12 +213,37 @@ State plainly in the limitations what the evidence could not establish. A \
 report that admits a gap is more useful than one that papers over it."""
 
 
-def synthesizer_user(question: str, output_format: str, evidence_block: str, gaps_note: str) -> str:
+def synthesizer_user(
+    question: str,
+    output_format: str,
+    evidence_block: str,
+    gaps_note: str,
+    claim_budget: int | None = None,
+) -> str:
+    """Build the synthesis prompt, optionally bounded to a claim budget.
+
+    The budget exists because every substantive claim costs one
+    verification call, and a claim that is never verified is not
+    published. Asking for more claims than the run can check does not
+    produce a longer report -- it produces the same short report with the
+    surplus deleted afterwards. One run generated 25 claims, could afford
+    to check 4, and published 2.
+    """
     gaps = f"\n\nKnown gaps in the evidence:\n{gaps_note}" if gaps_note else ""
+    budget = ""
+    if claim_budget is not None:
+        budget = (
+            f"\n\nWrite at most {claim_budget} substantive claims in total, "
+            "counting the summary, key findings and every section together. "
+            "Each one is checked individually against its own evidence, and "
+            "any that cannot be checked is dropped before publication, so "
+            "fewer well-evidenced claims beat more thinly-evidenced ones. "
+            "Connective or framing sentences do not count toward this."
+        )
     return (
         f"Research question:\n{question}\n\n"
         f"Expected shape of answer: {output_format}\n\n"
-        f"Evidence:\n{evidence_block}{gaps}\n\n"
+        f"Evidence:\n{evidence_block}{gaps}{budget}\n\n"
         "Write the report."
     )
 

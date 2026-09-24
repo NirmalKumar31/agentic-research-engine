@@ -46,6 +46,34 @@ log = get_logger(__name__)
 # exhaustive is the kind of metric this project exists not to publish.
 _DEFAULT_ENTAILMENT_SAMPLE = 10
 
+# A report is worth writing even when almost nothing can be verified, and
+# a floor keeps a tiny budget from producing an empty one.
+_MIN_CLAIM_BUDGET = 4
+
+# Headroom left when sizing the report: verification also spends a call
+# resolving structure, and a structured-output repair can cost another.
+_VERIFICATION_OVERHEAD = 2
+
+
+async def _claim_budget() -> int | None:
+    """How many substantive claims this run can afford to verify.
+
+    Every substantive claim costs one entailment call, and an unverified
+    claim is not published. Generating more than the budget allows does
+    not lengthen the report; it just means the surplus is deleted after
+    being paid for. A live run generated 25 claims, could check 4, and
+    published 2.
+
+    Returns None when the remaining budget is ample, so an unconstrained
+    local run is not told to write a short report for no reason.
+    """
+    remaining = await ctx().router.tracker.remaining()
+    # One for synthesis itself, which has not been reserved yet.
+    affordable = remaining - 1 - _VERIFICATION_OVERHEAD
+    if affordable >= _DEFAULT_ENTAILMENT_SAMPLE:
+        return None
+    return max(_MIN_CLAIM_BUDGET, affordable)
+
 
 async def synthesize_report(state: ResearchState) -> ResearchState:
     """Write the report from the curated evidence package.
@@ -79,6 +107,9 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
             )
 
         errors = []
+        claim_budget = await _claim_budget()
+        if claim_budget is not None:
+            log.info("synthesis_claim_budget", claims=claim_budget)
         try:
             out = (
                 await ctx()
@@ -91,6 +122,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                         analysis.output_format.value if analysis else "overview",
                         package.text or "(no citable evidence was gathered)",
                         "\n".join(f"- {g}" for g in gaps),
+                        claim_budget=claim_budget,
                     ),
                 )
             )
@@ -393,11 +425,19 @@ async def _check_entailment(
     if exhaustive:
         selected = candidates
     else:
-        # Summary and key findings first: they are what a reader takes away.
+        # Summary and key findings first: they are what a reader takes
+        # away, and under the publication gate an unchecked claim does
+        # not survive, so check order decides what gets published.
         prominent = [c for c in report.summary_claims if c in candidates]
         prominent += [c for c in report.key_findings if c in candidates]
         rest = [c for c in candidates if c not in prominent]
-        selected = (prominent + rest)[:_DEFAULT_ENTAILMENT_SAMPLE]
+        # Bounded by what the run can still pay for, not just by the
+        # sample size. Attempting calls the budget cannot cover spends
+        # the last of it and then fails mid-loop, which is a worse
+        # outcome than checking fewer claims deliberately.
+        affordable = await ctx().router.tracker.remaining()
+        limit = max(1, min(_DEFAULT_ENTAILMENT_SAMPLE, affordable))
+        selected = (prominent + rest)[:limit]
     result.entailment_exhaustive = len(selected) == len(candidates)
 
     errors = []
