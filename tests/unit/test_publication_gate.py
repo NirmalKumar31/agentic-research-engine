@@ -336,7 +336,6 @@ class TestPublicReportsCarryNoInternalTokens:
         reintroduce this silently."""
         import json
         import re
-        from pathlib import Path
 
         from agentic_research.web.recordings import RECORDINGS_DIR
 
