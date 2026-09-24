@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from agentic_research.citations.publication import filter_report_by_verification
 from agentic_research.citations.verifier import (
     resolve_report,
     strip_markers,
@@ -25,8 +26,10 @@ from agentic_research.models import (
     Claim,
     ClaimKind,
     Contradiction,
+    CoverageAssessment,
     ReportSection,
     ResearchReport,
+    SubQuestion,
 )
 from agentic_research.observability import get_logger
 from agentic_research.schemas import EntailmentOut, ReportOut
@@ -60,10 +63,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
     with stage("synthesize") as timing:
         # citable_only: a claim must never rest on a quote we could not find.
         package = store.build_package(sub_questions, citable_only=True)
-        gaps: list[str] = []
-        if coverage:
-            gaps = [f"no evidence for {sq_id}" for sq_id in coverage.missing[:5]]
-            gaps += [f"thin evidence for {sq_id}" for sq_id in coverage.weak[:5]]
+        gaps: list[str] = _coverage_limitations(coverage, sub_questions)
         if state.get("stop_reason"):
             gaps.append(f"research stopped early: {state['stop_reason']}")
         uncitable = len(evidence) - len(store.citable_evidence())
@@ -150,6 +150,32 @@ def _to_claim(out: object) -> Claim:
     )
 
 
+def _coverage_limitations(
+    coverage: CoverageAssessment | None, sub_questions: list[SubQuestion]
+) -> list[str]:
+    """Turn coverage gaps into sentences a reader can use.
+
+    Two rules. Gaps are named by the sub-question's own text rather than
+    its identifier, because "no evidence for SQ3" means nothing outside
+    this process. And an entry that does not match a known sub-question id
+    is dropped: the critic occasionally returns prose in that field, and
+    that prose is its reasoning, not a finding.
+    """
+    if coverage is None:
+        return []
+    by_id = {q.id: q.text.rstrip(".?") for q in sub_questions}
+    out: list[str] = []
+    for sq_id in coverage.missing[:5]:
+        text = by_id.get(sq_id)
+        if text:
+            out.append(f"The retrieved evidence did not answer: {text}.")
+    for sq_id in coverage.weak[:5]:
+        text = by_id.get(sq_id)
+        if text:
+            out.append(f"Only limited evidence was found for: {text}.")
+    return out
+
+
 def _dedupe_limitations(items: list[str]) -> list[str]:
     """Drop near-duplicates, which appear when the model restates a gap we
     also appended from the coverage assessment."""
@@ -212,6 +238,35 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         result.repaired = bool(resolution_issues)
 
         errors = await _check_entailment(report, store, result, state)
+
+        # Publication gate. Claims the verifier could not support are
+        # removed rather than rewritten; the issues explaining why stay in
+        # the verification record so the removal remains auditable.
+        result.generated_substantive_claims = len(report.substantive_claims())
+        report, removed = filter_report_by_verification(report, result)
+        result.removed_after_verification = removed
+        result.final_published_claims = len(report.substantive_claims())
+        if removed:
+            # Citation totals describe the report a reader receives, so
+            # they are recomputed against the filtered one.
+            result = verify_structure(
+                report, store, resolution_issues=resolution_issues
+            ).model_copy(
+                update={
+                    "checked_claims": result.checked_claims,
+                    "checkable_claims": result.checkable_claims,
+                    "supported_claims": result.supported_claims,
+                    "partially_supported_claims": result.partially_supported_claims,
+                    "unsupported_claims": result.unsupported_claims,
+                    "entailment_exhaustive": result.entailment_exhaustive,
+                    "issues": result.issues,
+                    "repaired": result.repaired,
+                    "generated_substantive_claims": result.generated_substantive_claims,
+                    "removed_after_verification": removed,
+                    "final_published_claims": result.final_published_claims,
+                }
+            )
+
         timing["citations"] = result.total_citations
 
     log.info(
@@ -222,6 +277,9 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         coverage_rate=result.citation_coverage_rate,
         support=result.support_breakdown,
         exhaustive=result.entailment_exhaustive,
+        generated=result.generated_substantive_claims,
+        removed=result.removed_after_verification,
+        published=result.final_published_claims,
         unused_sources=len(result.unused_source_ids),
     )
     emit(
@@ -230,6 +288,8 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         evidence_integrity=result.evidence_integrity_rate,
         support=result.support_breakdown,
         exhaustive=result.entailment_exhaustive,
+        removed=result.removed_after_verification,
+        published=result.final_published_claims,
     )
     return {
         "report": report,

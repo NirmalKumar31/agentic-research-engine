@@ -640,7 +640,16 @@ def record_example(
 
     async def drive() -> None:
         nonlocal result
-        async for event in stream_research(question, settings, run_id=new_run_id()):
+        async for event in stream_research(
+            question,
+            settings,
+            run_id=new_run_id(),
+            # Canonical recordings are verified exhaustively: every eligible
+            # claim is checked, and the publication gate can only remove a
+            # claim it has actually assessed. Sampling would leave unchecked
+            # claims in a published demo.
+            exhaustive_verification=True,
+        ):
             if event.get("event") == "result":
                 result = event["result"]
             else:

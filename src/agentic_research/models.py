@@ -634,6 +634,17 @@ class CitationVerification(BaseModel):
     contradictions_total: int = 0
     contradictions_auditable: int = 0
 
+    # Publication gate. Kept separate from the support counts above so the
+    # synthesiser's actual output stays visible: a report with nothing
+    # unsupported in it because four claims were removed is not the same
+    # as one that never generated a bad claim.
+    generated_substantive_claims: int = 0
+    """Substantive claims the synthesiser produced, before filtering."""
+    removed_after_verification: int = 0
+    """Claims dropped because their evidence did not support them."""
+    final_published_claims: int = 0
+    """Substantive claims surviving into the published report."""
+
     issues: list[CitationIssue] = Field(default_factory=list)
     unused_source_ids: list[str] = Field(default_factory=list)
     repaired: bool = False
