@@ -87,6 +87,16 @@ other languages.
 
 ## Publication
 
+**Two of the three recorded demos publish nothing.** Under a `qwen3:4b`
+synthesiser, 18 of 20 generated claims overreached the evidence they
+cited and were removed. The verifier is working — the removals are
+individually defensible, and the audit trail records each one — but a
+4B model paired with a strict verifier leaves very little standing.
+
+Whether a larger synthesiser closes that gap has **not been measured**.
+It is the obvious next experiment and the most likely explanation, but
+until it is run, no claim is made about it either way.
+
 Unsupported and partially supported claims are removed before publication,
 not rewritten. A published report therefore contains no claim that failed
 the support check — which means "every published claim passed this

@@ -162,30 +162,50 @@ spends nothing.
 
 ## Measured results
 
-Three recorded local runs, `qwen3:4b`, one round, five sources each, no
-cloud spend. Every substantive claim was checked against its own evidence —
-`checked == checkable` — and claims the verifier could not support were
-removed before publication.
+Three recorded local runs, `qwen3:4b`, one round, no cloud spend. Every
+substantive claim was checked against its own evidence — `checked ==
+checkable` — and only claims the verifier judged *supported* were
+published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
-| Generated substantive claims | 19 | 16 | 22 |
-| Supported | 19 | 13 | 19 |
-| Partially supported | 0 | 2 | 3 |
+| Generated substantive claims | 8 | 6 | 6 |
+| Supported | 2 | 0 | 0 |
+| Partially supported | 6 | 5 | 6 |
 | Unsupported | 0 | 1 | 0 |
-| **Removed before publishing** | 0 | 3 | 4 |
-| **Published** | 19 | 13 | 18 |
-| Checked / checkable | 19/19 | 16/16 | 22/22 |
+| Never checked | 0 | 0 | 0 |
+| **Removed before publishing** | 6 | 6 | 6 |
+| **Published** | **2** | **0** | **0** |
+| Checked / checkable | 8/8 | 6/6 | 6/6 |
 | Evidence integrity | 100% | 100% | 100% |
-| Quote fidelity (exact) | 97% | 67% | 70% |
-| Duration | 968s | 812s | 845s |
+| Quote fidelity (exact) | 90% | 90% | 94% |
+| Sources | 5 | 10 | 5 |
+| Page-cited evidence | 0 | 6 | 0 |
+| Duration | 716s | 1393s | 500s |
 
-Removal is keyed on claim text plus cited evidence, so a claim that appears
-in two places is removed from both. That is why the fraud run removes four
-claims for three failing verdicts.
+**Read the removal column, not the publication column.** Eighteen of the
+twenty substantive claims a 4B model generated overreached the evidence
+it cited, and the verifier caught all eighteen. Examples from these runs:
 
-These are product artifacts, served by the demo. They are not a benchmark:
-n=1 each, one model, one configuration.
+- A claim that vector databases are "more cost-effective than traditional
+  search engines at 60–100M queries/month", cited to a quote saying
+  *self-hosting* is cheaper than *cloud* — a different comparison
+  entirely.
+- A claim that NIST "structures AI risk management through four core
+  functions", where the NIST-sourced quote is a table-of-contents line
+  (`5.1 Govern 21 5.2 Map 24...`) and the actual assertion comes from two
+  blogs.
+- A claim naming five model families as "most effective" for fraud
+  detection, where the evidence establishes that for two of them.
+
+That is the system behaving as designed and is the most informative
+result here. It is also why two of the three demos publish nothing: a
+`qwen3:4b` synthesiser paired with a strict verifier leaves very little
+standing. A larger synthesiser is the obvious lever and has not been
+measured — see [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
+
+These are product artifacts, served by the demo. They are not a
+benchmark: n=1 each, one model, one configuration.
 
 ### Attribution experiment
 
