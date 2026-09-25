@@ -3,18 +3,27 @@
     "model_id": "cross-encoder/nli-deberta-v3-base",
     "model_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
     "runtime": {
-      "model_load_seconds": 5.07,
-      "inference_seconds": 2.23,
-      "seconds_per_pair": 0.0446
+      "model_load_seconds": 7.18,
+      "inference_seconds": 2.44,
+      "seconds_per_pair": 0.0489
     },
     "memory_mb": {
-      "baseline_rss": 20.7,
-      "after_model_load_rss": 882.7,
-      "peak_rss": 1142.2
+      "baseline_rss": 20.9,
+      "after_model_load_rss": 882.3,
+      "peak_rss": 1141.4
     },
     "sweep": [
       {
         "threshold": 0.5,
+        "tp": 7,
+        "fp": 1,
+        "fn": 2,
+        "tn": 20,
+        "precision": 0.875,
+        "recall": 0.7778
+      },
+      {
+        "threshold": 0.51,
         "tp": 6,
         "fp": 1,
         "fn": 3,
@@ -23,394 +32,394 @@
         "recall": 0.6667
       },
       {
-        "threshold": 0.51,
-        "tp": 5,
-        "fp": 1,
-        "fn": 4,
-        "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
-      },
-      {
         "threshold": 0.52,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.53,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.54,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.55,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.56,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.57,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.58,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.59,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.6,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.61,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.62,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.63,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.64,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.65,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.66,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.67,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.68,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.69,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.7,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.71,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.72,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.73,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.74,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.75,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.76,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.77,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.78,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.79,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.8,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.81,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.82,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.83,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.84,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.85,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.86,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.87,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.88,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.89,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.9,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.91,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.92,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.93,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.94,
+        "tp": 6,
+        "fp": 1,
+        "fn": 3,
+        "tn": 20,
+        "precision": 0.8571,
+        "recall": 0.6667
+      },
+      {
+        "threshold": 0.95,
         "tp": 5,
         "fp": 1,
         "fn": 4,
@@ -419,25 +428,25 @@
         "recall": 0.5556
       },
       {
-        "threshold": 0.95,
-        "tp": 4,
-        "fp": 1,
-        "fn": 5,
-        "tn": 20,
-        "precision": 0.8,
-        "recall": 0.4444
-      },
-      {
         "threshold": 0.96,
-        "tp": 4,
+        "tp": 5,
         "fp": 1,
-        "fn": 5,
+        "fn": 4,
         "tn": 20,
-        "precision": 0.8,
-        "recall": 0.4444
+        "precision": 0.8333,
+        "recall": 0.5556
       },
       {
         "threshold": 0.97,
+        "tp": 5,
+        "fp": 1,
+        "fn": 4,
+        "tn": 20,
+        "precision": 0.8333,
+        "recall": 0.5556
+      },
+      {
+        "threshold": 0.98,
         "tp": 4,
         "fp": 1,
         "fn": 5,
@@ -446,22 +455,13 @@
         "recall": 0.4444
       },
       {
-        "threshold": 0.98,
-        "tp": 3,
-        "fp": 1,
-        "fn": 6,
-        "tn": 20,
-        "precision": 0.75,
-        "recall": 0.3333
-      },
-      {
         "threshold": 0.99,
-        "tp": 3,
+        "tp": 4,
         "fp": 1,
-        "fn": 6,
+        "fn": 5,
         "tn": 20,
-        "precision": 0.75,
-        "recall": 0.3333
+        "precision": 0.8,
+        "recall": 0.4444
       }
     ],
     "selected_threshold": null,
@@ -471,465 +471,465 @@
     "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
     "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
     "runtime": {
-      "model_load_seconds": 6.07,
-      "inference_seconds": 53.7,
-      "seconds_per_pair": 1.074
+      "model_load_seconds": 8.76,
+      "inference_seconds": 62.75,
+      "seconds_per_pair": 1.255
     },
     "memory_mb": {
-      "baseline_rss": 21.0,
-      "after_model_load_rss": 1148.8,
-      "peak_rss": 1383.6
+      "baseline_rss": 20.7,
+      "after_model_load_rss": 1038.8,
+      "peak_rss": 1280.8
     },
     "sweep": [
       {
         "threshold": 0.5,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.51,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.52,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.53,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.54,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.55,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.56,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.57,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.58,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.59,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.6,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.61,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.62,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.63,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.64,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.65,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.66,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.67,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.68,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.69,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.7,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.71,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.72,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.73,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.74,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.75,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.76,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.77,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.78,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.79,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.8,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.81,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.82,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.83,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.84,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.85,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.86,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.87,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.88,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.89,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.9,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.91,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.92,
-        "tp": 5,
+        "tp": 6,
         "fp": 2,
-        "fn": 4,
+        "fn": 3,
         "tn": 19,
-        "precision": 0.7143,
-        "recall": 0.5556
+        "precision": 0.75,
+        "recall": 0.6667
       },
       {
         "threshold": 0.93,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.94,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.95,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.96,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.97,
-        "tp": 5,
+        "tp": 6,
         "fp": 1,
-        "fn": 4,
+        "fn": 3,
         "tn": 20,
-        "precision": 0.8333,
-        "recall": 0.5556
+        "precision": 0.8571,
+        "recall": 0.6667
       },
       {
         "threshold": 0.98,
+        "tp": 6,
+        "fp": 1,
+        "fn": 3,
+        "tn": 20,
+        "precision": 0.8571,
+        "recall": 0.6667
+      },
+      {
+        "threshold": 0.99,
         "tp": 5,
         "fp": 1,
         "fn": 4,
         "tn": 20,
         "precision": 0.8333,
         "recall": 0.5556
-      },
-      {
-        "threshold": 0.99,
-        "tp": 4,
-        "fp": 1,
-        "fn": 5,
-        "tn": 20,
-        "precision": 0.8,
-        "recall": 0.4444
       }
     ],
     "selected_threshold": null,
@@ -939,14 +939,14 @@
     "model_id": "cross-encoder/nli-MiniLM2-L6-H768",
     "model_revision": "b95119ce93d3e065de6214e38cd4a97b0f2f2c6d",
     "runtime": {
-      "model_load_seconds": 4.51,
-      "inference_seconds": 0.73,
-      "seconds_per_pair": 0.0147
+      "model_load_seconds": 5.18,
+      "inference_seconds": 0.79,
+      "seconds_per_pair": 0.0157
     },
     "memory_mb": {
-      "baseline_rss": 20.8,
-      "after_model_load_rss": 552.3,
-      "peak_rss": 675.0
+      "baseline_rss": 21.0,
+      "after_model_load_rss": 555.2,
+      "peak_rss": 675.8
     },
     "sweep": [
       {
@@ -1461,11 +1461,9 @@
         "case_id": "rag-vector-vs-search-removed-9",
         "claim": "Milvus achieves the highest throughput at 20,000+ QPS via GPU-accelerated indexing for high-volume analytics.",
         "human_label": "supported",
-        "best_evidence_id": null,
+        "best_evidence_id": "S1-e1",
         "best_entailment": 0.1839,
-        "failed_guards": [
-          "ranking"
-        ]
+        "failed_guards": []
       },
       {
         "case_id": "rag-vector-vs-search-removed-4",

@@ -4,8 +4,8 @@
     "deberta-v3-large": {
       "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
       "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-      "cases": 36,
-      "correct": 35,
+      "cases": 38,
+      "correct": 37,
       "unsafe_publishes": [],
       "over_withheld": [
         {
@@ -19,7 +19,7 @@
           "reason": "best entailment 0.778 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 34.92,
+      "seconds": 39.98,
       "results": [
         {
           "id": "modality-faithful",
@@ -406,14 +406,34 @@
           "entailment": 0.0008,
           "failed_guards": [],
           "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-different-attribute",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0008,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-verb-supported",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9907,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.991 >= 0.98"
         }
       ]
     },
     "deberta-v3-base": {
       "model_id": "cross-encoder/nli-deberta-v3-base",
       "model_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
-      "cases": 36,
-      "correct": 32,
+      "cases": 38,
+      "correct": 34,
       "unsafe_publishes": [
         {
           "id": "scope-one-study-to-general",
@@ -458,7 +478,7 @@
           "reason": "best entailment 0.025 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 2.79,
+      "seconds": 4.38,
       "results": [
         {
           "id": "modality-faithful",
@@ -845,14 +865,34 @@
           "entailment": 0.0011,
           "failed_guards": [],
           "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-different-attribute",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0002,
+          "failed_guards": [],
+          "reason": "best entailment 0.000 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-verb-supported",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9943,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.994 >= 0.98"
         }
       ]
     },
     "minilm2-l6-h768": {
       "model_id": "cross-encoder/nli-MiniLM2-L6-H768",
       "model_revision": "b95119ce93d3e065de6214e38cd4a97b0f2f2c6d",
-      "cases": 36,
-      "correct": 31,
+      "cases": 38,
+      "correct": 32,
       "unsafe_publishes": [
         {
           "id": "scope-one-study-to-general",
@@ -905,9 +945,19 @@
           "entailment": 0.0127,
           "failed_guards": [],
           "reason": "best entailment 0.013 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-verb-supported",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.0814,
+          "failed_guards": [],
+          "reason": "best entailment 0.081 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 0.88,
+      "seconds": 1.58,
       "results": [
         {
           "id": "modality-faithful",
@@ -1294,6 +1344,26 @@
           "entailment": 0.0141,
           "failed_guards": [],
           "reason": "best entailment 0.014 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-different-attribute",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0416,
+          "failed_guards": [],
+          "reason": "best entailment 0.042 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-verb-supported",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.0814,
+          "failed_guards": [],
+          "reason": "best entailment 0.081 from E1 is below the 0.98 support threshold"
         }
       ]
     }

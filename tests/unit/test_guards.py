@@ -120,6 +120,45 @@ class TestRankingGuard:
             "System A had the lowest latency", "System A showed the lowest latency of the three"
         ).passed
 
+    @pytest.mark.parametrize(
+        "evidence",
+        [
+            "System A wins on raw throughput among the tested engines",
+            "System A leads for throughput",
+            "System A outperforms the alternatives on throughput",
+            "System A beats the alternatives on throughput",
+            "System A is the top choice for throughput",
+        ],
+    )
+    def test_ranking_stated_in_other_words_passes(self, evidence: str) -> None:
+        """A ranking expressed with a verb is still a ranking.
+
+        Requiring the claim's own superlative to reappear verbatim made
+        the guard a synonym test, blocking true claims whenever the
+        source ranked in different words.
+        """
+        assert ranking_guard("System A achieves the highest throughput", evidence).passed
+
+    def test_a_different_ranking_is_left_to_the_classifier(self) -> None:
+        """The guard is a necessary condition, not a sufficient one.
+
+        Evidence ranking latency does not establish a claim ranking
+        throughput, but deciding that is a semantic question. The guard
+        passes it through deliberately; the classifier refuses it, and
+        the stress suite holds that end to end.
+        """
+        assert ranking_guard(
+            "System A achieves the highest throughput",
+            "System B leads for p99 latency",
+        ).passed
+
+    def test_causal_leads_to_is_not_read_as_a_ranking(self) -> None:
+        """ "leads to" is causal. Matching bare "leads" would invent a
+        ranking in the evidence and let an invented ranking publish."""
+        assert not ranking_guard(
+            "System A had the lowest latency", "Caching leads to better response times"
+        ).passed
+
 
 class TestCausalGuard:
     def test_association_does_not_become_cause(self) -> None:

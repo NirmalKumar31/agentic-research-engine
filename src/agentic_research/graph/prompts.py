@@ -201,11 +201,52 @@ into the claim text and do not name sources; the ids you give are resolved \
 back to their sources automatically, and an id that does not appear in the \
 evidence below is discarded along with anything resting on it.
 
+Write ATOMIC claims. One claim carries one material proposition -- one \
+thing that a single quote could confirm or fail to confirm on its own.
+
+Do not fuse independent propositions into one sentence with 'and', 'but', \
+'while', 'whereas', 'as well as', 'which also' or 'thereby' when the parts \
+would need different evidence. Split them.
+
+  Not this:
+    "Quantization reduces memory usage by 75% while maintaining high \
+recall accuracy."
+  This:
+    "Quantization reduced memory usage by 75%."
+    "The source reports minimal impact on recall after quantization."
+    "The source reports high accuracy after quantization."
+
+Three separate facts stay three separate claims. Do not invent a \
+relationship between them -- 'while maintaining', 'thereby achieving' and \
+'without sacrificing' all assert something the evidence may never have said.
+
+Each claim is checked against each of its own quotes separately, and it \
+publishes only if one of those quotes carries it by itself. A broad claim \
+assembled from several partial quotes does not pass. Narrow and provable \
+beats broad and impressive.
+
+Carry the source's own wording on every dimension that changes meaning:
+- scope: one product stays one product, one study one study, one \
+benchmark one benchmark, one organisation that organisation. Do not \
+generalise a result to a category.
+- modality: 'may' stays 'may'. Do not promote it to 'typically', \
+'requires', 'must' or 'always'.
+- quantity: reproduce figures exactly, with their units and qualifiers.
+- time: keep 'as of', 'in 2021', 'at the time of writing'.
+- comparison: a reported value is not a ranking. Only write 'highest', \
+'fastest' or 'best' when the source ranks things.
+- cause: only write 'caused', 'led to' or 'because of' when the source \
+states a cause. An association stays an association.
+- recommendation: advice stays advice, not a requirement.
+
 Classify each claim:
-- 'factual': one evidence item establishes it. Give that item's id.
-- 'synthesis': you are drawing a conclusion across several items. Give all \
-the ids it rests on. Synthesis needs more evidence than a plain fact, not \
-less.
+- 'factual': one evidence item establishes it on its own. Give that \
+item's id. Prefer this. If two items each independently state it, give \
+both; do not add ids that merely sit in the same paragraph.
+- 'synthesis': a conclusion genuinely spanning several items, which no \
+single item states. Give every id it rests on. Use this sparingly -- if \
+the conclusion can be written as two atomic factual claims instead, \
+write those.
 
 Every claim you write is an assertion and every one needs evidence. There \
 is no category for connective prose: section headings already provide the \
@@ -214,8 +255,10 @@ structure, so write claims rather than linking sentences.
 The summary claims are the most prominent statements in the report and are \
 held to exactly the same standard as body claims.
 
-Cite at most eight evidence items per claim. A claim resting on more than \
-that cannot be checked against all of them at once and will be dropped.
+Cite at most eight evidence items per claim, and only ids that actually \
+support that specific claim. Attaching every id from a paragraph does not \
+strengthen a claim; each is checked against the claim on its own, and the \
+irrelevant ones simply fail.
 
 When sources disagree, record it as a contradiction with evidence ids on \
 both sides rather than resolving it or mentioning it only in prose.

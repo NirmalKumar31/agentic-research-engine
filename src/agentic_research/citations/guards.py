@@ -60,6 +60,11 @@ _HEDGED = re.compile(
     r"\b(" + "|".join(_WEAK) + r")\b((?:\s+\w+){0,2}?)\s+(?:be\s+)?\b(" + "|".join(_STRONG) + r")\b"
 )
 
+# Ranking language. Superlatives are single words; ranking verbs carry a
+# preposition or object, because the bare verbs are polysemous -- "leads
+# to" is causal, not comparative, and matching "leads" alone would read
+# a ranking into evidence that states none, which is the unsafe
+# direction for this guard.
 _RANKING = (
     "highest",
     "lowest",
@@ -73,10 +78,24 @@ _RANKING = (
     "slowest",
     "superior",
     "outperforms",
+    "outranks",
     "unmatched",
     "premier",
     "the most",
     "the least",
+    "wins on",
+    "wins in",
+    "leads for",
+    "leads in",
+    "leads on",
+    "leads the",
+    "ahead of",
+    "top choice",
+    "best choice",
+    "number one",
+    "first place",
+    "ranks first",
+    "beats",
 )
 
 _CAUSAL = (
@@ -180,21 +199,29 @@ def modality_guard(claim: str, evidence: str) -> GuardResult:
 
 
 def ranking_guard(claim: str, evidence: str) -> GuardResult:
-    """A superlative needs the evidence to make the comparison.
+    """A superlative needs the evidence to make some comparison.
 
     A reported value is not a ranking: "Redis: 5ms" does not establish
     "Redis had the lowest latency", however low 5ms happens to be.
+
+    This asks only whether the evidence ranks anything at all, not
+    whether it ranks the same thing the claim does. An earlier version
+    required the claim's exact ranking word to reappear in the quote,
+    which blocked "achieves the highest throughput" against evidence
+    reading "wins on raw throughput" -- the same ranking in different
+    words. Lexical identity is the wrong test for a semantic question,
+    so the guard supplies the cheap necessary condition and leaves "is
+    it the same ranking?" to the classifier, which is what it is for.
     """
     claimed = _phrases(claim, _RANKING)
     if not claimed:
         return GuardResult("ranking", True, "claim asserts no ranking")
     supported = _phrases(evidence, _RANKING)
-    unmatched = [r for r in claimed if r not in supported]
-    if unmatched:
+    if not supported:
         return GuardResult(
-            "ranking", False, f"claim asserts '{', '.join(unmatched)}'; evidence states no ranking"
+            "ranking", False, f"claim asserts '{', '.join(claimed)}'; evidence ranks nothing"
         )
-    return GuardResult("ranking", True, f"evidence states '{', '.join(supported)}'")
+    return GuardResult("ranking", True, f"evidence ranks: '{', '.join(supported)}'")
 
 
 def causal_guard(claim: str, evidence: str) -> GuardResult:
