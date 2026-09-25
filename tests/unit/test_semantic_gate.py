@@ -211,3 +211,42 @@ class TestStressFixtureGuardCoverage:
             if not verdict.publishable:
                 blocked.append((case["id"], verdict.reason))
         assert not blocked, f"guards blocked faithful restatements: {blocked}"
+
+
+class TestAuditRecordSurvivesTheRebuild:
+    """The judgments must reach the artifact, not just the local object.
+
+    verify_citations rebuilds its result from the published report as a
+    final step, carrying a named list of fields forward. ``judgments``
+    was not on that list, so every candidate's full-fidelity record was
+    appended and then thrown away, leaving only the 200-character
+    CitationIssue entries -- which is exactly the truncation that made
+    four calibration cases unusable.
+    """
+
+    def test_judgments_are_carried_through_the_rebuild(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        source = inspect.getsource(reporting.verify_citations)
+        rebuild = source[source.index("semantic = {") : source.index("result.final_published")]
+        assert '"judgments": result.judgments' in rebuild, (
+            "verify_citations rebuilds its result without carrying judgments forward; "
+            "the audit record will be empty in every artifact"
+        )
+
+    def test_every_carried_field_is_a_real_model_field(self) -> None:
+        """A typo in that dict would silently drop a field rather than
+        raise, since model_copy(update=...) does not validate names."""
+        import inspect
+        import re
+
+        from agentic_research.graph.nodes import reporting
+        from agentic_research.models import CitationVerification
+
+        source = inspect.getsource(reporting.verify_citations)
+        rebuild = source[source.index("semantic = {") : source.index("result.final_published")]
+        names = set(re.findall(r'"(\w+)":', rebuild))
+        unknown = names - set(CitationVerification.model_fields)
+        assert not unknown, f"not fields of CitationVerification: {sorted(unknown)}"

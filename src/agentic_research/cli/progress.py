@@ -126,10 +126,26 @@ class ProgressPrinter:
         self.console.print("Verifying citations...")
 
     def _on_citations_verified(self, event: dict[str, Any]) -> None:
+        """Report what the publication gate did.
+
+        This read ``event['valid']``, which the node has never emitted,
+        so every CLI run raised KeyError the moment verification
+        finished. Nothing caught it because the tests drive the runner
+        directly and never render progress. Keys are read defensively
+        now, and the printer is covered by a test that feeds it the
+        node's real event.
+        """
         repaired = " [yellow](repaired)[/yellow]" if event.get("repaired") else ""
         self.console.print(
-            f"  {event['valid']}/{event['total']} citations resolve to retrieved sources{repaired}"
+            f"  {event.get('total', 0)} citations resolve to retrieved sources{repaired}"
         )
+        published = event.get("published")
+        removed = event.get("removed")
+        if published is not None and removed is not None:
+            note = "" if event.get("exhaustive", True) else " [dim](not all claims checked)[/dim]"
+            self.console.print(
+                f"  {published} claim(s) passed evidence verification, {removed} withheld{note}"
+            )
 
     def _on_completed(self, event: dict[str, Any]) -> None:
         self.console.print(f"\n[bold green]Complete[/bold green] ({event['stop_reason']})")

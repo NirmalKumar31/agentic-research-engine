@@ -420,6 +420,13 @@ async def verify_citations(state: ResearchState) -> ResearchState:
             "contradiction_sides_checkable": result.contradiction_sides_checkable,
             "contradiction_sides_checked": result.contradiction_sides_checked,
             "issues": result.issues,
+            # Carried explicitly. Step 7 rebuilds the record from the
+            # published report, and anything not listed here is silently
+            # replaced by the fresh object's default -- which is how the
+            # judgments were being appended and then dropped before the
+            # artifact was ever written, leaving the truncated
+            # CitationIssue list as the only surviving audit trail.
+            "judgments": result.judgments,
             "repaired": result.repaired,
             "generated_substantive_claims": generated,
             "duplicate_claims_removed": duplicates,
