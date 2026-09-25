@@ -148,6 +148,16 @@ check_untyped_defs = true
 module = ["trafilatura.*", "langchain_ollama.*"]
 ignore_missing_imports = true
 
+# torch ships type information, so mypy follows it into numpy, whose
+# stubs use 3.12+ `type` statements while this project targets 3.11 --
+# which aborts the whole check. Neither is called directly here; the NLI
+# adapter imports them inside functions and treats their surface as Any.
+[[tool.mypy.overrides]]
+module = ["numpy", "numpy.*", "torch", "torch.*", "transformers", "transformers.*"]
+follow_imports = "skip"
+follow_imports_for_stubs = true
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
