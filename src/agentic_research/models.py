@@ -634,6 +634,23 @@ class CitationIssue(BaseModel):
     detail: str = ""
 
 
+class EvidenceScoreRecord(BaseModel):
+    """One claim/quote pair as the classifier and the guards saw it.
+
+    Stored per evidence item rather than aggregated, so a rejection can
+    be read back as "this quote entailed it but failed the numeric
+    guard" instead of a single opaque score.
+    """
+
+    evidence_id: str
+    entailment: float
+    neutral: float
+    contradiction: float
+    guards_passed: bool = True
+    failed_guards: list[str] = Field(default_factory=list)
+    """Guard names, empty when all passed."""
+
+
 class ClaimJudgment(BaseModel):
     """The full record of one claim's semantic verdict.
 
@@ -658,6 +675,26 @@ class ClaimJudgment(BaseModel):
     more cited evidence than can be shown at once."""
     reason: str | None = None
     checked: bool = False
+
+    # --- semantic verification detail -------------------------------
+    # Which classifier, at which revision, against which threshold. A
+    # verdict without these three is unreproducible: the same claim and
+    # the same evidence give a different answer under a different
+    # checkpoint, and "the model said so" is not an audit trail.
+    model_id: str | None = None
+    model_revision: str | None = None
+    support_threshold: float | None = None
+
+    evidence_scores: list[EvidenceScoreRecord] = Field(default_factory=list)
+    """One entry per cited evidence item, in citation order."""
+    best_evidence_id: str | None = None
+    """The guard-passing item with the highest entailment, if any."""
+    best_entailment: float | None = None
+    guards_passed: bool | None = None
+    """False when every cited item failed at least one guard."""
+    publishable: bool = False
+    """The only field the publication gate reads. Deliberately separate
+    from ``verdict``, which is a derived diagnostic label."""
 
 
 class CitationVerification(BaseModel):

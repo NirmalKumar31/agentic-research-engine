@@ -52,6 +52,18 @@ def _normalise(token: str) -> str:
     return re.sub(r"\s+", "", token).lower()
 
 
+def compare_key(token: str) -> str:
+    """Key under which two written forms count as the same quantity.
+
+    Only comma grouping is folded, because "20,000" and "20000" are the
+    same number written two ways and the difference carries no meaning.
+    Nothing else is equated: "100M" and "100 million" stay distinct, so
+    a claim using the second form against evidence using the first is
+    withheld rather than silently accepted.
+    """
+    return _normalise(token).replace(",", "")
+
+
 def literals(text: str) -> list[str]:
     """Numeric literals in the order they appear, de-duplicated."""
     seen: dict[str, str] = {}

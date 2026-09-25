@@ -1,0 +1,1301 @@
+{
+  "support_threshold": 0.98,
+  "models": {
+    "deberta-v3-large": {
+      "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+      "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+      "cases": 36,
+      "correct": 35,
+      "unsafe_publishes": [],
+      "over_withheld": [
+        {
+          "id": "modality-weakening-allowed",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.7778,
+          "failed_guards": [],
+          "reason": "best entailment 0.778 from E1 is below the 0.98 support threshold"
+        }
+      ],
+      "seconds": 34.92,
+      "results": [
+        {
+          "id": "modality-faithful",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9971,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.997 >= 0.98"
+        },
+        {
+          "id": "modality-hedge-to-tendency",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0118,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-hedge-to-necessity",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0316,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-hedge-to-universal",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0042,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-weakening-allowed",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.7778,
+          "failed_guards": [],
+          "reason": "best entailment 0.778 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "scope-product-to-category",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0281,
+          "failed_guards": [],
+          "reason": "best entailment 0.028 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "scope-one-study-to-general",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9746,
+          "failed_guards": [],
+          "reason": "best entailment 0.975 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "scope-faithful-attribution",
+          "category": "scope",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9956,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "numeric-faithful",
+          "category": "numeric",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9951,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.995 >= 0.98"
+        },
+        {
+          "id": "numeric-substituted",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0002,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-inflated-multiplier",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0001,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-invented",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0001,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-comma-equivalent",
+          "category": "numeric",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.998,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "ranking-faithful-value",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9961,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "ranking-invented",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0034,
+          "failed_guards": [
+            "ranking"
+          ],
+          "reason": "every cited quote failed a deterministic guard: ranking"
+        },
+        {
+          "id": "ranking-invented-best",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0011,
+          "failed_guards": [
+            "ranking"
+          ],
+          "reason": "every cited quote failed a deterministic guard: ranking"
+        },
+        {
+          "id": "ranking-supported",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9976,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "causal-from-association",
+          "category": "causal",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.3821,
+          "failed_guards": [
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal"
+        },
+        {
+          "id": "causal-from-correlation",
+          "category": "causal",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0007,
+          "failed_guards": [
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal"
+        },
+        {
+          "id": "causal-supported",
+          "category": "causal",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9985,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.999 >= 0.98"
+        },
+        {
+          "id": "exclusivity-invented",
+          "category": "exclusivity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0018,
+          "failed_guards": [
+            "exclusivity"
+          ],
+          "reason": "every cited quote failed a deterministic guard: exclusivity"
+        },
+        {
+          "id": "exclusivity-invented-necessity",
+          "category": "exclusivity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0029,
+          "failed_guards": [
+            "exclusivity"
+          ],
+          "reason": "every cited quote failed a deterministic guard: exclusivity"
+        },
+        {
+          "id": "exclusivity-supported",
+          "category": "exclusivity",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9976,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "intensity-minimal-to-high",
+          "category": "intensity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0004,
+          "failed_guards": [],
+          "reason": "best entailment 0.000 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "intensity-some-to-substantial",
+          "category": "intensity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0084,
+          "failed_guards": [],
+          "reason": "best entailment 0.008 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "attribution-vendor-to-independent",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.2421,
+          "failed_guards": [],
+          "reason": "best entailment 0.242 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "attribution-preserved",
+          "category": "attribution",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.999,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.999 >= 0.98"
+        },
+        {
+          "id": "temporal-dropped-qualifier",
+          "category": "temporal",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.918,
+          "failed_guards": [],
+          "reason": "best entailment 0.918 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "temporal-preserved",
+          "category": "temporal",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.998,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "negation-flipped",
+          "category": "negation",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0012,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "negation-preserved",
+          "category": "negation",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.998,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "comparison-reversed",
+          "category": "comparison",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0026,
+          "failed_guards": [],
+          "reason": "best entailment 0.003 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "comparison-invented",
+          "category": "comparison",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0009,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "comparison-preserved",
+          "category": "comparison",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9985,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.999 >= 0.98"
+        },
+        {
+          "id": "unrelated-evidence",
+          "category": "irrelevance",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0002,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "heading-as-evidence",
+          "category": "irrelevance",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0008,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        }
+      ]
+    },
+    "deberta-v3-base": {
+      "model_id": "cross-encoder/nli-deberta-v3-base",
+      "model_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+      "cases": 36,
+      "correct": 32,
+      "unsafe_publishes": [
+        {
+          "id": "scope-one-study-to-general",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9953,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.995 >= 0.98"
+        },
+        {
+          "id": "attribution-vendor-to-independent",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9961,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "temporal-dropped-qualifier",
+          "category": "temporal",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9933,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.993 >= 0.98"
+        }
+      ],
+      "over_withheld": [
+        {
+          "id": "modality-weakening-allowed",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.0251,
+          "failed_guards": [],
+          "reason": "best entailment 0.025 from E1 is below the 0.98 support threshold"
+        }
+      ],
+      "seconds": 2.79,
+      "results": [
+        {
+          "id": "modality-faithful",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9961,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "modality-hedge-to-tendency",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0035,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-hedge-to-necessity",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9956,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-hedge-to-universal",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0001,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-weakening-allowed",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.0251,
+          "failed_guards": [],
+          "reason": "best entailment 0.025 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "scope-product-to-category",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9188,
+          "failed_guards": [],
+          "reason": "best entailment 0.919 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "scope-one-study-to-general",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9953,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.995 >= 0.98"
+        },
+        {
+          "id": "scope-faithful-attribution",
+          "category": "scope",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9961,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "numeric-faithful",
+          "category": "numeric",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9949,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.995 >= 0.98"
+        },
+        {
+          "id": "numeric-substituted",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-inflated-multiplier",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-invented",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0002,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-comma-equivalent",
+          "category": "numeric",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9975,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "ranking-faithful-value",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9878,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.988 >= 0.98"
+        },
+        {
+          "id": "ranking-invented",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0004,
+          "failed_guards": [
+            "ranking"
+          ],
+          "reason": "every cited quote failed a deterministic guard: ranking"
+        },
+        {
+          "id": "ranking-invented-best",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0018,
+          "failed_guards": [
+            "ranking"
+          ],
+          "reason": "every cited quote failed a deterministic guard: ranking"
+        },
+        {
+          "id": "ranking-supported",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.997,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.997 >= 0.98"
+        },
+        {
+          "id": "causal-from-association",
+          "category": "causal",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9968,
+          "failed_guards": [
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal"
+        },
+        {
+          "id": "causal-from-correlation",
+          "category": "causal",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0006,
+          "failed_guards": [
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal"
+        },
+        {
+          "id": "causal-supported",
+          "category": "causal",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9966,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.997 >= 0.98"
+        },
+        {
+          "id": "exclusivity-invented",
+          "category": "exclusivity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0005,
+          "failed_guards": [
+            "exclusivity"
+          ],
+          "reason": "every cited quote failed a deterministic guard: exclusivity"
+        },
+        {
+          "id": "exclusivity-invented-necessity",
+          "category": "exclusivity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0082,
+          "failed_guards": [
+            "exclusivity"
+          ],
+          "reason": "every cited quote failed a deterministic guard: exclusivity"
+        },
+        {
+          "id": "exclusivity-supported",
+          "category": "exclusivity",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9959,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "intensity-minimal-to-high",
+          "category": "intensity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0179,
+          "failed_guards": [],
+          "reason": "best entailment 0.018 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "intensity-some-to-substantial",
+          "category": "intensity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0004,
+          "failed_guards": [],
+          "reason": "best entailment 0.000 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "attribution-vendor-to-independent",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9961,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "attribution-preserved",
+          "category": "attribution",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9986,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.999 >= 0.98"
+        },
+        {
+          "id": "temporal-dropped-qualifier",
+          "category": "temporal",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9933,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.993 >= 0.98"
+        },
+        {
+          "id": "temporal-preserved",
+          "category": "temporal",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9984,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "negation-flipped",
+          "category": "negation",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0001,
+          "failed_guards": [],
+          "reason": "best entailment 0.000 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "negation-preserved",
+          "category": "negation",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9981,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "comparison-reversed",
+          "category": "comparison",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0009,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "comparison-invented",
+          "category": "comparison",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0007,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "comparison-preserved",
+          "category": "comparison",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9972,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.997 >= 0.98"
+        },
+        {
+          "id": "unrelated-evidence",
+          "category": "irrelevance",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0002,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "heading-as-evidence",
+          "category": "irrelevance",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0011,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        }
+      ]
+    },
+    "minilm2-l6-h768": {
+      "model_id": "cross-encoder/nli-MiniLM2-L6-H768",
+      "model_revision": "b95119ce93d3e065de6214e38cd4a97b0f2f2c6d",
+      "cases": 36,
+      "correct": 31,
+      "unsafe_publishes": [
+        {
+          "id": "scope-one-study-to-general",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9908,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.991 >= 0.98"
+        },
+        {
+          "id": "attribution-vendor-to-independent",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9932,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.993 >= 0.98"
+        },
+        {
+          "id": "temporal-dropped-qualifier",
+          "category": "temporal",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9864,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.986 >= 0.98"
+        }
+      ],
+      "over_withheld": [
+        {
+          "id": "modality-weakening-allowed",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.169,
+          "failed_guards": [],
+          "reason": "best entailment 0.169 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "numeric-comma-equivalent",
+          "category": "numeric",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.0127,
+          "failed_guards": [],
+          "reason": "best entailment 0.013 from E1 is below the 0.98 support threshold"
+        }
+      ],
+      "seconds": 0.88,
+      "results": [
+        {
+          "id": "modality-faithful",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9922,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.992 >= 0.98"
+        },
+        {
+          "id": "modality-hedge-to-tendency",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.3082,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-hedge-to-necessity",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.5533,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-hedge-to-universal",
+          "category": "modality",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0055,
+          "failed_guards": [
+            "modality"
+          ],
+          "reason": "every cited quote failed a deterministic guard: modality"
+        },
+        {
+          "id": "modality-weakening-allowed",
+          "category": "modality",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.169,
+          "failed_guards": [],
+          "reason": "best entailment 0.169 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "scope-product-to-category",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9145,
+          "failed_guards": [],
+          "reason": "best entailment 0.914 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "scope-one-study-to-general",
+          "category": "scope",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9908,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.991 >= 0.98"
+        },
+        {
+          "id": "scope-faithful-attribution",
+          "category": "scope",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9927,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.993 >= 0.98"
+        },
+        {
+          "id": "numeric-faithful",
+          "category": "numeric",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9924,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.992 >= 0.98"
+        },
+        {
+          "id": "numeric-substituted",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0008,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-inflated-multiplier",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0006,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-invented",
+          "category": "numeric",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0021,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "numeric-comma-equivalent",
+          "category": "numeric",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.0127,
+          "failed_guards": [],
+          "reason": "best entailment 0.013 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "ranking-faithful-value",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9897,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.990 >= 0.98"
+        },
+        {
+          "id": "ranking-invented",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0301,
+          "failed_guards": [
+            "ranking"
+          ],
+          "reason": "every cited quote failed a deterministic guard: ranking"
+        },
+        {
+          "id": "ranking-invented-best",
+          "category": "ranking",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0047,
+          "failed_guards": [
+            "ranking"
+          ],
+          "reason": "every cited quote failed a deterministic guard: ranking"
+        },
+        {
+          "id": "ranking-supported",
+          "category": "ranking",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9898,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.990 >= 0.98"
+        },
+        {
+          "id": "causal-from-association",
+          "category": "causal",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9815,
+          "failed_guards": [
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal"
+        },
+        {
+          "id": "causal-from-correlation",
+          "category": "causal",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.03,
+          "failed_guards": [
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal"
+        },
+        {
+          "id": "causal-supported",
+          "category": "causal",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9923,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.992 >= 0.98"
+        },
+        {
+          "id": "exclusivity-invented",
+          "category": "exclusivity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0469,
+          "failed_guards": [
+            "exclusivity"
+          ],
+          "reason": "every cited quote failed a deterministic guard: exclusivity"
+        },
+        {
+          "id": "exclusivity-invented-necessity",
+          "category": "exclusivity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.3873,
+          "failed_guards": [
+            "exclusivity"
+          ],
+          "reason": "every cited quote failed a deterministic guard: exclusivity"
+        },
+        {
+          "id": "exclusivity-supported",
+          "category": "exclusivity",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9869,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.987 >= 0.98"
+        },
+        {
+          "id": "intensity-minimal-to-high",
+          "category": "intensity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.002,
+          "failed_guards": [],
+          "reason": "best entailment 0.002 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "intensity-some-to-substantial",
+          "category": "intensity",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0201,
+          "failed_guards": [],
+          "reason": "best entailment 0.020 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "attribution-vendor-to-independent",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9932,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.993 >= 0.98"
+        },
+        {
+          "id": "attribution-preserved",
+          "category": "attribution",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9936,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.994 >= 0.98"
+        },
+        {
+          "id": "temporal-dropped-qualifier",
+          "category": "temporal",
+          "expected": "withhold",
+          "actual": "publish",
+          "correct": false,
+          "entailment": 0.9864,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.986 >= 0.98"
+        },
+        {
+          "id": "temporal-preserved",
+          "category": "temporal",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9925,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.993 >= 0.98"
+        },
+        {
+          "id": "negation-flipped",
+          "category": "negation",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0007,
+          "failed_guards": [],
+          "reason": "best entailment 0.001 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "negation-preserved",
+          "category": "negation",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9917,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.992 >= 0.98"
+        },
+        {
+          "id": "comparison-reversed",
+          "category": "comparison",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.1219,
+          "failed_guards": [],
+          "reason": "best entailment 0.122 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "comparison-invented",
+          "category": "comparison",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0074,
+          "failed_guards": [],
+          "reason": "best entailment 0.007 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "comparison-preserved",
+          "category": "comparison",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.988,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.988 >= 0.98"
+        },
+        {
+          "id": "unrelated-evidence",
+          "category": "irrelevance",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.002,
+          "failed_guards": [
+            "numeric"
+          ],
+          "reason": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "id": "heading-as-evidence",
+          "category": "irrelevance",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0141,
+          "failed_guards": [],
+          "reason": "best entailment 0.014 from E1 is below the 0.98 support threshold"
+        }
+      ]
+    }
+  }
+}

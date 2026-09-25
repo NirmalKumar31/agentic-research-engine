@@ -61,7 +61,9 @@ jobs:
       # paid API would fail rather than silently spend money. Integration tests
       # are deselected by marker and run separately.
       - name: Tests
-        run: pytest -m "not integration and not ollama" --cov --cov-report=term-missing
+        # `nli` excluded here on purpose: those tests download a 1.4GB
+        # checkpoint and run in the dedicated semantic-gate job below.
+        run: pytest -m "not integration and not ollama and not nli" --cov --cov-report=term-missing
 
   package:
     name: Build and verify a clean install
@@ -370,3 +372,63 @@ jobs:
             echo "bundle ${asset} is not served"; docker logs web; exit 1; }
           echo "frontend served: shell + ${asset}"
           docker rm -f web
+
+  semantic-gate:
+    name: Semantic verifier (real NLI checkpoint)
+    runs-on: ubuntu-latest
+    # Separate from `quality` because it pulls a 1.4GB checkpoint and
+    # torch. The default test job substitutes a deterministic fake
+    # scorer, which proves the wiring and proves nothing about whether
+    # the classifier actually refuses an overclaim. Only this job does
+    # that, so it gates the release.
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      # Keyed on the pinned revision, so the cache is invalidated by
+      # changing the model rather than by time. A stale cache would mean
+      # the gate silently tests a different checkpoint than production.
+      - name: Read the pinned model revision
+        id: model
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import re, pathlib
+          text = pathlib.Path("src/agentic_research/config.py").read_text()
+          for key in ("nli_model_id", "nli_model_revision"):
+              value = re.search(rf'{key}: str = "([^"]+)"', text).group(1)
+              print(f"{key}={value}")
+          PY
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ steps.model.outputs.nli_model_revision }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]" transformers safetensors sentencepiece
+
+      - name: Adversarial stress suite against the pinned checkpoint
+        run: pytest -m nli -v
+
+      - name: Confirm the calibration artifacts match the pinned revision
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          expected = "${{ steps.model.outputs.nli_model_revision }}"
+          report = json.loads(
+              pathlib.Path("examples/verifier-calibration/nli-calibration.json").read_text()
+          )
+          selected = [d for d in report.values() if d["model_id"] == "${{ steps.model.outputs.nli_model_id }}"]
+          if not selected:
+              sys.exit("no calibration artifact for the configured model")
+          actual = selected[0]["model_revision"]
+          if actual != expected:
+              sys.exit(f"calibration ran {actual}, config pins {expected}")
+          print(f"calibration artifact matches pinned revision {expected}")
+          PY

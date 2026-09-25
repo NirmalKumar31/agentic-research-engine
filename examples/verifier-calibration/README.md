@@ -1,5 +1,12 @@
 # Verifier calibration
 
+> **These are development calibration cases, not an independent
+> benchmark.** They shaped three generative verifier designs and the NLI
+> replacement, so agreement measured on them is partly fitted. The
+> independent check is the synthetic adversarial suite in
+> `tests/fixtures/semantic_stress.json`. Current results:
+> [NLI-RESULTS.md](NLI-RESULTS.md).
+
 Thirty claim/evidence pairs from the three canonical recordings, for
 measuring whether the entailment verifier agrees with a human reader.
 

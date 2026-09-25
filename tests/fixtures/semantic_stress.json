@@ -1,0 +1,53 @@
+{
+  "description": "Adversarial minimal pairs for the semantic publication gate. Synthetic and generic: no claim, quote or subject is taken from the development calibration cases, so a result here is independent of that set. This is a regression suite, not a benchmark -- it says the gate still refuses the transformations it was built to refuse, and says nothing about general entailment accuracy.",
+  "expected_values": ["publish", "withhold"],
+  "cases": [
+    {"id": "modality-faithful", "category": "modality", "premise": "The service may require 64 GB of memory.", "hypothesis": "The service may require 64 GB of memory.", "expected": "publish", "note": "verbatim restatement of a hedge"},
+    {"id": "modality-hedge-to-tendency", "category": "modality", "premise": "The service may require 64 GB of memory.", "hypothesis": "The service typically requires 64 GB of memory.", "expected": "withhold"},
+    {"id": "modality-hedge-to-necessity", "category": "modality", "premise": "The service may require 64 GB of memory.", "hypothesis": "The service must have 64 GB of memory.", "expected": "withhold"},
+    {"id": "modality-hedge-to-universal", "category": "modality", "premise": "The service may require 64 GB of memory.", "hypothesis": "The service always requires 64 GB of memory.", "expected": "withhold"},
+    {"id": "modality-weakening-allowed", "category": "modality", "premise": "The service requires 64 GB of memory.", "hypothesis": "The service may require 64 GB of memory.", "expected": "publish", "note": "claiming less than the evidence is not an overclaim"},
+
+    {"id": "scope-product-to-category", "category": "scope", "premise": "Product A achieved 4 ms median latency in the vendor benchmark.", "hypothesis": "Products in this category achieve 4 ms median latency.", "expected": "withhold"},
+    {"id": "scope-one-study-to-general", "category": "scope", "premise": "In a single 2019 study of 120 participants, the treatment reduced symptoms.", "hypothesis": "The treatment reduces symptoms.", "expected": "withhold"},
+    {"id": "scope-faithful-attribution", "category": "scope", "premise": "In a single 2019 study of 120 participants, the treatment reduced symptoms.", "hypothesis": "In a 2019 study of 120 participants, the treatment reduced symptoms.", "expected": "publish"},
+
+    {"id": "numeric-faithful", "category": "numeric", "premise": "Throughput increased by 20% after the change.", "hypothesis": "Throughput increased by 20% after the change.", "expected": "publish"},
+    {"id": "numeric-substituted", "category": "numeric", "premise": "Throughput increased by 20% after the change.", "hypothesis": "Throughput increased by 75% after the change.", "expected": "withhold"},
+    {"id": "numeric-inflated-multiplier", "category": "numeric", "premise": "The index gave a 2x speedup.", "hypothesis": "The index gave a 5x speedup.", "expected": "withhold"},
+    {"id": "numeric-invented", "category": "numeric", "premise": "The index made queries noticeably faster.", "hypothesis": "The index made queries 5x faster.", "expected": "withhold"},
+    {"id": "numeric-comma-equivalent", "category": "numeric", "premise": "The corpus holds 20000 documents.", "hypothesis": "The corpus holds 20,000 documents.", "expected": "publish", "note": "comma grouping is the one equivalence the numeric guard folds"},
+
+    {"id": "ranking-faithful-value", "category": "ranking", "premise": "System A recorded 5 ms median latency.", "hypothesis": "System A recorded 5 ms median latency.", "expected": "publish"},
+    {"id": "ranking-invented", "category": "ranking", "premise": "System A recorded 5 ms median latency.", "hypothesis": "System A recorded the lowest latency.", "expected": "withhold"},
+    {"id": "ranking-invented-best", "category": "ranking", "premise": "System A scored 91 on the evaluation.", "hypothesis": "System A was the best performing system.", "expected": "withhold"},
+    {"id": "ranking-supported", "category": "ranking", "premise": "Of the four systems tested, System A recorded the lowest latency.", "hypothesis": "System A recorded the lowest latency.", "expected": "publish"},
+
+    {"id": "causal-from-association", "category": "causal", "premise": "Higher cache sizes were associated with lower tail latency.", "hypothesis": "Higher cache sizes caused lower tail latency.", "expected": "withhold"},
+    {"id": "causal-from-correlation", "category": "causal", "premise": "The two measurements were correlated across the sample.", "hypothesis": "The first measurement drove the second.", "expected": "withhold"},
+    {"id": "causal-supported", "category": "causal", "premise": "Removing the lock caused throughput to rise.", "hypothesis": "Removing the lock caused throughput to rise.", "expected": "publish"},
+
+    {"id": "exclusivity-invented", "category": "exclusivity", "premise": "Quantisation reduces index memory.", "hypothesis": "Only quantisation reduces index memory.", "expected": "withhold"},
+    {"id": "exclusivity-invented-necessity", "category": "exclusivity", "premise": "Adding a reranker improved precision.", "hypothesis": "Precision cannot improve unless a reranker is added.", "expected": "withhold"},
+    {"id": "exclusivity-supported", "category": "exclusivity", "premise": "Quantisation is the only supported way to reduce index memory.", "hypothesis": "Quantisation is the only supported way to reduce index memory.", "expected": "publish"},
+
+    {"id": "intensity-minimal-to-high", "category": "intensity", "premise": "Compression had minimal impact on recall.", "hypothesis": "Compression maintained high recall.", "expected": "withhold"},
+    {"id": "intensity-some-to-substantial", "category": "intensity", "premise": "The change produced some improvement in accuracy.", "hypothesis": "The change produced a substantial improvement in accuracy.", "expected": "withhold"},
+
+    {"id": "attribution-vendor-to-independent", "category": "attribution", "premise": "According to the vendor's own documentation, the system scales to 100 nodes.", "hypothesis": "The system scales to 100 nodes.", "expected": "withhold"},
+    {"id": "attribution-preserved", "category": "attribution", "premise": "According to the vendor's own documentation, the system scales to 100 nodes.", "hypothesis": "The vendor's documentation states the system scales to 100 nodes.", "expected": "publish"},
+
+    {"id": "temporal-dropped-qualifier", "category": "temporal", "premise": "As of the 2021 release, the format was unsupported.", "hypothesis": "The format is unsupported.", "expected": "withhold"},
+    {"id": "temporal-preserved", "category": "temporal", "premise": "As of the 2021 release, the format was unsupported.", "hypothesis": "In the 2021 release, the format was unsupported.", "expected": "publish"},
+
+    {"id": "negation-flipped", "category": "negation", "premise": "The benchmark did not show a regression.", "hypothesis": "The benchmark showed a regression.", "expected": "withhold"},
+    {"id": "negation-preserved", "category": "negation", "premise": "The benchmark did not show a regression.", "hypothesis": "The benchmark did not show a regression.", "expected": "publish"},
+
+    {"id": "comparison-reversed", "category": "comparison", "premise": "System A used less memory than System B.", "hypothesis": "System B used less memory than System A.", "expected": "withhold"},
+    {"id": "comparison-invented", "category": "comparison", "premise": "System A used 4 GB of memory.", "hypothesis": "System A used less memory than System B.", "expected": "withhold"},
+    {"id": "comparison-preserved", "category": "comparison", "premise": "System A used less memory than System B.", "hypothesis": "System A used less memory than System B.", "expected": "publish"},
+
+    {"id": "unrelated-evidence", "category": "irrelevance", "premise": "The document describes the installation procedure.", "hypothesis": "The system achieves 99.9% uptime.", "expected": "withhold"},
+    {"id": "heading-as-evidence", "category": "irrelevance", "premise": "Chapter 4: Performance", "hypothesis": "The system performs well under load.", "expected": "withhold"}
+  ]
+}

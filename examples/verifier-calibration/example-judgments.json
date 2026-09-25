@@ -1,0 +1,89 @@
+{
+  "nist-ai-risk-framework-removed-4": {
+    "human_label": "partially_supported",
+    "judgment": {
+      "claim_text": "The framework's four core functions provide a structured approach to managing AI risks across the lifecycle.",
+      "kind": "factual",
+      "evidence_ids": [
+        "S2-e1",
+        "S3-e1",
+        "S1-e1",
+        "S5-e1"
+      ],
+      "verdict": "partially_supported",
+      "reason": "best entailment 0.927 from S5-e1 is below the 0.98 support threshold",
+      "checked": true,
+      "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+      "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+      "support_threshold": 0.98,
+      "evidence_scores": [
+        {
+          "evidence_id": "S2-e1",
+          "entailment": 0.002052,
+          "neutral": 0.997559,
+          "contradiction": 0.000157,
+          "guards_passed": true,
+          "failed_guards": []
+        },
+        {
+          "evidence_id": "S3-e1",
+          "entailment": 0.148926,
+          "neutral": 0.851074,
+          "contradiction": 0.000281,
+          "guards_passed": true,
+          "failed_guards": []
+        },
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.00256,
+          "neutral": 0.99707,
+          "contradiction": 0.000172,
+          "guards_passed": true,
+          "failed_guards": []
+        },
+        {
+          "evidence_id": "S5-e1",
+          "entailment": 0.927246,
+          "neutral": 0.072083,
+          "contradiction": 0.000749,
+          "guards_passed": true,
+          "failed_guards": []
+        }
+      ],
+      "best_evidence_id": "S5-e1",
+      "best_entailment": 0.927246,
+      "guards_passed": true,
+      "publishable": false
+    }
+  },
+  "rag-vector-vs-search-removed-13": {
+    "human_label": "partially_supported",
+    "judgment": {
+      "claim_text": "Quantization reduces memory usage by 75% while maintaining high recall accuracy by compressing vectors from 32-bit floats to 8-bit integers.",
+      "kind": "factual",
+      "evidence_ids": [
+        "S3-e5"
+      ],
+      "verdict": "supported",
+      "reason": "entailed by S3-e5 at 0.998 >= 0.98",
+      "checked": true,
+      "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+      "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+      "support_threshold": 0.98,
+      "evidence_scores": [
+        {
+          "evidence_id": "S3-e5",
+          "entailment": 0.998047,
+          "neutral": 0.001618,
+          "contradiction": 0.00017,
+          "guards_passed": true,
+          "failed_guards": []
+        }
+      ],
+      "best_evidence_id": "S3-e5",
+      "best_entailment": 0.998047,
+      "guards_passed": true,
+      "publishable": true
+    }
+  }
+}

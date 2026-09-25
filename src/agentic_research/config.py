@@ -15,6 +15,7 @@ from __future__ import annotations
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -171,6 +172,29 @@ class Settings(BaseSettings):
     verifier_model: str | None = None
 
     allow_cloud_fallback: bool = False
+
+    # --- semantic verification ------------------------------------------
+    # Claim support is decided by a dedicated NLI classifier, not by the
+    # generative models above. Three attempts at using a 4B instruction
+    # model for this failed in three different ways; docs/LIMITATIONS.md
+    # records what each measured.
+    #
+    # All three of model, revision and threshold are pinned and recorded
+    # in every judgment. Changing any one changes which claims publish,
+    # so a verdict that does not say which it used cannot be audited.
+    nli_model_id: str = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
+    nli_model_revision: str = "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7"
+    nli_support_threshold: float = Field(default=0.98, ge=0.0, le=1.0)
+    """Entailment probability a cited quote must reach. Calibrated, not
+    guessed -- see examples/verifier-calibration/nli-calibration.json."""
+
+    nli_mode: Literal["local", "remote"] = "local"
+    """``local`` loads the checkpoint in-process, which needs roughly
+    1.4GB of RSS. ``remote`` calls a hosted inference endpoint instead,
+    for hosts too small to hold the model."""
+    nli_endpoint: str | None = None
+    nli_api_key: SecretStr | None = None
+    nli_timeout_seconds: float = Field(default=30.0, gt=0)
 
     # --- cloud spend ceilings -------------------------------------------
     # Zero disables a dimension rather than meaning "no spend allowed";

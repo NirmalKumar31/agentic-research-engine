@@ -165,3 +165,107 @@ class NLIVerifier:
                     )
                 )
         return out
+
+
+class RemoteNLIVerifier:
+    """Scores pairs on a hosted inference endpoint.
+
+    For hosts that cannot hold a 1.4GB checkpoint -- the free tier this
+    project deploys to has 512MB of RAM, and measured peak RSS for the
+    local verifier is 1384MB.
+
+    Every failure mode raises :class:`NLIUnavailable`, which the
+    publication gate turns into a withhold. A timeout, a 429, a 5xx, a
+    truncated body and a label set that does not parse all mean the same
+    thing here: this claim was not verified. None of them may publish,
+    and none falls back to a generative model.
+    """
+
+    def __init__(
+        self,
+        endpoint: str,
+        model_id: str = DEFAULT_MODEL_ID,
+        revision: str = DEFAULT_REVISION,
+        *,
+        api_key: str | None = None,
+        timeout: float = 30.0,
+        batch_size: int = 8,
+    ) -> None:
+        self.endpoint = endpoint
+        self.model_id = model_id
+        self.revision = revision
+        self.api_key = api_key
+        self.timeout = timeout
+        self.batch_size = batch_size
+
+    def score(self, pairs: list[tuple[str, str]]) -> list[NLIPrediction]:
+        if not pairs:
+            return []
+
+        import httpx
+
+        headers = {"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}
+        out: list[NLIPrediction] = []
+
+        for start in range(0, len(pairs), self.batch_size):
+            batch = pairs[start : start + self.batch_size]
+            payload = {
+                "model": self.model_id,
+                "revision": self.revision,
+                "pairs": [{"premise": p, "hypothesis": h} for p, h in batch],
+            }
+            try:
+                response = httpx.post(
+                    self.endpoint, json=payload, headers=headers, timeout=self.timeout
+                )
+                response.raise_for_status()
+                body = response.json()
+            except Exception as exc:
+                raise NLIUnavailable(f"remote scoring failed: {type(exc).__name__}") from exc
+
+            results = body.get("results") if isinstance(body, dict) else None
+            if not isinstance(results, list) or len(results) != len(batch):
+                raise NLIUnavailable(
+                    f"remote returned {type(results).__name__} for {len(batch)} pairs"
+                )
+
+            for (premise, hypothesis), item in zip(batch, results, strict=True):
+                try:
+                    scores = NLIScores(
+                        entailment=float(item["entailment"]),
+                        neutral=float(item["neutral"]),
+                        contradiction=float(item["contradiction"]),
+                    )
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise NLIUnavailable(f"malformed remote score: {exc}") from exc
+                out.append(
+                    NLIPrediction(
+                        premise=premise,
+                        hypothesis=hypothesis,
+                        scores=scores,
+                        model_id=self.model_id,
+                        model_revision=self.revision,
+                    )
+                )
+        return out
+
+
+def build_verifier(settings: object) -> NLIVerifier | RemoteNLIVerifier:
+    """Pick local or remote from settings, failing loudly on a bad combination."""
+    mode = getattr(settings, "nli_mode", "local")
+    model_id = getattr(settings, "nli_model_id", DEFAULT_MODEL_ID)
+    revision = getattr(settings, "nli_model_revision", DEFAULT_REVISION)
+
+    if mode == "remote":
+        endpoint = getattr(settings, "nli_endpoint", None)
+        if not endpoint:
+            raise NLIUnavailable("nli_mode is 'remote' but no nli_endpoint is configured")
+        key = getattr(settings, "nli_api_key", None)
+        return RemoteNLIVerifier(
+            endpoint,
+            model_id,
+            revision,
+            api_key=key.get_secret_value() if key is not None else None,
+            timeout=getattr(settings, "nli_timeout_seconds", 30.0),
+        )
+    return NLIVerifier(model_id, revision)
