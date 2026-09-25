@@ -21,6 +21,10 @@ from agentic_research.models import (
     SourceDocument,
 )
 
+# Enough to be useful, bounded so a failed run does not emit a wall of
+# quotations that nobody reads.
+MAX_EXCERPTS = 12
+
 
 def render_markdown(
     report: ResearchReport,
@@ -57,6 +61,9 @@ def render_markdown(
         for claim in section.claims:
             lines.append(_claim_text(claim, store))
             lines.append("")
+
+    if _needs_evidence_fallback(report, verification):
+        lines += _evidence_only_section(store)
 
     if report.contradictions:
         lines += [
@@ -106,6 +113,50 @@ def render_markdown(
         f"{datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}._",
     ]
     return "\n".join(lines).rstrip() + "\n"
+
+
+def _needs_evidence_fallback(
+    report: ResearchReport, verification: CitationVerification | None
+) -> bool:
+    """True when nothing survived the gate but real evidence exists.
+
+    A report whose every claim was withheld is correct and useless: the
+    reader gets a title and a source list. The evidence is still there
+    and still verified as verbatim, so it is shown as itself rather than
+    left out because no synthesis passed.
+    """
+    if verification is None:
+        return False
+    return not report.substantive_claims()
+
+
+def _evidence_only_section(store: EvidenceStore) -> list[str]:
+    """Exact source excerpts, presented as excerpts and nothing more.
+
+    These are not claims and are never counted as claims. Nothing here
+    is synthesised, generalised or joined up -- each line is the
+    source's own words with the source named, which is the one thing
+    this system can still assert when synthesis fails verification.
+    """
+    citable = store.citable_evidence()
+    if not citable:
+        return []
+
+    lines = [
+        "## Source excerpts",
+        "",
+        "_No synthesized claim passed evidence verification. Showing exact "
+        "source excerpts instead. These are verbatim quotations, not findings, "
+        "and no conclusion has been drawn from them._",
+        "",
+    ]
+    for item in citable[:MAX_EXCERPTS]:
+        source = store.source(item.source_id)
+        title = (source.title if source else "") or "unknown source"
+        page = f", p. {item.page}" if item.page else ""
+        lines.append(f'- "{item.quote}" — **[{item.source_id}]** {title}{page}')
+    lines.append("")
+    return lines
 
 
 def _markers(citation_ids: list[str], pages: dict[str, int] | None = None) -> str:

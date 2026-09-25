@@ -763,6 +763,13 @@ class CitationVerification(BaseModel):
     removed_after_verification: int = 0
     """Claims dropped because their evidence did not support them."""
     final_published_claims: int = 0
+    evidence_only_excerpts: int = 0
+    """Verbatim source excerpts shown because no claim passed the gate.
+
+    Counted apart from claims and never added to them. An excerpt is the
+    source's own sentence with no synthesis over it, so folding the two
+    together would report a report that asserts nothing as though it had
+    made that many findings."""
     """Substantive claims surviving into the published report."""
 
     issues: list[CitationIssue] = Field(default_factory=list)

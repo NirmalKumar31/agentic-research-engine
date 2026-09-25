@@ -21,7 +21,6 @@ from agentic_research.schemas import (
     AnalysisOut,
     ClaimOut,
     CoverageOut,
-    EntailmentOut,
     EvidenceOut,
     ExtractionOut,
     FollowupOut,
@@ -214,10 +213,6 @@ def _default_report(user: str) -> ReportOut:
     )
 
 
-def _default_entailment(_: str) -> EntailmentOut:
-    return EntailmentOut(verdict="supported", reason="the quote states it")
-
-
 _DEFAULTS = {
     "AnalysisOut": _default_analysis,
     "PlanOut": _default_plan,
@@ -226,7 +221,6 @@ _DEFAULTS = {
     "CoverageOut": _default_coverage,
     "FollowupsOut": _default_followups,
     "ReportOut": _default_report,
-    "EntailmentOut": _default_entailment,
 }
 
 

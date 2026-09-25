@@ -210,6 +210,14 @@ class RunContext:
     run_id: str
     started_at: float = 0.0
     warnings: list[str] = field(default_factory=list)
+    nli_scorer: Any = None
+    """The semantic verifier, built from settings on first use.
+
+    Injectable so tests can substitute a deterministic fake rather than
+    loading a 1.4GB checkpoint per test run. Production leaves it None;
+    there is no settings value that selects a fake, because a
+    configuration mistake must not be able to turn the publication gate
+    into a rubber stamp."""
 
 
 def initial_state(

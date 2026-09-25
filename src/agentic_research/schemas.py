@@ -257,25 +257,11 @@ class ReportOut(BaseModel):
     )
 
 
-class EntailmentOut(BaseModel):
-    """Whether cited evidence actually supports a claim."""
-
-    verdict: Literal["supported", "partially_supported", "unsupported"] = Field(
-        description=(
-            "'supported' if the evidence states or directly implies the claim. "
-            "'partially_supported' if it is related but weaker or narrower. "
-            "'unsupported' if the evidence does not establish the claim."
-        )
-    )
-    reason: str = Field(description="One sentence justification")
-
-
 __all__ = [
     "AnalysisOut",
     "ClaimOut",
     "ContradictionOut",
     "CoverageOut",
-    "EntailmentOut",
     "EvidenceOut",
     "ExtractionOut",
     "FollowupOut",
