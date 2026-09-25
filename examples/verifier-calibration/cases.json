@@ -5,201 +5,288 @@
     "partially_supported",
     "unsupported"
   ],
-  "instructions": "Set human_label by reading the claim against its evidence only. Do not consult outside knowledge and do not look at verifier_verdict first. A label copied from the verifier measures agreement with itself and is worth nothing.",
-  "source_commit": "6e70a691534c8c3f22a7dbf1d636ee641be06f31",
+  "instructions": "Set human_label by reading the claim against its evidence only. Do not consult outside knowledge and do not look at verifier_verdict first. A label copied from the verifier measures agreement with itself.",
+  "source_commit": "a9eb5ffdcaaf0e1fb5276f2373ef89a993b5e79e",
   "cases": [
     {
       "case_id": "fraud-detection-imbalanced-removed-1",
       "recording": "fraud-detection-imbalanced",
-      "claim": "The most effective machine learning models for fraud detection in highly imbalanced transaction datasets are GNNs, LSTMs, LightGBM, XGBoost, and CatBoost.",
+      "claim": "Random Forest is the most effective machine learning model for fraud detection in highly imbalanced transaction datasets.",
       "evidence_ids": [
-        "S4-e1",
-        "S5-e1",
-        "S5-e2",
-        "S5-e3"
+        "S1-e1"
       ],
       "evidence": [
         {
-          "evidence_id": "S4-e1",
-          "quote": "The results reveals the effectiveness of each model, with GNNs and LSTMs being the best in managing the complexities of transaction data.",
-          "source_title": "An Analysis of Machine Learning Models Applied in Credit Card Fraud Detection - R Discovery",
-          "domain": "discovery.researcher.life",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S5-e1",
-          "quote": "LightGBM: A very effective gradient boosting system made for high-dimensional and large-scale datasets is called Light Gradient Boosting Machine (LightGBM). Instead of splitting trees level-wise, it separates them leaf-wise, which improves optimization and speeds up convergence. This feature makes LightGBM highly scalable and suitable for processing millions of transactional records in real-time.",
-          "source_title": "An Overview of Deep Learning and Machine Learning Techniques for Banking Fraud Detection \u2013 IJERT",
-          "domain": "ijert.org",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S5-e2",
-          "quote": "XGBoost: XGBoost enhances performance by implementing gradient boosting with regularization. It is robust and captures complex patterns in transactional data.",
-          "source_title": "An Overview of Deep Learning and Machine Learning Techniques for Banking Fraud Detection \u2013 IJERT",
-          "domain": "ijert.org",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S5-e3",
-          "quote": "CatBoost: CatBoost handles categorical data efficiently and is resilient to overfitting. It excels in fraud detection scenarios with categorical transaction attributes.",
-          "source_title": "An Overview of Deep Learning and Machine Learning Techniques for Banking Fraud Detection \u2013 IJERT",
-          "domain": "ijert.org",
+          "evidence_id": "S1-e1",
+          "quote": "Random Forest emerged as the best-performing model, achieving a training accuracy of 99.2% and validation accuracy of 98.8%, and F1-score (98.4%).",
+          "source_title": "Application of Standard Machine Learning Models for Medicare Fraud Detection with Imbalanced Data",
+          "domain": "mdpi.com",
           "site_category": "other",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence supports the claim for GNNs and LSTMs (S4-e1) but does not mention LightGBM, XGBoost, or CatBoost as the most effective models. The evidence for LightGBM, XGBoost, and CatBoost (S5-e1, S5",
+      "verifier_reason": "The evidence states that Random Forest achieved high accuracy and F1-score in a specific context (Medicare fraud detection with imbalanced data), but the claim states it is the 'most effective' for fr",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-2",
       "recording": "fraud-detection-imbalanced",
-      "claim": "For fraud detection in imbalanced datasets, the F1-Score is the best single metric as it balances Recall and Precision.",
+      "claim": "Generative models such as Autoencoders, Variational Autoencoders, and Generative Adversarial Networks are effective for fraud detection in highly imbalanced datasets.",
       "evidence_ids": [
-        "S2-e1"
+        "S3-e1"
       ],
       "evidence": [
         {
-          "evidence_id": "S2-e1",
-          "quote": "For fraud detection, Recall is much more important\u2014it measures what percentage of actual frauds you caught. However, if you increase recall too much, you might get too many False Positives, so you must balance it with Precision. The F1-Score is the harmonic mean of both and is generally the best single metric for imbalanced classes.",
-          "source_title": "Machine Learning Evaluation Metrics for Imbalanced Data | iCertGlobal Community",
-          "domain": "icertglobal.com",
+          "evidence_id": "S3-e1",
+          "quote": "Generative Models",
+          "source_title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
+          "domain": "mdpi.com",
           "site_category": "other",
           "page": null
         }
       ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that F1-S:core is 'generally the best' for fraud detection, but the claim states it is 'the best single metric as it balances Recall and Precision'. The evidence uses 'generally' w",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence only mentions 'Generative Models' as a category without providing any specific statement about their effectiveness for fraud detection in highly imbalanced datasets. The claim specifies t",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-3",
       "recording": "fraud-detection-imbalanced",
-      "claim": "Key metrics for evaluating fraud detection models in imbalanced datasets beyond accuracy include F1-Score, Precision, Recall, SHAP, and LIME.",
+      "claim": "The Balanced F1 Score (BFDS) is a critical evaluation metric for assessing model performance in imbalanced fraud detection scenarios.",
       "evidence_ids": [
-        "S2-e2",
-        "S4-e2",
-        "S5-e5",
-        "S5-e6"
+        "S3-e2"
       ],
       "evidence": [
         {
-          "evidence_id": "S2-e2",
-          "quote": "The F1-Score is the harmonic mean of both and is generally the best single metric for imbalanced classes.",
-          "source_title": "Machine Learning Evaluation Metrics for Imbalanced Data | iCertGlobal Community",
-          "domain": "icertglobal.com",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S4-e2",
-          "quote": "The study evaluates various ML models and deep learning models for fraud detection and further evaluate learning dynamics, computational cost, and interpretability through SHAP (SHapley Additive exPlanations) and LIME (Local Interpretable Model-agnostic Explanations).",
-          "source_title": "An Analysis of Machine Learning Models Applied in Credit Card Fraud Detection - R Discovery",
-          "domain": "discovery.researcher.life",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S5-e5",
-          "quote": "This survey analyze various techniques from most promising works in this field, focusing on improving accuracy, reducing false positives and negatives, and ensuring real-time deployment in banking environments.",
-          "source_title": "An Overview of Deep Learning and Machine Learning Techniques for Banking Fraud Detection \u2013 IJERT",
-          "domain": "ijert.org",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S5-e6",
-          "quote": "By integrating these methods and optimizing performance through optimization algorithms like Bayesian or GridCV coupled with cross folded evaluation, we could ensure a robust and adaptive fraud detection framework.",
-          "source_title": "An Overview of Deep Learning and Machine Learning Techniques for Banking Fraud Detection \u2013 IJERT",
-          "domain": "ijert.org",
+          "evidence_id": "S3-e2",
+          "quote": "Model performance metrics with GAN.",
+          "source_title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
+          "domain": "mdpi.com",
           "site_category": "other",
           "page": null
         }
       ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The claim attributes specific metrics to fraud detection models in imbalanced datasets. The evidence from S2-e2 mentions F1-Score as the best single metric for imbalanced classes, which supports the c",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence states 'Model performance metrics with GAN.' but does not mention the Balanced F1 Score (BFDS) or its critical role in imbalanced fraud detection. The claim attributes BFDS as a critical ",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-4",
       "recording": "fraud-detection-imbalanced",
-      "claim": "Data preprocessing techniques such as SMOTE and SMOTE-ENN hybrid sampling improve model performance in fraud detection by balancing the dataset.",
+      "claim": "Precision and recall are essential metrics for evaluating fraud detection models, with precision indicating the proportion of true positives among flagged cases and recall indicating the proportion of",
       "evidence_ids": [
-        "S4-e3",
-        "S2-e3"
+        "S5-e2"
       ],
       "evidence": [
         {
-          "evidence_id": "S4-e3",
-          "quote": "To address data imbalance, techniques such as Synthetic Minority Over-sampling Technique (SMOTE) and Mahalanobis distance Synthetic Minority Oversampling Technique-Edited Nearest Neighbors (SMOTE-ENN) hybrid sampling are applied to balance the dataset and improve model performance.",
-          "source_title": "An Analysis of Machine Learning Models Applied in Credit Card Fraud Detection - R Discovery",
-          "domain": "discovery.researcher.life",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S2-e3",
-          "quote": "Another great tool for this is SMOTE (Synthetic Minority Over-sampling Technique), which helps balance your dataset before training, often leading to much better recall without needing to manually tweak thresholds as much.",
-          "source_title": "Machine Learning Evaluation Metrics for Imbalanced Data | iCertGlobal Community",
-          "domain": "icertglobal.com",
+          "evidence_id": "S5-e2",
+          "quote": "The Classification Report delivers three essential metrics for evaluating our model's performance: 1. Precision (0.816 for Fraud): This means when our model predicts that a provider is fraudulent, it is correct 81.6% of the time. However, this indicates that about 18.4% of the flagged cases are false alarms. 2. Recall (0.385 for Fraud): Our model successfully identifies only 38.5% of actual fraud cases. This low recall suggests that the model is missing more than half of fraudulent instances, a trend also echoed in our confusion matrix results. 3. F1-Score (0.523 for Fraud): This score reflects the harmonic mean of precision and recall, providing a balanced metric that factors in both false positives and false negatives. A score of 0.523 indicates that there is significant room for improvement in our fraud detection capabilities.",
+          "source_title": "Model Evaluation in Fraud Detection",
+          "domain": "finnstats.com",
           "site_category": "other",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that SMOTE and SM.OTE-ENN hybrid sampling are used to balance the dataset and improve model performance, but the claim attributes this to 'data preprocessing techniques such as SMO",
+      "verifier_reason": "The evidence provides specific examples of precision and recall in the context of fraud detection, but the claim states that precision and recall are essential metrics for evaluating fraud detection m",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-5",
       "recording": "fraud-detection-imbalanced",
-      "claim": "The hidden cost of missing a fraud (False Negative) is significantly higher than the cost of a false alarm (False Positive).",
+      "claim": "Random Forest and generative models are the most effective approaches for fraud detection in highly imbalanced datasets.",
       "evidence_ids": [
-        "S2-e4"
+        "S1-e1",
+        "S3-e1"
       ],
       "evidence": [
         {
-          "evidence_id": "S2-e4",
-          "quote": "The cost of missing a fraud (False Negative) is much higher than the cost of a false alarm (False Positive)",
-          "source_title": "Machine Learning Evaluation Metrics for Imbalanced Data | iCertGlobal Community",
-          "domain": "icertglobal.com",
+          "evidence_id": "S1-e1",
+          "quote": "Random Forest emerged as the best-performing model, achieving a training accuracy of 99.2% and validation accuracy of 98.8%, and F1-score (98.4%).",
+          "source_title": "Application of Standard Machine Learning Models for Medicare Fraud Detection with Imbalanced Data",
+          "domain": "mdpi.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S3-e1",
+          "quote": "Generative Models",
+          "source_title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
+          "domain": "mdpi.com",
           "site_category": "other",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that the cost of missing a fraud (False Negative) is much higher than the cost of a false alarm (False: Positive). The claim states that the hidden cost of missing a fraud (False N",
+      "verifier_reason": "The evidence states that Random Forest is the best-performing model for Medicare Fraud Detection with Imbalanced Data, but the claim is about fraud detection in highly imbalanced datasets generally. T",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-6",
       "recording": "fraud-detection-imbalanced",
-      "claim": "When transaction volume spikes occur, fraud detection models may fail to distinguish fraudulent transactions due to increased computational load and data processing constraints.",
+      "claim": "Random Forest emerged as the best-performing model for fraud detection in highly imbalanced transaction datasets, achieving a training accuracy of 99.2%, validation accuracy of 98.8%, and an F1-score ",
       "evidence_ids": [
-        "S4-e5"
+        "S1-e1"
       ],
       "evidence": [
         {
-          "evidence_id": "S4-e5",
-          "quote": "The Credit Card Fraud Detection Problem entails the modeling of historical credit card transactions, incorporating data from those that transpired as fraudulent. Subsequently, this model is employed to ascertain the veracity of new transactions, distinguishing between fraudulent and non-fraudulent activities.",
-          "source_title": "An Analysis of Machine Learning Models Applied in Credit Card Fraud Detection - R Discovery",
-          "domain": "discovery.researcher.life",
+          "evidence_id": "S1-e1",
+          "quote": "Random Forest emerged as the best-performing model, achieving a training accuracy of 99.2% and validation accuracy of 98.8%, and F1-score (98.4%).",
+          "source_title": "Application of Standard Machine Learning Models for Medicare Fraud Detection with Imbalanced Data",
+          "domain": "mdpi.com",
           "site_category": "other",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence describes the problem of fraud detection but does not specifically address the scenario of transaction volume spikes or the consequences of increased computational load and data processin",
+      "verifier_reason": "The evidence states the specific metrics (training accuracy, validation accuracy, F:score) but does not explicitly attribute the claim to the source document. The claim attributes the results to 'Rand",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-7",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Precision (0.816 for Fraud) indicates the proportion of true positive fraud cases among all flagged cases, while recall (0.385 for Fraud) indicates the proportion of actual fraud cases identified by t",
+      "evidence_ids": [
+        "S5-e2"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S5-e2",
+          "quote": "The Classification Report delivers three essential metrics for evaluating our model's performance: 1. Precision (0.816 for Fraud): This means when our model predicts that a provider is fraudulent, it is correct 81.6% of the time. However, this indicates that about 18.4% of the flagged cases are false alarms. 2. Recall (0.385 for Fraud): Our model successfully identifies only 38.5% of actual fraud cases. This low recall suggests that the model is missing more than half of fraudulent instances, a trend also echoed in our confusion matrix results. 3. F1-Score (0.523 for Fraud): This score reflects the harmonic mean of precision and recall, providing a balanced metric that factors in both false positives and false negatives. A score of 0.523 indicates that there is significant room for improvement in our fraud detection capabilities.",
+          "source_title": "Model Evaluation in Fraud Detection",
+          "domain": "finnstats.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence provides a detailed explanation of precision and recall for fraud detection, but the claim states that precision (0:816 for Fraud) indicates the proportion of true positive fraud cases am",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-8",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Resampling techniques such as SMOTE and ADASYN, along with feature selection and aggregation of diagnostic and procedural codes, are critical for addressing class imbalance in fraud detection datasets",
+      "evidence_ids": [
+        "S1-e3",
+        "S3-e3"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e3",
+          "quote": "Data preprocessing techniques included resampling SMOTE method to address the class imbalance, feature selection for dimensionality reduction, and aggregation of diagnostic and procedural codes.",
+          "source_title": "Application of Standard Machine Learning Models for Medicare Fraud Detection with Imbalanced Data",
+          "domain": "mdpi.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S3-e3",
+          "quote": "Autoencoder and GAN-based synthetic data generation.",
+          "source_title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
+          "domain": "mdpi.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence from S1-e3 supports the claim by stating that resampling (specifically SMOTE) is used to address class imbalance, feature selection is used for dimensionality reduction, and aggregation o",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-9",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Deploying fraud detection models at scale faces challenges including computational complexity and real-time processing requirements.",
+      "evidence_ids": [
+        "S3-e4"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S3-e4",
+          "quote": "Model performance metrics with AE-GAN.",
+          "source_title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
+          "domain": "mdpi.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence only mentions 'Model performance metrics with AE-GAN' without specifying any challenges related to computational complexity or real-time processing requirements. The claim attributes spec",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-10",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Fraudulent behaviors evolve rapidly, and static models often fail to generalize to new fraud patterns unless continuously retrained on updated data.",
+      "evidence_ids": [
+        "S1-e5"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e5",
+          "quote": "Fraudulent behaviors evolve as fraudsters develop new ways to exploit the Medicare system. Static models often struggle to keep pace with these changes. To combat this, the method incorporates machine learning models that can adapt over time. By continuously retraining on updated data, the approach ensures that the detection system evolves alongside emerging fraud patterns, reducing the risk of outdated models missing new types of fraud (Ahmadi et al. 2025).",
+          "source_title": "Application of Standard Machine Learning Models for Medicare Fraud Detection with Imbalanced Data",
+          "domain": "mdpi.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that static models struggle to keep pace with evolving fraudulent behaviors and that continuous retraining on updated data is necessary for the detection system to evolve with new ",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-11",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Common fraud detection models may fail to generalize when new fraud patterns emerge that are not captured by the training data.",
+      "evidence_ids": [
+        "S3-e5"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S3-e5",
+          "quote": "Model performance metrics with VAE.",
+          "source_title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
+          "domain": "mdpi.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence only mentions 'Model performance metrics with VAE' without providing any specific information about the failure to generalize when new fraud patterns emerge. The claim is about the potent",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-12",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Regulatory requirements and data privacy laws impact fraud detection model design and evaluation, particularly through data anonymization and model transparency requirements.",
+      "evidence_ids": [
+        "S3-e6"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S3-e6",
+          "quote": "Model performance metrics with SMOTE.",
+          "source_title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
+          "domain": "mdpi.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence only mentions 'Model performance metrics with SMOTE' without any context about regulatory requirements, data privacy laws, fraud detection model design, or evaluation. The claim specifica",
       "human_label": null,
       "human_rationale": null
     },
@@ -208,50 +295,30 @@
       "recording": "nist-ai-risk-framework",
       "claim": "The NIST AI Risk Management Framework 1.0 structures AI risk management through four core functions: Govern, Map, Measure, and Manage.",
       "evidence_ids": [
-        "S5-e1",
-        "S5-e2",
-        "S1-e1",
-        "S1-e2",
         "S2-e1",
-        "S2-e2",
         "S3-e1",
-        "S3-e2"
+        "S1-e1",
+        "S5-e1"
       ],
       "evidence": [
         {
-          "evidence_id": "S5-e1",
-          "quote": "5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31",
-          "source_title": "[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-          "domain": "nvlpubs.nist.gov",
-          "site_category": "standards_body",
-          "page": 4
+          "evidence_id": "S2-e1",
+          "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
+          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
+          "domain": "docs.modulos.ai",
+          "site_category": "official_docs",
+          "page": null
         },
         {
-          "evidence_id": "S5-e2",
-          "quote": "5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31",
-          "source_title": "[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-          "domain": "nvlpubs.nist.gov",
-          "site_category": "standards_body",
-          "page": 4
+          "evidence_id": "S3-e1",
+          "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
+          "source_title": "NIST AI Risk Management Framework 1.0 | Consulting Services",
+          "domain": "rsisecurity.com",
+          "site_category": "other",
+          "page": null
         },
         {
           "evidence_id": "S1-e1",
-          "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
-          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF)",
-          "domain": "docs.modulos.ai",
-          "site_category": "official_docs",
-          "page": null
-        },
-        {
-          "evidence_id": "S1-e2",
-          "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
-          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF)",
-          "domain": "docs.modulos.ai",
-          "site_category": "official_docs",
-          "page": null
-        },
-        {
-          "evidence_id": "S2-e1",
           "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
           "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
           "domain": "orca.security",
@@ -259,168 +326,360 @@
           "page": null
         },
         {
-          "evidence_id": "S2-e2",
-          "quote": "The NIST AI Risk Management Framework (AI RMF 1.0) is voluntary guidance for managing risks across the AI lifecycle, from design through deployment and retirement.",
-          "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
-          "domain": "orca.security",
-          "site_category": "blog",
-          "page": null
-        },
-        {
-          "evidence_id": "S3-e1",
-          "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage. Each broken down into categories and subcategories that organizations can tailor to their operational context.",
-          "source_title": "NIST AI RMF Implementation: 8-Step Guide + 20-Week Roadmap ...",
-          "domain": "neuraltrust.ai",
-          "site_category": "blog",
-          "page": null
-        },
-        {
-          "evidence_id": "S3-e2",
-          "quote": "The NIST AI Risk Management Framework 1.0 (NIST AI RMF 1.0) is a voluntary framework published by the U.S. National Institute of Standards and Technology on January 26, 2023, that helps organizations identify, assess, and manage risks across the full AI lifecycle.",
-          "source_title": "NIST AI RMF Implementation: 8-Step Guide + 20-Week Roadmap ...",
-          "domain": "neuraltrust.ai",
+          "evidence_id": "S5-e1",
+          "quote": "TLDR: The NIST AI Risk Management Framework (NIST AI RMF) is a voluntary guideline designed to help organizations identify, assess, and manage risks associated with artificial intelligence (AI). The framework was designed with the principles of Map, Measure, Manage, and Govern to develop trustworthy, transparent, and ethical AI systems, ensuring responsible AI adoption across various industries.",
+          "source_title": "Safeguard the Future of AI: The Core Functions of the NIST AI RMF",
+          "domain": "optro.ai",
           "site_category": "blog",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The claim states that the NIST AI Risk Management Framework 1.0 structures AI risk management through four core functions: Govern, Map, Measure, and Manage. The evidence S5-e1 and S5-e2 (from NIST) li",
+      "verifier_reason": "The evidence states that the NIST AI RMF 1.0 has four core functions: Govern, Map, Measure, and Manage. However, the claim attributes these functions to the NIST AI Risk Management Framework 1.0, but ",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "nist-ai-risk-framework-removed-2",
       "recording": "nist-ai-risk-framework",
-      "claim": "The governance role of stakeholders in AI risk management is defined within the Map function to identify context, stakeholders, system boundaries, and potential harms.",
+      "claim": "Govern is the cross-cutting function that establishes organizational risk culture, accountability, and AI-related policies across the AI lifecycle.",
       "evidence_ids": [
-        "S1-e3",
-        "S2-e3",
-        "S3-e3"
+        "S2-e2",
+        "S1-e2"
       ],
       "evidence": [
         {
-          "evidence_id": "S1-e3",
-          "quote": "Map is the scoping function. It establishes the context in which an AI system will operate, identifies the categories of potential impact (including benefits), and maps risks across the lifecycle. Map outputs feed Measure and Manage and must be revisited whenever the system, its context, or its users change.",
-          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF)",
+          "evidence_id": "S2-e2",
+          "quote": "Govern is the cross-cutting function. It cultivates a culture of AI risk management, establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle. Govern is the only function that spans the organization as a whole \u2014 it sits above Map, Measure, and Manage and makes them repeatable.",
+          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
           "domain": "docs.modulos.ai",
           "site_category": "official_docs",
           "page": null
         },
         {
-          "evidence_id": "S2-e3",
-          "quote": "The Map function identifies context, stakeholders, system boundaries, and potential harms. It examines data flows, intended uses, and possible failure modes before organizations define performance metrics.",
+          "evidence_id": "S1-e2",
+          "quote": "The Govern function focuses on organizational risk culture, accountability, and AI-related policies across the lifecycle. It addresses issues such as who approves high-risk use cases, how third-party models are introduced into the environment, and how resources are allocated for safety testing.",
           "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
           "domain": "orca.security",
-          "site_category": "blog",
-          "page": null
-        },
-        {
-          "evidence_id": "S3-e3",
-          "quote": "GOVERN 5: Policies and processes for engaging with affected communities and stakeholders on AI impacts are established.",
-          "source_title": "NIST AI RMF Implementation: 8-Step Guide + 20-Week Roadmap ...",
-          "domain": "neuraltrust.ai",
           "site_category": "blog",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The claim states that the governance role of stakeholders in AI risk management is defined within the Map function to identify context, stakeholders, system boundaries, and potential harms. Evidence S",
+      "verifier_reason": "The evidence from NIST AI RMF 1:0 (S2-e2) states that 'Govern is the cross-cutting function. It cultivates a culture of AI risk management, establishes accountability, defines policies and processes, ",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "nist-ai-risk-framework-removed-3",
       "recording": "nist-ai-risk-framework",
-      "claim": "Practical use cases for implementing the NIST AI Risk Management Framework 1.0 include building organizational risk governance foundations, establishing AI system context, quantifying AI risks, and tr",
+      "claim": "The framework defines practical use cases for implementing risk management through profiles, including use-case profiles and cross-sectoral profiles.",
       "evidence_ids": [
-        "S5-e4",
-        "S3-e4",
-        "S4-e4"
+        "S2-e3",
+        "S1-e3"
       ],
       "evidence": [
         {
-          "evidence_id": "S5-e4",
-          "quote": "The Framework is designed to equip organizations and individuals \u2013 referred to here as AI actors \u2013 with approaches that increase the trustworthiness of AI systems, and to help foster the responsible design, development, deployment, and use of AI systems over time.",
-          "source_title": "[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-          "domain": "nvlpubs.nist.gov",
-          "site_category": "standards_body",
-          "page": 7
-        },
-        {
-          "evidence_id": "S3-e4",
-          "quote": "GOVERN in practice: GOVERN is where you build the governance charter: the document that defines your organization's AI risk appetite, accountability model, and policy framework. It is the prerequisite for everything else.",
-          "source_title": "NIST AI RMF Implementation: 8-Step Guide + 20-Week Roadmap ...",
-          "domain": "neuraltrust.ai",
-          "site_category": "blog",
+          "evidence_id": "S2-e3",
+          "quote": "NIST AI RMF profiles \u200b\n\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
+          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
+          "domain": "docs.modulos.ai",
+          "site_category": "official_docs",
           "page": null
         },
         {
-          "evidence_id": "S4-e4",
-          "quote": "For engineering teams, the main artifact should be an AI system profile.",
-          "source_title": "NIST AI RMF Implementation Checklist for Engineering Teams",
-          "domain": "tooljunction.io",
+          "evidence_id": "S1-e3",
+          "quote": "The framework uses profiles to document how organizations apply the Core to specific systems, business units, or risk environments. Profiles help make tradeoffs explicit, such as requiring stricter testing for high-impact AI systems while applying lighter review processes to lower-risk internal tools.",
+          "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
+          "domain": "orca.security",
           "site_category": "blog",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence supports the claim in part but does not fully establish it. The claim lists four specific practical use cases for implementing the NIST AI Risk Management Framework 1.0: building organiza",
+      "verifier_reason": "The evidence states that the framework defines use-case profiles and cross-sectoral profiles, which are the specific types of profiles mentioned in the claim. However, the claim states that the framew",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "nist-ai-risk-framework-removed-4",
       "recording": "nist-ai-risk-framework",
-      "claim": "The NIST AI Risk Management Framework 1.0 provides evidence of maturity and adoption status through its use by U.S. federal agencies, regulators, and enterprises, as well as its implementation in spec",
+      "claim": "The framework's four core functions provide a structured approach to managing AI risks across the lifecycle.",
       "evidence_ids": [
-        "S1-e5",
-        "S2-e5",
-        "S3-e5",
-        "S4-e5"
+        "S2-e1",
+        "S3-e1",
+        "S1-e1",
+        "S5-e1"
       ],
       "evidence": [
         {
-          "evidence_id": "S1-e5",
-          "quote": "AI RMF 1.0 is the de-facto reference for trustworthy AI in the United States and is widely adopted by U.S. federal agencies, regulators, and enterprises, as well as organizations globally that need a structured, defensible approach to AI risk management.",
-          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF)",
+          "evidence_id": "S2-e1",
+          "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
+          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
           "domain": "docs.modulos.ai",
           "site_category": "official_docs",
           "page": null
         },
         {
-          "evidence_id": "S2-e5",
-          "quote": "NIST publishes companion materials including the AI RMF Playbook, Roadmap, Crosswalks, and sector perspectives to help organizations operationalize the framework.",
+          "evidence_id": "S3-e1",
+          "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
+          "source_title": "NIST AI Risk Management Framework 1.0 | Consulting Services",
+          "domain": "rsisecurity.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S1-e1",
+          "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
           "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
           "domain": "orca.security",
           "site_category": "blog",
           "page": null
         },
         {
-          "evidence_id": "S3-e5",
-          "quote": "U.S. federal agencies and contractors: Executive Order 14110 on Safe, Secure, and Trustworthy Artificial Intelligence directed federal agencies to align their AI risk management practices with NIST AI RMF.",
-          "source_title": "NIST AI RMF Implementation: 8-Step Guide + 20-Week Roadmap ...",
-          "domain": "neuraltrust.ai",
-          "site_category": "blog",
-          "page": null
-        },
-        {
-          "evidence_id": "S4-e5",
-          "quote": "The most useful field is often the evidence reference.",
-          "source_title": "NIST AI RMF Implementation Checklist for Engineering Teams",
-          "domain": "tooljunction.io",
+          "evidence_id": "S5-e1",
+          "quote": "TLDR: The NIST AI Risk Management Framework (NIST AI RMF) is a voluntary guideline designed to help organizations identify, assess, and manage risks associated with artificial intelligence (AI). The framework was designed with the principles of Map, Measure, Manage, and Govern to develop trustworthy, transparent, and ethical AI systems, ensuring responsible AI adoption across various industries.",
+          "source_title": "Safeguard the Future of AI: The Core Functions of the NIST AI RMF",
+          "domain": "optro.ai",
           "site_category": "blog",
           "page": null
         }
       ],
-      "verifier_verdict": "unsupported",
-      "verifier_reason": "The claim attributes evidence of maturity and adoption status to the NIST AI Risk Management Framework 1.0 through its use by U.S. federal agencies, regulators, and enterprises, as well as implementat",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that the NIST AI RMF has four core functions (Govern, Map, Measure, Manage) but does not explicitly state that these functions provide a 'structured approach to managing AI risks a",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "nist-ai-risk-framework-removed-5",
       "recording": "nist-ai-risk-framework",
-      "claim": "The NIST AI Risk Management Framework 1.0 mentions hidden costs or implementation barriers such as the need for continuous risk management and re-evaluation of risks, which can lead to organizations d",
+      "claim": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
+      "evidence_ids": [
+        "S2-e1",
+        "S3-e1",
+        "S1-e1",
+        "S5-e1"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S2-e1",
+          "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
+          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
+          "domain": "docs.modulos.ai",
+          "site_category": "official_docs",
+          "page": null
+        },
+        {
+          "evidence_id": "S3-e1",
+          "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
+          "source_title": "NIST AI Risk Management Framework 1.0 | Consulting Services",
+          "domain": "rsisecurity.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S1-e1",
+          "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
+          "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
+          "domain": "orca.security",
+          "site_category": "blog",
+          "page": null
+        },
+        {
+          "evidence_id": "S5-e1",
+          "quote": "TLDR: The NIST AI Risk Management Framework (NIST AI RMF) is a voluntary guideline designed to help organizations identify, assess, and manage risks associated with artificial intelligence (AI). The framework was designed with the principles of Map, Measure, Manage, and Govern to develop trustworthy, transparent, and ethical AI systems, ensuring responsible AI adoption across various industries.",
+          "source_title": "Safeguard the Future of AI: The Core Functions of the NIST AI RMF",
+          "domain": "optro.ai",
+          "site_category": "blog",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that the NIST AI RMF 1.0 has four core functions: Govern, Map, Measure, and Manage. However, the claim attributes this definition to the NIST AI Risk Management Framework 1.0 itsel",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-6",
+      "recording": "nist-ai-risk-framework",
+      "claim": "Govern is the cross-cutting function that spans the organization as a whole, establishing accountability, policies, and oversight for AI risk management.",
+      "evidence_ids": [
+        "S2-e2",
+        "S1-e2"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S2-e2",
+          "quote": "Govern is the cross-cutting function. It cultivates a culture of AI risk management, establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle. Govern is the only function that spans the organization as a whole \u2014 it sits above Map, Measure, and Manage and makes them repeatable.",
+          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
+          "domain": "docs.modulos.ai",
+          "site_category": "official_docs",
+          "page": null
+        },
+        {
+          "evidence_id": "S1-e2",
+          "quote": "The Govern function focuses on organizational risk culture, accountability, and AI-related policies across the lifecycle. It addresses issues such as who approves high-risk use cases, how third-party models are introduced into the environment, and how resources are allocated for safety testing.",
+          "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
+          "domain": "orca.security",
+          "site_category": "blog",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence from NIST AI RMF 1.0 (S2-e2) states that 'Govern is the cross-cutting function that spans the organization as a whole, establishing accountability, policies, and oversight for AI risk man",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-7",
+      "recording": "nist-ai-risk-framework",
+      "claim": "The NIST AI Risk Management Framework 1.0 implements risk management through profiles that specify use-case and cross-sectoral applications of the framework.",
+      "evidence_ids": [
+        "S2-e3",
+        "S1-e3"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S2-e3",
+          "quote": "NIST AI RMF profiles \u200b\n\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
+          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
+          "domain": "docs.modulos.ai",
+          "site_category": "official_docs",
+          "page": null
+        },
+        {
+          "evidence_id": "S1-e3",
+          "quote": "The framework uses profiles to document how organizations apply the Core to specific systems, business units, or risk environments. Profiles help make tradeoffs explicit, such as requiring stricter testing for high-impact AI systems while applying lighter review processes to lower-risk internal tools.",
+          "source_title": "NIST AI Risk Management Framework (AI RMF) Explained",
+          "domain": "orca.security",
+          "site_category": "blog",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that profiles are used to specify use-case and cross-sectoral applications of the framework, but the claim attributes this implementation to the NIST AI Risk Management Framework 1",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-1",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases excel in low-latency vector search for real-time applications but require significant memory resources for high-throughput workloads.",
+      "evidence_ids": [
+        "S1-e1",
+        "S1-e2"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e1",
+          "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S1-e2",
+          "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence supports the claim that vector databases require significant memory resources for high-throughput workloads by stating that to search 10M vectors at sub-10ms speed, you may need 64GB+ of ",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-2",
+      "recording": "rag-vector-vs-search",
+      "claim": "Traditional search engines like PostgreSQL with pgvector extensions offer cost-efficient storage for smaller datasets but struggle with billion-scale vector indexing.",
+      "evidence_ids": [
+        "S3-e3",
+        "S3-e4"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S3-e3",
+          "quote": "pgvector + pgvectorscale: PostgreSQL users with under 100M vectors, plus iterative index scans for better filtered search.",
+          "source_title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+          "domain": "firecrawl.dev",
+          "site_category": "blog",
+          "page": null
+        },
+        {
+          "evidence_id": "S3-e4",
+          "quote": "Pinecone, Milvus, Qdrant, and Weaviate use vector-optimized storage engines, query planners, and index structures. They implement HNSW (Hierarchical Navigable Small World), a graph-based algorithm that searches vectors by navigating through multiple layers from coarse to fine approximations. This handles billions of vectors well because algorithm complexity grows logarithmically, not linearly, regardless of vector dimensionality.",
+          "source_title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+          "domain": "firecrawl.dev",
+          "site_category": "blog",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence S3-e4 describes how certain vector databases handle billions of vectors well due to logarithmic complexity, which supports the claim that traditional search engines like PostgreSQL with p",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-3",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases introduce hidden costs through filtering overhead and memory-intensive preprocessing, which can degrade performance by 40-60% under complex query conditions.",
+      "evidence_ids": [
+        "S1-e3",
+        "S3-e5"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e3",
+          "quote": "The Filter Bottleneck: A critical nuance often missed in benchmarks is how filtering affects speed. In Weaviate, for example, if you attempt to filter across 50 complex metadata fields simultaneously during a vector search, the HNSW traversal overhead spikes, potentially dropping QPS by 40-60%.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S3-e5",
+          "quote": "Quantization (compressing vectors by using fewer bits per dimension, like reducing 32-bit floats to 8-bit integers) reduces memory costs with minimal recall impact. Reducing 32-bit floats to 8-bit integers cuts memory 75% while maintaining high accuracy.",
+          "source_title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+          "domain": "firecrawl.dev",
+          "site_category": "blog",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence from S1-e3 mentions a potential 40-60% drop in QPS due to filtering across 50 complex metadata fields in Weaviate, which aligns with the claim's performance degradation percentage. Howeve",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-4",
+      "recording": "rag-vector-vs-search",
+      "claim": "The 2026 Speed Law mandates that vector database latency must not exceed 5% of the total agentic loop time to avoid infrastructure bottlenecks.",
+      "evidence_ids": [
+        "S1-e5"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e5",
+          "quote": "The 2026 Speed Law dictates that retrieval must never consume more than 5% of the total agentic loop time. If your vector database is taking 200ms on a 400ms loop, your infrastructure not your model is the ceiling.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that the 2026 Speed Law dictates that retrieval must never consume more than 5% of the total agentic loop time. The claim states that vector database latency must not exceed 5% of ",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-5",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases require specialized hardware or memory-intensive configurations for optimal performance, making them less suitable for write-heavy workloads.",
       "evidence_ids": [
         "S1-e6",
         "S3-e6"
@@ -428,255 +687,261 @@
       "evidence": [
         {
           "evidence_id": "S1-e6",
-          "quote": "AI RMF 1.0 assumes two things that separate it from older IT risk frameworks: \n\n AI risk is socio-technical \u2014 harms can flow from data, models, deployment context, and human oversight, not just from code.\n AI risk is continuous \u2014 systems drift, context changes, and new risks appear over the lifecycle, so risk management must be ongoing, not one-shot.",
-          "source_title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF)",
-          "domain": "docs.modulos.ai",
-          "site_category": "official_docs",
+          "quote": "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must switch to IVF-PQ indexing, which is 5x slower but uses 80% less memory by compressing vectors into smaller subspaces.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
           "page": null
         },
         {
           "evidence_id": "S3-e6",
-          "quote": "The most common implementation failure: organizations complete GOVERN and MAP on paper, then drop MEASURE because they lack the data infrastructure to benchmark risk consistently.",
-          "source_title": "NIST AI RMF Implementation: 8-Step Guide + 20-Week Roadmap ...",
-          "domain": "neuraltrust.ai",
+          "quote": "If your evaluation weights read latency alone, you'll pick the wrong database for anything with iterative writes.",
+          "source_title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+          "domain": "firecrawl.dev",
           "site_category": "blog",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The claim attributes a specific statement to the NIST AI Risk Management Framework 1:0, but the evidence comes from two different sources. The first evidence (S1-e6) is from the NIST AI RMF 1.0 docume",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "nist-ai-risk-framework-removed-6",
-      "recording": "nist-ai-risk-framework",
-      "claim": "The NIST AI Risk Management Framework 1.0 does not adequately address AI risks under specific conditions, such as in healthcare and energy sectors where implementation challenges arise.",
-      "evidence_ids": [
-        "S7-e1",
-        "S8-e1",
-        "S9-e1",
-        "S6-e1",
-        "S10-e1"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S7-e1",
-          "quote": "NIST AI Risk Management Framework (AI RMF 1.0) is a ai & technology framework applying in the United States (NIST), with 52 controls across 9 domains. ISO 9001 is a quality management framework applying in International, with 48 controls across 26 domains. They govern different subjects, so the overlap is limited to the governance requirements they share.",
-          "source_title": "NIST AI Risk Management Framework (AI RMF 1.0) vs ISO 9001 - Control Mapping & Gap Analysis | The Art of Service | The Art of Service",
-          "domain": "theartofservice.com",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S8-e1",
-          "quote": "NIST AI Risk Management Framework (AI RMF 1.0) is a ai & technology framework applying in the United States (NIST), with 52 controls across 9 domains. GDPR is a privacy framework applying in the European Union, with 40 controls across 4 domains. They govern different subjects, so the overlap is limited to the governance requirements they share.",
-          "source_title": "NIST AI Risk Management Framework (AI RMF 1.0) vs GDPR - Control Mapping & Gap Analysis | The Art of Service | The Art of Service",
-          "domain": "theartofservice.com",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S9-e1",
-          "quote": "Healthcareorganisations implementing NIST AI Risk Management Framework (AI RMF 1.0)commonly face these challenges:",
-          "source_title": "How does NIST AI Risk Management Framework (AI RMF 1.0) apply to healthcare? | The Art of Service",
-          "domain": "theartofservice.com",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S6-e1",
-          "quote": "NIST AI Risk Management Framework (AI RMF 1.0) is a ai & technology framework applying in the United States (NIST), with 52 controls across 9 domains. NIST SP 800-53 Rev 5 is a information security framework applying in the United States, with 192 controls across 24 domains. They govern different subjects, so the overlap is limited to the governance requirements they share.",
-          "source_title": "NIST AI Risk Management Framework (AI RMF 1.0) vs NIST SP 800-53 Rev 5 - Control Mapping & Gap Analysis | The Art of Service | The Art of Service",
-          "domain": "theartofservice.com",
-          "site_category": "other",
-          "page": null
-        },
-        {
-          "evidence_id": "S10-e1",
-          "quote": "Where energy implementations of NIST AI Risk Management Framework (AI RMF 1.0) get stuck",
-          "source_title": "NIST AI Risk Management Framework (AI RMF 1.0) for Energy - Implementation Guide & Compliance | The Art of Service | The Art of Service",
-          "domain": "theartofservice.com",
-          "site_category": "other",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence shows that healthcare and energy sectors face implementation challenges with NIST AI RMF 1.0 (S9-e1 and S10-e1), but the claim states that the framework does not adequately address AI ris",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "rag-vector-vs-search-published-1",
-      "recording": "rag-vector-vs-search",
-      "claim": "Vector databases face challenges in maintaining query performance and data consistency across distributed systems.",
-      "evidence_ids": [
-        "S3-e3"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S3-e3",
-          "quote": "Vector databases are designed for horizontal scaling, distributing data across multiple nodes. This approach faces challenges in maintaining query performance and data consistency across distributed systems.",
-          "source_title": "Choosing Between Vector and Traditional Databases for AI | Unstructured",
-          "domain": "unstructured.io",
-          "site_category": "other",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "supported",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "rag-vector-vs-search-published-2",
-      "recording": "rag-vector-vs-search",
-      "claim": "Vector databases can securely manage private data as an external knowledge base extension, preventing potential data breaches after model training.",
-      "evidence_ids": [
-        "S5-e4"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S5-e4",
-          "quote": "Enhanced Data Privacy and Security: RAG can securely manage private data as an external knowledge base extension, preventing potential data breaches after model training.",
-          "source_title": "Vector Databases Are the Base of RAG Retrieval - Zilliz blog",
-          "domain": "zilliz.com",
-          "site_category": "blog",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "supported",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "rag-vector-vs-search-removed-1",
-      "recording": "rag-vector-vs-search",
-      "claim": "Vector databases require horizontal scaling to handle large datasets, which can compromise query performance and data consistency.",
-      "evidence_ids": [
-        "S3-e1"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S3-e1",
-          "quote": "Vector databases are designed for horizontal scaling, distributing data across multiple nodes. This approach faces challenges in maintaining query performance and data consistency across distributed systems.",
-          "source_title": "Choosing Between Vector and Traditional Databases for AI | Unstructured",
-          "domain": "unstructured.io",
-          "site_category": "other",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that vector databases are designed for horizontal scaling and faces challenges in maintaining query performance and data consistency. The claim states that vector databases require",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "rag-vector-vs-search-removed-2",
-      "recording": "rag-vector-vs-search",
-      "claim": "Vector databases are more cost-effective than traditional search engines at 60\u2013100M queries/month when self-hosted.",
-      "evidence_ids": [
-        "S4-e1"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S4-e1",
-          "quote": "At 60\u2013100M queries/month, self-hosting becomes 50\u201375% cheaper than cloud.",
-          "source_title": "The Hidden Cost of Vector Database Pricing Models",
-          "domain": "actian.com",
-          "site_category": "blog",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that self-hosting is 50\u201375% cheaper than cloud at 6:0\u2013100M queries/month, which directly addresses the cost-effectiveness claim for the specified query volume range. However, the c",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "rag-vector-vs-search-removed-3",
-      "recording": "rag-vector-vs-search",
-      "claim": "Vector databases handle high-dimensional embeddings efficiently through distributed architecture and data compression techniques.",
-      "evidence_ids": [
-        "S3-e2"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S3-e2",
-          "quote": "Vector databases handle increasing volumes of high-dimensional embeddings without performance loss. They achieve this through: Distributed architecture: Horizontal scaling across multiple nodes. Data compression: Techniques like product quantization reduce storage requirements, though balancing compression with retrieval accuracy is crucial.",
-          "source_title": "Choosing Between Vector and Traditional Databases for AI | Unstructured",
-          "domain": "unstructured.io",
-          "site_category": "other",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that vector databases handle increasing volumes of high-dimensional embeddings without performance loss through distributed architecture and data compression techniques. However, t",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "rag-vector-vs-search-removed-4",
-      "recording": "rag-vector-vs-search",
-      "claim": "Vector databases are easier to deploy and integrate with existing machine learning frameworks due to straightforward setup and comprehensive APIs.",
-      "evidence_ids": [
-        "S5-e2"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S5-e2",
-          "quote": "Total Ownership Cost: Vector dbs are easier to deploy and integrate with existing machine learning frameworks due to their straightforward setup and comprehensive APIs. This accessibility, coupled with lower overall costs, makes them a favorite among developers of RAG applications.",
-          "source_title": "Vector Databases Are the Base of RAG Retrieval - Zilliz blog",
-          "domain": "zilliz.com",
-          "site_category": "blog",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that vector databases are easier to deploy and integrate with existing machine: learning frameworks due to straightforward setup and comprehensive APIs. This directly matches the c",
-      "human_label": null,
-      "human_rationale": null
-    },
-    {
-      "case_id": "rag-vector-vs-search-removed-5",
-      "recording": "rag-vector-vs-search",
-      "claim": "Vector databases can degrade in precision as datasets grow, with a 12% performance hit by the 100,000-page mark.",
-      "evidence_ids": [
-        "S1-e6"
-      ],
-      "evidence": [
-        {
-          "evidence_id": "S1-e6",
-          "quote": "According to new research by EyeLevel.ai, an AI tools company, the precision of vector similarity search degrades in as few as 10,000 pages, reaching a 12% performance hit by the 100,000-page mark.",
-          "source_title": "Do Vector Databases Lose Accuracy at Scale?",
-          "domain": "eyelevel.ai",
-          "site_category": "other",
-          "page": null
-        }
-      ],
-      "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that precision degrades with a 12% performance hit by the 100,000-page mark, which matches the claim's specific threshold (100,000 pages) and performance metric (12% performance hi",
+      "verifier_reason": "The evidence S1-e6 states that if you cannot afford the RAM for optimal performance, you must switch to IVF-PQ indexing which uses 80% less memory but is 5x slower. This implies that vector databases ",
       "human_label": null,
       "human_rationale": null
     },
     {
       "case_id": "rag-vector-vs-search-removed-6",
       "recording": "rag-vector-vs-search",
-      "claim": "Zilliz Cloud offers fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.",
+      "claim": "Vector databases are optimal for low-latency, high-throughput applications but demand significant memory resources and specialized hardware.",
       "evidence_ids": [
-        "S5-e5"
+        "S1-e1",
+        "S1-e2",
+        "S1-e6"
       ],
       "evidence": [
         {
-          "evidence_id": "S5-e5",
-          "quote": "Zilliz Cloud Fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.",
-          "source_title": "Vector Databases Are the Base of RAG Retrieval - Zilliz blog",
-          "domain": "zilliz.com",
+          "evidence_id": "S1-e1",
+          "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S1-e2",
+          "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        },
+        {
+          "evidence_id": "S1-e6",
+          "quote": "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must switch to IVF-PQ indexing, which is 5x slower but uses 80% less memory by compressing vectors into smaller subspaces.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence provides specific benchmarks for latency and throughput (Qdrant and Milvus), and mentions memory requirements (64GB+ RAM) and the trade-off between speed and memory (IVF-PQ indexing). How",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-7",
+      "recording": "rag-vector-vs-search",
+      "claim": "Qdrant achieves the lowest p50 query latency at 4ms and leads in p99 latency under 8ms for real-time applications.",
+      "evidence_ids": [
+        "S5-e1"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S5-e1",
+          "quote": "Qdrant OSS Managed\n 4ms / 25ms",
+          "source_title": "Vector Database Benchmark 2026 | Top 10 Compared",
+          "domain": "salttechno.ai",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence states a latency of 4ms / 25ms for Qdr: OSS Managed, but the claim specifies p50 query latency at 4ms and p99 latency under 8ms. The evidence does not mention p50 or p99, nor does it spec",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-8",
+      "recording": "rag-vector-vs-search",
+      "claim": "Redis has the lowest p50 query latency at 5ms among the evaluated systems.",
+      "evidence_ids": [
+        "S5-e2"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S5-e2",
+          "quote": "Redis OSS Managed\n 5ms / 20ms",
+          "source_title": "Vector Database Benchmark 2026 | Top 10 Compared",
+          "domain": "salttechno.ai",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states a latency of 5ms for Redis OSS Managed, but the claim specifies 'lowest p5:0 query latency at 5ms among the evaluated systems'. The evidence does not explicitly state that Redis ha",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-9",
+      "recording": "rag-vector-vs-search",
+      "claim": "Milvus achieves the highest throughput at 20,000+ QPS via GPU-accelerated indexing for high-volume analytics.",
+      "evidence_ids": [
+        "S1-e1"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e1",
+          "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that Milvus 'wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing', which directly matches the claim's throughput claim. However, the evidence does not explicitly sta",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-10",
+      "recording": "rag-vector-vs-search",
+      "claim": "To search 10 million vectors at sub-10ms latency, dedicated RAM of 64GB+ is typically required.",
+      "evidence_ids": [
+        "S1-e2"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e2",
+          "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states 'you may need 64GB+ of dedicated RAM' for the condition, but the claim uses 'typically required'. The evidence uses 'may' which is weaker than 'typically required', and the claim u",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-11",
+      "recording": "rag-vector-vs-search",
+      "claim": "PostgreSQL with pgvector extensions requires less storage than purpose-built vector databases for datasets under 100 million vectors.",
+      "evidence_ids": [
+        "S3-e3"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S3-e3",
+          "quote": "pgvector + pgvectorscale: PostgreSQL users with under 100M vectors, plus iterative index scans for better filtered search.",
+          "source_title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+          "domain": "firecrawl.dev",
           "site_category": "blog",
           "page": null
         }
       ],
       "verifier_verdict": "partially_supported",
-      "verifier_reason": "The evidence states that Zill: Cloud offers \"Fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.\" However, the claim uses the word \"offers\"",
+      "verifier_reason": "The evidence states that PostgreSQL users with under 10:00M vectors can use pgvector + pgvectorscale for better filtered search, but it does not explicitly state that PostgreSQL with pgvector extensio",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-12",
+      "recording": "rag-vector-vs-search",
+      "claim": "Filtering across 50 complex metadata fields during vector search can reduce query throughput by 40-60% due to HNSW traversal overhead.",
+      "evidence_ids": [
+        "S1-e3"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e3",
+          "quote": "The Filter Bottleneck: A critical nuance often missed in benchmarks is how filtering affects speed. In Weaviate, for example, if you attempt to filter across 50 complex metadata fields simultaneously during a vector search, the HNSW traversal overhead spikes, potentially dropping QPS by 40-60%.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that filtering across 50 complex metadata fields in Weaviate can cause HNSW traversal overhead that potentially drops QPS by 40-60%. The claim attributes this effect to a general s",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-13",
+      "recording": "rag-vector-vs-search",
+      "claim": "Quantization reduces memory usage by 75% while maintaining high recall accuracy by compressing vectors from 32-bit floats to 8-bit integers.",
+      "evidence_ids": [
+        "S3-e5"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S3-e5",
+          "quote": "Quantization (compressing vectors by using fewer bits per dimension, like reducing 32-bit floats to 8-bit integers) reduces memory costs with minimal recall impact. Reducing 32-bit floats to 8-bit integers cuts memory 75% while maintaining high accuracy.",
+          "source_title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+          "domain": "firecrawl.dev",
+          "site_category": "blog",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that reducing 32-bit floats to : 8-bit integers cuts memory 75% while maintaining high accuracy. However, the claim specifies 'reduces memory usage by 75%' and 'maintaining high re",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-14",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases face a trade-off between speed and memory: IVF-PQ indexing reduces memory usage by 80% but slows query performance by 5x.",
+      "evidence_ids": [
+        "S1-e6"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S1-e6",
+          "quote": "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must switch to IVF-PQ indexing, which is 5x slower but uses 80% less memory by compressing vectors into smaller subspaces.",
+          "source_title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+          "domain": "ranksquire.com",
+          "site_category": "other",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that IVF-PQ indexing uses 80% less memory and slows query performance by .5x (not 5x). The claim states 5x. The evidence also states that the trade-off is for when you cannot affor",
+      "human_label": null,
+      "human_rationale": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-15",
+      "recording": "rag-vector-vs-search",
+      "claim": "Write-heavy workloads require different recovery mechanisms than traditional RAG systems due to iterative index updates.",
+      "evidence_ids": [
+        "S3-e6"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "S3-e6",
+          "quote": "If your evaluation weights read latency alone, you'll pick the wrong database for anything with iterative writes.",
+          "source_title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+          "domain": "firecrawl.dev",
+          "site_category": "blog",
+          "page": null
+        }
+      ],
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that iterative writes (which are relevant to write-heavy workloads) require a different database choice than what would be optimal for read latency alone. However, the claim attrib",
       "human_label": null,
       "human_rationale": null
     }

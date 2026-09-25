@@ -94,10 +94,19 @@ other languages.
 
 ## Publication
 
-**Two of the three recorded demos publish nothing.** Under a `qwen3:4b`
-synthesiser the verifier judged 18 of 20 generated claims partially
+**All three recorded demos publish nothing.** Under a `qwen3:4b`
+synthesiser the verifier judged all 35 generated claims partially
 supported or unsupported, and the fail-closed publication gate removed
-all 18.
+every one.
+
+**The verifier is plausibly too strict, and that is not yet settled.**
+Many rejections are compound claims whose halves each have supporting
+evidence -- "vector databases excel in low-latency search but require
+significant memory", against one quote reporting sub-8ms p99 latency and
+another reporting the 64GB+ RAM that needs. The rule about compound
+claims may be firing whenever the verifier cannot hold two clauses at
+once, rather than when a clause is genuinely unsupported. Fixing that
+means changing the general rule, not tuning against cases.
 
 **Whether those 18 verdicts are correct has not been established.**
 Nobody has compared this verifier against human labels, so "the verifier

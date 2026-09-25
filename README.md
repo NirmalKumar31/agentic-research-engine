@@ -86,7 +86,7 @@ The chain has two halves with different guarantees:
   PDF extraction succeeded for that source.
 - **Conditional.** The link back to a query exists only where that source
   was genuinely retrieved for that sub-question. Much of the evidence —
-  50.0% to 83.3% across the three recorded runs — is reused across
+  20.8% to 83.3% across the three recorded runs — is reused across
   sub-questions and is marked `cross_attributed` with no query id, rather
   than borrowing an unrelated one.
 
@@ -162,54 +162,49 @@ spends nothing.
 
 ## Measured results
 
-Three recorded local `qwen3:4b` runs. RAG and Fraud completed in one
-round; NIST needed two. Every substantive claim was checked against its
-own evidence — `checked == checkable` — and only claims the verifier
-judged *supported* were published.
+Three recorded local `qwen3:4b` runs, one round each. Every substantive
+claim was checked against its own evidence — `checked == checkable`, with
+every cited item and every quote shown in full — and only claims the
+verifier judged *supported* were published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
-| Research rounds | 1 | 2 | 1 |
-| Search queries | 6 | 9 | 6 |
-| Unique sources | 5 | 10 | 5 |
-| Usable sources | 5 | 10 | 3 |
-| Generated substantive claims | 8 | 6 | 6 |
-| Supported | 2 | 0 | 0 |
-| Partially supported | 6 | 5 | 6 |
-| Unsupported | 0 | 1 | 0 |
+| Research rounds | 1 | 1 | 1 |
+| Search queries | 6 | 6 | 6 |
+| Unique sources | 5 | 5 | 5 |
+| Usable sources | 5 | 5 | 3 |
+| Generated substantive claims | 15 | 7 | 13 |
+| Exact duplicates removed | 0 | 0 | 1 |
+| Supported | 0 | 0 | 0 |
+| Partially supported | 14 | 7 | 7 |
+| Unsupported | 1 | 0 | 5 |
 | Never checked | 0 | 0 | 0 |
-| **Removed before publishing** | 6 | 6 | 6 |
-| **Published** | **2** | **0** | **0** |
-| Checked / checkable | 8/8 | 6/6 | 6/6 |
-| Evidence integrity (published) | 100% | n/a — no references | n/a — no references |
-| Quote fidelity (exact) | 90% | 90% | 94% |
-| Cross-attributed evidence | 83.3% | 50.0% | 66.7% |
-| Page-cited evidence | 0 | 6 | 0 |
-| Duration | 716s | 1393s | 500s |
+| **Removed before publishing** | 15 | 7 | 12 |
+| **Published** | **0** | **0** | **0** |
+| Checked / checkable | 15/15 | 7/7 | 12/12 |
+| Quote fidelity (exact) | 97% | 92% | 94% |
+| Cross-attributed evidence | 63.3% | 20.8% | 83.3% |
+| Page-cited evidence | 0 | 5 | 0 |
+| Duration | 776s | 708s | 524s |
 
-Two of the three reports publish nothing, so their evidence-integrity
-denominator is zero. A report with no claims has no reference to get
-wrong; reporting that as 100% would be scoring an empty page.
+Evidence integrity is not listed: all three published reports contain no
+claims, so the denominator is zero and there is no reference that could
+have been wrong. Reporting that as 100% would be scoring an empty page.
 
-**Read the removal column.** The verifier judged 18 of the 20 generated
-claims partially supported or unsupported, and the fail-closed
-publication gate removed all 18. Examples of what it objected to:
+**Every generated claim was removed.** The verifier judged all 35
+partially supported or unsupported, and the fail-closed gate removed
+them. That is what the system did; whether it was *right* is a separate
+question this project cannot yet answer, because nobody has compared
+this verifier against human labels.
 
-- a claim that vector databases are "more cost-effective than traditional
-  search engines at 60–100M queries/month", cited to a quote comparing
-  *self-hosting* with *cloud*;
-- a claim that NIST "structures AI risk management through four core
-  functions", where the NIST-sourced quote is a contents line and the
-  assertion itself comes from two blogs;
-- five model families named "most effective" for fraud detection where
-  the evidence establishes that for two.
-
-Whether all 18 verdicts are correct has not been established against
-human labels. A 20-case calibration fixture built from these exact
-claim/evidence pairs lives in
-[`examples/verifier-calibration/`](examples/verifier-calibration/), and
-[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) states what is and is not
-known about verifier accuracy.
+There is reason to think it is too strict. Many rejections are compound
+claims whose halves each have supporting evidence, for example *"vector
+databases excel in low-latency search but require significant memory"* —
+where one quote reports sub-8ms p99 latency and another reports the
+64GB+ RAM needed for it. A 34-case labelling fixture built from these
+exact claim/evidence pairs is committed under
+[`examples/verifier-calibration/`](examples/verifier-calibration/) so the
+question can be settled with labels rather than argued from examples.
 
 These are product artifacts, served by the demo. They are not a
 benchmark: n=1 each, one model, one configuration.

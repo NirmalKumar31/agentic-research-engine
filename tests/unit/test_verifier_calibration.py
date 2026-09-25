@@ -24,8 +24,12 @@ def doc() -> dict:
 
 class TestTheFixtureIsUsable:
     def test_every_generated_claim_is_present(self, doc: dict) -> None:
-        """Twenty claims across three recordings: 2 published, 18 removed."""
-        assert len(doc["cases"]) == 20
+        """One case per generated substantive claim across the three
+        recordings. All of them were removed, so every case is a
+        rejection and the fixture is the only way to tell a correct
+        rejection from an over-strict one."""
+        assert len(doc["cases"]) >= 30
+        assert all(c["verifier_verdict"] != "supported" for c in doc["cases"])
 
     def test_each_case_carries_its_evidence_in_full(self, doc: dict) -> None:
         """A labeller cannot judge a claim against evidence it cannot
