@@ -250,3 +250,55 @@ class TestAuditRecordSurvivesTheRebuild:
         names = set(re.findall(r'"(\w+)":', rebuild))
         unknown = names - set(CitationVerification.model_fields)
         assert not unknown, f"not fields of CitationVerification: {sorted(unknown)}"
+
+
+class TestCompoundClaimFailureClass:
+    """The shape that produced the one development false positive.
+
+    Three propositions fused into one sentence, where a single quote
+    states two of them and not the third. No guard can reach it and the
+    classifier scores the sentence on its supported majority, so the
+    unsupported clause rides along. Generic wording throughout; nothing
+    here special-cases any phrase.
+
+    The verifier is not expected to catch this -- that is the finding.
+    What these assert is that splitting the sentence into atomic claims
+    is what fixes it, which is why the fix went into synthesis.
+    """
+
+    QUOTE = (
+        "Pruning cut index memory by 60%. The authors report minimal impact "
+        "on recall and high precision on the held-out set."
+    )
+
+    def test_the_fused_claim_is_the_one_the_gate_cannot_see_through(self) -> None:
+        """Given a confident score on the sentence as a whole, the gate
+        publishes it. This is the documented limitation, asserted so it
+        is a known property rather than a surprise."""
+        fused = "Pruning cut index memory by 60% while maintaining high recall."
+        scorer = FakeScorer({(self.QUOTE, fused): (0.99, 0.01, 0.0)})
+        verdict = verify_claim(fused, [("E1", self.QUOTE)], scorer, support_threshold=0.98)
+        assert verdict.publishable
+
+    def test_the_unsupported_half_alone_is_refused(self) -> None:
+        """Split out, the overreaching proposition is scored on its own
+        and has nothing carrying it."""
+        atomic = "Pruning maintained high recall."
+        scorer = FakeScorer({(self.QUOTE, atomic): (0.12, 0.87, 0.01)})
+        verdict = verify_claim(atomic, [("E1", self.QUOTE)], scorer, support_threshold=0.98)
+        assert not verdict.publishable
+
+    def test_the_supported_half_alone_still_publishes(self) -> None:
+        """Atomic synthesis must not cost the true propositions."""
+        atomic = "Pruning cut index memory by 60%."
+        scorer = FakeScorer({(self.QUOTE, atomic): (0.99, 0.01, 0.0)})
+        verdict = verify_claim(atomic, [("E1", self.QUOTE)], scorer, support_threshold=0.98)
+        assert verdict.publishable
+
+    def test_the_fused_shape_is_detectable_for_the_audit(self) -> None:
+        """Not a gate -- a flag, so a compound claim that does publish is
+        visible in the release audit instead of silently passing."""
+        from agentic_research.citations.atomicity import looks_compound
+
+        assert looks_compound("Pruning cut index memory by 60% while maintaining high recall.")
+        assert not looks_compound("Pruning cut index memory by 60%.")

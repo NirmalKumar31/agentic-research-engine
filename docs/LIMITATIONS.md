@@ -13,13 +13,33 @@ well. Closing that needs labelled answers, which is a different project.
 marked exact was found verbatim in the retrieved text. Whether it supports
 the claim is a separate check, done by a model.
 
-**Claim support is judged by a model, and in local mode by the same model
-that wrote the report.** Nobody has compared it against human labels.
+**Claim support is judged by a learned classifier, and it can be wrong.**
+A pinned DeBERTa-v3-large MNLI checkpoint scores entailment; Python
+applies the threshold and the guards. It is no longer the same model that
+wrote the report, which was the previous and worse arrangement. But an NLI
+model is a statistical classifier trained on a particular distribution of
+sentence pairs, and research claims about vector databases or AI risk
+frameworks are not that distribution. Measured behaviour on the cases
+tested is recorded; behaviour outside them is not characterised.
+
+**The guards are narrow on purpose and miss things.** Five checks —
+numeric literals, modality strength, invented rankings, causation from
+association, invented exclusivity — cover transformations that were
+observed being approved. They do not parse sentences. An overclaim
+expressed as a noun-phrase substitution, such as an attribute stated of
+*accuracy* reattached to *recall accuracy*, passes every one of them.
 
 **Published figures come from single runs**, except the attribution
 experiment, which has three repeats. There are no confidence intervals.
 
 **The twelve-question benchmark has never been run.**
+
+**There is no independent benchmark result for the verifier.** The thirty
+labelled cases are development calibration data: they shaped three
+generative verifier designs and the NLI replacement, so agreement measured
+on them is partly fitted and is not a generalisation estimate. The only
+unfitted measurement is the synthetic adversarial suite, which tests
+refusal of specific transformation classes and nothing wider.
 
 **No clean local-versus-cloud comparison exists.** The earlier one used a
 corpus whose source text had been stripped, which drove citation integrity
@@ -100,41 +120,49 @@ was removed, and the verifier evaluated the remaining 34 unique claims:
 28 partially supported, 6 unsupported. The fail-closed publication gate
 removed every one, so no synthesised claim was published.
 
-**The verifier is plausibly too strict, and that is not yet settled.**
-Many rejections are compound claims whose halves each have supporting
-evidence -- "vector databases excel in low-latency search but require
-significant memory", against one quote reporting sub-8ms p99 latency and
-another reporting the 64GB+ RAM that needs. The rule about compound
-claims may be firing whenever the verifier cannot hold two clauses at
-once, rather than when a clause is genuinely unsupported. Fixing that
-means changing the general rule, not tuning against cases.
+**The publication gate is binary, and the three-way verdict is not.**
+Only `supported` publishes. `partially_supported` and `unsupported` both
+withhold, and the boundary between them is derived from the scores after
+the fact for readability. Nothing branches on it, and it is not a release
+metric.
 
-**Whether those 34 verdicts are correct has not been established.**
-Nobody has compared this verifier against human labels, so "the verifier
-caught 34 overreaches" is not a claim this project can currently make —
-only that it judged them so.
+**The verifier was replaced because the previous one did not work.**
+Three designs using `qwen3:4b` as an entailment classifier were measured
+against human labels and all three failed: the first returned `supported`
+for none of thirty claims, the second for twenty-five of thirty including
+sixteen the reviewer had marked otherwise, and the third produced
+malformed audits on eleven of thirty. Those experiments are preserved on
+the `verifier-v1`, `verifier-v2` and `verifier-v3` branches. The
+conclusion was that a 4B instruction model is not a stable semantic
+classifier, not that the prompt needed more work.
 
-A blind calibration set is committed under
-`examples/verifier-calibration/`. It holds 30 of the 34 cases with the
-claim and its complete evidence and no verifier verdict, so a reviewer
-cannot be anchored by the model's answer; labels are joined back by
-case_id afterwards.
+**The thirty labelled cases are development calibration data, not a
+benchmark.** They influenced four verifier designs. On them, at threshold
+0.98, the selected model publishes 6 of the 9 reviewer-supported cases
+and one case the reviewer marked partially supported. That one false
+positive is a compound claim: the quote states a 75% memory reduction and
+"high accuracy" and "minimal recall impact" separately, and the claim
+fuses them into "maintaining high recall accuracy". No guard reaches it
+and all three candidate classifiers score it above 0.95. The fix was in
+synthesis — atomic claims — not in another guard.
 
-Four cases are excluded rather than labelled. Their claim text was
-reconstructed from `CitationIssue.claim_text`, which truncates at 200
-characters, and the original wording is unrecoverable — the run artifact
-stores the same truncation. Inventing the missing tails would fabricate
-the input to a gold label. `ClaimJudgment` now preserves the complete
-text of every candidate so this cannot recur.
-
-A larger synthesiser is a candidate next experiment; whether it improves
-supported-claim yield has not been measured.
+**Zero supported false positives was not achieved on that development
+set.** It was achieved on the synthetic adversarial suite, which is the
+unfitted measurement. Both numbers are published because reporting only
+the favourable one would misrepresent what is known.
 
 Unsupported and partially supported claims are removed before publication,
 not rewritten. A published report therefore contains no claim that failed
 the support check — which means "every published claim passed this
 verifier", not "every published claim is true". The counts of what was
 generated and removed are kept in the verification record.
+
+**A report can publish nothing, and that is a supported outcome.** When
+every claim is withheld and citable evidence exists, the report renders
+verbatim source excerpts under a notice saying no synthesized claim
+passed verification. Those excerpts are quotations, not findings:
+`final_published_claims` stays 0 and they are counted separately in
+`evidence_only_excerpts`. Nothing generalises, joins or interprets them.
 
 ## Operations
 
@@ -177,6 +205,22 @@ interrupted run.
 dependencies; `python:3.12-slim` and `node:24-slim` can move.
 
 **No observability beyond logs.** No metrics endpoint, no trace export.
+
+**The semantic verifier does not fit the free deployment tier.** Measured
+peak RSS is 1384MB for the selected model, 1142MB for the DeBERTa base
+alternative and 675MB for the MiniLM cross-encoder — against 512MB on
+Render's free tier. File size is not a proxy for this: the MiniLM
+checkpoint is 331MB on disk and still doubles that resident. MiniLM was
+also the weakest on the adversarial suite, publishing three overclaims
+the selected model refuses, so trading accuracy for size was not
+available either.
+
+The verifier therefore has a remote mode that calls a hosted inference
+endpoint instead of loading the checkpoint in-process. It fails closed on
+timeout, 429, 5xx, malformed body and network error — every one withholds
+the claim. No hosted provider has been selected or tested yet, so remote
+mode is implemented and unit-tested against mocked transports, not proven
+against a live endpoint.
 
 **Provider prices are estimates** from a local table. They do not account
 for cached input, long-context tiers, region or service tier.

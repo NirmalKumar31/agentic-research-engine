@@ -1,8 +1,9 @@
 # Agentic Research Engine
 
 A LangGraph research system that decomposes a question, searches the web in
-parallel, extracts evidence as exact-normalized source quotes, and
-publishes only the claims its own verifier checked and supported.
+parallel, extracts evidence as exact-normalized source quotes, and publishes
+only the atomic claims a dedicated entailment classifier scored as supported
+by one of their own cited quotes. Everything else is withheld.
 
 ---
 
@@ -27,8 +28,43 @@ This project separates them and measures whether the result holds.
   page-aware PDF extraction succeeded.
 - **Assesses its own coverage** and loops on specific gaps, under hard
   limits on rounds, queries, sources and model calls.
-- **Verifies each claim against its own evidence**, then removes the claims
-  that failed before publishing.
+- **Writes atomic claims** — one verifiable proposition each, with the
+  source's own modality, scope, quantities and time frame preserved.
+- **Checks every claim against each of its own quotes separately**, using a
+  pinned NLI classifier plus deterministic guards, and removes everything
+  that does not clear the bar before publishing.
+- **Falls back to exact source excerpts** when nothing passes, rather than
+  publishing an empty report or relaxing the bar.
+
+## How a claim gets published
+
+Two different models, doing two different jobs. The generative model never
+decides whether its own claims are supported.
+
+| Stage | Who | What |
+|---|---|---|
+| Planning, search, extraction, synthesis | `qwen3:4b` locally, or a cloud model | Decomposes the question, writes queries, pulls exact quotes, writes atomic claims |
+| Deterministic guards | Plain Python | Refuse narrow, high-confidence overclaims: a figure not in the quote, a hedge promoted to a requirement, an invented ranking, causation from association, invented exclusivity |
+| Semantic entailment | `DeBERTa-v3-large-mnli-fever-anli-ling-wanli`, pinned to revision `b3546ea6` | Scores each claim against each cited quote separately and returns probabilities only |
+| Publication gate | Plain Python | Publishes only when one guard-passing quote entails the claim at ≥ 0.98 |
+
+A claim publishes when **a single cited quote carries it on its own**.
+Quotes are never concatenated: assembling a broad claim out of several
+partial ones is the failure this gate exists to prevent. Anything else is
+withheld — below threshold, guard failure, unresolved evidence, a
+non-citable quote, or a classifier that could not be reached. Every failure
+path withholds, and none falls back to asking a generative model.
+
+The threshold is calibrated, not guessed, and the model and revision are
+pinned because a checkpoint that moves silently invalidates every number
+here. All three are recorded on every judgment.
+
+**What this does not mean.** The classifier is a learned model and can be
+wrong. It is conservative by construction and by threshold, so its usual
+error is withholding a true claim, but "withheld" and "published" are not
+proofs. This is not zero hallucinations, not perfect factuality, not general
+entailment correctness — it is a measured, fail-closed filter whose
+behaviour on the cases tested is written down below.
 
 ## Architecture
 
