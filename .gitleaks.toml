@@ -84,6 +84,11 @@ regexes = [
   # keeps the history scan clean without rewriting shared history over
   # a string that was never a credential.
   '''sk-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGh''',
+  # Also e029b2e only: the URL slug that motivated the recordings entry
+  # below. It was written across two source lines, so the line holding it
+  # carries no scheme and the URL-context rule cannot see it. Matched on
+  # the literal instead, still scoped to this one test file.
+  '''sk-management-framework-toolkit-and-guide-2026''',
 ]
 
 # Scoped to recorded runs, and requiring the token to sit inside a URL.
