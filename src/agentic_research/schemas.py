@@ -159,6 +159,15 @@ class FollowupsOut(BaseModel):
     )
 
 
+# Bounded at the schema boundary rather than when the verifier renders
+# them. The renderer used to show the first six and the verifier judged
+# the claim as though it had seen them all: one NIST claim cited eight
+# ids, and the item that stated its case outright was the seventh.
+# Refusing an over-long claim up front is honest; silently judging a
+# subset is not.
+MAX_EVIDENCE_PER_CLAIM = 8
+
+
 class ClaimOut(BaseModel):
     """One assertion in the report.
 
@@ -178,21 +187,19 @@ class ClaimOut(BaseModel):
     )
     evidence_ids: list[str] = Field(
         default_factory=list,
+        max_length=MAX_EVIDENCE_PER_CLAIM,
         description=(
             "Ids of the specific evidence items this claim rests on, copied "
             "exactly from the evidence list, e.g. ['S3-e2', 'S7-e1']. Cite the "
             "evidence you actually used, not everything about the topic. "
-            "Required unless kind is 'framing'."
+            f"At most {MAX_EVIDENCE_PER_CLAIM}."
         ),
     )
-    kind: Literal["factual", "synthesis", "framing"] = Field(
+    kind: Literal["factual", "synthesis"] = Field(
         description=(
             "'factual' = states something one evidence item establishes. "
             "'synthesis' = a conclusion drawn across several evidence items; "
-            "still requires evidence_ids, usually more than one. "
-            "'framing' = non-substantive connective text such as 'This section "
-            "compares the three approaches'; asserts nothing and needs no "
-            "evidence. Do not use 'framing' to avoid citing an assertion."
+            "still requires evidence_ids, usually more than one."
         )
     )
 

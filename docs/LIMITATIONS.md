@@ -68,6 +68,13 @@ boundaries flattened, so likely PDFs are fetched directly. If that fetch
 fails the source degrades to provider text — with a warning, but without
 pages.
 
+**Page provenance is not page selection.** Extraction preserves which page
+a quote came from; it does not steer the extractor toward the most
+useful pages of a long document. In the NIST recording the first-party
+quote supporting the four-functions claim is a table-of-contents line,
+while the explanatory prose sits many pages later. The citation is
+accurate about where the text came from and that is all it asserts.
+
 **No OCR.** A scanned PDF is detected and reported, not read.
 
 **JavaScript-only pages yield nothing** and are marked `EMPTY`.
@@ -88,14 +95,22 @@ other languages.
 ## Publication
 
 **Two of the three recorded demos publish nothing.** Under a `qwen3:4b`
-synthesiser, 18 of 20 generated claims overreached the evidence they
-cited and were removed. The verifier is working — the removals are
-individually defensible, and the audit trail records each one — but a
-4B model paired with a strict verifier leaves very little standing.
+synthesiser the verifier judged 18 of 20 generated claims partially
+supported or unsupported, and the fail-closed publication gate removed
+all 18.
 
-Whether a larger synthesiser closes that gap has **not been measured**.
-It is the obvious next experiment and the most likely explanation, but
-until it is run, no claim is made about it either way.
+**Whether those 18 verdicts are correct has not been established.**
+Nobody has compared this verifier against human labels, so "the verifier
+caught 18 overreaches" is not a claim this project can currently make —
+only that it judged them so. A 20-case calibration fixture built from
+these exact claim/evidence pairs is committed under
+`examples/verifier-calibration/`, with a small evaluator that scores a
+verifier run against the labels. Until that review is done, treat the
+supported/partial split as the verifier's opinion rather than ground
+truth.
+
+A larger synthesiser is a candidate next experiment; whether it improves
+supported-claim yield has not been measured.
 
 Unsupported and partially supported claims are removed before publication,
 not rewritten. A published report therefore contains no claim that failed

@@ -668,6 +668,20 @@ class CitationVerification(BaseModel):
 
     contradictions_total: int = 0
     contradictions_auditable: int = 0
+    """Both sides carry citable evidence. Structural, not semantic."""
+    contradiction_sides_checkable: int = 0
+    contradiction_sides_checked: int = 0
+    contradictions_semantically_supported: int = 0
+    """Both summaries were checked and both came back supported.
+
+    Distinct from ``contradictions_auditable`` on purpose. A contradiction
+    summary is model-written prose, and structural traceability says only
+    that evidence exists on both sides -- not that either sentence follows
+    from it. Overloading 'auditable' to mean both would hide exactly the
+    gap this counter exists to close."""
+
+    duplicate_claims_removed: int = 0
+    """Exact duplicate copies removed before verification."""
 
     # Publication gate. Kept separate from the support counts above so the
     # synthesiser's actual output stays visible: a report with nothing
@@ -699,10 +713,26 @@ class CitationVerification(BaseModel):
 
     @property
     def evidence_integrity_rate(self) -> float:
-        """Share of evidence references resolving to citable evidence."""
+        """Share of evidence references resolving to citable evidence.
+
+        Returns 1.0 on an empty denominator, which is the right structural
+        invariant -- there is no broken reference -- but is not a quality
+        measurement. A report that published nothing has no references to
+        get wrong. Use :attr:`has_evidence_references` before presenting
+        this figure anywhere a reader will read it as a score.
+        """
         if self.total_evidence_refs == 0:
             return 1.0
         return round(self.resolvable_evidence_refs / self.total_evidence_refs, 4)
+
+    @property
+    def has_evidence_references(self) -> bool:
+        """Whether the integrity rate has a non-zero denominator.
+
+        Exists so a caller cannot accidentally render "100%" for 0/0. The
+        README did exactly that beside an empty report.
+        """
+        return self.total_evidence_refs > 0
 
     @property
     def citation_validity_rate(self) -> float:
@@ -717,7 +747,13 @@ class CitationVerification(BaseModel):
 
     @property
     def citation_coverage_rate(self) -> float:
-        """Share of evidence-owing claims carrying at least one citation."""
+        """Share of evidence-owing claims carrying at least one citation.
+
+        1.0 on an empty denominator for the same reason as
+        :attr:`evidence_integrity_rate`: a report with no claims has none
+        without a citation. Check ``substantive_claims`` before rendering
+        it as a percentage.
+        """
         if self.substantive_claims == 0:
             return 1.0
         uncited = sum(1 for i in self.issues if i.type is CitationIssueType.UNCITED_CLAIM)

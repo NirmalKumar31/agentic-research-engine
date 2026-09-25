@@ -80,7 +80,11 @@ class TestTheVerifierCanSeeWhoPublishedTheQuote:
         assert "vistrada.com" in block
 
     def test_the_document_kind_is_named(self, block: str) -> None:
-        assert "Type: vendor" in block
+        """Labelled "site category", not "type": a retrieval taxonomy is
+        not authority, and docs.modulos.ai classifies as official_docs
+        without being an official source for NIST."""
+        assert "Site category: vendor" in block
+        assert "Type: " not in block
 
     def test_the_title_is_named(self, block: str) -> None:
         assert "AI Governance Best Practices" in block
@@ -101,8 +105,8 @@ class TestTheVerifierCanSeeWhoPublishedTheQuote:
             ],
         )
         block = _evidence_block(["S1-e1", "S4-e1"], store)
-        assert "Type: vendor" in block
-        assert "Type: standards_body" in block
+        assert "Site category: vendor" in block
+        assert "Site category: standards_body" in block
         assert "Page: 21" in block
 
     def test_quality_score_is_not_offered_as_confidence(self, block: str) -> None:
@@ -189,7 +193,7 @@ class TestTheAuditedClaimShapes:
         )
         block = _evidence_block(["S3-e1"], store)
         assert "In our experiments" in block
-        assert "Type: academic" in block
+        assert "Site category: academic" in block
 
     def test_unevidenced_consequence_is_visible_as_absent(self) -> None:
         """Evidence establishes that fraud patterns evolve and labels get

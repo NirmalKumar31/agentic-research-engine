@@ -147,16 +147,28 @@ def _source_order(source: SourceDocument) -> tuple[int, str]:
 
 def _verification_section(verification: CitationVerification) -> list[str]:
     lines = ["## Citation verification", ""]
+    # A published report with no claims has no references to get wrong,
+    # so the rate is 1.0 by construction. Printing "100%" there reads as a
+    # quality result for a document that asserts nothing.
+    rate = (
+        f"{verification.evidence_integrity_rate:.0%}"
+        if verification.has_evidence_references
+        else "n/a, no references"
+    )
     lines.append(
         f"- Evidence references: {verification.total_evidence_refs}, "
         f"{verification.resolvable_evidence_refs} resolved to citable evidence "
-        f"({verification.evidence_integrity_rate:.0%}). "
+        f"({rate}). "
         "Citation markers are derived from those references by the engine, so "
         "citation integrity is a structural invariant rather than a measurement."
     )
     lines.append(
-        f"- Evidence-owing claims carrying a citation: "
-        f"{verification.citation_coverage_rate:.0%} of {verification.substantive_claims}"
+        "- Evidence-owing claims carrying a citation: "
+        + (
+            f"{verification.citation_coverage_rate:.0%} of {verification.substantive_claims}"
+            if verification.substantive_claims
+            else "n/a, no substantive claims were published"
+        )
     )
     if verification.checked_claims:
         breakdown = verification.support_breakdown

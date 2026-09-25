@@ -91,31 +91,34 @@ regexes = [
   '''sk-management-framework-toolkit-and-guide-2026''',
 ]
 
-# Scoped to recorded runs, and requiring the token to sit inside a URL.
+# Exact literals, not a pattern.
 #
-# A recording stores the URLs of the pages the engine retrieved. One NIST
-# run surfaced a page whose path slug begins "sk-man..." -- almost
-# certainly "...risk-management-..." with the rule's `sk-` keyword landing
-# mid-word -- which satisfies the broad OpenAI pattern and produced six
-# findings on a public URL.
+# A recording stores the URLs of pages the engine retrieved. One NIST run
+# surfaced a page whose path slug begins "sk-man" -- "...risk-management-..."
+# with the rule's `sk-` keyword landing mid-word -- which satisfies the broad
+# OpenAI pattern.
 #
-# Deliberately not a blanket allowlist for this directory. That would hide
-# a genuine key committed in a recording, which is exactly the mistake
-# that disabled the CI canary once already. Three conditions must hold
-# together: the file is a recorded run, the token appears inside an
-# http(s) URL, and the token is entirely lowercase with hyphens in its
-# body. Real OpenAI keys are mixed-case and carry no hyphen after the
-# prefix, so a leaked one stays detectable here.
+# The first fix allowlisted any lowercase hyphenated `sk-` token appearing
+# inside a URL in this directory. That is a blind spot: a real credential
+# embedded in a URL, such as https://example.test/sk-proj-<lowercase body>,
+# would have been waved through, and no canary covered it because the
+# canary's file is not under recorded_runs/. The reasoning also rested on
+# "real keys are always mixed-case", which is an assumption about a vendor's
+# format rather than a property this repository controls.
 #
-# The loader's own assert_no_secrets() is a second, independent check with
-# a narrower pattern (no hyphens permitted), and is unaffected by this.
+# Replaced with the exact slugs actually present. A new false positive costs
+# one line here; a leaked credential is no longer silently permitted.
 [[allowlists]]
-description = "URL path slugs in recorded runs that collide with the sk- prefix"
+description = "Exact retrieved-URL slugs that collide with the sk- prefix"
 condition = "AND"
-regexTarget = "line"
+regexTarget = "match"
 paths = [
   '''src/agentic_research/web/recorded_runs/.*\.json$''',
-  # The test documenting this case necessarily contains such a URL.
   '''tests/unit/test_replay_mode\.py$''',
 ]
-regexes = ['''https?://[^"\s]*sk-[a-z0-9]+(-[a-z0-9]+)+''']
+regexes = [
+  '''sk\-management\-framework\-ai\-rmf\-1\-0''',
+  '''sk\-management\-framework\-ai\-rmf\-1\-0\-vs\-gdpr''',
+  '''sk\-management\-framework\-ai\-rmf\-1\-0\-vs\-iso\-9001''',
+  '''sk\-management\-framework\-ai\-rmf\-1\-0\-vs\-nist\-sp\-800\-53\-rev\-5''',
+]

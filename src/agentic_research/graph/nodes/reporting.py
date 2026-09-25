@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from agentic_research.citations.publication import (
     ClaimKey,
     ClaimVerdict,
+    claim_key,
     deduplicate_claims,
     filter_report_by_verification,
     key_of,
@@ -39,7 +42,7 @@ from agentic_research.models import (
     SubQuestion,
 )
 from agentic_research.observability import get_logger
-from agentic_research.schemas import EntailmentOut, ReportOut
+from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, EntailmentOut, ReportOut
 
 log = get_logger(__name__)
 
@@ -310,8 +313,17 @@ def _fallback_report(
     it unsynthesised is degraded but genuinely useful — and it is still fully
     provenanced, because each listed finding carries its own evidence id.
     """
+    # The quote itself, not the extractor's paraphrase of it.
+    #
+    # EXTRACTED bypasses entailment because this path runs when synthesis
+    # or verification is unavailable, which is only defensible if the
+    # published text carries a guarantee of its own. `item.claim` does
+    # not: exact quote matching proves the *quote* appears in the source,
+    # and says nothing about whether the paraphrase beside it is faithful.
+    # Publishing the verified span makes the fallback deterministic --
+    # every character of it was matched against the source.
     findings = [
-        Claim(text=item.claim, evidence_ids=[item.id], kind=ClaimKind.EXTRACTED)
+        Claim(text=item.quote, evidence_ids=[item.id], kind=ClaimKind.EXTRACTED)
         for item in sorted(store.citable_evidence(), key=lambda e: -e.confidence)[:12]
     ]
     return ResearchReport(
@@ -324,11 +336,11 @@ def _fallback_report(
         summary_claims=[
             Claim(
                 text=(
-                    "Report synthesis did not run, so this lists the findings "
-                    "gathered during research instead. Each one restates a single "
-                    "quote that was matched verbatim against its source; unlike a "
-                    "normal report, they have not been entailment-checked against "
-                    "the evidence they cite."
+                    "Report synthesis did not run, so this lists source excerpts "
+                    "gathered during research instead. Each line is a quote "
+                    "reproduced exactly from its source and matched against it; "
+                    "unlike a normal report, nothing here has been written or "
+                    "interpreted, and no claim has been entailment-checked."
                 ),
                 kind=ClaimKind.FRAMING,
             )
@@ -350,50 +362,72 @@ async def verify_citations(state: ResearchState) -> ResearchState:
     emit("verifying_citations")
 
     with stage("verify_citations") as timing:
-        # Resolution rewrites the report, so what the reader sees and what the
-        # verifier measures are the same object.
+        # The order below is the definition of every counter this node
+        # reports, so it is written out step by step. Previously the
+        # "generated" count was taken after deduplication and structural
+        # totals could describe a report the reader never saw.
+        #
+        #   1. resolve references
+        #   2. count generated substantive claims -- raw synthesiser output
+        #   3. remove exact duplicates
+        #   4. structural verification of the deduplicated candidate
+        #   5. semantic verification
+        #   6. publication gate
+        #   7. structural metrics recomputed on the published report
+        #
+        # Resolution rewrites the report, so what the reader sees and what
+        # the verifier measures are the same object.
         report, resolution_issues = resolve_report(report, store)
-        result = verify_structure(report, store, resolution_issues=resolution_issues)
-        result.repaired = bool(resolution_issues)
 
-        # Before verification, so a claim repeated three times is checked
-        # once rather than spending three entailment calls on the same
-        # sentence -- which in a bounded run is three claims' worth of
-        # budget for one finding.
+        # 2. Before dedup and before any filtering: what synthesis produced.
+        generated = len(report.substantive_claims())
+
+        # 3. A claim repeated three times is checked once rather than
+        # spending three entailment calls on one sentence -- in a bounded
+        # run, three claims' worth of budget for one finding.
         report, duplicates = deduplicate_claims(report)
         if duplicates:
             log.info("duplicate_claims_removed", count=duplicates)
 
+        # 4. Structural verification of the candidate the reader may get.
+        result = verify_structure(report, store, resolution_issues=resolution_issues)
+        result.repaired = bool(resolution_issues)
+        result.generated_substantive_claims = generated
+        result.duplicate_claims_removed = duplicates
+
+        # 5. Semantic verification, claims then contradiction sides.
         errors, verdicts = await _check_entailment(report, store, result, state)
 
-        # Publication gate. Claims the verifier could not support are
-        # removed rather than rewritten; the issues explaining why stay in
-        # the verification record so the removal remains auditable.
-        result.generated_substantive_claims = len(report.substantive_claims())
-        report, removed = filter_report_by_verification(report, verdicts)
-        result.removed_after_verification = removed
+        # 6. Publication gate. Claims and contradictions the verifier could
+        # not support are removed rather than rewritten; the issues
+        # explaining why stay in the record so removal remains auditable.
+        published_report, removed = filter_report_by_verification(report, verdicts)
+
+        # 7. Structural totals always describe the published report, even
+        # when nothing was removed semantically -- deduplication alone can
+        # change them.
+        semantic = {
+            "checked_claims": result.checked_claims,
+            "checkable_claims": result.checkable_claims,
+            "not_checked_claims": result.not_checked_claims,
+            "supported_claims": result.supported_claims,
+            "partially_supported_claims": result.partially_supported_claims,
+            "unsupported_claims": result.unsupported_claims,
+            "entailment_exhaustive": result.entailment_exhaustive,
+            "contradiction_sides_checkable": result.contradiction_sides_checkable,
+            "contradiction_sides_checked": result.contradiction_sides_checked,
+            "issues": result.issues,
+            "repaired": result.repaired,
+            "generated_substantive_claims": generated,
+            "duplicate_claims_removed": duplicates,
+            "removed_after_verification": removed,
+        }
+        report = published_report
+        result = verify_structure(report, store, resolution_issues=resolution_issues).model_copy(
+            update=semantic
+        )
         result.final_published_claims = len(report.substantive_claims())
-        if removed:
-            # Citation totals describe the report a reader receives, so
-            # they are recomputed against the filtered one.
-            result = verify_structure(
-                report, store, resolution_issues=resolution_issues
-            ).model_copy(
-                update={
-                    "checked_claims": result.checked_claims,
-                    "checkable_claims": result.checkable_claims,
-                    "not_checked_claims": result.not_checked_claims,
-                    "supported_claims": result.supported_claims,
-                    "partially_supported_claims": result.partially_supported_claims,
-                    "unsupported_claims": result.unsupported_claims,
-                    "entailment_exhaustive": result.entailment_exhaustive,
-                    "issues": result.issues,
-                    "repaired": result.repaired,
-                    "generated_substantive_claims": result.generated_substantive_claims,
-                    "removed_after_verification": removed,
-                    "final_published_claims": result.final_published_claims,
-                }
-            )
+        result.contradictions_semantically_supported = len(report.contradictions)
 
         timing["citations"] = result.total_citations
 
@@ -442,7 +476,29 @@ async def _check_entailment(
     no part in producing it.
     """
     verdicts: dict[ClaimKey, ClaimVerdict] = {}
-    candidates = [c for c in report.substantive_claims() if c.evidence_ids]
+    candidates = []
+    for claim in report.substantive_claims():
+        if not claim.evidence_ids:
+            continue
+        if len(claim.evidence_ids) > MAX_EVIDENCE_PER_CLAIM:
+            # Cannot be shown to the verifier in full, so it is not
+            # checked and therefore not published. Recorded rather than
+            # trimmed: judging a subset while reporting an all-evidence
+            # check is the defect this bound exists to prevent.
+            result.issues.append(
+                CitationIssue(
+                    type=CitationIssueType.UNSUPPORTED_CLAIM,
+                    severity="warning",
+                    claim_text=claim.text[:200],
+                    evidence_id=",".join(claim.evidence_ids),
+                    detail=(
+                        f"claim cites {len(claim.evidence_ids)} evidence items, above the "
+                        f"{MAX_EVIDENCE_PER_CLAIM} that can be verified together; not checked"
+                    ),
+                )
+            )
+            continue
+        candidates.append(claim)
     result.checkable_claims = len(candidates)
     if not candidates:
         return [], verdicts
@@ -511,7 +567,80 @@ async def _check_entailment(
                 )
             )
     result.not_checked_claims = max(0, result.checkable_claims - result.checked_claims)
+    errors += await _check_contradictions(report, store, result, state, verdicts, model)
     return errors, verdicts
+
+
+async def _check_contradictions(
+    report: ResearchReport,
+    store: EvidenceStore,
+    result: CitationVerification,
+    state: ResearchState,
+    verdicts: dict[ClaimKey, ClaimVerdict],
+    model: Any,
+) -> list:
+    """Entailment-check both sides of every contradiction.
+
+    A contradiction's two summaries are model-written assertions, and they
+    reached the published report without any support check: structural
+    resolution proved only that evidence existed on each side, which is
+    what ``is_auditable`` reports. Prose asserting what a source says can
+    be wrong in exactly the ways a claim can.
+
+    Both sides must come back supported for the contradiction to survive.
+    Partial, unsupported, unchecked or structurally unresolvable on either
+    side removes it, and the reason stays in the issue list.
+    """
+    errors: list = []
+    if not report.contradictions:
+        return errors
+
+    exhaustive = bool(state.get("exhaustive_verification"))
+    for index, contradiction in enumerate(report.contradictions):
+        sides = (
+            ("left", contradiction.left_summary, contradiction.left_evidence_ids),
+            ("right", contradiction.right_summary, contradiction.right_evidence_ids),
+        )
+        for side, summary, evidence_ids in sides:
+            if not evidence_ids or len(evidence_ids) > MAX_EVIDENCE_PER_CLAIM:
+                continue
+            result.contradiction_sides_checkable += 1
+
+            block = _evidence_block(evidence_ids, store)
+            if not block:
+                continue
+            # Shares the verifier budget with claims. When nothing is left,
+            # the side stays unchecked and the contradiction is dropped
+            # rather than published on an unverified summary.
+            if not exhaustive and await ctx().router.tracker.remaining() <= 0:
+                continue
+            try:
+                out = await model.structured(
+                    EntailmentOut, VERIFIER_SYSTEM, verifier_user(strip_markers(summary), block)
+                )
+            except LLMError as exc:
+                log.warning("contradiction_check_failed", error=str(exc)[:200])
+                errors.append(error_from("verify_citations", exc, "contradiction check stopped"))
+                break
+
+            result.contradiction_sides_checked += 1
+            verdicts[claim_key(summary, evidence_ids)] = out.verdict
+            if out.verdict != "supported":
+                issue_type = (
+                    CitationIssueType.PARTIALLY_SUPPORTED_CLAIM
+                    if out.verdict == "partially_supported"
+                    else CitationIssueType.UNSUPPORTED_CLAIM
+                )
+                result.issues.append(
+                    CitationIssue(
+                        type=issue_type,
+                        severity="warning",
+                        claim_text=summary[:200],
+                        evidence_id=",".join(evidence_ids),
+                        detail=f"contradiction {index} {side} side: {out.reason[:160]}",
+                    )
+                )
+    return errors
 
 
 def _evidence_block(evidence_ids: list[str], store: EvidenceStore) -> str:
@@ -523,26 +652,36 @@ def _evidence_block(evidence_ids: list[str], store: EvidenceStore) -> str:
     away -- and a human audit found the verifier passing precisely that
     substitution. Naming the source makes the attribution checkable.
 
-    Quality score is deliberately absent. It is a retrieval heuristic
-    about document type and rank, and offering it to a verifier invites
-    it to be read as confidence in the claim.
+    Every cited id is rendered and every quote is whole. Showing the
+    first six and cutting each quote at 300 characters changed the
+    material being judged while the artifact still recorded an
+    all-evidence check: one NIST claim cited eight ids, and the seventh
+    stated its case outright. Over-long claims are refused at the schema
+    boundary instead, so nothing arrives here that cannot be shown in
+    full.
+
+    "Site category" rather than "Type", because a retrieval taxonomy is
+    not authority: docs.modulos.ai classifies as official_docs without
+    being an official source for NIST. Quality score is absent for the
+    same reason -- it is a heuristic over document kind and rank, and a
+    verifier would read it as confidence in the claim.
     """
     blocks = []
-    for evidence_id in evidence_ids[:6]:
+    for evidence_id in evidence_ids:
         item = store.evidence_by_id(evidence_id)
         if item is None:
             continue
         source = store.source(item.source_id)
         title = (source.title if source else "") or "unknown"
         domain = (source.domain if source else "") or "unknown"
-        kind = source.source_type.value if source else "unknown"
+        category = source.source_type.value if source else "unknown"
         blocks.append(
             f"Evidence: {item.id}\n"
-            f"Source: {title[:120]}\n"
+            f"Source: {title}\n"
             f"Domain: {domain}\n"
-            f"Type: {kind}\n"
+            f"Site category: {category}\n"
             f"Page: {item.page if item.page else 'n/a'}\n"
-            f'Quote: "{item.quote[:300]}"'
+            f'Quote: "{item.quote}"'
         )
     return "\n\n".join(blocks)
 

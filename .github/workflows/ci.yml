@@ -193,6 +193,43 @@ jobs:
           fi
           echo "positive control passed: scanner detects provider keys"
 
+      # A second control, for the path the first one cannot reach.
+      #
+      # Recordings store retrieved URLs, one of which legitimately
+      # contains an "sk-man..." slug. The allowlist covering that used to
+      # be a pattern -- any lowercase hyphenated sk- token inside a URL in
+      # that directory -- which would also have waved through a real key
+      # embedded in a URL. The canary above never caught it because its
+      # file is not under recorded_runs/, so the blind spot was invisible
+      # to CI. This plants exactly that shape, in exactly that directory.
+      - name: Verify a credential inside a recorded URL is still detected
+        run: |
+          mkdir -p /tmp/urlcanary && cd /tmp/urlcanary && git init -q
+          cp "$GITHUB_WORKSPACE/.gitleaks.toml" .
+          mkdir -p src/agentic_research/web/recorded_runs
+          printf '{"result":{"sources":[{"url":"https://example.test/sk-proj-%s"}]}}' \
+            "$(openssl rand -hex 20)" \
+            > src/agentic_research/web/recorded_runs/planted.json
+          git add -A && git -c user.email=t@t -c user.name=t commit -qm urlcanary
+          if gitleaks git --no-banner -c .gitleaks.toml --exit-code 1 . ; then
+            echo "::error::a credential embedded in a recorded URL was not detected"
+            exit 1
+          fi
+          echo "url positive control passed: credentials in recorded URLs are detected"
+
+      # And the legitimate slug must still pass, or the exception is
+      # useless and the next recording fails the build.
+      - name: Verify the known NIST slug does not fail the scan
+        run: |
+          mkdir -p /tmp/slugcheck && cd /tmp/slugcheck && git init -q
+          cp "$GITHUB_WORKSPACE/.gitleaks.toml" .
+          mkdir -p src/agentic_research/web/recorded_runs
+          cp "$GITHUB_WORKSPACE/src/agentic_research/web/recorded_runs/nist-ai-risk-framework.json" \
+            src/agentic_research/web/recorded_runs/
+          git add -A && git -c user.email=t@t -c user.name=t commit -qm slug
+          gitleaks git --no-banner --redact -c .gitleaks.toml --exit-code 1 .
+          echo "known retrieved-URL slug does not trip the scan"
+
       - name: Scan full history
         run: gitleaks git --no-banner --redact -c .gitleaks.toml --exit-code 1 .
 

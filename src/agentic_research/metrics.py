@@ -248,7 +248,11 @@ def build_metrics(
         metrics.unused_sources = len(parsed.unused_source_ids)
         metrics.citations_repaired = parsed.repaired
         metrics.citation_integrity_rate = parsed.citation_integrity_rate
-        metrics.evidence_integrity_rate = parsed.evidence_integrity_rate
+        # None, not 1.0, when there is nothing to resolve -- the same
+        # treatment claim_support_rate already gets for an unchecked run.
+        metrics.evidence_integrity_rate = (
+            parsed.evidence_integrity_rate if parsed.has_evidence_references else None
+        )
         metrics.citation_coverage_rate = parsed.citation_coverage_rate
         metrics.claim_support_rate = parsed.claim_support_rate if parsed.checked_claims else None
         metrics.partial_support_rate = (

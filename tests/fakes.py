@@ -190,10 +190,14 @@ def _default_report(user: str) -> ReportOut:
                         evidence_ids=primary,
                         kind="factual",
                     ),
+                    # No framing here any more: the model-facing schema
+                    # offers only factual and synthesis, so a synthesiser
+                    # has no evidence-free channel to emit an assertion
+                    # through.
                     ClaimOut(
-                        text="This section compares the approaches.",
-                        evidence_ids=[],
-                        kind="framing",
+                        text="Resampling and cost-sensitive learning are the usual levers",
+                        evidence_ids=primary,
+                        kind="synthesis",
                     ),
                 ],
             )

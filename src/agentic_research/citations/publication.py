@@ -29,7 +29,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from agentic_research.models import Claim, ClaimKind, ResearchReport
+from agentic_research.models import Claim, ClaimKind, Contradiction, ResearchReport
 
 ClaimVerdict = Literal["supported", "partially_supported", "unsupported"]
 
@@ -37,7 +37,7 @@ ClaimVerdict = Literal["supported", "partially_supported", "unsupported"]
 # records a verdict under this key while holding the claim object, and the
 # gate looks it up under the same key. Text alone is not enough -- two
 # sections can restate a finding -- so the evidence it cites is part of it.
-ClaimKey = tuple[str, str]
+ClaimKey = tuple[str, tuple[str, ...]]
 
 _SUPPORTED: ClaimVerdict = "supported"
 
@@ -45,10 +45,17 @@ _SUPPORTED: ClaimVerdict = "supported"
 def claim_key(text: str, evidence_ids: list[str]) -> ClaimKey:
     """Stable identity for a claim within one report.
 
-    Truncated at the same 200 characters the issue record uses, so both
-    sides compare identical strings.
+    The whole text, and the ids as a tuple. Identity used to reuse the
+    200-character truncation the issue record applies for display, which
+    is a presentation concern leaking into correctness: two claims that
+    agree for 200 characters and then diverge -- one supported, one not --
+    collapsed onto a single verdict. Joining the ids into a string had
+    the same shape of problem, since an identifier containing a comma
+    would alias two different citation sets.
+
+    ``claim_text[:200]`` stays where it belongs, in CitationIssue.
     """
-    return (text[:200], ",".join(evidence_ids))
+    return (text, tuple(evidence_ids))
 
 
 def key_of(claim: Claim) -> ClaimKey:
@@ -111,7 +118,7 @@ def deduplicate_claims(report: ResearchReport) -> tuple[ResearchReport, int]:
             if claim.kind is ClaimKind.FRAMING:
                 kept.append(claim)
                 continue
-            key = (_normalised(claim.text), ",".join(claim.evidence_ids))
+            key = (_normalised(claim.text), tuple(claim.evidence_ids))
             if key in seen:
                 removed += 1
                 continue
@@ -140,6 +147,22 @@ def deduplicate_claims(report: ResearchReport) -> tuple[ResearchReport, int]:
         ),
         removed,
     )
+
+
+def _contradiction_supported(
+    contradiction: Contradiction, verdicts: dict[ClaimKey, ClaimVerdict]
+) -> bool:
+    """Both summaries must have been checked and both supported.
+
+    A contradiction is two assertions about what sources say, and they
+    reached the report without any support check -- structural resolution
+    proved only that evidence existed on each side. One unsupported side
+    makes the pairing misleading even when the other is sound, so the
+    whole contradiction goes.
+    """
+    left = verdicts.get(claim_key(contradiction.left_summary, contradiction.left_evidence_ids))
+    right = verdicts.get(claim_key(contradiction.right_summary, contradiction.right_evidence_ids))
+    return left == _SUPPORTED and right == _SUPPORTED
 
 
 def filter_report_by_verification(
@@ -171,20 +194,31 @@ def filter_report_by_verification(
         if claims:
             sections.append(section.model_copy(update={"claims": claims}))
 
-    if not removed:
+    contradictions = [c for c in report.contradictions if _contradiction_supported(c, verdicts)]
+    dropped_contradictions = len(report.contradictions) - len(contradictions)
+
+    if not removed and not dropped_contradictions:
         return report, 0
 
-    limitations = [
-        *report.limitations,
-        f"{removed} generated claim(s) were excluded because the cited evidence "
-        "did not support them, or because verification did not reach them within "
-        "this run's budget.",
-    ]
+    limitations = list(report.limitations)
+    if removed:
+        limitations.append(
+            f"{removed} generated claim(s) were excluded because the cited evidence "
+            "did not support them, or because verification did not reach them within "
+            "this run's budget."
+        )
+    if dropped_contradictions:
+        limitations.append(
+            f"{dropped_contradictions} reported disagreement(s) were excluded because "
+            "the evidence did not support both sides as stated."
+        )
+
     filtered = report.model_copy(
         update={
             "summary_claims": summary,
             "key_findings": findings,
             "sections": sections,
+            "contradictions": contradictions,
             "limitations": limitations,
         }
     )

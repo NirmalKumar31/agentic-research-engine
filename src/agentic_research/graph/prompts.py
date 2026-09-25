@@ -206,12 +206,16 @@ Classify each claim:
 - 'synthesis': you are drawing a conclusion across several items. Give all \
 the ids it rests on. Synthesis needs more evidence than a plain fact, not \
 less.
-- 'framing': genuinely non-substantive connective text, such as "This \
-section compares the three approaches". It asserts nothing. Do not use \
-'framing' to avoid citing something you are actually claiming.
+
+Every claim you write is an assertion and every one needs evidence. There \
+is no category for connective prose: section headings already provide the \
+structure, so write claims rather than linking sentences.
 
 The summary claims are the most prominent statements in the report and are \
 held to exactly the same standard as body claims.
+
+Cite at most eight evidence items per claim. A claim resting on more than \
+that cannot be checked against all of them at once and will be dropped.
 
 When sources disagree, record it as a contradiction with evidence ids on \
 both sides rather than resolving it or mentioning it only in prose.
@@ -270,6 +274,10 @@ concern the same subject.
 
 Each piece of evidence names the source it came from. Who published a \
 quote is part of what it establishes.
+
+'Site category' is a retrieval taxonomy describing what kind of page a \
+URL is. It does not make a publisher authoritative for another \
+organisation, and it is not evidence that the claim is true.
 
 Answer 'partially_supported' or 'unsupported' when the claim:
 

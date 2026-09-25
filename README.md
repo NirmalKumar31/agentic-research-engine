@@ -85,10 +85,10 @@ The chain has two halves with different guarantees:
   exact-normalized source quote, its source, and its page when page-aware
   PDF extraction succeeded for that source.
 - **Conditional.** The link back to a query exists only where that source
-  was genuinely retrieved for that sub-question. Most evidence — 56% to 80%
-  across the three recorded runs — is reused across sub-questions and is
-  marked `cross_attributed` with no query id, rather than borrowing an
-  unrelated one.
+  was genuinely retrieved for that sub-question. Much of the evidence —
+  50.0% to 83.3% across the three recorded runs — is reused across
+  sub-questions and is marked `cross_attributed` with no query id, rather
+  than borrowing an unrelated one.
 
 ## Install
 
@@ -162,13 +162,17 @@ spends nothing.
 
 ## Measured results
 
-Three recorded local runs, `qwen3:4b`, one round, no cloud spend. Every
-substantive claim was checked against its own evidence — `checked ==
-checkable` — and only claims the verifier judged *supported* were
-published.
+Three recorded local `qwen3:4b` runs. RAG and Fraud completed in one
+round; NIST needed two. Every substantive claim was checked against its
+own evidence — `checked == checkable` — and only claims the verifier
+judged *supported* were published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
+| Research rounds | 1 | 2 | 1 |
+| Search queries | 6 | 9 | 6 |
+| Unique sources | 5 | 10 | 5 |
+| Usable sources | 5 | 10 | 3 |
 | Generated substantive claims | 8 | 6 | 6 |
 | Supported | 2 | 0 | 0 |
 | Partially supported | 6 | 5 | 6 |
@@ -177,32 +181,35 @@ published.
 | **Removed before publishing** | 6 | 6 | 6 |
 | **Published** | **2** | **0** | **0** |
 | Checked / checkable | 8/8 | 6/6 | 6/6 |
-| Evidence integrity | 100% | 100% | 100% |
+| Evidence integrity (published) | 100% | n/a — no references | n/a — no references |
 | Quote fidelity (exact) | 90% | 90% | 94% |
-| Sources | 5 | 10 | 5 |
+| Cross-attributed evidence | 83.3% | 50.0% | 66.7% |
 | Page-cited evidence | 0 | 6 | 0 |
 | Duration | 716s | 1393s | 500s |
 
-**Read the removal column, not the publication column.** Eighteen of the
-twenty substantive claims a 4B model generated overreached the evidence
-it cited, and the verifier caught all eighteen. Examples from these runs:
+Two of the three reports publish nothing, so their evidence-integrity
+denominator is zero. A report with no claims has no reference to get
+wrong; reporting that as 100% would be scoring an empty page.
 
-- A claim that vector databases are "more cost-effective than traditional
-  search engines at 60–100M queries/month", cited to a quote saying
-  *self-hosting* is cheaper than *cloud* — a different comparison
-  entirely.
-- A claim that NIST "structures AI risk management through four core
-  functions", where the NIST-sourced quote is a table-of-contents line
-  (`5.1 Govern 21 5.2 Map 24...`) and the actual assertion comes from two
-  blogs.
-- A claim naming five model families as "most effective" for fraud
-  detection, where the evidence establishes that for two of them.
+**Read the removal column.** The verifier judged 18 of the 20 generated
+claims partially supported or unsupported, and the fail-closed
+publication gate removed all 18. Examples of what it objected to:
 
-That is the system behaving as designed and is the most informative
-result here. It is also why two of the three demos publish nothing: a
-`qwen3:4b` synthesiser paired with a strict verifier leaves very little
-standing. A larger synthesiser is the obvious lever and has not been
-measured — see [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
+- a claim that vector databases are "more cost-effective than traditional
+  search engines at 60–100M queries/month", cited to a quote comparing
+  *self-hosting* with *cloud*;
+- a claim that NIST "structures AI risk management through four core
+  functions", where the NIST-sourced quote is a contents line and the
+  assertion itself comes from two blogs;
+- five model families named "most effective" for fraud detection where
+  the evidence establishes that for two.
+
+Whether all 18 verdicts are correct has not been established against
+human labels. A 20-case calibration fixture built from these exact
+claim/evidence pairs lives in
+[`examples/verifier-calibration/`](examples/verifier-calibration/), and
+[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) states what is and is not
+known about verifier accuracy.
 
 These are product artifacts, served by the demo. They are not a
 benchmark: n=1 each, one model, one configuration.

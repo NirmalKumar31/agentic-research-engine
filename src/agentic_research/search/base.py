@@ -98,4 +98,11 @@ class SearchProvider(ABC):
 
     @abstractmethod
     def credits_for(self, options: SearchOptions) -> float:
-        """Provider credits one call at these options is expected to consume."""
+        """Provider credits one attempt at these options may consume.
+
+        An **upper bound**, not an estimate. Credits are reserved from
+        this figure before the request is dispatched, so a value below
+        what the provider actually charges means the ceiling did not bound
+        that call. The service reconciles upward and logs a contract
+        breach when that happens; it cannot un-spend the credits.
+        """

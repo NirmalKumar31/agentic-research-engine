@@ -140,8 +140,52 @@ class TestTheDegradedListingSurvives:
     def test_the_report_states_what_was_and_was_not_checked(self) -> None:
         report = _fallback_report("A question?", _store(2), [], "the provider failed")
         framing = " ".join(c.text for c in report.summary_claims)
-        assert "verbatim" in framing
-        assert "not been entailment-checked" in framing
+        assert "reproduced exactly from its source" in framing
+        assert "no claim has been entailment-checked" in framing
+
+    def test_the_published_text_is_the_quote_not_the_paraphrase(self) -> None:
+        """EXTRACTED bypasses entailment, so what it publishes must carry
+        a guarantee of its own. Exact quote matching proves the *quote*
+        appears in the source and says nothing about whether the
+        extractor's paraphrase beside it is faithful."""
+        store = _store(1)
+        item = store.citable_evidence()[0]
+        report = _fallback_report("A question?", store, [], "the provider failed")
+
+        published = [c.text for c in report.key_findings]
+        assert published == [item.quote]
+        assert item.claim not in published
+
+    def test_only_citable_evidence_is_excerpted(self) -> None:
+        """A fuzzy or unmatched quote was never aligned to its source, so
+        it carries no guarantee at all."""
+        from agentic_research.evidence.store import EvidenceStore
+
+        store = _store(2)
+        fuzzy = EvidenceItem(
+            id="S1-e99",
+            source_id="S1",
+            sub_question_id="SQ1",
+            claim="unaligned",
+            quote="a span that was never found in the page",
+            quote_match=QuoteMatch.FUZZY,
+            relevance=0.99,
+        )
+        widened = EvidenceStore(list(store.sources), [*store.citable_evidence(), fuzzy])
+        report = _fallback_report("A question?", widened, [], "the provider failed")
+
+        assert fuzzy.quote not in [c.text for c in report.key_findings]
+
+    def test_the_fallback_needs_no_model_call(self) -> None:
+        """It runs when the provider is unavailable, so it cannot depend
+        on one."""
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        body = inspect.getsource(reporting._fallback_report)
+        assert "structured(" not in body
+        assert "router" not in body
 
     def test_a_synthesised_claim_is_still_gated(self) -> None:
         """The exemption must not become a way to publish unverified

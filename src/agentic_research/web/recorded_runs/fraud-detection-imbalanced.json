@@ -4,7 +4,7 @@
     "id": "fraud-detection-imbalanced",
     "label": "Fraud detection under class imbalance",
     "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
-    "description": "Six research dimensions searched in parallel across five sources, including an academic paper.",
+    "description": "Six research dimensions searched in parallel; three of the five selected sources yielded usable text in this recorded run.",
     "mode": "local",
     "recorded_at": "2026-09-24T23:40:00.359139+00:00",
     "order": 3,

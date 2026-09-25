@@ -186,9 +186,31 @@ class TestIdentityIsExactNotFuzzy:
         assert removed == 2
         assert published(filtered) == []
 
-    def test_the_key_truncates_where_the_issue_record_truncates(self) -> None:
-        long_text = "x" * 400
-        assert claim_key(long_text, ["S1-e1"]) == (long_text[:200], "S1-e1")
+    def test_identity_uses_the_whole_text(self) -> None:
+        """Truncation is a display concern and used to leak into identity.
+
+        Two claims agreeing for 200 characters and then diverging -- one
+        supported, one not -- collapsed onto a single verdict, so a
+        rejected claim could be published under its twin's result.
+        """
+        shared = "x" * 200
+        a = claim(shared + " SUPPORTED TAIL", ["S1-e1"])
+        b = claim(shared + " UNSUPPORTED TAIL", ["S1-e1"])
+
+        assert key_of(a) != key_of(b)
+
+        report = ResearchReport(title="T", summary_claims=[a], key_findings=[b])
+        filtered, removed = filter_report_by_verification(
+            report, verdicts_for((a, "supported"), (b, "unsupported"))
+        )
+        assert removed == 1
+        assert published(filtered) == [a.text]
+
+    def test_evidence_ids_are_structured_not_joined(self) -> None:
+        """Joining ids into a string aliases different citation sets when
+        an identifier contains the separator."""
+        assert claim_key("t", ["S1-e1", "S2-e1"]) == ("t", ("S1-e1", "S2-e1"))
+        assert claim_key("t", ["S1-e1,S2-e1"]) != claim_key("t", ["S1-e1", "S2-e1"])
 
 
 class TestTheMotivatingRegression:

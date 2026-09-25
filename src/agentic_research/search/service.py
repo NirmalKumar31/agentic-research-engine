@@ -78,6 +78,12 @@ class SearchStats:
     failures: int = 0
     retries: int = 0
     credits: float = 0.0
+    credit_estimate_breaches: int = 0
+    """Calls charged more than credits_for() said they could be.
+
+    Always zero with a correct provider adapter. Non-zero means the
+    ceiling did not bound that call, which is an adapter bug rather than
+    a budgeting policy question."""
     latency_s: float = 0.0
     results: int = 0
     by_error: dict[str, int] = field(default_factory=dict)
@@ -251,15 +257,31 @@ class SearchService:
             return True
 
     async def _settle_credits(self, *, reserved: float, actual: float) -> None:
-        """Give back the difference when a call cost less than estimated.
+        """Reconcile a completed call against what it reserved.
 
-        Only ever releases, never claims: a call that cost more than its
-        estimate keeps the larger figure reserved, so the ceiling stays a
-        ceiling rather than becoming an average.
+        ``credits_for()`` is a contract: it must return an upper bound on
+        what one attempt can be charged. When it holds, settling releases
+        the unused remainder and the ceiling keeps bounding real spend.
+
+        When it does not hold, the credits are already spent and cannot be
+        un-spent, so the reservation is corrected upward and the breach is
+        logged. Leaving the reservation at the lower figure would let the
+        rest of the run believe it had budget the provider had already
+        billed. An underestimate is an adapter bug, and this makes it
+        visible rather than absorbing it silently.
         """
-        if actual >= reserved:
-            return
         async with self._credit_lock:
+            if actual > reserved:
+                self._reserved_credits += actual - reserved
+                log.error(
+                    "search_credit_estimate_exceeded",
+                    reserved=reserved,
+                    actual=actual,
+                    provider=self.provider.name,
+                    detail="credits_for() must return an upper bound for one attempt",
+                )
+                self.stats.credit_estimate_breaches += 1
+                return
             self._reserved_credits = max(0.0, self._reserved_credits - (reserved - actual))
 
     def _failure(self, query: SearchQuery, error: str, started: float) -> SearchResponse:
