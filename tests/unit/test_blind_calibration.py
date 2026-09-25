@@ -57,8 +57,16 @@ class TestTheBlindSetIsBlind:
         ids = [c["case_id"] for c in blind["cases"]]
         assert ids != sorted(ids)
 
-    def test_labels_start_empty(self, blind: dict) -> None:
-        assert all(c["human_label"] is None for c in blind["cases"])
+    def test_every_case_is_labelled_with_a_valid_label(self, blind: dict) -> None:
+        """Was "labels start empty" until the reviewer labelled them.
+
+        The blindness guarantee is structural -- no verdict is in this
+        file -- so it survives labelling. What matters now is that every
+        case carries one of the three defined labels.
+        """
+        valid = set(blind["label_definitions"])
+        for case in blind["cases"]:
+            assert case["human_label"] in valid, case["case_id"]
 
     def test_definitions_are_stated_not_implied(self, blind: dict) -> None:
         definitions = blind["label_definitions"]
@@ -111,7 +119,12 @@ class TestTheJoinIsSound:
         merged = module.merge(blind, verdicts)
         assert len(merged) == len(blind["cases"])
         assert all(m["verifier_verdict"] for m in merged)
-        assert all(m["human_label"] is None for m in merged)
+        assert all(m["human_label"] for m in merged)
+        # The join is by case_id, so a shuffled blind file must still
+        # pair each label with the verdict for that same claim.
+        by_id = {c["case_id"]: c for c in verdicts["cases"]}
+        for m in merged:
+            assert m["verifier_verdict"] == by_id[m["case_id"]]["verifier_verdict"]
 
     def test_the_usable_count_is_recorded(self, blind: dict) -> None:
         assert blind["usable_cases"] == len(blind["cases"])
