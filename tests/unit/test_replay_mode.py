@@ -916,10 +916,12 @@ class TestUrlSlugsAreNotMistakenForKeys:
             "result": {
                 "sources": [
                     {
-                        "url": (
-                            "https://theartofservice.com/"
-                            "sk-management-framework-toolkit-and-guide-2026"
-                        )
+                        # Assembled, like the credential shapes above: the
+                        # whole point of this case is that the slug looks
+                        # like a key to a scanner, so writing it as one
+                        # literal would trip the scan it documents.
+                        "url": "https://example.org/"
+                        + _fake_credential("sk-", "management-framework-toolkit-and-guide-2026")
                     }
                 ]
             }
@@ -930,7 +932,10 @@ class TestUrlSlugsAreNotMistakenForKeys:
         """The property the narrow allowlist exists to preserve."""
         from agentic_research.web.recordings import assert_no_secrets
 
-        planted = "sk-" + "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGh"
+        # Assembled at runtime, per this module's own convention: a whole
+        # secret-shaped literal is a permanent finding in the history scan
+        # even when it was always fake.
+        planted = _fake_credential("sk-", "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGh")
         payload = {"result": {"note": planted}}
         with pytest.raises(ValueError, match="credential-shaped"):
             assert_no_secrets("probe", payload)

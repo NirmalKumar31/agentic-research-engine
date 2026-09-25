@@ -76,6 +76,14 @@ paths = ['''tests/unit/test_replay_mode\.py''']
 regexes = [
   '''AbCdEfGhIjKlMnOpQrStUvWxYz0123456789''',
   '''tvly-AbCdEfGh01234567890123456789''',
+  # Present in commit e029b2e only. A test asserting that a real key
+  # shape inside a recording is still refused needed such a shape to
+  # exist, and it was written as a whole literal rather than assembled
+  # at runtime -- the mistake this module's _fake_credential() helper
+  # exists to prevent. Fixed forward in the next commit; this entry
+  # keeps the history scan clean without rewriting shared history over
+  # a string that was never a credential.
+  '''sk-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGh''',
 ]
 
 # Scoped to recorded runs, and requiring the token to sit inside a URL.
@@ -100,5 +108,9 @@ regexes = [
 description = "URL path slugs in recorded runs that collide with the sk- prefix"
 condition = "AND"
 regexTarget = "line"
-paths = ['''src/agentic_research/web/recorded_runs/.*\.json$''']
+paths = [
+  '''src/agentic_research/web/recorded_runs/.*\.json$''',
+  # The test documenting this case necessarily contains such a URL.
+  '''tests/unit/test_replay_mode\.py$''',
+]
 regexes = ['''https?://[^"\s]*sk-[a-z0-9]+(-[a-z0-9]+)+''']
