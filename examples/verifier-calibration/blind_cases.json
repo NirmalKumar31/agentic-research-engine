@@ -54,8 +54,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "unsupported",
+      "human_rationale": "r"
     },
     {
       "case_id": "rag-vector-vs-search-removed-8",
@@ -75,8 +75,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence gives Redis a 5ms / 20ms latency result, but does not identify 5ms as p50 or establish that it is the lowest among the evaluated systems."
     },
     {
       "case_id": "rag-vector-vs-search-removed-12",
@@ -96,8 +96,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports the 40\u201360% QPS drop and HNSW-overhead mechanism for Weaviate, but the claim generalizes the effect to vector search more broadly."
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-2",
@@ -117,8 +117,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "unsupported",
+      "human_rationale": "Evidence is only a topic heading and does not make any effectiveness claim about generative models in imbalanced fraud detection."
     },
     {
       "case_id": "rag-vector-vs-search-removed-15",
@@ -138,7 +138,7 @@
           "page": null
         }
       ],
-      "human_label": null,
+      "human_label": "unsupported",
       "human_rationale": null
     },
     {
@@ -186,8 +186,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "The evidence supports that the four functions organize AI risk management, but it does not clearly establish the broader \"across the lifecycle\" wording."
     },
     {
       "case_id": "rag-vector-vs-search-removed-3",
@@ -216,8 +216,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports the filtering-overhead and 40\u201360% QPS-drop portion, but it does not establish memory-intensive preprocessing as an additional hidden cost."
     },
     {
       "case_id": "rag-vector-vs-search-removed-6",
@@ -255,8 +255,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports low latency, high throughput, memory demands, and GPU use in specific systems/conditions, but the claim generalizes these into an overall property of vector databases."
     },
     {
       "case_id": "nist-ai-risk-framework-removed-2",
@@ -285,7 +285,7 @@
           "page": null
         }
       ],
-      "human_label": null,
+      "human_label": "supported",
       "human_rationale": null
     },
     {
@@ -306,7 +306,7 @@
           "page": null
         }
       ],
-      "human_label": null,
+      "human_label": "unsupported",
       "human_rationale": null
     },
     {
@@ -327,7 +327,7 @@
           "page": null
         }
       ],
-      "human_label": null,
+      "human_label": "partially_supported",
       "human_rationale": null
     },
     {
@@ -348,7 +348,7 @@
           "page": null
         }
       ],
-      "human_label": null,
+      "human_label": "partially_supported",
       "human_rationale": null
     },
     {
@@ -369,8 +369,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "Evidence directly states that IVF-PQ uses 80% less memory while being 5x slower, which supports the stated speed-memory trade-off."
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-1",
@@ -390,8 +390,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports Random Forest as the best-performing model in this study, but does not establish that it is the most effective model for imbalanced fraud datasets generally."
     },
     {
       "case_id": "nist-ai-risk-framework-removed-7",
@@ -420,8 +420,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "The evidence states that profiles are how organizations apply/adopt the AI RMF and explicitly identifies use-case and cross-sectoral profiles."
     },
     {
       "case_id": "nist-ai-risk-framework-removed-1",
@@ -468,8 +468,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "The evidence directly states that the NIST AI RMF 1.0 is organized around four core functions and names them as Govern, Map, Measure, and Manage."
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-3",
@@ -489,8 +489,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "unsupported",
+      "human_rationale": "Evidence only mentions model performance metrics with GAN and does not identify BFDS or establish its importance for imbalanced fraud detection."
     },
     {
       "case_id": "nist-ai-risk-framework-removed-5",
@@ -537,8 +537,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "The evidence directly identifies the four core functions of NIST AI RMF 1.0 as Govern, Map, Measure, and Manage."
     },
     {
       "case_id": "rag-vector-vs-search-removed-1",
@@ -567,8 +567,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports low-latency real-time search, high throughput, and substantial memory requirements, but it does not specifically tie the memory requirement to high-throughput workloads."
     },
     {
       "case_id": "rag-vector-vs-search-removed-9",
@@ -588,8 +588,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "Evidence directly states that Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing and is suited for high-volume analytics."
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-12",
@@ -609,8 +609,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "unsupported",
+      "human_rationale": "Evidence only mentions model performance metrics with SMOTE and provides no support for regulatory, privacy, anonymization, or transparency requirements."
     },
     {
       "case_id": "rag-vector-vs-search-removed-5",
@@ -639,8 +639,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports substantial memory requirements for optimal performance, but does not establish that vector databases are generally less suitable for write-heavy workloads or require specialized hardware."
     },
     {
       "case_id": "rag-vector-vs-search-removed-7",
@@ -660,8 +660,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence reports Qdrant as 4ms / 25ms, but does not identify these values as p50/p99, establish that 4ms is the lowest, or support a p99 latency under 8ms."
     },
     {
       "case_id": "rag-vector-vs-search-removed-4",
@@ -681,8 +681,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "Evidence directly states the 5% retrieval-time threshold and links excessive vector-database latency to infrastructure becoming the bottleneck."
     },
     {
       "case_id": "nist-ai-risk-framework-removed-6",
@@ -711,8 +711,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "Evidence directly states that Govern is cross-cutting, spans the organization, and establishes accountability, policies/processes, and oversight for AI risk management."
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-5",
@@ -741,8 +741,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports Random Forest as the best-performing model in one specific study, but does not establish general superiority, and the generative-model evidence is only a heading with no effectiveness result."
     },
     {
       "case_id": "rag-vector-vs-search-removed-2",
@@ -771,8 +771,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports pgvector as suited to sub-100M-vector use cases and purpose-built vector databases as better suited to billions of vectors, but does not establish cost-efficient storage or directly state that PostgreSQL struggles at billion scale."
     },
     {
       "case_id": "rag-vector-vs-search-removed-10",
@@ -792,8 +792,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "partially_supported",
+      "human_rationale": "Evidence supports that 64GB+ of dedicated RAM may be needed for 10M vectors at sub-10ms latency, but \u201ctypically required\u201d is stronger than the evidence states."
     },
     {
       "case_id": "fraud-detection-imbalanced-removed-9",
@@ -813,8 +813,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "unsupported",
+      "human_rationale": "Evidence only mentions AE-GAN performance metrics and provides no support for deployment-scale, computational-complexity, or real-time-processing challenges."
     },
     {
       "case_id": "nist-ai-risk-framework-removed-3",
@@ -843,8 +843,8 @@
           "page": null
         }
       ],
-      "human_label": null,
-      "human_rationale": null
+      "human_label": "supported",
+      "human_rationale": "Evidence directly supports the use of profiles to apply the framework in specific contexts and explicitly identifies use-case and cross-sectoral profiles."
     }
   ]
 }

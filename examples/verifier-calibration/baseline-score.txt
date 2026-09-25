@@ -1,0 +1,20 @@
+# Baseline: current verifier against human labels, before any rule change.
+# Commit: 61b215bc846ce9d619a2ebd0e5da574216552c37
+# Saved before modifying VERIFIER_SYSTEM, so a revised verifier can be
+# compared against it on the same labels.
+
+excluded            4 case(s): original claim text not preserved
+labelled            30 of 30
+human labels        {'unsupported': 7, 'partially_supported': 14, 'supported': 9}
+verifier verdicts   {'unsupported': 6, 'partially_supported': 24}
+exact agreement     60.0%
+supported precision None
+supported recall    0.0
+false positives     0  (unsupported claim published)
+false negatives     9  (true claim removed)
+
+confusion matrix (human -> verifier):
+             supported    0    9    0
+   partially_supported    0   13    1
+           unsupported    0    2    5
+                        sup  par  uns
