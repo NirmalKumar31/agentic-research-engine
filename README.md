@@ -198,51 +198,55 @@ spends nothing.
 
 ## Measured results
 
-Three recorded local `qwen3:4b` runs, one round each. Every substantive
-claim was checked against its own evidence — `checked == checkable`, with
-every cited item and every quote shown in full — and only claims the
-verifier judged *supported* were published.
+Three recorded local `qwen3:4b` runs, one round each, verified by the
+pinned DeBERTa NLI classifier at threshold 0.98. Every substantive claim
+was checked against each of its own quotes — `checked == checkable` in all
+three — and only claims one quote carried on its own were published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
 | Research rounds | 1 | 1 | 1 |
 | Search queries | 6 | 6 | 6 |
-| Unique sources | 5 | 5 | 5 |
-| Usable sources | 5 | 5 | 3 |
-| Generated substantive claims | 15 | 7 | 13 |
-| Exact duplicates removed | 0 | 0 | 1 |
-| Supported | 0 | 0 | 0 |
-| Partially supported | 14 | 7 | 7 |
-| Unsupported | 1 | 0 | 5 |
+| Unique sources (usable) | 5 (5) | 5 (5) | 5 (5) |
+| Evidence items | 30 | 30 | 30 |
+| Generated substantive claims | 28 | 12 | 14 |
+| Exact duplicates removed | 4 | 3 | 8 |
+| Unique candidates checked | 24/24 | 9/9 | 6/6 |
+| Supported | 11 | 8 | 4 |
+| Partially supported | 3 | 0 | 0 |
+| Unsupported | 10 | 1 | 2 |
 | Never checked | 0 | 0 | 0 |
-| **Removed before publishing** | 15 | 7 | 12 |
-| **Published** | **0** | **0** | **0** |
-| Checked / checkable | 15/15 | 7/7 | 12/12 |
-| Quote fidelity (exact) | 97% | 92% | 94% |
-| Cross-attributed evidence | 63.3% | 20.8% | 83.3% |
-| Page-cited evidence | 0 | 5 | 0 |
-| Duration | 776s | 708s | 524s |
+| **Withheld** | 13 | 1 | 2 |
+| **Published** | **11** | **8** | **4** |
+| Evidence-only excerpts | 0 | 0 | 0 |
+| Quote fidelity (exact) | 90% | 80% | 93% |
+| Evidence integrity | 100% | 100% | 100% |
+| Page-cited evidence | 5 | 0 | 0 |
+| Duration | 846s | 923s | 547s |
 
-Evidence integrity is not listed: all three published reports contain no
-claims, so the denominator is zero and there is no reference that could
-have been wrong. Reporting that as 100% would be scoring an empty page.
+39 unique candidates across the three runs, all checked, **23 published
+and 16 withheld** — a 59% publication rate. The previous generative
+verifier published nothing at all from a comparable set.
 
-**Every generated claim was removed.** 35 substantive claims were
-generated; one exact duplicate was removed, and the verifier evaluated
-the remaining 34 unique claims — 28 partially supported, 6 unsupported.
-The fail-closed gate removed all of them. That is what the system did;
-whether it was *right* is a separate question this project cannot yet
-answer, because nobody has compared this verifier against human labels.
+### Release validation
 
-There is reason to think it is too strict. Many rejections are compound
-claims whose halves each have supporting evidence, for example *"vector
-databases excel in low-latency search but require significant memory"* —
-where one quote reports sub-8ms p99 latency and another reports the
-64GB+ RAM needed for it. A blind labelling set is committed under
-[`examples/verifier-calibration/`](examples/verifier-calibration/) — 30
-of the 34 cases, carrying the claim and its complete evidence but no
-verifier verdict — so the question can be settled with labels rather
-than argued from selected examples.
+Publishing something is easy; publishing only what the evidence supports
+is the claim being made. So all 23 published claims were read against
+the exact quote the gate selected. That review is recorded per candidate
+in [`examples/release-audit/`](examples/release-audit/), alongside every
+pairwise NLI score and guard result.
+
+**Result: 22 of 23 supported, 1 not.** One claim published
+*"some vector databases **lack** standardized encryption features"* from
+a source saying they *"**might** lack"* them. The hedge was dropped, and
+neither layer caught it — the classifier scored it 0.9946, and the
+modality guard compares strength bands where "no modality" is the
+weakest band, so removing a hedge reads as weakening rather than
+strengthening.
+
+That is a real defect, stated here rather than rounded away. It is
+[tracked in LIMITATIONS](docs/LIMITATIONS.md) and the release is not
+tagged while it stands.
 
 These are product artifacts, served by the demo. They are not a
 benchmark: n=1 each, one model, one configuration.

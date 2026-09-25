@@ -88,6 +88,14 @@ boundaries flattened, so likely PDFs are fetched directly. If that fetch
 fails the source degrades to provider text — with a warning, but without
 pages.
 
+**Which run carries PDF page evidence is not stable.** In the current
+recordings the RAG comparison has 5 page-numbered evidence items and the
+NIST run has none, the reverse of the earlier recordings. The NIST
+recording's stored description and the site's card badge still advertise
+page-aware PDF evidence for that run, so both are currently wrong.
+Whether a PDF is reached depends on what search returns that day, which
+means a fixed per-run description cannot be relied on.
+
 **Page provenance is not page selection.** Extraction preserves which page
 a quote came from; it does not steer the extractor toward the most
 useful pages of a long document. In the NIST recording the first-party
@@ -145,6 +153,21 @@ positive is a compound claim: the quote states a 75% memory reduction and
 fuses them into "maintaining high recall accuracy". No guard reaches it
 and all three candidate classifiers score it above 0.95. The fix was in
 synthesis — atomic claims — not in another guard.
+
+**One published claim in the release audit is not supported by its own
+evidence.** A source saying some vector databases *"might lack"*
+standardized encryption was published as *"lack"*. The hedge was
+dropped, and nothing caught it: the classifier scored the sentence
+0.9946, and the modality guard cannot see this class at all. Its rule is
+*claim strength must not exceed evidence strength*, computed over bands
+where "no modality" is band 0 — the weakest. So promoting *may* to
+*must* fails the guard, while deleting *may* outright passes it, even
+though deleting the hedge is the more common overclaim. That is a
+structural gap in the guard, not a threshold that needs moving.
+
+The release audit under `examples/release-audit/` records this, with the
+other 22 published claims reviewed and supported. The release is not
+tagged while it stands.
 
 **Zero supported false positives was not achieved on that development
 set.** It was achieved on the synthetic adversarial suite, which is the
