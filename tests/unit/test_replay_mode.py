@@ -893,3 +893,50 @@ class TestTheFrontendIsFoundWhenInstalled:
             # Unknown API paths stay JSON even with a build present.
             assert client.get("/api/nope").status_code == 404
             assert client.get("/api/nope").json()["error"]
+
+
+class TestUrlSlugsAreNotMistakenForKeys:
+    """A recorded URL can collide with a credential pattern.
+
+    One NIST run retrieved a page whose path slug begins "sk-man" --
+    "...risk-management-..." with the scanner's `sk-` keyword landing
+    mid-word -- which matched the broad OpenAI rule and failed the secret
+    scan on a public URL.
+
+    The gitleaks allowlist that resolves this is deliberately narrow, and
+    the loader's own check is independent of it: `_SECRET_VALUE_PATTERNS`
+    permits no hyphen after the prefix, so a URL slug never matched here
+    in the first place and a real key still does.
+    """
+
+    def test_a_hyphenated_lowercase_slug_is_not_credential_shaped(self) -> None:
+        from agentic_research.web.recordings import assert_no_secrets
+
+        payload = {
+            "result": {
+                "sources": [
+                    {
+                        "url": (
+                            "https://theartofservice.com/"
+                            "sk-management-framework-toolkit-and-guide-2026"
+                        )
+                    }
+                ]
+            }
+        }
+        assert_no_secrets("probe", payload)  # must not raise
+
+    def test_a_real_key_shape_in_a_recording_is_still_refused(self) -> None:
+        """The property the narrow allowlist exists to preserve."""
+        from agentic_research.web.recordings import assert_no_secrets
+
+        planted = "sk-" + "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGh"
+        payload = {"result": {"note": planted}}
+        with pytest.raises(ValueError, match="credential-shaped"):
+            assert_no_secrets("probe", payload)
+
+    def test_the_committed_recordings_pass_the_loader_check(self) -> None:
+        from agentic_research.web.recordings import RECORDINGS_DIR, assert_no_secrets
+
+        for path in sorted(RECORDINGS_DIR.glob("*.json")):
+            assert_no_secrets(path.stem, json.loads(path.read_text(encoding="utf-8")))
