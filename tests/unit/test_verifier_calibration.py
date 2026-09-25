@@ -52,11 +52,13 @@ class TestTheFixtureIsUsable:
     def test_it_records_the_commit_it_came_from(self, doc: dict) -> None:
         assert doc["source_commit"]
 
-    def test_labels_start_empty(self, doc: dict) -> None:
-        """Pre-filling them from the verifier would make the exercise
-        circular. This will fail once a human labels them, and that is
-        the point at which it should be replaced by an agreement
-        assertion."""
+    def test_this_file_is_the_verdict_store_not_the_labelling_surface(
+        self, doc: dict
+    ) -> None:
+        """Labels are collected in blind_cases.json, which carries no
+        verdicts. This file keeps the verdicts and is joined to those
+        labels by case_id afterwards."""
+        assert all(c["verifier_verdict"] for c in doc["cases"])
         assert all(c["human_label"] is None for c in doc["cases"])
 
     def test_the_allowed_labels_match_the_verifier(self, doc: dict) -> None:

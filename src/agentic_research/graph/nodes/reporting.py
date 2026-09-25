@@ -33,6 +33,7 @@ from agentic_research.models import (
     CitationIssueType,
     CitationVerification,
     Claim,
+    ClaimJudgment,
     ClaimKind,
     Contradiction,
     CoverageAssessment,
@@ -477,8 +478,21 @@ async def _check_entailment(
     """
     verdicts: dict[ClaimKey, ClaimVerdict] = {}
     candidates = []
+
+    def judgment(claim: Claim, *, reason: str | None = None) -> ClaimJudgment:
+        """Record every candidate, checked or not, with its full text."""
+        record = ClaimJudgment(
+            claim_text=claim.text,
+            kind=claim.kind,
+            evidence_ids=list(claim.evidence_ids),
+            reason=reason,
+        )
+        result.judgments.append(record)
+        return record
+
     for claim in report.substantive_claims():
         if not claim.evidence_ids:
+            judgment(claim, reason="claim cites no evidence")
             continue
         if len(claim.evidence_ids) > MAX_EVIDENCE_PER_CLAIM:
             # Cannot be shown to the verifier in full, so it is not
@@ -496,6 +510,13 @@ async def _check_entailment(
                         f"{MAX_EVIDENCE_PER_CLAIM} that can be verified together; not checked"
                     ),
                 )
+            )
+            judgment(
+                claim,
+                reason=(
+                    f"cites {len(claim.evidence_ids)} evidence items, above the "
+                    f"{MAX_EVIDENCE_PER_CLAIM} that can be verified together"
+                ),
             )
             continue
         candidates.append(claim)
@@ -524,6 +545,15 @@ async def _check_entailment(
 
     errors = []
     model = ctx().router.get(ModelRole.VERIFIER)
+    # Candidates the sample did not reach are still recorded, so the
+    # audit trail distinguishes "judged not supported" from "never
+    # looked at". Both are removed by the gate; they are not the same
+    # finding.
+    unreached = {id(c) for c in candidates} - {id(c) for c in selected}
+    for claim in candidates:
+        if id(claim) in unreached:
+            judgment(claim, reason="not reached within this run's verification budget")
+
     for claim in selected:
         block = _evidence_block(claim.evidence_ids, store)
         if not block:
@@ -542,6 +572,9 @@ async def _check_entailment(
 
         result.checked_claims += 1
         verdicts[key_of(claim)] = out.verdict
+        record = judgment(claim, reason=out.reason)
+        record.verdict = out.verdict
+        record.checked = True
         if out.verdict == "supported":
             result.supported_claims += 1
         elif out.verdict == "partially_supported":

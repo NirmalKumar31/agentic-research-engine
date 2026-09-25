@@ -18,6 +18,7 @@ from __future__ import annotations
 import hashlib
 from datetime import UTC, datetime
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, Field, computed_field, field_validator
 
@@ -633,6 +634,32 @@ class CitationIssue(BaseModel):
     detail: str = ""
 
 
+class ClaimJudgment(BaseModel):
+    """The full record of one claim's semantic verdict.
+
+    Exists because :class:`CitationIssue` is a compact display record and
+    was being used as the audit trail. It truncates ``claim_text`` at 200
+    characters on purpose -- fine for a log line, and lossy as the only
+    surviving copy of what was judged. Four rejected claims in the
+    canonical recordings end mid-sentence for exactly that reason, and
+    the original wording is unrecoverable: nothing else stored it.
+
+    One of these is kept for every unique post-deduplication substantive
+    candidate, whether or not it was checked, and the claim text is never
+    shortened.
+    """
+
+    claim_text: str
+    """Complete, never truncated. This is the point of the record."""
+    kind: ClaimKind
+    evidence_ids: list[str] = Field(default_factory=list)
+    verdict: Literal["supported", "partially_supported", "unsupported"] | None = None
+    """None when the claim was never checked -- an exhausted budget, or
+    more cited evidence than can be shown at once."""
+    reason: str | None = None
+    checked: bool = False
+
+
 class CitationVerification(BaseModel):
     """Outcome of verifying a report's citations.
 
@@ -682,6 +709,13 @@ class CitationVerification(BaseModel):
 
     duplicate_claims_removed: int = 0
     """Exact duplicate copies removed before verification."""
+
+    judgments: list[ClaimJudgment] = Field(default_factory=list)
+    """One per unique substantive candidate, with untruncated text.
+
+    The authoritative semantic-audit record. ``issues`` stays compact for
+    logs and the UI; anything reconstructing what was actually judged
+    must read this instead."""
 
     # Publication gate. Kept separate from the support counts above so the
     # synthesiser's actual output stays visible: a report with nothing

@@ -53,9 +53,9 @@ configuration fingerprint needed to reconstruct the conditions.
 
 ## Retrieval and evidence
 
-**Cross-attributed evidence has no query provenance.** Between 56% and 80%
-of evidence across the three recorded runs answers a sub-question whose
-queries never retrieved that source. The chain to the source is exact; the
+**Cross-attributed evidence has no query provenance.** Between 20.8% and
+83.3% of evidence across the three recorded runs answers a sub-question
+whose queries never retrieved that source. The chain to the source is exact; the
 chain back to a query exists only for the rest, and is recorded as absent
 rather than guessed.
 
@@ -95,9 +95,10 @@ other languages.
 ## Publication
 
 **All three recorded demos publish nothing.** Under a `qwen3:4b`
-synthesiser the verifier judged all 35 generated claims partially
-supported or unsupported, and the fail-closed publication gate removed
-every one.
+synthesiser, 35 substantive claims were generated. One exact duplicate
+was removed, and the verifier evaluated the remaining 34 unique claims:
+28 partially supported, 6 unsupported. The fail-closed publication gate
+removed every one, so no synthesised claim was published.
 
 **The verifier is plausibly too strict, and that is not yet settled.**
 Many rejections are compound claims whose halves each have supporting
@@ -108,15 +109,23 @@ claims may be firing whenever the verifier cannot hold two clauses at
 once, rather than when a clause is genuinely unsupported. Fixing that
 means changing the general rule, not tuning against cases.
 
-**Whether those 18 verdicts are correct has not been established.**
+**Whether those 34 verdicts are correct has not been established.**
 Nobody has compared this verifier against human labels, so "the verifier
-caught 18 overreaches" is not a claim this project can currently make —
-only that it judged them so. A 20-case calibration fixture built from
-these exact claim/evidence pairs is committed under
-`examples/verifier-calibration/`, with a small evaluator that scores a
-verifier run against the labels. Until that review is done, treat the
-supported/partial split as the verifier's opinion rather than ground
-truth.
+caught 34 overreaches" is not a claim this project can currently make —
+only that it judged them so.
+
+A blind calibration set is committed under
+`examples/verifier-calibration/`. It holds 30 of the 34 cases with the
+claim and its complete evidence and no verifier verdict, so a reviewer
+cannot be anchored by the model's answer; labels are joined back by
+case_id afterwards.
+
+Four cases are excluded rather than labelled. Their claim text was
+reconstructed from `CitationIssue.claim_text`, which truncates at 200
+characters, and the original wording is unrecoverable — the run artifact
+stores the same truncation. Inventing the missing tails would fabricate
+the input to a gold label. `ClaimJudgment` now preserves the complete
+text of every candidate so this cannot recur.
 
 A larger synthesiser is a candidate next experiment; whether it improves
 supported-claim yield has not been measured.

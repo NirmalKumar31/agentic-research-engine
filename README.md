@@ -191,20 +191,22 @@ Evidence integrity is not listed: all three published reports contain no
 claims, so the denominator is zero and there is no reference that could
 have been wrong. Reporting that as 100% would be scoring an empty page.
 
-**Every generated claim was removed.** The verifier judged all 35
-partially supported or unsupported, and the fail-closed gate removed
-them. That is what the system did; whether it was *right* is a separate
-question this project cannot yet answer, because nobody has compared
-this verifier against human labels.
+**Every generated claim was removed.** 35 substantive claims were
+generated; one exact duplicate was removed, and the verifier evaluated
+the remaining 34 unique claims — 28 partially supported, 6 unsupported.
+The fail-closed gate removed all of them. That is what the system did;
+whether it was *right* is a separate question this project cannot yet
+answer, because nobody has compared this verifier against human labels.
 
 There is reason to think it is too strict. Many rejections are compound
 claims whose halves each have supporting evidence, for example *"vector
 databases excel in low-latency search but require significant memory"* —
 where one quote reports sub-8ms p99 latency and another reports the
-64GB+ RAM needed for it. A 34-case labelling fixture built from these
-exact claim/evidence pairs is committed under
-[`examples/verifier-calibration/`](examples/verifier-calibration/) so the
-question can be settled with labels rather than argued from examples.
+64GB+ RAM needed for it. A blind labelling set is committed under
+[`examples/verifier-calibration/`](examples/verifier-calibration/) — 30
+of the 34 cases, carrying the claim and its complete evidence but no
+verifier verdict — so the question can be settled with labels rather
+than argued from selected examples.
 
 These are product artifacts, served by the demo. They are not a
 benchmark: n=1 each, one model, one configuration.
