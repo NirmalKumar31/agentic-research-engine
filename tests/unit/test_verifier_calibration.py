@@ -52,9 +52,7 @@ class TestTheFixtureIsUsable:
     def test_it_records_the_commit_it_came_from(self, doc: dict) -> None:
         assert doc["source_commit"]
 
-    def test_this_file_is_the_verdict_store_not_the_labelling_surface(
-        self, doc: dict
-    ) -> None:
+    def test_this_file_is_the_verdict_store_not_the_labelling_surface(self, doc: dict) -> None:
         """Labels are collected in blind_cases.json, which carries no
         verdicts. This file keeps the verdicts and is joined to those
         labels by case_id afterwards."""
