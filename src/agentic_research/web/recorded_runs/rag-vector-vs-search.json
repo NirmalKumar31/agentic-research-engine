@@ -6,16 +6,16 @@
     "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
     "description": "A multi-dimensional technical comparison: the planner decomposes it into several sub-questions, each searched in parallel.",
     "mode": "local",
-    "recorded_at": "2026-09-24T23:03:25.515523+00:00",
+    "recorded_at": "2026-09-25T02:29:07.148214+00:00",
     "order": 1,
     "provenance": {
       "engine_version": "0.2.0",
       "evaluator_version": "2",
-      "prompt_version": "f8967319ded4",
-      "schema_version": "10a078668458",
+      "prompt_version": "b7186bf4040c",
+      "schema_version": "bd88f3c7e89e",
       "config_fingerprint": "9283a7e97512",
-      "commit": "b181f458206b2b65cb06fcdcd737e7bfba9af130",
-      "short_commit": "b181f458",
+      "commit": "80c62edbf168e266b775fdfc105e943fba3032cf",
+      "short_commit": "80c62edb",
       "dirty": false,
       "python": "3.12.3",
       "platform": "macOS-26.5.2-arm64-arm-64bit"
@@ -42,12 +42,12 @@
       "event": "plan_generated",
       "count": 6,
       "questions": [
-        "What are the specific hardware requirements for deploying vector databases versus traditional search engines in production environments?",
-        "How do the cost structures (including compute, storage, and maintenance) of vector databases compare to traditional search engines for typical enterprise-scale retrieval tasks?",
-        "What are the operational complexity trade-offs in terms of setup, configuration, and ongoing maintenance for vector databases versus traditional search engines?",
-        "What are the security and privacy implications of using vector databases for sensitive data compared to traditional search engines?",
-        "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines in high-stakes applications?",
-        "Under what conditions does the performance of vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks?"
+        "What are the key performance metrics for vector databases versus traditional search engines in real-world latency and throughput?",
+        "How do the storage and memory requirements of vector databases compare to traditional search engines for typical LLM retrieval workloads?",
+        "What are the hidden costs of using vector databases, such as data preprocessing overhead or specialized hardware dependencies?",
+        "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines?",
+        "Under what specific conditions does the obvious advantage of vector databases (e.g., semantic search) become a disadvantage for retrieval-augmented generation?",
+        "How do the scalability and distributed processing capabilities of vector databases compare to traditional search engines for large-scale RAG deployments?"
       ]
     },
     {
@@ -59,49 +59,49 @@
       "event": "queries_generated",
       "count": 6,
       "queries": [
-        "vector database production deployment hardware requirements compute storage",
-        "vector database cost structure compute storage maintenance enterprise scale retrieval",
-        "vector database operational complexity setup configuration maintenance traditional search engine",
-        "vector database security privacy sensitive data traditional search engine",
-        "vector database failure modes recovery mechanisms high stakes applications",
-        "vector database performance degradation retrieval augmented generation tasks"
+        "vector database latency throughput comparison traditional search engines real-world performance metrics",
+        "vector database storage memory requirements traditional search engines LLM retrieval workloads",
+        "vector database hidden costs data preprocessing overhead specialized hardware dependencies",
+        "vector database failure modes recovery mechanisms traditional search engines differences",
+        "vector database semantic search disadvantage retrieval augmented generation RAG",
+        "vector database scalability distributed processing capabilities traditional search engines large-scale RAG deployments"
       ],
       "round": 1
     },
     {
       "event": "search_completed",
-      "query": "vector database security privacy sensitive data traditional search engine",
+      "query": "vector database semantic search disadvantage retrieval augmented generation RAG",
+      "query_id": "Q5",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database failure modes recovery mechanisms traditional search engines differences",
       "query_id": "Q4",
       "results": 8
     },
     {
       "event": "search_completed",
-      "query": "vector database production deployment hardware requirements compute storage",
-      "query_id": "Q1",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "vector database cost structure compute storage maintenance enterprise scale retrieval",
+      "query": "vector database storage memory requirements traditional search engines LLM retrieval workloads",
       "query_id": "Q2",
       "results": 8
     },
     {
       "event": "search_completed",
-      "query": "vector database performance degradation retrieval augmented generation tasks",
-      "query_id": "Q6",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "vector database operational complexity setup configuration maintenance traditional search engine",
+      "query": "vector database hidden costs data preprocessing overhead specialized hardware dependencies",
       "query_id": "Q3",
       "results": 8
     },
     {
       "event": "search_completed",
-      "query": "vector database failure modes recovery mechanisms high stakes applications",
-      "query_id": "Q5",
+      "query": "vector database latency throughput comparison traditional search engines real-world performance metrics",
+      "query_id": "Q1",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "vector database scalability distributed processing capabilities traditional search engines large-scale RAG deployments",
+      "query_id": "Q6",
       "results": 8
     },
     {
@@ -109,7 +109,7 @@
       "avoided": 2,
       "results": 48,
       "selected": 5,
-      "unique": 45
+      "unique": 46
     },
     {
       "event": "sources_registered",
@@ -120,12 +120,17 @@
     {
       "event": "evidence_extracted",
       "items": 6,
-      "source_id": "S2"
+      "source_id": "S1"
     },
     {
       "event": "evidence_extracted",
       "items": 6,
-      "source_id": "S1"
+      "source_id": "S5"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S2"
     },
     {
       "event": "evidence_extracted",
@@ -136,11 +141,6 @@
       "event": "evidence_extracted",
       "items": 6,
       "source_id": "S4"
-    },
-    {
-      "event": "evidence_extracted",
-      "items": 6,
-      "source_id": "S5"
     },
     {
       "event": "assessing_coverage",
@@ -162,8 +162,8 @@
     },
     {
       "event": "synthesized",
-      "findings": 6,
-      "sections": 6
+      "findings": 1,
+      "sections": 4
     },
     {
       "event": "verifying_citations"
@@ -173,12 +173,12 @@
       "evidence_integrity": 1.0,
       "exhaustive": true,
       "support": {
-        "supported": 2,
-        "partially_supported": 6,
-        "unsupported": 0,
+        "supported": 0,
+        "partially_supported": 14,
+        "unsupported": 1,
         "not_checked": 0
       },
-      "total": 2
+      "total": 0
     },
     {
       "event": "completed",
@@ -186,78 +186,50 @@
     }
   ],
   "result": {
-    "run_id": "20260924-225129-06080d",
+    "run_id": "20260925-021611-26f19b",
     "report": {
       "title": "Practical Trade-offs Between Vector Databases and Traditional Search Engines for Retrieval-Augmented Generation",
-      "summary_claims": [
-        {
-          "text": "Vector databases face challenges in maintaining query performance and data consistency across distributed systems.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S3-e3"
-          ],
-          "citation_ids": [
-            "S3"
-          ]
-        }
-      ],
+      "summary_claims": [],
       "key_findings": [],
-      "sections": [
-        {
-          "heading": "Security and Privacy",
-          "claims": [
-            {
-              "text": "Vector databases can securely manage private data as an external knowledge base extension, preventing potential data breaches after model training.",
-              "kind": "factual",
-              "evidence_ids": [
-                "S5-e4"
-              ],
-              "citation_ids": [
-                "S5"
-              ]
-            }
-          ]
-        }
-      ],
+      "sections": [],
       "contradictions": [],
       "limitations": [
-        "The evidence does not provide specific details on the security and privacy implications of vector databases for sensitive data beyond the general statement that they can securely manage private data.",
-        "The evidence does not specify the exact conditions under which vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks beyond the 100,000-page mark.",
-        "The evidence does not include comparative analysis of failure modes and recovery mechanisms for vector databases versus traditional search engines in high-stakes applications.",
-        "3 extracted finding(s) were excluded because their quotes could not be located in the source text",
-        "6 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget."
+        "The evidence does not provide specific data on the cost of vector database operations beyond general statements about memory and latency.",
+        "No comparative analysis of failure recovery mechanisms for vector databases versus traditional search engines is available.",
+        "1 extracted finding(s) were excluded because their quotes could not be located in the source text",
+        "15 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget."
       ]
     },
     "plan": {
       "sub_questions": [
         {
           "id": "SQ1",
-          "text": "What are the specific hardware requirements for deploying vector databases versus traditional search engines in production environments?",
+          "text": "What are the key performance metrics for vector databases versus traditional search engines in real-world latency and throughput?",
           "is_followup": false
         },
         {
           "id": "SQ2",
-          "text": "How do the cost structures (including compute, storage, and maintenance) of vector databases compare to traditional search engines for typical enterprise-scale retrieval tasks?",
+          "text": "How do the storage and memory requirements of vector databases compare to traditional search engines for typical LLM retrieval workloads?",
           "is_followup": false
         },
         {
           "id": "SQ3",
-          "text": "What are the operational complexity trade-offs in terms of setup, configuration, and ongoing maintenance for vector databases versus traditional search engines?",
+          "text": "What are the hidden costs of using vector databases, such as data preprocessing overhead or specialized hardware dependencies?",
           "is_followup": false
         },
         {
           "id": "SQ4",
-          "text": "What are the security and privacy implications of using vector databases for sensitive data compared to traditional search engines?",
+          "text": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines?",
           "is_followup": false
         },
         {
           "id": "SQ5",
-          "text": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines in high-stakes applications?",
+          "text": "Under what specific conditions does the obvious advantage of vector databases (e.g., semantic search) become a disadvantage for retrieval-augmented generation?",
           "is_followup": false
         },
         {
           "id": "SQ6",
-          "text": "Under what conditions does the performance of vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks?",
+          "text": "How do the scalability and distributed processing capabilities of vector databases compare to traditional search engines for large-scale RAG deployments?",
           "is_followup": false
         }
       ]
@@ -267,27 +239,27 @@
         "id": "S1-e1",
         "source_id": "S1",
         "sub_question_id": "SQ1",
-        "claim": "What are the specific hardware requirements for deploying vector databases versus traditional search engines in production environments?",
-        "quote": "LangChain uses libraries from Unstructured.io to perform parsing on complex PDFs, which works seamlessly for small document sets. Surprisingly, though, the speed of LangChain parsing is incredibly slow. Based on our analysis it appears that Unstructured uses a variety of models to detect and parse out key elements within a PDF. These models should employ GPU acceleration, but they don't. That results in LangChain taking days to parse a modestly sized set of documents, even on very large (and expensive) compute instances.",
+        "claim": "The fastest vector database in 2026 depends on your workload type, not marketing claims. Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
+        "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.8,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
-        "query_id": "",
-        "cross_attributed": true
+        "query_id": "Q1",
+        "cross_attributed": false
       },
       {
         "id": "S1-e2",
         "source_id": "S1",
         "sub_question_id": "SQ2",
-        "claim": "How do the cost structures (including compute, storage, and maintenance) of vector databases compare to traditional search engines for typical enterprise-scale retrieval tasks?",
-        "quote": "LangChain takes days to parse a modestly sized set of documents, even on very large (and expensive) compute instances.",
-        "quote_match": "fuzzy",
+        "claim": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+        "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+        "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.24,
-        "citable": false,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
         "query_id": "",
         "cross_attributed": true
       },
@@ -295,12 +267,12 @@
         "id": "S1-e3",
         "source_id": "S1",
         "sub_question_id": "SQ3",
-        "claim": "What are the operational complexity trade-offs in terms of setup, configuration, and ongoing maintenance for vector databases versus traditional search engines?",
-        "quote": "The default directory loader of LangChain is Unstructured (source1, source2). Unstructured uses \"hi res\" for the PDFs by default if text extraction cannot be performed on the document (source1 , source2 ). Other options are available like \"fast\" and \"OCR only\", which have different processing intensities",
+        "claim": "The Filter Bottleneck: A critical nuance often missed in benchmarks is how filtering affects speed. In Weaviate, for example, if you attempt to filter across 50 complex metadata fields simultaneously during a vector search, the HNSW traversal overhead spikes, potentially dropping QPS by 40-60%.",
+        "quote": "The Filter Bottleneck: A critical nuance often missed in benchmarks is how filtering affects speed. In Weaviate, for example, if you attempt to filter across 50 complex metadata fields simultaneously during a vector search, the HNSW traversal overhead spikes, potentially dropping QPS by 40-60%.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.7,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -309,12 +281,12 @@
         "id": "S1-e4",
         "source_id": "S1",
         "sub_question_id": "SQ4",
-        "claim": "What are the security and privacy implications of using vector databases for sensitive data compared to traditional search engines?",
-        "quote": "EyeLevel's GroundX doesn't use vector similarity as its core search strategy, but rather a tuned comparison based on the similarity of semantic objects. There are no vectors used in this approach.",
+        "claim": "Cold Start Time: The delay experienced when an index is loaded from disk into RAM. This is a critical barrier for serverless AI agents that spin up on demand.",
+        "quote": "Cold Start Time: The delay experienced when an index is loaded from disk into RAM. This is a critical barrier for serverless AI agents that spin up on demand.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.5,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -323,12 +295,12 @@
         "id": "S1-e5",
         "source_id": "S1",
         "sub_question_id": "SQ5",
-        "claim": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines in high-stakes applications?",
-        "quote": "The trick is, how do you get information into a vector space meaningfully? RAG needs content to be placed in a vector space such that similar things can be searched, thus the encoder has to practically organize information into useful regions. It's our theory that modern encoders don't have what it takes to organize large sets of documents in these vector spaces, even if the vector spaces can theoretically fit a near infinite amount of information.",
+        "claim": "The 2026 Speed Law dictates that retrieval must never consume more than 5% of the total agentic loop time. If your vector database is taking 200ms on a 400ms loop, your infrastructure not your model is the ceiling.",
+        "quote": "The 2026 Speed Law dictates that retrieval must never consume more than 5% of the total agentic loop time. If your vector database is taking 200ms on a 400ms loop, your infrastructure not your model is the ceiling.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.4,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -337,26 +309,110 @@
         "id": "S1-e6",
         "source_id": "S1",
         "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the performance of vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks?",
-        "quote": "According to new research by EyeLevel.ai, an AI tools company, the precision of vector similarity search degrades in as few as 10,000 pages, reaching a 12% performance hit by the 100,000-page mark.",
+        "claim": "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must switch to IVF-PQ indexing, which is 5x slower but uses 80% less memory by compressing vectors into smaller subspaces.",
+        "quote": "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must switch to IVF-PQ indexing, which is 5x slower but uses 80% less memory by compressing vectors into smaller subspaces.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.9,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
-        "query_id": "Q6",
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S5-e1",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "Qdrant has the lowest p50 query latency at 4ms",
+        "quote": "Qdrant OSS Managed\n 4ms / 25ms",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e2",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "Redis has the lowest p50 query latency at 5ms",
+        "quote": "Redis OSS Managed\n 5ms / 20ms",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e3",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "Milvus has the lowest p50 query latency at 6ms",
+        "quote": "Milvus OSS Managed\n 6ms / 35ms",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e4",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "Pinecone has the lowest p50 query latency at 8ms",
+        "quote": "Pinecone Managed\n 8ms / 45ms",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e5",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "ChromaDB has the lowest p50 query latency at 12ms",
+        "quote": "ChromaDB OSS\n 12ms / 70ms",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e6",
+        "source_id": "S5",
+        "sub_question_id": "SQ1",
+        "claim": "Weaviate has the lowest p50 query latency at 12ms",
+        "quote": "Weaviate OSS Managed\n 12ms / 65ms",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
         "cross_attributed": false
       },
       {
         "id": "S2-e1",
         "source_id": "S2",
         "sub_question_id": "SQ1",
-        "claim": "What are the specific hardware requirements for deploying vector databases versus traditional search engines in production environments?",
-        "quote": "Vector databases are a crucial component in systems that leverage machine learning for tasks such as image recognition, text analysis and recommendation algorithms, where the ability to quickly access and compare large sets of vectorized data is paramount.",
+        "claim": "What are the key performance metrics for vector databases versus traditional search engines in real-world latency and throughput?",
+        "quote": "RAG (retrieval-augmented generation) is a two-part AI technique that involves indexing data into a vector database and searching the database to retrieve relevant information.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.2,
+        "confidence": 0.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -365,12 +421,12 @@
         "id": "S2-e2",
         "source_id": "S2",
         "sub_question_id": "SQ2",
-        "claim": "How do the cost structures (including compute, storage, and maintenance) of vector databases compare to traditional search engines for typical enterprise-scale retrieval tasks?",
-        "quote": "Vector databases not only improve the retrieval speed but also handle large volumes of data efficiently. This scalability is essential for applications dealing with extensive datasets. By ensuring quick and precise retrieval, vector databases support real-time querying, providing users with immediate and relevant responses.",
+        "claim": "How do the storage and memory requirements of vector databases compare to traditional search engines for typical LLM retrieval workloads?",
+        "quote": "RAG (retrieval-augmented generation) is a two-part AI technique that involves indexing data into a vector database and searching the database to retrieve relevant information.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.2,
+        "confidence": 0.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -379,12 +435,12 @@
         "id": "S2-e3",
         "source_id": "S2",
         "sub_question_id": "SQ3",
-        "claim": "What are the operational complexity trade-offs in terms of setup, configuration, and ongoing maintenance for vector databases versus traditional search engines?",
-        "quote": "SQL vector databases represent an advanced fusion of traditional SQL database functionalities with the specialized capabilities of vector databases. These systems integrate vector search algorithms directly into the structured data environment, enabling the management of both vector and structured data within a unified database framework.",
+        "claim": "What are the hidden costs of using vector databases, such as data preprocessing overhead or specialized hardware dependencies?",
+        "quote": "RAG (retrieval-augmented generation) is a two-part AI technique that involves indexing data into a vector database and searching the database to retrieve relevant information.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.2,
+        "confidence": 0.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -393,12 +449,12 @@
         "id": "S2-e4",
         "source_id": "S2",
         "sub_question_id": "SQ4",
-        "claim": "What are the security and privacy implications of using vector databases for sensitive data compared to traditional search engines?",
-        "quote": "Vector databases have greatly enhanced RAG systems by optimizing data retrieval and processing. These databases enable efficient storage and quick retrieval based on semantic meaning. Advanced indexing methods like HNSW and IVF ensure that relevant data is swiftly located, enhancing the accuracy of responses.",
+        "claim": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines?",
+        "quote": "RAG (retrieval-augmented generation) is a two-part AI technique that involves indexing data into a vector database and searching the database to retrieve relevant information.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.2,
+        "confidence": 0.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -407,68 +463,68 @@
         "id": "S2-e5",
         "source_id": "S2",
         "sub_question_id": "SQ5",
-        "claim": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines in high-stakes applications?",
-        "quote": "The integration of vector databases has been a key component in revolutionizing the performance of RAG systems. Let\u2019s explore the relationship between RAG and vector databases and how they have worked together to achieve such remarkable results.",
+        "claim": "Under what specific conditions does the obvious advantage of vector databases (e.g., semantic search) become a disadvantage for retrieval-augmented generation?",
+        "quote": "RAG (retrieval-augmented generation) is a two-part AI technique that involves indexing data into a vector database and searching the database to retrieve relevant information.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.2,
+        "confidence": 0.0,
         "citable": true,
-        "query_id": "",
-        "cross_attributed": true
+        "query_id": "Q5",
+        "cross_attributed": false
       },
       {
         "id": "S2-e6",
         "source_id": "S2",
         "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the performance of vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks?",
-        "quote": "Vector databases not only improve the retrieval speed but also handle large volumes of data efficiently. This scalability is essential for applications dealing with extensive datasets. By ensuring quick and precise retrieval, vector databases support real-time querying, providing users with immediate and relevant responses.",
+        "claim": "How do the scalability and distributed processing capabilities of vector databases compare to traditional search engines for large-scale RAG deployments?",
+        "quote": "RAG (retrieval-augmented generation) is a two-part AI technique that involves indexing data into a vector database and searching the database to retrieve relevant information.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.2,
+        "confidence": 0.0,
         "citable": true,
-        "query_id": "Q6",
-        "cross_attributed": false
+        "query_id": "",
+        "cross_attributed": true
       },
       {
         "id": "S3-e1",
         "source_id": "S3",
         "sub_question_id": "SQ1",
-        "claim": "What are the specific hardware requirements for deploying vector databases versus traditional search engines in production environments?",
-        "quote": "Vector databases are designed for horizontal scaling, distributing data across multiple nodes. This approach faces challenges in maintaining query performance and data consistency across distributed systems.",
+        "claim": "Vector databases have p99 latency and concurrent QPS as key performance metrics",
+        "quote": "Latency p99 (99th percentile, measuring the slowest 1% of queries) matters more than median. Slow tail queries degrade user experience more than good medians improve it. A system with 10ms median and 500ms p99 feels slower than 20ms median and 50ms p99.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.5,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
-        "query_id": "",
-        "cross_attributed": true
+        "query_id": "Q1",
+        "cross_attributed": false
       },
       {
         "id": "S3-e2",
         "source_id": "S3",
-        "sub_question_id": "SQ2",
-        "claim": "How do the cost structures (including compute, storage, and maintenance) of vector databases compare to traditional search engines for typical enterprise-scale retrieval tasks?",
-        "quote": "Vector databases handle increasing volumes of high-dimensional embeddings without performance loss. They achieve this through: Distributed architecture: Horizontal scaling across multiple nodes. Data compression: Techniques like product quantization reduce storage requirements, though balancing compression with retrieval accuracy is crucial.",
+        "sub_question_id": "SQ1",
+        "claim": "Concurrent throughput (QPS) is a key performance metric for vector databases",
+        "quote": "Concurrent throughput (QPS) shows behavior under actual load. A database handling 100 simultaneous queries at 30ms beats one that does 1 query at 10ms but drops to 200ms under load. Single-query benchmarks lie about production performance.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.3,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
-        "query_id": "",
-        "cross_attributed": true
+        "query_id": "Q1",
+        "cross_attributed": false
       },
       {
         "id": "S3-e3",
         "source_id": "S3",
-        "sub_question_id": "SQ3",
-        "claim": "What are the operational complexity trade-offs in terms of setup, configuration, and ongoing maintenance for vector databases versus traditional search engines?",
-        "quote": "Vector databases are designed for horizontal scaling, distributing data across multiple nodes. This approach faces challenges in maintaining query performance and data consistency across distributed systems.",
+        "sub_question_id": "SQ2",
+        "claim": "pgvector + pgvectorscale stores vectors in PostgreSQL with under 100M vectors, requiring less storage than purpose-built databases",
+        "quote": "pgvector + pgvectorscale: PostgreSQL users with under 100M vectors, plus iterative index scans for better filtered search.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.5,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -476,27 +532,27 @@
       {
         "id": "S3-e4",
         "source_id": "S3",
-        "sub_question_id": "SQ4",
-        "claim": "What are the security and privacy implications of using vector databases for sensitive data compared to traditional search engines?",
-        "quote": "Vector databases store embeddings derived from unstructured data, enabling efficient retrieval for AI models.",
-        "quote_match": "fuzzy",
+        "sub_question_id": "SQ2",
+        "claim": "Purpose-built databases like Pinecone, Milvus, Qdrant, and Weaviate handle billions of vectors with lower storage costs than extensions",
+        "quote": "Pinecone, Milvus, Qdrant, and Weaviate use vector-optimized storage engines, query planners, and index structures. They implement HNSW (Hierarchical Navigable Small World), a graph-based algorithm that searches vectors by navigating through multiple layers from coarse to fine approximations. This handles billions of vectors well because algorithm complexity grows logarithmically, not linearly, regardless of vector dimensionality.",
+        "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.04,
-        "citable": false,
-        "query_id": "Q4",
-        "cross_attributed": false
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
       },
       {
         "id": "S3-e5",
         "source_id": "S3",
-        "sub_question_id": "SQ5",
-        "claim": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines in high-stakes applications?",
-        "quote": "Vector databases are designed for horizontal scaling, distributing data across multiple nodes. This approach faces challenges in maintaining query performance and data consistency across distributed systems.",
+        "sub_question_id": "SQ3",
+        "claim": "Quantization reduces memory costs with minimal recall impact, cutting memory by 75% when reducing 32-bit floats to 8-bit integers",
+        "quote": "Quantization (compressing vectors by using fewer bits per dimension, like reducing 32-bit floats to 8-bit integers) reduces memory costs with minimal recall impact. Reducing 32-bit floats to 8-bit integers cuts memory 75% while maintaining high accuracy.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.2,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -504,13 +560,13 @@
       {
         "id": "S3-e6",
         "source_id": "S3",
-        "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the performance of vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks?",
-        "quote": "Vector databases use specialized algorithms like Hierarchical Navigable Small World (HNSW) graphs or Inverted File Index (IVF) for efficient approximate nearest neighbor search. These methods balance search accuracy and speed in high-dimensional spaces.",
+        "sub_question_id": "SQ4",
+        "claim": "Write-heavy patterns like agent memory workloads require different recovery mechanisms than traditional RAG",
+        "quote": "If your evaluation weights read latency alone, you'll pick the wrong database for anything with iterative writes.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.4,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -519,13 +575,13 @@
         "id": "S4-e1",
         "source_id": "S4",
         "sub_question_id": "SQ1",
-        "claim": "What are the specific hardware requirements for deploying vector databases versus traditional search engines in production environments?",
-        "quote": "At 60\u2013100M queries/month, self-hosting becomes 50\u201375% cheaper than cloud.",
-        "quote_match": "exact_normalized",
+        "claim": "Semantic search is super-efficient, fast, and great for providing direct answers closely related to the user query.",
+        "quote": "Semantic search is super-efficient, fast, and great for providing direct answers closely related to the user query.",
+        "quote_match": "none",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.8,
-        "citable": true,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
         "query_id": "",
         "cross_attributed": true
       },
@@ -533,26 +589,26 @@
         "id": "S4-e2",
         "source_id": "S4",
         "sub_question_id": "SQ2",
-        "claim": "How do the cost structures (including compute, storage, and maintenance) of vector databases compare to traditional search engines for typical enterprise-scale retrieval tasks?",
-        "quote": "Hidden costs\u2014embeddings, reranking, backups, reindexing, and egress\u2014can double real production spend.",
+        "claim": "Semantic search is lightweight, scalable, and cost-efficient.",
+        "quote": "Because it operates only on vector embeddings and retrieval algorithms, it\u2019s lightweight, scalable, and cost-efficient.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.9,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
-        "query_id": "Q2",
-        "cross_attributed": false
+        "query_id": "",
+        "cross_attributed": true
       },
       {
         "id": "S4-e3",
         "source_id": "S4",
         "sub_question_id": "SQ3",
-        "claim": "What are the operational complexity trade-offs in terms of setup, configuration, and ongoing maintenance for vector databases versus traditional search engines?",
-        "quote": "The October 2025 Pricing Shift That Changed Everything",
+        "claim": "Costly if you want to handle massive datasets: Creating and updating vector embeddings for large datasets demands increasing amounts of resources, which can be expensive.",
+        "quote": "Costly if you want to handle massive datasets: Creating and updating vector embeddings for large datasets demands increasing amounts of resources, which can be expensive.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.7,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -561,12 +617,12 @@
         "id": "S4-e4",
         "source_id": "S4",
         "sub_question_id": "SQ4",
-        "claim": "What are the security and privacy implications of using vector databases for sensitive data compared to traditional search engines?",
-        "quote": "The Hidden Cost of Vector Database Pricing Models",
+        "claim": "RAG has higher latency and cost: Multiple API calls that enable RAG to be so effective come with hefty charges.",
+        "quote": "Higher latency and cost: Multiple API calls that enable RAG to be so effective come with hefty charges.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.6,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -575,196 +631,116 @@
         "id": "S4-e5",
         "source_id": "S4",
         "sub_question_id": "SQ5",
-        "claim": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines in high-stakes applications?",
-        "quote": "The Hidden Cost of Vector Database Pricing Models",
+        "claim": "When users expect natural language answers or context synthesis across multiple documents, semantic search alone falls short. That\u2019s when RAG becomes the logical next step.",
+        "quote": "When users expect natural language answers or context synthesis across multiple documents, semantic search alone falls short. That\u2019s when RAG becomes the logical next step.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "contradicts",
-        "confidence": 0.5,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
-        "query_id": "",
-        "cross_attributed": true
+        "query_id": "Q5",
+        "cross_attributed": false
       },
       {
         "id": "S4-e6",
         "source_id": "S4",
         "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the performance of vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks?",
-        "quote": "Query costs scale with index size, so the same search can cost 10x more as data grows from 10GB to 100GB.",
-        "quote_match": "fuzzy",
-        "page": null,
-        "stance": "contradicts",
-        "confidence": 0.36,
-        "citable": false,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S5-e1",
-        "source_id": "S5",
-        "sub_question_id": "SQ1",
-        "claim": "What are the specific hardware requirements for deploying vector databases versus traditional search engines in production environments?",
-        "quote": "Zilliz Cloud Fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.",
+        "claim": "RAG is renowned for its accuracy, but the cost of this accuracy is the added layers of complexity.",
+        "quote": "RAG is renowned for its accuracy, but the cost of this accuracy is the added layers of complexity.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
-      },
-      {
-        "id": "S5-e2",
-        "source_id": "S5",
-        "sub_question_id": "SQ2",
-        "claim": "How do the cost structures (including compute, storage, and maintenance) of vector databases compare to traditional search engines for typical enterprise-scale retrieval tasks?",
-        "quote": "Total Ownership Cost: Vector dbs are easier to deploy and integrate with existing machine learning frameworks due to their straightforward setup and comprehensive APIs. This accessibility, coupled with lower overall costs, makes them a favorite among developers of RAG applications.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S5-e3",
-        "source_id": "S5",
-        "sub_question_id": "SQ3",
-        "claim": "What are the operational complexity trade-offs in terms of setup, configuration, and ongoing maintenance for vector databases versus traditional search engines?",
-        "quote": "Vector dbs are easier to deploy and integrate with existing machine learning frameworks due to their straightforward setup and comprehensive APIs.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S5-e4",
-        "source_id": "S5",
-        "sub_question_id": "SQ4",
-        "claim": "What are the security and privacy implications of using vector databases for sensitive data compared to traditional search engines?",
-        "quote": "Enhanced Data Privacy and Security: RAG can securely manage private data as an external knowledge base extension, preventing potential data breaches after model training.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S5-e5",
-        "source_id": "S5",
-        "sub_question_id": "SQ5",
-        "claim": "What are the failure modes and recovery mechanisms for vector databases that differ from traditional search engines in high-stakes applications?",
-        "quote": "Zilliz Cloud Fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S5-e6",
-        "source_id": "S5",
-        "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the performance of vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks?",
-        "quote": "Vector dbs have been a fundamental retrieval technology in RAG systems. However, as developers build increasingly complicated RAG applications and use them in production environments, their demand for higher-quality and more precise answers to user query grows, posing challenges to vector databases.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "Q6",
-        "cross_attributed": false
       }
     ],
     "sources": [
       {
         "id": "S1",
-        "url": "https://www.eyelevel.ai/post/do-vector-databases-lose-accuracy-at-scale",
-        "title": "Do Vector Databases Lose Accuracy at Scale?",
-        "domain": "eyelevel.ai",
+        "url": "https://ranksquire.com/2026/02/24/fastest-vector-database-2026",
+        "title": "Fastest Vector Database 2026: 6 Benchmarks Compared",
+        "domain": "ranksquire.com",
         "source_type": "other",
         "content_origin": "provider_raw",
-        "quality_score": 0.622,
+        "quality_score": 0.617,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S2",
-        "url": "https://thenewstack.io/secret-weapon-how-sql-vector-databases-boost-rag-performance",
-        "title": "How SQL Vector Databases Boost RAG Performance - The New Stack",
-        "domain": "thenewstack.io",
-        "source_type": "other",
+        "url": "https://orkes.io/blog/rag-explained-building-semantic-search",
+        "title": "RAG Explained | Using Retrieval-Augmented Generation to Build Semantic Search",
+        "domain": "orkes.io",
+        "source_type": "blog",
         "content_origin": "provider_raw",
-        "quality_score": 0.613,
+        "quality_score": 0.567,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S3",
-        "url": "https://unstructured.io/insights/choosing-between-vector-and-traditional-databases-for-ai",
-        "title": "Choosing Between Vector and Traditional Databases for AI | Unstructured",
-        "domain": "unstructured.io",
-        "source_type": "other",
+        "url": "https://www.firecrawl.dev/blog/best-vector-databases",
+        "title": "Best Vector Databases in 2026: A Complete Comparison Guide",
+        "domain": "firecrawl.dev",
+        "source_type": "blog",
         "content_origin": "provider_raw",
-        "quality_score": 0.611,
+        "quality_score": 0.564,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S4",
-        "url": "https://www.actian.com/blog/databases/the-hidden-cost-of-vector-database-pricing-models",
-        "title": "The Hidden Cost of Vector Database Pricing Models",
-        "domain": "actian.com",
+        "url": "https://www.meilisearch.com/blog/semantic-search-vs-rag",
+        "title": "Semantic search vs. RAG: A side-by-side comparison | Meilisearch",
+        "domain": "meilisearch.com",
         "source_type": "blog",
         "content_origin": "provider_raw",
-        "quality_score": 0.557,
+        "quality_score": 0.563,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S5",
-        "url": "https://zilliz.com/blog/vector-database-are-the-base-of-RAG-retrieval",
-        "title": "Vector Databases Are the Base of RAG Retrieval - Zilliz blog",
-        "domain": "zilliz.com",
-        "source_type": "blog",
+        "url": "https://www.salttechno.ai/datasets/vector-database-performance-benchmark-2026",
+        "title": "Vector Database Benchmark 2026 | Top 10 Compared",
+        "domain": "salttechno.ai",
+        "source_type": "other",
         "content_origin": "provider_raw",
-        "quality_score": 0.555,
+        "quality_score": 0.612,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       }
     ],
     "verification": {
-      "total_claims": 2,
-      "substantive_claims": 2,
-      "total_citations": 2,
-      "resolvable_citations": 2,
-      "total_evidence_refs": 2,
-      "resolvable_evidence_refs": 2,
-      "supported_claims": 2,
-      "partially_supported_claims": 6,
-      "unsupported_claims": 0,
-      "checked_claims": 8,
-      "checkable_claims": 8,
+      "total_claims": 0,
+      "substantive_claims": 0,
+      "total_citations": 0,
+      "resolvable_citations": 0,
+      "total_evidence_refs": 0,
+      "resolvable_evidence_refs": 0,
+      "supported_claims": 0,
+      "partially_supported_claims": 14,
+      "unsupported_claims": 1,
+      "checked_claims": 15,
+      "checkable_claims": 15,
       "not_checked_claims": 0,
       "entailment_exhaustive": true,
       "contradictions_total": 0,
       "contradictions_auditable": 0,
-      "generated_substantive_claims": 8,
-      "removed_after_verification": 6,
-      "final_published_claims": 2,
+      "contradiction_sides_checkable": 0,
+      "contradiction_sides_checked": 0,
+      "contradictions_semantically_supported": 0,
+      "duplicate_claims_removed": 0,
+      "generated_substantive_claims": 15,
+      "removed_after_verification": 15,
+      "final_published_claims": 0,
       "issues": [
         {
           "type": "unused_source",
@@ -775,63 +751,145 @@
           "detail": "retrieved but never cited"
         },
         {
-          "type": "partially_supported_claim",
-          "severity": "warning",
-          "claim_text": "Vector databases require horizontal scaling to handle large datasets, which can compromise query performance and data consistency.",
-          "citation_id": "",
-          "evidence_id": "S3-e1",
-          "detail": "The evidence states that vector databases are designed for horizontal scaling and faces challenges in maintaining query performance and data consistency. The claim states that vector databases require"
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S4",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
         },
         {
           "type": "partially_supported_claim",
           "severity": "warning",
-          "claim_text": "Vector databases are more cost-effective than traditional search engines at 60\u2013100M queries/month when self-hosted.",
+          "claim_text": "Vector databases excel in low-latency vector search for real-time applications but require significant memory resources for high-throughput workloads.",
           "citation_id": "",
-          "evidence_id": "S4-e1",
-          "detail": "The evidence states that self-hosting is 50\u201375% cheaper than cloud at 6:0\u2013100M queries/month, which directly addresses the cost-effectiveness claim for the specified query volume range. However, the c"
+          "evidence_id": "S1-e1,S1-e2",
+          "detail": "The evidence supports the claim that vector databases require significant memory resources for high-throughput workloads by stating that to search 10M vectors at sub-10ms speed, you may need 64GB+ of "
         },
         {
           "type": "partially_supported_claim",
           "severity": "warning",
-          "claim_text": "Vector databases handle high-dimensional embeddings efficiently through distributed architecture and data compression techniques.",
+          "claim_text": "Traditional search engines like PostgreSQL with pgvector extensions offer cost-efficient storage for smaller datasets but struggle with billion-scale vector indexing.",
           "citation_id": "",
-          "evidence_id": "S3-e2",
-          "detail": "The evidence states that vector databases handle increasing volumes of high-dimensional embeddings without performance loss through distributed architecture and data compression techniques. However, t"
+          "evidence_id": "S3-e3,S3-e4",
+          "detail": "The evidence S3-e4 describes how certain vector databases handle billions of vectors well due to logarithmic complexity, which supports the claim that traditional search engines like PostgreSQL with p"
         },
         {
           "type": "partially_supported_claim",
           "severity": "warning",
-          "claim_text": "Vector databases are easier to deploy and integrate with existing machine learning frameworks due to straightforward setup and comprehensive APIs.",
+          "claim_text": "Vector databases introduce hidden costs through filtering overhead and memory-intensive preprocessing, which can degrade performance by 40-60% under complex query conditions.",
+          "citation_id": "",
+          "evidence_id": "S1-e3,S3-e5",
+          "detail": "The evidence from S1-e3 mentions a potential 40-60% drop in QPS due to filtering across 50 complex metadata fields in Weaviate, which aligns with the claim's performance degradation percentage. Howeve"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "The 2026 Speed Law mandates that vector database latency must not exceed 5% of the total agentic loop time to avoid infrastructure bottlenecks.",
+          "citation_id": "",
+          "evidence_id": "S1-e5",
+          "detail": "The evidence states that the 2026 Speed Law dictates that retrieval must never consume more than 5% of the total agentic loop time. The claim states that vector database latency must not exceed 5% of "
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "Vector databases require specialized hardware or memory-intensive configurations for optimal performance, making them less suitable for write-heavy workloads.",
+          "citation_id": "",
+          "evidence_id": "S1-e6,S3-e6",
+          "detail": "The evidence S1-e6 states that if you cannot afford the RAM for optimal performance, you must switch to IVF-PQ indexing which uses 80% less memory but is 5x slower. This implies that vector databases "
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "Vector databases are optimal for low-latency, high-throughput applications but demand significant memory resources and specialized hardware.",
+          "citation_id": "",
+          "evidence_id": "S1-e1,S1-e2,S1-e6",
+          "detail": "The evidence provides specific benchmarks for latency and throughput (Qdrant and Milvus), and mentions memory requirements (64GB+ RAM) and the trade-off between speed and memory (IVF-PQ indexing). How"
+        },
+        {
+          "type": "unsupported_claim",
+          "severity": "warning",
+          "claim_text": "Qdrant achieves the lowest p50 query latency at 4ms and leads in p99 latency under 8ms for real-time applications.",
+          "citation_id": "",
+          "evidence_id": "S5-e1",
+          "detail": "The evidence states a latency of 4ms / 25ms for Qdr: OSS Managed, but the claim specifies p50 query latency at 4ms and p99 latency under 8ms. The evidence does not mention p50 or p99, nor does it spec"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "Redis has the lowest p50 query latency at 5ms among the evaluated systems.",
           "citation_id": "",
           "evidence_id": "S5-e2",
-          "detail": "The evidence states that vector databases are easier to deploy and integrate with existing machine: learning frameworks due to straightforward setup and comprehensive APIs. This directly matches the c"
+          "detail": "The evidence states a latency of 5ms for Redis OSS Managed, but the claim specifies 'lowest p5:0 query latency at 5ms among the evaluated systems'. The evidence does not explicitly state that Redis ha"
         },
         {
           "type": "partially_supported_claim",
           "severity": "warning",
-          "claim_text": "Vector databases can degrade in precision as datasets grow, with a 12% performance hit by the 100,000-page mark.",
+          "claim_text": "Milvus achieves the highest throughput at 20,000+ QPS via GPU-accelerated indexing for high-volume analytics.",
+          "citation_id": "",
+          "evidence_id": "S1-e1",
+          "detail": "The evidence states that Milvus 'wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing', which directly matches the claim's throughput claim. However, the evidence does not explicitly sta"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "To search 10 million vectors at sub-10ms latency, dedicated RAM of 64GB+ is typically required.",
+          "citation_id": "",
+          "evidence_id": "S1-e2",
+          "detail": "The evidence states 'you may need 64GB+ of dedicated RAM' for the condition, but the claim uses 'typically required'. The evidence uses 'may' which is weaker than 'typically required', and the claim u"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "PostgreSQL with pgvector extensions requires less storage than purpose-built vector databases for datasets under 100 million vectors.",
+          "citation_id": "",
+          "evidence_id": "S3-e3",
+          "detail": "The evidence states that PostgreSQL users with under 10:00M vectors can use pgvector + pgvectorscale for better filtered search, but it does not explicitly state that PostgreSQL with pgvector extensio"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "Filtering across 50 complex metadata fields during vector search can reduce query throughput by 40-60% due to HNSW traversal overhead.",
+          "citation_id": "",
+          "evidence_id": "S1-e3",
+          "detail": "The evidence states that filtering across 50 complex metadata fields in Weaviate can cause HNSW traversal overhead that potentially drops QPS by 40-60%. The claim attributes this effect to a general s"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "Quantization reduces memory usage by 75% while maintaining high recall accuracy by compressing vectors from 32-bit floats to 8-bit integers.",
+          "citation_id": "",
+          "evidence_id": "S3-e5",
+          "detail": "The evidence states that reducing 32-bit floats to : 8-bit integers cuts memory 75% while maintaining high accuracy. However, the claim specifies 'reduces memory usage by 75%' and 'maintaining high re"
+        },
+        {
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "Vector databases face a trade-off between speed and memory: IVF-PQ indexing reduces memory usage by 80% but slows query performance by 5x.",
           "citation_id": "",
           "evidence_id": "S1-e6",
-          "detail": "The evidence states that precision degrades with a 12% performance hit by the 100,000-page mark, which matches the claim's specific threshold (100,000 pages) and performance metric (12% performance hi"
+          "detail": "The evidence states that IVF-PQ indexing uses 80% less memory and slows query performance by .5x (not 5x). The claim states 5x. The evidence also states that the trade-off is for when you cannot affor"
         },
         {
           "type": "partially_supported_claim",
           "severity": "warning",
-          "claim_text": "Zilliz Cloud offers fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.",
+          "claim_text": "Write-heavy workloads require different recovery mechanisms than traditional RAG systems due to iterative index updates.",
           "citation_id": "",
-          "evidence_id": "S5-e5",
-          "detail": "The evidence states that Zill: Cloud offers \"Fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.\" However, the claim uses the word \"offers\""
+          "evidence_id": "S3-e6",
+          "detail": "The evidence states that iterative writes (which are relevant to write-heavy workloads) require a different database choice than what would be optimal for read latency alone. However, the claim attrib"
         }
       ],
       "unused_source_ids": [
         "S1",
         "S2",
-        "S4"
+        "S3",
+        "S4",
+        "S5"
       ],
       "repaired": false
     },
     "metrics": {
-      "run_id": "20260924-225129-06080d",
+      "run_id": "20260925-021611-26f19b",
       "query": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
       "mode": "local",
       "model_assignments": {
@@ -841,7 +899,7 @@
         "synthesizer": "ollama:qwen3:4b",
         "verifier": "ollama:qwen3:4b"
       },
-      "duration_s": 715.99,
+      "duration_s": 776.08,
       "environment": {
         "python": "3.12.3",
         "platform": "macOS-26.5.2-arm64-arm-64bit",
@@ -863,11 +921,11 @@
         "provenance": {
           "engine_version": "0.2.0",
           "evaluator_version": "2",
-          "prompt_version": "f8967319ded4",
-          "schema_version": "10a078668458",
+          "prompt_version": "b7186bf4040c",
+          "schema_version": "bd88f3c7e89e",
           "git": {
-            "commit": "b181f458206b2b65cb06fcdcd737e7bfba9af130",
-            "short_commit": "b181f458",
+            "commit": "80c62edbf168e266b775fdfc105e943fba3032cf",
+            "short_commit": "80c62edb",
             "dirty": false,
             "branch": "main"
           },
@@ -933,76 +991,76 @@
       "unique_sources": 5,
       "usable_sources": 5,
       "evidence_items": 30,
-      "exact_quotes": 27,
-      "fuzzy_quotes": 3,
-      "unmatched_quotes": 0,
-      "citable_evidence": 27,
-      "cross_attributed_evidence": 25,
+      "exact_quotes": 29,
+      "fuzzy_quotes": 0,
+      "unmatched_quotes": 1,
+      "citable_evidence": 29,
+      "cross_attributed_evidence": 19,
       "content_origins": {
         "provider_raw": 5
       },
       "domain_concentration": 0.2,
       "distinct_domains": 5,
-      "llm_calls": 18,
-      "provider_requests": 18,
-      "billable_provider_requests": 18,
+      "llm_calls": 25,
+      "provider_requests": 25,
+      "billable_provider_requests": 25,
       "failed_provider_requests": 0,
       "structured_repairs": 0,
       "compatibility_retries": 0,
       "transport_retries": 0,
       "rate_limit_refusals": 0,
       "provider_requests_by_model": {
-        "ollama:qwen3:4b": 18
+        "ollama:qwen3:4b": 25
       },
       "reserved_worst_case_usd": 0.0,
       "reservation_was_sufficient": true,
       "llm_failed_calls": 0,
-      "input_tokens": 21669,
-      "output_tokens": 6206,
+      "input_tokens": 29023,
+      "output_tokens": 7775,
       "calls_by_provider": {
-        "ollama": 18
+        "ollama": 25
       },
       "calls_by_role": {
         "planner": 2,
         "researcher": 6,
         "critic": 1,
         "synthesizer": 1,
-        "verifier": 8
+        "verifier": 15
       },
       "known_cost_usd": 0.0,
       "cost_is_complete": true,
       "unpriced_calls": 0,
       "citation_integrity_rate": 1.0,
-      "evidence_integrity_rate": 1.0,
+      "evidence_integrity_rate": null,
       "citation_coverage_rate": 1.0,
-      "claim_support_rate": 0.25,
-      "partial_support_rate": 0.75,
+      "claim_support_rate": 0.0,
+      "partial_support_rate": 0.9333,
       "support_breakdown": {
-        "supported": 2,
-        "partially_supported": 6,
-        "unsupported": 0,
+        "supported": 0,
+        "partially_supported": 14,
+        "unsupported": 1,
         "not_checked": 0
       },
       "entailment_exhaustive": true,
-      "citations_total": 2,
-      "evidence_refs_total": 2,
+      "citations_total": 0,
+      "evidence_refs_total": 0,
       "contradictions_total": 0,
       "contradictions_auditable": 0,
-      "unused_sources": 3,
+      "unused_sources": 5,
       "citations_repaired": false,
       "stage_seconds": {
-        "analyze_query": 13.422,
-        "plan_research": 22.708,
-        "generate_queries": 18.713,
-        "dedupe_sources": 0.003,
+        "analyze_query": 11.517,
+        "plan_research": 18.331,
+        "generate_queries": 15.838,
+        "dedupe_sources": 0.002,
         "register_sources": 0.0,
-        "assess_coverage": 24.581,
-        "synthesize": 147.964,
-        "verify_citations": 89.721
+        "assess_coverage": 21.675,
+        "synthesize": 111.162,
+        "verify_citations": 220.418
       },
       "errors": 0,
       "error_kinds": {}
     },
-    "markdown": "# Practical Trade-offs Between Vector Databases and Traditional Search Engines for Retrieval-Augmented Generation\n\n**Question:** What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?\n\n## Summary\n\nVector databases face challenges in maintaining query performance and data consistency across distributed systems. [S3]\n\n## Security and Privacy\n\nVector databases can securely manage private data as an external knowledge base extension, preventing potential data breaches after model training. [S5]\n\n## Limitations\n\n- The evidence does not provide specific details on the security and privacy implications of vector databases for sensitive data beyond the general statement that they can securely manage private data.\n- The evidence does not specify the exact conditions under which vector databases become significantly worse than traditional search engines for real-world retrieval-augmented generation tasks beyond the 100,000-page mark.\n- The evidence does not include comparative analysis of failure modes and recovery mechanisms for vector databases versus traditional search engines in high-stakes applications.\n- 3 extracted finding(s) were excluded because their quotes could not be located in the source text\n- 6 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [Do Vector Databases Lose Accuracy at Scale?](https://www.eyelevel.ai/post/do-vector-databases-lose-accuracy-at-scale) \u2014 eyelevel.ai, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S2]** [How SQL Vector Databases Boost RAG Performance - The New Stack](https://thenewstack.io/secret-weapon-how-sql-vector-databases-boost-rag-performance) \u2014 thenewstack.io, other, n.d., quality 0.61 _(retrieved, not cited)_\n- **[S3]** [Choosing Between Vector and Traditional Databases for AI | Unstructured](https://unstructured.io/insights/choosing-between-vector-and-traditional-databases-for-ai) \u2014 unstructured.io, other, n.d., quality 0.61\n- **[S4]** [The Hidden Cost of Vector Database Pricing Models](https://www.actian.com/blog/databases/the-hidden-cost-of-vector-database-pricing-models) \u2014 actian.com, blog, n.d., quality 0.56 _(retrieved, not cited)_\n- **[S5]** [Vector Databases Are the Base of RAG Retrieval - Zilliz blog](https://zilliz.com/blog/vector-database-are-the-base-of-RAG-retrieval) \u2014 zilliz.com, blog, n.d., quality 0.56\n\n## Citation verification\n\n- Evidence references: 2, 2 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: 100% of 2\n- Entailment checked against each claim's own evidence, over every eligible claim: 2 supported, 6 partially supported, 0 unsupported, 0 not checked\n- Retrieved but never cited: S1, S2, S4\n\n<details><summary>Open citation issues</summary>\n\n- `partially_supported_claim` The evidence states that vector databases are designed for horizontal scaling and faces challenges in maintaining query performance and data consistency. The claim states that vector databases require \u2014 Vector databases require horizontal scaling to handle large datasets, which can compromise query performance and data co\n- `partially_supported_claim` The evidence states that self-hosting is 50\u201375% cheaper than cloud at 6:0\u2013100M queries/month, which directly addresses the cost-effectiveness claim for the specified query volume range. However, the c \u2014 Vector databases are more cost-effective than traditional search engines at 60\u2013100M queries/month when self-hosted.\n- `partially_supported_claim` The evidence states that vector databases handle increasing volumes of high-dimensional embeddings without performance loss through distributed architecture and data compression techniques. However, t \u2014 Vector databases handle high-dimensional embeddings efficiently through distributed architecture and data compression te\n- `partially_supported_claim` The evidence states that vector databases are easier to deploy and integrate with existing machine: learning frameworks due to straightforward setup and comprehensive APIs. This directly matches the c \u2014 Vector databases are easier to deploy and integrate with existing machine learning frameworks due to straightforward set\n- `partially_supported_claim` The evidence states that precision degrades with a 12% performance hit by the 100,000-page mark, which matches the claim's specific threshold (100,000 pages) and performance metric (12% performance hi \u2014 Vector databases can degrade in precision as datasets grow, with a 12% performance hit by the 100,000-page mark.\n- `partially_supported_claim` The evidence states that Zill: Cloud offers \"Fully managed Vector Lakebase services designed for high reliability, performance, and cost efficiency at scale.\" However, the claim uses the word \"offers\" \u2014 Zilliz Cloud offers fully managed Vector Lakebase services designed for high reliability, performance, and cost efficien\n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 6 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 2 |\n| Evidence items | 30 |\n| Quotes verbatim (exact-normalised) | 90% |\n| Quotes fuzzy (excluded from citation) | 10% |\n| LLM calls | 18 |\n| Tokens (in/out) | 21,669 / 6,206 |\n| Estimated cost | $0.0000 |\n| Duration | 716.0s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-24 23:03 UTC._\n"
+    "markdown": "# Practical Trade-offs Between Vector Databases and Traditional Search Engines for Retrieval-Augmented Generation\n\n**Question:** What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?\n\n## Limitations\n\n- The evidence does not provide specific data on the cost of vector database operations beyond general statements about memory and latency.\n- No comparative analysis of failure recovery mechanisms for vector databases versus traditional search engines is available.\n- 1 extracted finding(s) were excluded because their quotes could not be located in the source text\n- 15 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [Fastest Vector Database 2026: 6 Benchmarks Compared](https://ranksquire.com/2026/02/24/fastest-vector-database-2026) \u2014 ranksquire.com, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S2]** [RAG Explained | Using Retrieval-Augmented Generation to Build Semantic Search](https://orkes.io/blog/rag-explained-building-semantic-search) \u2014 orkes.io, blog, n.d., quality 0.57 _(retrieved, not cited)_\n- **[S3]** [Best Vector Databases in 2026: A Complete Comparison Guide](https://www.firecrawl.dev/blog/best-vector-databases) \u2014 firecrawl.dev, blog, n.d., quality 0.56 _(retrieved, not cited)_\n- **[S4]** [Semantic search vs. RAG: A side-by-side comparison | Meilisearch](https://www.meilisearch.com/blog/semantic-search-vs-rag) \u2014 meilisearch.com, blog, n.d., quality 0.56 _(retrieved, not cited)_\n- **[S5]** [Vector Database Benchmark 2026 | Top 10 Compared](https://www.salttechno.ai/datasets/vector-database-performance-benchmark-2026) \u2014 salttechno.ai, other, n.d., quality 0.61 _(retrieved, not cited)_\n\n## Citation verification\n\n- Evidence references: 0, 0 resolved to citable evidence (n/a, no references). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: n/a, no substantive claims were published\n- Entailment checked against each claim's own evidence, over every eligible claim: 0 supported, 14 partially supported, 1 unsupported, 0 not checked\n- Retrieved but never cited: S1, S2, S3, S4, S5\n\n<details><summary>Open citation issues</summary>\n\n- `partially_supported_claim` The evidence supports the claim that vector databases require significant memory resources for high-throughput workloads by stating that to search 10M vectors at sub-10ms speed, you may need 64GB+ of  \u2014 Vector databases excel in low-latency vector search for real-time applications but require significant memory resources \n- `partially_supported_claim` The evidence S3-e4 describes how certain vector databases handle billions of vectors well due to logarithmic complexity, which supports the claim that traditional search engines like PostgreSQL with p \u2014 Traditional search engines like PostgreSQL with pgvector extensions offer cost-efficient storage for smaller datasets bu\n- `partially_supported_claim` The evidence from S1-e3 mentions a potential 40-60% drop in QPS due to filtering across 50 complex metadata fields in Weaviate, which aligns with the claim's performance degradation percentage. Howeve \u2014 Vector databases introduce hidden costs through filtering overhead and memory-intensive preprocessing, which can degrade\n- `partially_supported_claim` The evidence states that the 2026 Speed Law dictates that retrieval must never consume more than 5% of the total agentic loop time. The claim states that vector database latency must not exceed 5% of  \u2014 The 2026 Speed Law mandates that vector database latency must not exceed 5% of the total agentic loop time to avoid infr\n- `partially_supported_claim` The evidence S1-e6 states that if you cannot afford the RAM for optimal performance, you must switch to IVF-PQ indexing which uses 80% less memory but is 5x slower. This implies that vector databases  \u2014 Vector databases require specialized hardware or memory-intensive configurations for optimal performance, making them le\n- `partially_supported_claim` The evidence provides specific benchmarks for latency and throughput (Qdrant and Milvus), and mentions memory requirements (64GB+ RAM) and the trade-off between speed and memory (IVF-PQ indexing). How \u2014 Vector databases are optimal for low-latency, high-throughput applications but demand significant memory resources and s\n- `unsupported_claim` The evidence states a latency of 4ms / 25ms for Qdr: OSS Managed, but the claim specifies p50 query latency at 4ms and p99 latency under 8ms. The evidence does not mention p50 or p99, nor does it spec \u2014 Qdrant achieves the lowest p50 query latency at 4ms and leads in p99 latency under 8ms for real-time applications.\n- `partially_supported_claim` The evidence states a latency of 5ms for Redis OSS Managed, but the claim specifies 'lowest p5:0 query latency at 5ms among the evaluated systems'. The evidence does not explicitly state that Redis ha \u2014 Redis has the lowest p50 query latency at 5ms among the evaluated systems.\n- `partially_supported_claim` The evidence states that Milvus 'wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing', which directly matches the claim's throughput claim. However, the evidence does not explicitly sta \u2014 Milvus achieves the highest throughput at 20,000+ QPS via GPU-accelerated indexing for high-volume analytics.\n- `partially_supported_claim` The evidence states 'you may need 64GB+ of dedicated RAM' for the condition, but the claim uses 'typically required'. The evidence uses 'may' which is weaker than 'typically required', and the claim u \u2014 To search 10 million vectors at sub-10ms latency, dedicated RAM of 64GB+ is typically required.\n- `partially_supported_claim` The evidence states that PostgreSQL users with under 10:00M vectors can use pgvector + pgvectorscale for better filtered search, but it does not explicitly state that PostgreSQL with pgvector extensio \u2014 PostgreSQL with pgvector extensions requires less storage than purpose-built vector databases for datasets under 100 mil\n- `partially_supported_claim` The evidence states that filtering across 50 complex metadata fields in Weaviate can cause HNSW traversal overhead that potentially drops QPS by 40-60%. The claim attributes this effect to a general s \u2014 Filtering across 50 complex metadata fields during vector search can reduce query throughput by 40-60% due to HNSW trave\n- `partially_supported_claim` The evidence states that reducing 32-bit floats to : 8-bit integers cuts memory 75% while maintaining high accuracy. However, the claim specifies 'reduces memory usage by 75%' and 'maintaining high re \u2014 Quantization reduces memory usage by 75% while maintaining high recall accuracy by compressing vectors from 32-bit float\n- `partially_supported_claim` The evidence states that IVF-PQ indexing uses 80% less memory and slows query performance by .5x (not 5x). The claim states 5x. The evidence also states that the trade-off is for when you cannot affor \u2014 Vector databases face a trade-off between speed and memory: IVF-PQ indexing reduces memory usage by 80% but slows query \n- `partially_supported_claim` The evidence states that iterative writes (which are relevant to write-heavy workloads) require a different database choice than what would be optimal for read latency alone. However, the claim attrib \u2014 Write-heavy workloads require different recovery mechanisms than traditional RAG systems due to iterative index updates.\n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 6 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 2 |\n| Evidence items | 30 |\n| Quotes verbatim (exact-normalised) | 97% |\n| Quotes fuzzy (excluded from citation) | 0% |\n| LLM calls | 25 |\n| Tokens (in/out) | 29,023 / 7,775 |\n| Estimated cost | $0.0000 |\n| Duration | 776.1s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-25 02:29 UTC._\n"
   }
 }
