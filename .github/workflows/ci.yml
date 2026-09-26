@@ -333,7 +333,7 @@ jobs:
           examples = json.load(open("/tmp/examples.json"))["examples"]
           assert examples, "the image shipped without its recordings"
           print("recordings in image:", [e["id"] for e in examples])
-          assert any(e["has_pdf_evidence"] for e in examples), "no PDF recording in the image"
+          assert any(e["has_page_provenance"] for e in examples), "no PDF recording in the image"
 
           rid = examples[0]["id"]
           base = "http://127.0.0.1:8000"

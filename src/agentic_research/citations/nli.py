@@ -158,7 +158,14 @@ class NLIVerifier:
         if not pairs:
             return []
 
-        import torch
+        # Guarded: on a host without torch this must withhold, not
+        # crash the run. An unhandled ImportError here would propagate
+        # out of verification as an ordinary exception rather than as
+        # the typed "unverified" signal the gate fails closed on.
+        try:
+            import torch
+        except ImportError as exc:  # pragma: no cover - environment dependent
+            raise NLIUnavailable(f"torch is not installed: {exc}") from exc
 
         tokenizer, model, labels = _load(self.model_id, self.revision)
         out: list[NLIPrediction] = []

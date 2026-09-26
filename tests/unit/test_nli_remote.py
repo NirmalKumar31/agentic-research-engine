@@ -14,9 +14,20 @@ import respx
 
 from agentic_research.citations.nli import NLIUnavailable, RemoteNLIVerifier, build_verifier
 from agentic_research.citations.semantic import verify_claim
-from agentic_research.config import Settings
+from agentic_research.config import LLMMode, Settings
 
 ENDPOINT = "https://nli.example.test/score"
+
+
+def local_settings(**overrides: object) -> Settings:
+    """Settings that do not depend on a developer's .env.
+
+    The default LLM_MODE is hybrid, which requires an API key. A local
+    checkout supplies one through .env and CI does not, so a bare
+    Settings() passes here and fails there -- which is exactly how this
+    reached CI green locally and red remotely.
+    """
+    return Settings(llm_mode=LLMMode.LOCAL, **overrides)  # type: ignore[arg-type]
 
 
 def well_formed(results: list[dict]) -> dict:
@@ -167,16 +178,16 @@ def test_api_key_is_sent_as_a_bearer_token_and_not_logged() -> None:
 
 class TestBuildVerifier:
     def test_local_is_the_default(self) -> None:
-        built = build_verifier(Settings())
+        built = build_verifier(local_settings())
         assert type(built).__name__ == "NLIVerifier"
-        assert built.revision == Settings().nli_model_revision
+        assert built.revision == local_settings().nli_model_revision
 
     def test_remote_without_an_endpoint_raises_rather_than_silently_going_local(self) -> None:
         """Falling back to local here would try to load 1.4GB on a host
         chosen precisely because it cannot hold that."""
         with pytest.raises(NLIUnavailable):
-            build_verifier(Settings(nli_mode="remote"))
+            build_verifier(local_settings(nli_mode="remote"))
 
     def test_remote_with_an_endpoint_builds_remote(self) -> None:
-        built = build_verifier(Settings(nli_mode="remote", nli_endpoint=ENDPOINT))
+        built = build_verifier(local_settings(nli_mode="remote", nli_endpoint=ENDPOINT))
         assert type(built).__name__ == "RemoteNLIVerifier"

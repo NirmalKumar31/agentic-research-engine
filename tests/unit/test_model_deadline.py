@@ -196,9 +196,35 @@ class TestRunLevelDeadline:
     elapsed wall-clock time so a slow provider cannot quietly extend it.
     """
 
-    async def test_a_run_that_overruns_is_stopped(self) -> None:
+    async def test_a_run_that_overruns_is_stopped(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Fakes at the I/O boundaries: this asserts the deadline, not
+        that a provider happens to be reachable. Reaching a real Ollama
+        here passed locally and failed in CI, which is the whole reason
+        the boundary is faked rather than assumed."""
+        import agentic_research.runner as runner
         from agentic_research.config import LLMMode, Settings
         from agentic_research.runner import stream_research
+        from fakes import FakeFetcher, FakeRouter, FakeSearchService
+
+        monkeypatch.setattr(runner, "ModelRouter", lambda settings, tracker=None: FakeRouter())
+
+        class _Search(FakeSearchService):
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *exc):
+                return None
+
+        class _Fetcher(FakeFetcher):
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *exc):
+                return None
+
+        monkeypatch.setattr(runner, "build_provider", lambda settings: object())
+        monkeypatch.setattr(runner, "SearchService", lambda provider, settings: _Search())
+        monkeypatch.setattr(runner, "PageFetcher", lambda settings: _Fetcher())
 
         settings = Settings(
             llm_mode=LLMMode.LOCAL,
@@ -207,9 +233,7 @@ class TestRunLevelDeadline:
             checkpoint_backend="none",
         )
         started = time.perf_counter()
-        events = []
         async for event in stream_research("a question", settings):
-            events.append(event)
             if event.get("event") == "result":
                 break
         elapsed = time.perf_counter() - started
@@ -217,9 +241,9 @@ class TestRunLevelDeadline:
 
     def test_the_budget_carries_a_wall_clock_ceiling(self) -> None:
         """Counted in seconds, not in calls times nominal timeout."""
-        from agentic_research.config import Settings
+        from agentic_research.config import LLMMode, Settings
 
-        budget = Settings(run_timeout_seconds=42.0).budget
+        budget = Settings(llm_mode=LLMMode.LOCAL, run_timeout_seconds=42.0).budget
         assert budget.max_run_seconds == 42.0
 
     def test_the_result_reports_whether_it_was_cut_short(self) -> None:

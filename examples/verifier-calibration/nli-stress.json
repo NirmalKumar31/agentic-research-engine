@@ -39,7 +39,7 @@
           "reason": "best entailment 0.979 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 133.23,
+      "seconds": 52.15,
       "results": [
         {
           "id": "modality-faithful",
@@ -631,7 +631,7 @@
           "reason": "best entailment 0.944 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 26.98,
+      "seconds": 5.18,
       "results": [
         {
           "id": "modality-faithful",
@@ -1253,7 +1253,7 @@
           "reason": "best entailment 0.579 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 7.39,
+      "seconds": 1.96,
       "results": [
         {
           "id": "modality-faithful",
