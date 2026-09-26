@@ -786,10 +786,14 @@ def attribution_guard(
     checked here instead, from identity alone and never from quality
     score, rank or source category.
 
-    An attribution is established when the quote itself names the party,
-    or when the cited source *is* that party by domain or title.
-    Otherwise the claim is withheld: a vendor page asserting what a
-    standards body requires is not that standards body saying it.
+    An attribution is established when the quote itself names the party
+    at token boundaries, or when the cited source's registrable domain
+    establishes that the source *is* that party. Source title is not an
+    identity signal -- "NIST guidance explained by VendorCo" contains
+    "NIST" while being published by VendorCo, so title matching was
+    removed rather than constrained. Otherwise the claim is withheld: a
+    vendor page asserting what a standards body requires is not that
+    standards body saying it.
     """
     named = attributed_entities(claim)
     if not named:
