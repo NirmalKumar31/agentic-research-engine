@@ -92,9 +92,10 @@ def join() -> None:
         for index, candidate in enumerate(run["candidates"]):
             flat[f"{run_id}-{index}"] = (run_id, candidate)
 
-    rows, matrix = [], {"tp": 0, "fp": 0, "fn": 0, "tn": 0}
-    unsupported_published = []
-    uncertain_published = []
+    rows: list[dict[str, object]] = []
+    matrix = {"tp": 0, "fp": 0, "fn": 0, "tn": 0}
+    unsupported_published: list[dict[str, str]] = []
+    uncertain_published: list[dict[str, str]] = []
     for case in packet["cases"]:
         case_id = case["case_id"]
         run_id, candidate = flat[case_id]
