@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ClaimView } from "./ClaimView";
 import { EvidenceDrawer } from "./EvidenceDrawer";
+import { evidenceOnlyExcerpts } from "./fallback";
 import type { Claim, RunResult } from "./types";
 
 /**
@@ -54,6 +55,10 @@ export function ReportView({
 
   const substantive = allClaims.filter((c) => c.kind !== "framing");
   const grounded = substantive.filter((c) => c.evidence_ids.length > 0);
+  const excerpts = useMemo(
+    () => evidenceOnlyExcerpts(report, result.evidence),
+    [report, result.evidence],
+  );
   const citationsBySource = useMemo(() => {
     const counts = new Map<string, number>();
     for (const claim of allClaims) {
@@ -112,6 +117,28 @@ export function ReportView({
             sources; the question is covered less completely than a longer run
             would manage.
           </p>
+        )}
+
+        {excerpts.length > 0 && (
+          <section className="excerpts">
+            <h3>Source excerpts</h3>
+            <p className="notice notice--withheld">
+              <strong>No synthesized claim passed evidence verification.</strong> Showing
+              exact source excerpts instead. These are verbatim quotations, not findings —
+              nothing below has been generalised, combined or concluded from.
+            </p>
+            <ul className="excerpts__list">
+              {excerpts.map((item) => (
+                <li key={item.id}>
+                  <blockquote>{item.quote}</blockquote>
+                  <span className="muted small">
+                    [{item.source_id}]
+                    {item.page ? ` · p. ${item.page}` : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         {report.summary_claims.length > 0 && (

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
+from agentic_research.citations.guards import SourceIdentity
+from agentic_research.citations.nli import NLIUnavailable, build_verifier
 from agentic_research.citations.publication import (
     ClaimKey,
     ClaimVerdict,
@@ -12,9 +15,13 @@ from agentic_research.citations.publication import (
     filter_report_by_verification,
     key_of,
 )
+from agentic_research.citations.semantic import (
+    CitedEvidence,
+    SemanticVerdict,
+    verify_claim,
+)
 from agentic_research.citations.verifier import (
     resolve_report,
-    strip_markers,
     verify_structure,
 )
 from agentic_research.config import ModelRole
@@ -22,9 +29,7 @@ from agentic_research.evidence.store import EvidenceStore
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import (
     SYNTHESIZER_SYSTEM,
-    VERIFIER_SYSTEM,
     synthesizer_user,
-    verifier_user,
 )
 from agentic_research.graph.state import ResearchState
 from agentic_research.llm.base import LLMError
@@ -37,19 +42,23 @@ from agentic_research.models import (
     ClaimKind,
     Contradiction,
     CoverageAssessment,
+    EvidenceScoreRecord,
     ReportSection,
     ResearchReport,
     RunError,
     SubQuestion,
 )
 from agentic_research.observability import get_logger
-from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, EntailmentOut, ReportOut
+from agentic_research.report import MAX_EXCERPTS
+from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, ReportOut
 
 log = get_logger(__name__)
 
-# Entailment costs one model call per claim. Interactive runs sample; the
-# benchmark checks everything, because a sampled number reported as if it were
-# exhaustive is the kind of metric this project exists not to publish.
+# Entailment no longer samples: it used to cost one generative call per
+# claim, and the NLI gate classifies locally at no provider cost, so every
+# checkable candidate is checked. What survives is this number's second
+# job -- the point below which the run is too poor to be worth asking for
+# an unbounded report, used by _claim_budget to size synthesis.
 _DEFAULT_ENTAILMENT_SAMPLE = 10
 
 # Headroom left when sizing the report: verification also spends a call
@@ -418,6 +427,13 @@ async def verify_citations(state: ResearchState) -> ResearchState:
             "contradiction_sides_checkable": result.contradiction_sides_checkable,
             "contradiction_sides_checked": result.contradiction_sides_checked,
             "issues": result.issues,
+            # Carried explicitly. Step 7 rebuilds the record from the
+            # published report, and anything not listed here is silently
+            # replaced by the fresh object's default -- which is how the
+            # judgments were being appended and then dropped before the
+            # artifact was ever written, leaving the truncated
+            # CitationIssue list as the only surviving audit trail.
+            "judgments": result.judgments,
             "repaired": result.repaired,
             "generated_substantive_claims": generated,
             "duplicate_claims_removed": duplicates,
@@ -429,6 +445,12 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         )
         result.final_published_claims = len(report.substantive_claims())
         result.contradictions_semantically_supported = len(report.contradictions)
+        # Counted separately and never folded into the claim count. When
+        # every claim is withheld the report falls back to verbatim
+        # excerpts, and reporting those as findings would undo the
+        # withholding it just did.
+        if result.final_published_claims == 0:
+            result.evidence_only_excerpts = min(len(store.citable_evidence()), MAX_EXCERPTS)
 
         timing["citations"] = result.total_citations
 
@@ -469,12 +491,19 @@ async def _check_entailment(
     result: CitationVerification,
     state: ResearchState,
 ) -> tuple[list, dict[ClaimKey, ClaimVerdict]]:
-    """Ask the verifier model whether a claim's own evidence supports it.
+    """Score every claim against its own evidence with the NLI verifier.
 
-    The evidence shown is exactly the evidence the claim references. The
-    previous implementation sampled up to three items belonging to a cited
-    *source*, which frequently meant judging a claim against text that played
-    no part in producing it.
+    The evidence scored is exactly the evidence the claim references,
+    one quote at a time. A claim publishes when a single quote carries
+    it; quotes are never concatenated, because assembling a broad claim
+    out of several partial ones is the failure this gate exists to stop.
+
+    No sampling and no budget arithmetic. The previous implementation
+    spent one generative call per claim, so most claims in a bounded run
+    were never checked and were dropped unchecked. Classification is
+    local and costs no provider request, so every checkable candidate is
+    checked and ``entailment_exhaustive`` is true whenever the model
+    loaded at all.
     """
     verdicts: dict[ClaimKey, ClaimVerdict] = {}
     candidates = []
@@ -495,10 +524,10 @@ async def _check_entailment(
             judgment(claim, reason="claim cites no evidence")
             continue
         if len(claim.evidence_ids) > MAX_EVIDENCE_PER_CLAIM:
-            # Cannot be shown to the verifier in full, so it is not
-            # checked and therefore not published. Recorded rather than
-            # trimmed: judging a subset while reporting an all-evidence
-            # check is the defect this bound exists to prevent.
+            # A claim resting on more than this is not atomic, whatever
+            # else it is. Recorded rather than trimmed: scoring a subset
+            # while reporting an all-evidence check is the defect this
+            # bound exists to prevent.
             result.issues.append(
                 CitationIssue(
                     type=CitationIssueType.UNSUPPORTED_CLAIM,
@@ -507,7 +536,7 @@ async def _check_entailment(
                     evidence_id=",".join(claim.evidence_ids),
                     detail=(
                         f"claim cites {len(claim.evidence_ids)} evidence items, above the "
-                        f"{MAX_EVIDENCE_PER_CLAIM} that can be verified together; not checked"
+                        f"{MAX_EVIDENCE_PER_CLAIM} a single atomic claim may rest on; not checked"
                     ),
                 )
             )
@@ -515,7 +544,7 @@ async def _check_entailment(
                 claim,
                 reason=(
                     f"cites {len(claim.evidence_ids)} evidence items, above the "
-                    f"{MAX_EVIDENCE_PER_CLAIM} that can be verified together"
+                    f"{MAX_EVIDENCE_PER_CLAIM} a single atomic claim may rest on"
                 ),
             )
             continue
@@ -524,84 +553,130 @@ async def _check_entailment(
     if not candidates:
         return [], verdicts
 
-    exhaustive = bool(state.get("exhaustive_verification"))
-    if exhaustive:
-        selected = candidates
-    else:
-        # Summary and key findings first: they are what a reader takes
-        # away, and under the publication gate an unchecked claim does
-        # not survive, so check order decides what gets published.
-        prominent = [c for c in report.summary_claims if c in candidates]
-        prominent += [c for c in report.key_findings if c in candidates]
-        rest = [c for c in candidates if c not in prominent]
-        # Bounded by what the run can still pay for, not just by the
-        # sample size. Attempting calls the budget cannot cover spends
-        # the last of it and then fails mid-loop, which is a worse
-        # outcome than checking fewer claims deliberately.
-        affordable = await ctx().router.tracker.remaining()
-        limit = max(1, min(_DEFAULT_ENTAILMENT_SAMPLE, affordable))
-        selected = (prominent + rest)[:limit]
-    result.entailment_exhaustive = len(selected) == len(candidates)
+    settings = ctx().settings
+    threshold = settings.nli_support_threshold
+    errors: list = []
 
-    errors = []
-    model = ctx().router.get(ModelRole.VERIFIER)
-    # Candidates the sample did not reach are still recorded, so the
-    # audit trail distinguishes "judged not supported" from "never
-    # looked at". Both are removed by the gate; they are not the same
-    # finding.
-    unreached = {id(c) for c in candidates} - {id(c) for c in selected}
+    try:
+        scorer = ctx().nli_scorer or build_verifier(settings)
+    except NLIUnavailable as exc:
+        # Fail closed for the whole report. Never a fallback to the
+        # generative model: unverified is unverified, and a claim nobody
+        # checked must not reach a reader looking like one that passed.
+        log.warning("nli_verifier_unavailable", error=str(exc)[:200])
+        errors.append(error_from("verify_citations", exc, "semantic verification unavailable"))
+        result.entailment_exhaustive = False
+        for claim in candidates:
+            judgment(claim, reason=f"semantic verification unavailable: {exc}")
+        result.not_checked_claims = len(candidates)
+        return errors, verdicts
+
     for claim in candidates:
-        if id(claim) in unreached:
-            judgment(claim, reason="not reached within this run's verification budget")
-
-    for claim in selected:
-        block = _evidence_block(claim.evidence_ids, store)
-        if not block:
-            continue
-        try:
-            out = await model.structured(
-                EntailmentOut, VERIFIER_SYSTEM, verifier_user(strip_markers(claim.text), block)
-            )
-        except LLMError as exc:
-            # Verification is a quality gate, not a blocker. Stop checking and
-            # report how many claims were actually checked.
-            log.warning("entailment_check_failed", error=str(exc)[:200])
-            errors.append(error_from("verify_citations", exc, "entailment sampling stopped"))
-            result.entailment_exhaustive = False
-            break
-
-        result.checked_claims += 1
-        verdicts[key_of(claim)] = out.verdict
-        record = judgment(claim, reason=out.reason)
-        record.verdict = out.verdict
-        record.checked = True
-        if out.verdict == "supported":
-            result.supported_claims += 1
-        elif out.verdict == "partially_supported":
-            result.partially_supported_claims += 1
+        pairs = _scoring_pairs(claim.evidence_ids, store)
+        # Classification is CPU-bound and synchronous; off-thread so a
+        # long report does not stall the event loop and its progress
+        # stream along with it.
+        verdict = await asyncio.to_thread(
+            verify_claim, claim.text, pairs, scorer, support_threshold=threshold
+        )
+        _record(claim.text, claim.evidence_ids, verdict, result, judgment(claim))
+        if verdict.checked:
+            result.checked_claims += 1
+            verdicts[key_of(claim)] = verdict.verdict
+            if verdict.publishable:
+                result.supported_claims += 1
+            elif verdict.verdict == "partially_supported":
+                result.partially_supported_claims += 1
+            else:
+                result.unsupported_claims += 1
+        if not verdict.publishable:
             result.issues.append(
                 CitationIssue(
-                    type=CitationIssueType.PARTIALLY_SUPPORTED_CLAIM,
+                    type=(
+                        CitationIssueType.PARTIALLY_SUPPORTED_CLAIM
+                        if verdict.verdict == "partially_supported"
+                        else CitationIssueType.UNSUPPORTED_CLAIM
+                    ),
                     severity="warning",
                     claim_text=claim.text[:200],
                     evidence_id=",".join(claim.evidence_ids),
-                    detail=out.reason[:200],
+                    detail=verdict.reason[:200],
                 )
             )
-        else:
-            result.unsupported_claims += 1
-            result.issues.append(
-                CitationIssue(
-                    type=CitationIssueType.UNSUPPORTED_CLAIM,
-                    severity="warning",
-                    claim_text=claim.text[:200],
-                    evidence_id=",".join(claim.evidence_ids),
-                    detail=out.reason[:200],
-                )
-            )
+
+    result.entailment_exhaustive = result.checked_claims == result.checkable_claims
     result.not_checked_claims = max(0, result.checkable_claims - result.checked_claims)
-    errors += await _check_contradictions(report, store, result, state, verdicts, model)
+    errors += await _check_contradictions(report, store, result, state, verdicts, scorer)
     return errors, verdicts
+
+
+def _scoring_pairs(evidence_ids: list[str], store: EvidenceStore) -> list[CitedEvidence]:
+    """Each cited item that may ground a claim, with who published it.
+
+    Unresolvable ids and non-citable quotes are dropped rather than
+    scored. A quote that could not be matched to its source cannot
+    support anything, and scoring it would let a claim publish on text
+    the engine never verified came from the page.
+
+    The source's domain and title travel alongside the quote for the
+    attribution guard, which is the only thing that reads them. They do
+    not enter the NLI premise -- see verify_claim.
+    """
+    cited: list[CitedEvidence] = []
+    for evidence_id in evidence_ids:
+        item = store.evidence_by_id(evidence_id)
+        if item is None or not item.is_citable:
+            continue
+        source = store.source(item.source_id)
+        cited.append(
+            CitedEvidence(
+                evidence_id=evidence_id,
+                quote=item.quote,
+                source=SourceIdentity(
+                    domain=(source.domain if source else "") or "",
+                    title=(source.title if source else "") or "",
+                ),
+            )
+        )
+    return cited
+
+
+def _record(
+    text: str,
+    evidence_ids: list[str],
+    verdict: SemanticVerdict,
+    result: CitationVerification,
+    record: ClaimJudgment,
+) -> None:
+    """Write the full semantic detail onto the audit record.
+
+    Everything needed to re-derive the decision without rerunning it:
+    which model at which revision, the threshold it was held to, and
+    every pairwise score with its guard results.
+    """
+    record.verdict = verdict.verdict
+    record.reason = verdict.reason
+    record.checked = verdict.checked
+    record.publishable = verdict.publishable
+    record.model_id = verdict.model_id
+    record.model_revision = verdict.model_revision
+    record.support_threshold = verdict.support_threshold
+    record.best_evidence_id = verdict.best_evidence_id
+    record.best_entailment = round(verdict.best_entailment, 6) if verdict.per_evidence else None
+    record.guards_passed = (
+        any(s.guards_passed for s in verdict.per_evidence) if verdict.per_evidence else None
+    )
+    record.evidence_scores = [
+        EvidenceScoreRecord(
+            evidence_id=s.evidence_id,
+            entailment=round(s.entailment, 6),
+            neutral=round(s.neutral, 6),
+            contradiction=round(s.contradiction, 6),
+            guards_passed=s.guards_passed,
+            failed_guards=s.failed_guard_names,
+        )
+        for s in verdict.per_evidence
+    ]
 
 
 async def _check_contradictions(
@@ -610,25 +685,26 @@ async def _check_contradictions(
     result: CitationVerification,
     state: ResearchState,
     verdicts: dict[ClaimKey, ClaimVerdict],
-    model: Any,
+    scorer: Any,
 ) -> list:
-    """Entailment-check both sides of every contradiction.
+    """Score both sides of every contradiction the same way as a claim.
 
-    A contradiction's two summaries are model-written assertions, and they
-    reached the published report without any support check: structural
-    resolution proved only that evidence existed on each side, which is
-    what ``is_auditable`` reports. Prose asserting what a source says can
-    be wrong in exactly the ways a claim can.
+    A contradiction's two summaries are model-written assertions, and
+    they used to reach the published report without any support check:
+    structural resolution proved only that evidence existed on each
+    side, which is what ``is_auditable`` reports. Prose asserting what a
+    source says can be wrong in exactly the ways a claim can.
 
-    Both sides must come back supported for the contradiction to survive.
-    Partial, unsupported, unchecked or structurally unresolvable on either
-    side removes it, and the reason stays in the issue list.
+    Both sides must be publishable for the contradiction to survive.
+    Below threshold, guard failure, unchecked or structurally
+    unresolvable on either side removes it, and the reason stays in the
+    issue list.
     """
     errors: list = []
     if not report.contradictions:
         return errors
 
-    exhaustive = bool(state.get("exhaustive_verification"))
+    threshold = ctx().settings.nli_support_threshold
     for index, contradiction in enumerate(report.contradictions):
         sides = (
             ("left", contradiction.left_summary, contradiction.left_evidence_ids),
@@ -639,84 +715,34 @@ async def _check_contradictions(
                 continue
             result.contradiction_sides_checkable += 1
 
-            block = _evidence_block(evidence_ids, store)
-            if not block:
+            pairs = _scoring_pairs(evidence_ids, store)
+            if not pairs:
                 continue
-            # Shares the verifier budget with claims. When nothing is left,
-            # the side stays unchecked and the contradiction is dropped
-            # rather than published on an unverified summary.
-            if not exhaustive and await ctx().router.tracker.remaining() <= 0:
+            verdict = await asyncio.to_thread(
+                verify_claim, summary, pairs, scorer, support_threshold=threshold
+            )
+            if not verdict.checked:
+                # Unverified, so the contradiction is dropped rather
+                # than published on an unchecked summary.
                 continue
-            try:
-                out = await model.structured(
-                    EntailmentOut, VERIFIER_SYSTEM, verifier_user(strip_markers(summary), block)
-                )
-            except LLMError as exc:
-                log.warning("contradiction_check_failed", error=str(exc)[:200])
-                errors.append(error_from("verify_citations", exc, "contradiction check stopped"))
-                break
 
             result.contradiction_sides_checked += 1
-            verdicts[claim_key(summary, evidence_ids)] = out.verdict
-            if out.verdict != "supported":
-                issue_type = (
-                    CitationIssueType.PARTIALLY_SUPPORTED_CLAIM
-                    if out.verdict == "partially_supported"
-                    else CitationIssueType.UNSUPPORTED_CLAIM
-                )
+            verdicts[claim_key(summary, evidence_ids)] = verdict.verdict
+            if not verdict.publishable:
                 result.issues.append(
                     CitationIssue(
-                        type=issue_type,
+                        type=(
+                            CitationIssueType.PARTIALLY_SUPPORTED_CLAIM
+                            if verdict.verdict == "partially_supported"
+                            else CitationIssueType.UNSUPPORTED_CLAIM
+                        ),
                         severity="warning",
                         claim_text=summary[:200],
                         evidence_id=",".join(evidence_ids),
-                        detail=f"contradiction {index} {side} side: {out.reason[:160]}",
+                        detail=f"contradiction {index} {side} side: {verdict.reason[:160]}",
                     )
                 )
     return errors
-
-
-def _evidence_block(evidence_ids: list[str], store: EvidenceStore) -> str:
-    """Render the evidence a claim references, with who published it.
-
-    The quote alone is not enough to judge an attributed claim. A vendor
-    page recommending that AI governance sit with a CISO reads exactly
-    like the NIST framework requiring it, once the publisher is stripped
-    away -- and a human audit found the verifier passing precisely that
-    substitution. Naming the source makes the attribution checkable.
-
-    Every cited id is rendered and every quote is whole. Showing the
-    first six and cutting each quote at 300 characters changed the
-    material being judged while the artifact still recorded an
-    all-evidence check: one NIST claim cited eight ids, and the seventh
-    stated its case outright. Over-long claims are refused at the schema
-    boundary instead, so nothing arrives here that cannot be shown in
-    full.
-
-    "Site category" rather than "Type", because a retrieval taxonomy is
-    not authority: docs.modulos.ai classifies as official_docs without
-    being an official source for NIST. Quality score is absent for the
-    same reason -- it is a heuristic over document kind and rank, and a
-    verifier would read it as confidence in the claim.
-    """
-    blocks = []
-    for evidence_id in evidence_ids:
-        item = store.evidence_by_id(evidence_id)
-        if item is None:
-            continue
-        source = store.source(item.source_id)
-        title = (source.title if source else "") or "unknown"
-        domain = (source.domain if source else "") or "unknown"
-        category = source.source_type.value if source else "unknown"
-        blocks.append(
-            f"Evidence: {item.id}\n"
-            f"Source: {title}\n"
-            f"Domain: {domain}\n"
-            f"Site category: {category}\n"
-            f"Page: {item.page if item.page else 'n/a'}\n"
-            f'Quote: "{item.quote}"'
-        )
-    return "\n\n".join(blocks)
 
 
 async def finalize(state: ResearchState) -> ResearchState:

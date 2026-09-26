@@ -1,0 +1,2508 @@
+{
+  "model_id": "cross-encoder/nli-MiniLM2-L6-H768",
+  "model_revision": "b95119ce93d3e065de6214e38cd4a97b0f2f2c6d",
+  "cases": 30,
+  "pairs": 50,
+  "runtime": {
+    "model_load_seconds": 5.1,
+    "inference_seconds": 1.43,
+    "seconds_per_pair": 0.0286
+  },
+  "memory_mb": {
+    "baseline_rss": 21.0,
+    "after_model_load_rss": 554.2,
+    "peak_rss": 676.3
+  },
+  "scores": [
+    {
+      "case_id": "fraud-detection-imbalanced-removed-11",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Common fraud detection models may fail to generalize when new fraud patterns emerge that are not captured by the training data.",
+      "human_label": "unsupported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e5",
+          "entailment": 0.002866,
+          "neutral": 0.989531,
+          "contradiction": 0.007603,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 1 exceeds evidence band 0"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-8",
+      "recording": "rag-vector-vs-search",
+      "claim": "Redis has the lowest p50 query latency at 5ms among the evaluated systems.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S5-e2",
+          "entailment": 0.006548,
+          "neutral": 0.989861,
+          "contradiction": 0.003591,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 5ms"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": false,
+              "detail": "claim asserts 'lowest'; evidence ranks nothing"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-12",
+      "recording": "rag-vector-vs-search",
+      "claim": "Filtering across 50 complex metadata fields during vector search can reduce query throughput by 40-60% due to HNSW traversal overhead.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e3",
+          "entailment": 0.967018,
+          "neutral": 0.020083,
+          "contradiction": 0.012899,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 50, 40-60%"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim band 1 within evidence band 2"
+            },
+            "hedge": {
+              "passed": false,
+              "detail": "evidence hedges with epistemic 'potentially'; the claim states it as fact"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": false,
+              "detail": "claim asserts 'due to'; evidence states no causal link"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-2",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Generative models such as Autoencoders, Variational Autoencoders, and Generative Adversarial Networks are effective for fraud detection in highly imbalanced datasets.",
+      "human_label": "unsupported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e1",
+          "entailment": 0.001983,
+          "neutral": 0.993741,
+          "contradiction": 0.004276,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-15",
+      "recording": "rag-vector-vs-search",
+      "claim": "Write-heavy workloads require different recovery mechanisms than traditional RAG systems due to iterative index updates.",
+      "human_label": "unsupported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e6",
+          "entailment": 0.013395,
+          "neutral": 0.97763,
+          "contradiction": 0.008975,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 3 exceeds evidence band 0"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": false,
+              "detail": "claim asserts 'due to'; evidence states no causal link"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-4",
+      "recording": "nist-ai-risk-framework",
+      "claim": "The framework's four core functions provide a structured approach to managing AI risks across the lifecycle.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S2-e1",
+          "entailment": 0.002445,
+          "neutral": 0.993584,
+          "contradiction": 0.003971,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S3-e1",
+          "entailment": 0.146467,
+          "neutral": 0.849996,
+          "contradiction": 0.003537,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.006778,
+          "neutral": 0.9883,
+          "contradiction": 0.004922,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S5-e1",
+          "entailment": 0.027366,
+          "neutral": 0.372368,
+          "contradiction": 0.600266,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-3",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases introduce hidden costs through filtering overhead and memory-intensive preprocessing, which can degrade performance by 40-60% under complex query conditions.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e3",
+          "entailment": 0.045362,
+          "neutral": 0.952921,
+          "contradiction": 0.001717,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 40-60%"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim band 1 within evidence band 2"
+            },
+            "hedge": {
+              "passed": false,
+              "detail": "evidence hedges with epistemic 'potentially'; the claim states it as fact"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        },
+        {
+          "evidence_id": "S3-e5",
+          "entailment": 0.002015,
+          "neutral": 0.13789,
+          "contradiction": 0.860095,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 40-60%, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 1 exceeds evidence band 0"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-6",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases are optimal for low-latency, high-throughput applications but demand significant memory resources and specialized hardware.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.001801,
+          "neutral": 0.971524,
+          "contradiction": 0.026675,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "evidence ranks: 'wins on, leads for, top choice'"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S1-e2",
+          "entailment": 0.005039,
+          "neutral": 0.991471,
+          "contradiction": 0.00349,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": false,
+              "detail": "evidence hedges with epistemic 'may'; the claim states it as fact"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": false,
+              "detail": "claim asserts 'optimal'; evidence ranks nothing"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        },
+        {
+          "evidence_id": "S1-e6",
+          "entailment": 0.00725,
+          "neutral": 0.980205,
+          "contradiction": 0.012545,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "evidence ranks: 'fastest'"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-2",
+      "recording": "nist-ai-risk-framework",
+      "claim": "Govern is the cross-cutting function that establishes organizational risk culture, accountability, and AI-related policies across the AI lifecycle.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S2-e2",
+          "entailment": 0.057807,
+          "neutral": 0.940636,
+          "contradiction": 0.001556,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S1-e2",
+          "entailment": 0.249679,
+          "neutral": 0.465001,
+          "contradiction": 0.28532,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-11",
+      "recording": "rag-vector-vs-search",
+      "claim": "PostgreSQL with pgvector extensions requires less storage than purpose-built vector databases for datasets under 100 million vectors.",
+      "human_label": "unsupported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e3",
+          "entailment": 0.005749,
+          "neutral": 0.988956,
+          "contradiction": 0.005295,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 100, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 3 exceeds evidence band 0"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-10",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Fraudulent behaviors evolve rapidly, and static models often fail to generalize to new fraud patterns unless continuously retrained on updated data.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e5",
+          "entailment": 0.981385,
+          "neutral": 0.017088,
+          "contradiction": 0.001528,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim band 2 within evidence band 3"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": false,
+              "detail": "claim asserts 'unless'; evidence does not"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-13",
+      "recording": "rag-vector-vs-search",
+      "claim": "Quantization reduces memory usage by 75% while maintaining high recall accuracy by compressing vectors from 32-bit floats to 8-bit integers.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e5",
+          "entailment": 0.954741,
+          "neutral": 0.007814,
+          "contradiction": 0.037445,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 75%, 32-bit, 8-bit"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-14",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases face a trade-off between speed and memory: IVF-PQ indexing reduces memory usage by 80% but slows query performance by 5x.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e6",
+          "entailment": 0.944434,
+          "neutral": 0.053771,
+          "contradiction": 0.001796,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 80%, 5x"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-1",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Random Forest is the most effective machine learning model for fraud detection in highly imbalanced transaction datasets.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.001825,
+          "neutral": 0.993277,
+          "contradiction": 0.004898,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "evidence ranks: 'best'"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-7",
+      "recording": "nist-ai-risk-framework",
+      "claim": "The NIST AI Risk Management Framework 1.0 implements risk management through profiles that specify use-case and cross-sectoral applications of the framework.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S2-e3",
+          "entailment": 0.294353,
+          "neutral": 0.512937,
+          "contradiction": 0.19271,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 1.0"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S1-e3",
+          "entailment": 0.00352,
+          "neutral": 0.995036,
+          "contradiction": 0.001444,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 1.0, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-1",
+      "recording": "nist-ai-risk-framework",
+      "claim": "The NIST AI Risk Management Framework 1.0 structures AI risk management through four core functions: Govern, Map, Measure, and Manage.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S2-e1",
+          "entailment": 0.002476,
+          "neutral": 0.990065,
+          "contradiction": 0.007459,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 1.0"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S3-e1",
+          "entailment": 0.007342,
+          "neutral": 0.991522,
+          "contradiction": 0.001136,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 1.0, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        },
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.004176,
+          "neutral": 0.994669,
+          "contradiction": 0.001155,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 1.0, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        },
+        {
+          "evidence_id": "S5-e1",
+          "entailment": 0.016099,
+          "neutral": 0.973903,
+          "contradiction": 0.009998,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 1.0, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-3",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "The Balanced F1 Score (BFDS) is a critical evaluation metric for assessing model performance in imbalanced fraud detection scenarios.",
+      "human_label": "unsupported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e2",
+          "entailment": 0.00261,
+          "neutral": 0.918817,
+          "contradiction": 0.078573,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-5",
+      "recording": "nist-ai-risk-framework",
+      "claim": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S2-e1",
+          "entailment": 0.002013,
+          "neutral": 0.987608,
+          "contradiction": 0.010379,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 1.0"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S3-e1",
+          "entailment": 0.006328,
+          "neutral": 0.992448,
+          "contradiction": 0.001224,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 1.0, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        },
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.002643,
+          "neutral": 0.995518,
+          "contradiction": 0.001838,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 1.0, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        },
+        {
+          "evidence_id": "S5-e1",
+          "entailment": 0.009269,
+          "neutral": 0.980352,
+          "contradiction": 0.01038,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 1.0, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-1",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases excel in low-latency vector search for real-time applications but require significant memory resources for high-throughput workloads.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.002706,
+          "neutral": 0.964314,
+          "contradiction": 0.03298,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 3 exceeds evidence band 0"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        },
+        {
+          "evidence_id": "S1-e2",
+          "entailment": 0.006978,
+          "neutral": 0.987974,
+          "contradiction": 0.005048,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 3 exceeds evidence band 1"
+            },
+            "hedge": {
+              "passed": false,
+              "detail": "evidence hedges with epistemic 'may'; the claim states it as fact"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-9",
+      "recording": "rag-vector-vs-search",
+      "claim": "Milvus achieves the highest throughput at 20,000+ QPS via GPU-accelerated indexing for high-volume analytics.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.183912,
+          "neutral": 0.806442,
+          "contradiction": 0.009646,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 20,000+"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "evidence ranks: 'wins on, leads for, top choice'"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-12",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Regulatory requirements and data privacy laws impact fraud detection model design and evaluation, particularly through data anonymization and model transparency requirements.",
+      "human_label": "unsupported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e6",
+          "entailment": 0.002164,
+          "neutral": 0.906529,
+          "contradiction": 0.091307,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-5",
+      "recording": "rag-vector-vs-search",
+      "claim": "Vector databases require specialized hardware or memory-intensive configurations for optimal performance, making them less suitable for write-heavy workloads.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e6",
+          "entailment": 0.031838,
+          "neutral": 0.959944,
+          "contradiction": 0.008218,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim band 3 within evidence band 3"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "evidence ranks: 'fastest'"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S3-e6",
+          "entailment": 0.005537,
+          "neutral": 0.98347,
+          "contradiction": 0.010993,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 3 exceeds evidence band 0"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": false,
+              "detail": "claim asserts 'optimal'; evidence ranks nothing"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-7",
+      "recording": "rag-vector-vs-search",
+      "claim": "Qdrant achieves the lowest p50 query latency at 4ms and leads in p99 latency under 8ms for real-time applications.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S5-e1",
+          "entailment": 0.003895,
+          "neutral": 0.986351,
+          "contradiction": 0.009754,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 8ms, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": false,
+              "detail": "claim asserts 'lowest, leads in'; evidence ranks nothing"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-4",
+      "recording": "rag-vector-vs-search",
+      "claim": "The 2026 Speed Law mandates that vector database latency must not exceed 5% of the total agentic loop time to avoid infrastructure bottlenecks.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e5",
+          "entailment": 0.716533,
+          "neutral": 0.277633,
+          "contradiction": 0.005834,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "evidence states 2026, 5%"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim band 3 within evidence band 3"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "attribution established: Speed Law (the quoted text names it)"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-6",
+      "recording": "nist-ai-risk-framework",
+      "claim": "Govern is the cross-cutting function that spans the organization as a whole, establishing accountability, policies, and oversight for AI risk management.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S2-e2",
+          "entailment": 0.026393,
+          "neutral": 0.971584,
+          "contradiction": 0.002023,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S1-e2",
+          "entailment": 0.91,
+          "neutral": 0.084035,
+          "contradiction": 0.005965,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-5",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Random Forest and generative models are the most effective approaches for fraud detection in highly imbalanced datasets.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e1",
+          "entailment": 0.001971,
+          "neutral": 0.990196,
+          "contradiction": 0.007832,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "evidence ranks: 'best'"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S3-e1",
+          "entailment": 0.001502,
+          "neutral": 0.990322,
+          "contradiction": 0.008176,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": false,
+              "detail": "claim asserts 'most effective, the most'; evidence ranks nothing"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-2",
+      "recording": "rag-vector-vs-search",
+      "claim": "Traditional search engines like PostgreSQL with pgvector extensions offer cost-efficient storage for smaller datasets but struggle with billion-scale vector indexing.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e3",
+          "entailment": 0.003409,
+          "neutral": 0.987781,
+          "contradiction": 0.00881,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S3-e4",
+          "entailment": 0.007439,
+          "neutral": 0.968849,
+          "contradiction": 0.023712,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-10",
+      "recording": "rag-vector-vs-search",
+      "claim": "To search 10 million vectors at sub-10ms latency, dedicated RAM of 64GB+ is typically required.",
+      "human_label": "partially_supported",
+      "evidence": [
+        {
+          "evidence_id": "S1-e2",
+          "entailment": 0.665444,
+          "neutral": 0.222881,
+          "contradiction": 0.111674,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": false,
+              "detail": "claim states 10, absent from the cited evidence"
+            },
+            "modality": {
+              "passed": false,
+              "detail": "claim modality band 3 exceeds evidence band 1"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "claim keeps a hedge: typically"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": false
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-9",
+      "recording": "fraud-detection-imbalanced",
+      "claim": "Deploying fraud detection models at scale faces challenges including computational complexity and real-time processing requirements.",
+      "human_label": "unsupported",
+      "evidence": [
+        {
+          "evidence_id": "S3-e4",
+          "entailment": 0.001969,
+          "neutral": 0.992443,
+          "contradiction": 0.005587,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-3",
+      "recording": "nist-ai-risk-framework",
+      "claim": "The framework defines practical use cases for implementing risk management through profiles, including use-case profiles and cross-sectoral profiles.",
+      "human_label": "supported",
+      "evidence": [
+        {
+          "evidence_id": "S2-e3",
+          "entailment": 0.248287,
+          "neutral": 0.668174,
+          "contradiction": 0.083539,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        },
+        {
+          "evidence_id": "S1-e3",
+          "entailment": 0.085221,
+          "neutral": 0.912271,
+          "contradiction": 0.002508,
+          "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
+            "numeric": {
+              "passed": true,
+              "detail": "claim states no numeric literal"
+            },
+            "modality": {
+              "passed": true,
+              "detail": "claim asserts no modality"
+            },
+            "hedge": {
+              "passed": true,
+              "detail": "evidence states no hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
+            "ranking": {
+              "passed": true,
+              "detail": "claim asserts no ranking"
+            },
+            "causal": {
+              "passed": true,
+              "detail": "claim asserts no causation"
+            },
+            "exclusivity": {
+              "passed": true,
+              "detail": "claim asserts no exclusivity"
+            },
+            "attribution": {
+              "passed": true,
+              "detail": "claim attributes nothing to a named party"
+            }
+          },
+          "guards_passed": true
+        }
+      ]
+    }
+  ]
+}

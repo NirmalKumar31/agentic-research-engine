@@ -15,6 +15,7 @@ from __future__ import annotations
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -140,6 +141,14 @@ class RunBudget(BaseModel):
     max_llm_calls: int = Field(ge=1)
     max_parallel_searches: int = Field(ge=1, le=32)
     max_parallel_fetches: int = Field(ge=1, le=64)
+    max_run_seconds: float = Field(default=3600.0, gt=0)
+    """Wall-clock ceiling for one research run.
+
+    Separate from the per-call deadline because many individually
+    bounded calls still compose into an unbounded run: fifty calls at
+    three minutes each is two and a half hours, and nothing below this
+    level would notice. Counted in elapsed time, not in calls times
+    nominal timeout, so a slow provider cannot quietly extend it."""
 
 
 class Settings(BaseSettings):
@@ -171,6 +180,29 @@ class Settings(BaseSettings):
     verifier_model: str | None = None
 
     allow_cloud_fallback: bool = False
+
+    # --- semantic verification ------------------------------------------
+    # Claim support is decided by a dedicated NLI classifier, not by the
+    # generative models above. Three attempts at using a 4B instruction
+    # model for this failed in three different ways; docs/LIMITATIONS.md
+    # records what each measured.
+    #
+    # All three of model, revision and threshold are pinned and recorded
+    # in every judgment. Changing any one changes which claims publish,
+    # so a verdict that does not say which it used cannot be audited.
+    nli_model_id: str = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
+    nli_model_revision: str = "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7"
+    nli_support_threshold: float = Field(default=0.98, ge=0.0, le=1.0)
+    """Entailment probability a cited quote must reach. Calibrated, not
+    guessed -- see examples/verifier-calibration/nli-calibration.json."""
+
+    nli_mode: Literal["local", "remote"] = "local"
+    """``local`` loads the checkpoint in-process, which needs roughly
+    1.4GB of RSS. ``remote`` calls a hosted inference endpoint instead,
+    for hosts too small to hold the model."""
+    nli_endpoint: str | None = None
+    nli_api_key: SecretStr | None = None
+    nli_timeout_seconds: float = Field(default=30.0, gt=0)
 
     # --- cloud spend ceilings -------------------------------------------
     # Zero disables a dimension rather than meaning "no spend allowed";
@@ -209,6 +241,8 @@ class Settings(BaseSettings):
 
     llm_temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     llm_timeout_seconds: float = Field(default=180.0, gt=0)
+    run_timeout_seconds: float = Field(default=3600.0, gt=0)
+    """Wall-clock ceiling for one whole research run. See RunBudget."""
     llm_max_retries: int = Field(
         default=2,
         ge=0,
@@ -413,6 +447,7 @@ class Settings(BaseSettings):
             max_llm_calls=self.max_llm_calls,
             max_parallel_searches=self.max_parallel_searches,
             max_parallel_fetches=self.max_parallel_fetches,
+            max_run_seconds=self.run_timeout_seconds,
         )
 
     def uses_provider(self, provider: Provider) -> bool:

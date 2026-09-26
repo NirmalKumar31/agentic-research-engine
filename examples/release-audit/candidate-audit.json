@@ -1,0 +1,841 @@
+{
+  "description": "Candidate-level audit of the three canonical runs. One record per unique post-deduplication substantive candidate, with the complete claim text, its cited evidence, every pairwise NLI score, every guard result, and whether it reached the published report. Immutable: regenerate only by re-recording.",
+  "publication_rule": "A claim publishes when at least one cited, citable quote passes every deterministic guard and entails the claim at or above the support threshold. Quotes are scored individually and never concatenated.",
+  "runs": {
+    "fraud-detection-imbalanced": {
+      "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
+      "recorded_at": "2026-09-26T21:19:45.168509+00:00",
+      "commit": null,
+      "counts": {
+        "raw_generated": 16,
+        "duplicates_removed": 8,
+        "candidates": 8,
+        "checkable": 8,
+        "checked": 8,
+        "not_checked": 0,
+        "published": 6,
+        "withheld": 2,
+        "evidence_only_excerpts": 0,
+        "exhaustive": true,
+        "publication_rate": 0.75
+      },
+      "gate_disagreements": [],
+      "candidates": [
+        {
+          "claim": "Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S5-e1",
+              "quote": "The results show that Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall, while LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
+              "source_id": "S5",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S5-e1",
+              "entailment": 0.993164,
+              "neutral": 0.005718,
+              "contradiction": 0.000976,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S5-e1",
+          "best_entailment": 0.993164,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S5-e1 at 0.993 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S5-e1",
+              "quote": "The results show that Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall, while LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
+              "source_id": "S5",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S5-e1",
+              "entailment": 0.998535,
+              "neutral": 0.001262,
+              "contradiction": 0.000414,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S5-e1",
+          "best_entailment": 0.998535,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S5-e1 at 0.999 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The random forest model achieved an accuracy of 99.95%.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.999023,
+              "neutral": 0.000652,
+              "contradiction": 0.000357,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.999023,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S2-e1 at 0.999 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The random forest model achieved an F1 score of 0.8256.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.999023,
+              "neutral": 0.000442,
+              "contradiction": 0.000309,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.999023,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S2-e1 at 0.999 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The random forest model achieved an ROC-AUC of 0.9759.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.999023,
+              "neutral": 0.000575,
+              "contradiction": 0.000566,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.999023,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S2-e1 at 0.999 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The deep learning model provided the highest precision.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.997559,
+              "neutral": 0.001431,
+              "contradiction": 0.00094,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.997559,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S2-e1 at 0.998 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Synthetic Data Generation: Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e3",
+              "quote": "Synthetic Data Generation: Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e3",
+              "entailment": 0.958008,
+              "neutral": 0.040588,
+              "contradiction": 0.001597,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S4-e3",
+          "best_entailment": 0.958008,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.958 from S4-e3 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "This study offers insights into the trade-offs between model accuracy, computational efficiency, and real-time applicability in fraud detection systems.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S5-e4",
+              "quote": "This study offers insights into the trade-offs between model accuracy, computational efficiency, and real-time applicability in fraud detection systems.",
+              "source_id": "S5",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S5-e4",
+              "entailment": 0.979492,
+              "neutral": 0.019394,
+              "contradiction": 0.001055,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S5-e4",
+          "best_entailment": 0.979492,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.979 from S5-e4 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        }
+      ]
+    },
+    "nist-ai-risk-framework": {
+      "question": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
+      "recorded_at": "2026-09-26T21:01:54.345419+00:00",
+      "commit": null,
+      "counts": {
+        "raw_generated": 19,
+        "duplicates_removed": 12,
+        "candidates": 7,
+        "checkable": 7,
+        "checked": 7,
+        "not_checked": 0,
+        "published": 3,
+        "withheld": 4,
+        "evidence_only_excerpts": 0,
+        "exhaustive": true,
+        "publication_rate": 0.4286
+      },
+      "gate_disagreements": [],
+      "candidates": [
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 is structured around four core functions: Govern, Map, Measure, and Manage.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S3-e1",
+              "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage.",
+              "source_id": "S3",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S3-e1",
+              "entailment": 0.017075,
+              "neutral": 0.981445,
+              "contradiction": 0.001365,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S3-e1",
+          "best_entailment": 0.017075,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Govern function addresses organizational risk culture, accountability, and AI-related policies across the AI lifecycle.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e2",
+              "quote": "The Govern function focuses on organizational risk culture, accountability, and AI-related policies across the lifecycle. It addresses issues such as who approves high-risk use cases, how third-party models are introduced into the environment, and how resources are allocated for safety testing.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e2",
+              "entailment": 0.599121,
+              "neutral": 0.396973,
+              "contradiction": 0.003979,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e2",
+          "best_entailment": 0.599121,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.599 from S2-e2 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Map function focuses on contextual analysis, stakeholder identification, and impact assessment.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e2",
+              "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e2",
+              "entailment": 0.949219,
+              "neutral": 0.05011,
+              "contradiction": 0.000465,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.949219,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.949 from S1-e2 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Measure function involves testing and monitoring signals to assess AI system performance.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e2",
+              "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e2",
+              "entailment": 0.004707,
+              "neutral": 0.995117,
+              "contradiction": 0.000389,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.004707,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "best entailment 0.005 from S1-e2 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Manage function implements mitigations and addresses residual risks.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e2",
+              "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e2",
+              "entailment": 0.991699,
+              "neutral": 0.007881,
+              "contradiction": 0.000374,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.991699,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e2 at 0.992 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases through profiles that apply the framework to specific AI systems or technology classes.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e3",
+              "quote": "NIST AI RMF profiles \u200b\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e3",
+              "entailment": 0.994141,
+              "neutral": 0.005272,
+              "contradiction": 0.00056,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e3",
+          "best_entailment": 0.994141,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e3 at 0.994 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Govern function spans the entire organization.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S3-e2",
+              "quote": "GOVERN is the only function that spans the entire organization.",
+              "source_id": "S3",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S3-e2",
+              "entailment": 0.995605,
+              "neutral": 0.003855,
+              "contradiction": 0.000644,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S3-e2",
+          "best_entailment": 0.995605,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S3-e2 at 0.996 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        }
+      ]
+    },
+    "rag-vector-vs-search": {
+      "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
+      "recorded_at": "2026-09-26T20:37:37.767105+00:00",
+      "commit": null,
+      "counts": {
+        "raw_generated": 11,
+        "duplicates_removed": 5,
+        "candidates": 6,
+        "checkable": 6,
+        "checked": 6,
+        "not_checked": 0,
+        "published": 2,
+        "withheld": 4,
+        "evidence_only_excerpts": 0,
+        "exhaustive": true,
+        "publication_rate": 0.3333
+      },
+      "gate_disagreements": [],
+      "candidates": [
+        {
+          "claim": "Vector databases provide approximate results based on semantic similarity and require a tradeoff between accuracy and speed.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e1",
+              "quote": "The vector database provides approximate results based on semantic similarity and often requires a tradeoff between accuracy and speed; that is, if you want your results to be highly accurate, you\u2019ll have to compromise on the speed of your output.",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e1",
+              "entailment": 0.984863,
+              "neutral": 0.013931,
+              "contradiction": 0.001116,
+              "guards_passed": false,
+              "failed_guards": [
+                "hedge"
+              ]
+            }
+          ],
+          "best_evidence_id": "S1-e1",
+          "best_entailment": 0.984863,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: hedge",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Vector search excels at finding conceptually related content (recall) but is less effective at pinpointing exactly what is needed (precision).",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e1",
+              "quote": "Vector search excels at finding conceptually related content (recall): documents that discuss similar topics, even if they use different terminology. However, it's less effective at pinpointing exactly what you need (precision).",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e1",
+              "entailment": 0.998535,
+              "neutral": 0.001013,
+              "contradiction": 0.000234,
+              "guards_passed": false,
+              "failed_guards": [
+                "atomicity"
+              ]
+            }
+          ],
+          "best_evidence_id": "S4-e1",
+          "best_entailment": 0.998535,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: atomicity",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Pure vector search creates two problems: raw user questions are converted directly to embeddings without query refinement and vector similarity favors recall over precision.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e2",
+              "quote": "Pure vector search creates two problems: raw user questions are converted straight to embeddings without query refinement, and vector similarity favors recall over precision, so results are conceptually related but not always exactly what you need.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e2",
+              "entailment": 0.99707,
+              "neutral": 0.002476,
+              "contradiction": 0.000416,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S4-e2",
+          "best_entailment": 0.99707,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S4-e2 at 0.997 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Vector databases are not strictly required for RAG implementations.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "In most RAG implementations, RAG systems rely on vector databases or vector indexing techniques to enable semantic search. However, vector search is not strictly required. RAG architectures can also incorporate keyword search, structured queries or hybrid approaches depending on the use case.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.997559,
+              "neutral": 0.00171,
+              "contradiction": 0.000714,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.997559,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S2-e1 at 0.998 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "RAG systems can incorporate keyword search, structured queries, or hybrid approaches depending on the use case.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "In most RAG implementations, RAG systems rely on vector databases or vector indexing techniques to enable semantic search. However, vector search is not strictly required. RAG architectures can also incorporate keyword search, structured queries or hybrid approaches depending on the use case.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.998535,
+              "neutral": 0.001248,
+              "contradiction": 0.000418,
+              "guards_passed": false,
+              "failed_guards": [
+                "atomicity"
+              ]
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.998535,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: atomicity",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Vector search prioritizes recall over precision, leading to conceptually related but potentially inaccurate results.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e1",
+              "quote": "Vector search excels at finding conceptually related content (recall): documents that discuss similar topics, even if they use different terminology. However, it's less effective at pinpointing exactly what you need (precision).",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            },
+            {
+              "evidence_id": "S4-e2",
+              "quote": "Pure vector search creates two problems: raw user questions are converted straight to embeddings without query refinement, and vector similarity favors recall over precision, so results are conceptually related but not always exactly what you need.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e1",
+              "entailment": 0.10614,
+              "neutral": 0.893066,
+              "contradiction": 0.000639,
+              "guards_passed": false,
+              "failed_guards": [
+                "atomicity",
+                "modality",
+                "ranking"
+              ]
+            },
+            {
+              "evidence_id": "S4-e2",
+              "entailment": 0.998535,
+              "neutral": 0.001189,
+              "contradiction": 0.000118,
+              "guards_passed": false,
+              "failed_guards": [
+                "atomicity",
+                "ranking"
+              ]
+            }
+          ],
+          "best_evidence_id": "S4-e2",
+          "best_entailment": 0.998535,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: atomicity, modality, ranking",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        }
+      ]
+    }
+  },
+  "totals": {
+    "candidates": 21,
+    "checked": 21,
+    "published": 11,
+    "withheld": 10,
+    "excerpts": 0
+  }
+}

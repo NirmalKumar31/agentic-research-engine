@@ -1,0 +1,1145 @@
+{
+  "model": "ollama:qwen3:4b",
+  "commit": "74fb0b62608e2e43264c8eada0eb1d97a4fe82f3",
+  "design": "claim-only decomposition, per-clause audit, deterministic aggregation",
+  "cases": [
+    {
+      "case_id": "fraud-detection-imbalanced-removed-11",
+      "claim": "Common fraud detection models may fail to generalize when new fraud patterns emerge that are not captured by the training data.",
+      "verdict": "unsupported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Common fraud detection models",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'Common fraud detection models' or any related term. The quote is about 'Model performance metrics with VAE.' which is too vague and does not specify the type of models.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "may fail to generalize",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'may fail to generalize' or any related concept. The quote is about model performance metrics with VAE, which does not address generalization failure.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "when new fraud patterns emerge that are not captured by the training data",
+          "role": "causal",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'when new fraud patterns emerge that are not captured by the training data' or any related concept. The quote is about model performance metrics with VAE, which does not address new fraud patterns or training data capture.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-8",
+      "claim": "Redis has the lowest p50 query latency at 5ms among the evaluated systems.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Redis",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S5-e2"
+          ],
+          "spans": [
+            "Redis OSS Managed"
+          ],
+          "reason": "The evidence states 'Redis OSS Managed' which explicitly names Redis.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "has the lowest p50 query latency",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence states '5ms / 20ms' but does not specify the metric as p50 query latency or that Redis has the lowest latency among the evaluated systems.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "at 5ms",
+          "role": "quantity",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence states '5ms' verbatim.",
+          "downgraded": "supporting fragment too short to be evidence"
+        },
+        {
+          "clause_id": "4",
+          "text": "among the evaluated systems",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'evaluated systems' or the context of comparison among systems.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-12",
+      "claim": "Filtering across 50 complex metadata fields during vector search can reduce query throughput by 40-60% due to HNSW traversal overhead.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Filtering across 50 complex metadata fields",
+          "role": "scope",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e3"
+          ],
+          "spans": [
+            "if you attempt to filter across 50 complex metadata fields simultaneously during a vector search"
+          ],
+          "reason": "The evidence states: 'if you attempt to filter across 50 complex metadata fields simultaneously during a vector search' which directly matches the clause 'Filtering across 50 complex metadata fields'.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "during vector search",
+          "role": "scope",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e3"
+          ],
+          "spans": [
+            "during a vector search"
+          ],
+          "reason": "The evidence states: 'if you attempt to filter across 50 complex metadata fields simultaneously during a vector search' which includes the phrase 'during a vector search' matching the clause 'during vector search'.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "can reduce query throughput by 40-60%",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e3"
+          ],
+          "spans": [
+            "potentially dropping QPS by 40-60%"
+          ],
+          "reason": "The evidence states: 'potentially dropping QPS by 40-60%' which directly matches the clause 'can reduce query throughput by 40-60%'. QPS (queries per second) is a measure of query throughput, and the evidence specifies a reduction of 40-60%.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "due to HNSW traversal overhead",
+          "role": "causal",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence states: 'the HNSW traversal overhead spikes' which directly matches the clause 'due to HNSW traversal overhead'.",
+          "downgraded": "claimed supported with no valid citation"
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-2",
+      "claim": "Generative models such as Autoencoders, Variational Autoencoders, and Generative Adversarial Networks are effective for fraud detection in highly imbalanced datasets.",
+      "verdict": "unsupported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Generative models such as Autoencoders, Variational Autoencoders, and Generative Adversarial Networks",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence only mentions 'Generative Models' without specifying Autoencoders, Variational Auto:encoders, or Generative Adversarial Networks. The quote is too vague to support the specific list of models.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "are effective",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention effectiveness for fraud detection. The quote is too vague and does not provide any proposition about effectiveness.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "for fraud detection",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention fraud detection. The quote is too vague and does not provide any proposition about fraud detection.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "in highly imbalanced datasets",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention highly imbalanced datasets. The quote is too vague and does not provide any proposition about highly imbalanced datasets.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-15",
+      "claim": "Write-heavy workloads require different recovery mechanisms than traditional RAG systems due to iterative index updates.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "clauses not judged: 5",
+      "clauses": []
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-4",
+      "claim": "The framework's four core functions provide a structured approach to managing AI risks across the lifecycle.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "audit judged unknown clause '1 [scope]'",
+      "clauses": []
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-3",
+      "claim": "Vector databases introduce hidden costs through filtering overhead and memory-intensive preprocessing, which can degrade performance by 40-60% under complex query conditions.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "audit judged unknown clause '1 [scope]: Vector databases'",
+      "clauses": []
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-6",
+      "claim": "Vector databases are optimal for low-latency, high-throughput applications but demand significant memory resources and specialized hardware.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "clauses not judged: 4, 5",
+      "clauses": []
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-2",
+      "claim": "Govern is the cross-cutting function that establishes organizational risk culture, accountability, and AI-related policies across the AI lifecycle.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "clauses not judged: 4, 5, 6",
+      "clauses": []
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-11",
+      "claim": "PostgreSQL with pgvector extensions requires less storage than purpose-built vector databases for datasets under 100 million vectors.",
+      "verdict": "unsupported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "PostgreSQL with pgvector extensions",
+          "role": "scope",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e3"
+          ],
+          "spans": [
+            "pgvector + pgvectorscale: PostgreSQL users"
+          ],
+          "reason": "The evidence mentions 'pgvector + pgvectorscale: PostgreSQL users' which directly refers to PostgreSQL with pgvector extensions.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "requires less storage",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not explicitly state that PostgreSQL with pgvector extensions requires less storage. It mentions PostgreSQL users with under 100M vectors but does not compare storage requirements.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "than purpose-built vector databases",
+          "role": "comparison",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e3"
+          ],
+          "spans": [
+            "PostgreSQL users with under 100M vectors"
+          ],
+          "reason": "The evidence mentions 'PostgreSQL users with under 100M vectors, plus iterative index scans for better filtered search.' which implies a comparison with purpose-built vector databases.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "for datasets under 100 million vectors",
+          "role": "scope",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e3"
+          ],
+          "spans": [
+            "under 100M vectors"
+          ],
+          "reason": "The evidence mentions 'under 100M vectors' which matches the clause's scope for datasets under 100 million vectors.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-10",
+      "claim": "Fraudulent behaviors evolve rapidly, and static models often fail to generalize to new fraud patterns unless continuously retrained on updated data.",
+      "verdict": "unsupported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Fraudulent behaviors evolve rapidly",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence states: 'Fraudulent behaviors evolve as fraudsters develop new ways to exploit the Medicare system.' This directly supports the proposition that fraudulent behaviors evolve rapidly.",
+          "downgraded": "claimed supported with no valid citation"
+        },
+        {
+          "clause_id": "2",
+          "text": "static models often fail to generalize to new fraud patterns",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence states: 'Static models often struggle to keep pace with these changes.' This directly supports the proposition that static models often fail to generalize to new fraud patterns.",
+          "downgraded": "claimed supported with no valid citation"
+        },
+        {
+          "clause_id": "3",
+          "text": "unless continuously retrained on updated data",
+          "role": "causal",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence states: 'By continuously retraining on updated data, the approach ensures that the detection system evolves alongside emerging fraud patterns...' This directly supports the causal clause that unless continuously retrained on updated data.",
+          "downgraded": "claimed supported with no valid citation"
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-13",
+      "claim": "Quantization reduces memory usage by 75% while maintaining high recall accuracy by compressing vectors from 32-bit floats to 8-bit integers.",
+      "verdict": "supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Quantization reduces memory usage",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e5"
+          ],
+          "spans": [
+            "Quantization (compressing vectors by using fewer bits per dimension, like reducing 32-bit floats to 8-bit integers) reduces memory costs with minimal recall impact."
+          ],
+          "reason": "The evidence states that quantization reduces memory costs, which is equivalent to reducing memory usage.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "by 75%",
+          "role": "quantity",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e5"
+          ],
+          "spans": [
+            "Reducing 32-bit floats to 8-bit integers cuts memory 75% while maintaining high accuracy."
+          ],
+          "reason": "The evidence states that reducing 32-bit floats to 8-bit integers cuts memory 75%, which matches the claim's 75% reduction.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "while maintaining high recall accuracy",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e5"
+          ],
+          "spans": [
+            "Quantization (compressing vectors by using fewer bits per dimension, like reducing 32-bit floats to 8-bit integers) reduces memory costs with minimal recall impact."
+          ],
+          "reason": "The evidence states that quantization maintains high accuracy, which corresponds to high recall accuracy.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "by compressing vectors from 32-bit floats to 8-bit integers",
+          "role": "scope",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e5"
+          ],
+          "spans": [
+            "Quantization (compressing vectors by"
+          ],
+          "reason": "The evidence explicitly mentions reducing 32-bit floats to 8-bit integers as the method of compression.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-14",
+      "claim": "Vector databases face a trade-off between speed and memory: IVF-PQ indexing reduces memory usage by 80% but slows query performance by 5x.",
+      "verdict": "supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Vector databases face a trade-off between speed and memory",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e6"
+          ],
+          "spans": [
+            "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must switch to IVF-PQ indexing, which is 5x slower but uses 80% less memory by compressing vectors into smaller subspaces."
+          ],
+          "reason": "The evidence states that IVF-P:Q indexing is a trade-off between speed and memory by saying it uses 80% less memory but is 5x slower. This directly supports the claim that vector databases face a trade-off between speed and memory.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "IVF-PQ indexing reduces memory usage by 80%",
+          "role": "quantity",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e6"
+          ],
+          "spans": [
+            "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must switch to IVF-PQ indexing, which is 5x slower but uses 80% less memory by compressing vectors into smaller subspaces."
+          ],
+          "reason": "The evidence states that IVF-PQ indexing uses 80% less memory, which matches the claim that IVF-PQ indexing reduces memory usage by 80%.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "slows query performance by 5x",
+          "role": "quantity",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e6"
+          ],
+          "spans": [
+            "The Scaling Law: If you cannot afford the RAM for the Fastest vector database performance, you must"
+          ],
+          "reason": "The evidence states that IVF-PQ indexing is 5x slower, which matches the claim that it slows query performance by 5x.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-1",
+      "claim": "Random Forest is the most effective machine learning model for fraud detection in highly imbalanced transaction datasets.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Random Forest",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e1"
+          ],
+          "spans": [
+            "Random Forest"
+          ],
+          "reason": "The quote mentions 'Random Forest' directly.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "is the most effective",
+          "role": "ranking",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The quote says 'best-performing', but 'most effective' is a stronger claim that isn't explicitly stated.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "machine learning model",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The quote refers to 'model' in the context of machine learning models.",
+          "downgraded": "supporting fragment too short to be evidence"
+        },
+        {
+          "clause_id": "4",
+          "text": "for fraud detection",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The quote mentions 'Medicare Fraud Detection' but doesn't explicitly state 'fraud detection' as the purpose of the model.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "5",
+          "text": "in highly imbalanced transaction datasets",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The quote mentions 'imbalanced data' but doesn't explicitly state 'highly imbalanced transaction datasets' as the context.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-7",
+      "claim": "The NIST AI Risk Management Framework 1.0 implements risk management through profiles that specify use-case and cross-sectoral applications of the framework.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "audit judged unknown clause '1 [scope]'",
+      "clauses": []
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-1",
+      "claim": "The NIST AI Risk Management Framework 1.0 structures AI risk management through four core functions: Govern, Map, Measure, and Manage.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "audit judged unknown clause '1 [scope]'",
+      "clauses": []
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-3",
+      "claim": "The Balanced F1 Score (BFDS) is a critical evaluation metric for assessing model performance in imbalanced fraud detection scenarios.",
+      "verdict": "unsupported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "The Balanced F1 Score (BFDS)",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'Balanced F1 Score (BFDS)' at all. The quote is 'Model performance metrics with GAN.' which is about GANs, not BFDS.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "is a critical evaluation metric",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'critical evaluation metric'. The quote is 'Model performance metrics with GAN.' which is about GANs, not critical metrics.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "for assessing model performance",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'assessing model performance'. The quote is 'Model performance metrics with GAN.' which is about metrics, not assessing performance.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "in imbalanced fraud detection scenarios",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'imbalanced fraud detection scenarios'. The quote is 'Model performance metrics with GAN.' which is about GANs, not fraud detection.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-5",
+      "claim": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "audit judged unknown clause '1 [scope]'",
+      "clauses": []
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-1",
+      "claim": "Vector databases excel in low-latency vector search for real-time applications but require significant memory resources for high-throughput workloads.",
+      "verdict": "supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Vector databases excel in low-latency vector search for real-time applications",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e1"
+          ],
+          "spans": [
+            "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems."
+          ],
+          "reason": "The quote states that Qdrant leads for pure p99 latency at under 8ms with a Rust-based HNSW engine, making it the top choice for real-time voice agents and fraud detection systems. This directly supports the proposition that vector databases excel in low-latency vector search for real-time applications.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "but require significant memory resources for high-throughput workloads",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e2"
+          ],
+          "spans": [
+            "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM."
+          ],
+          "reason": "The quote states that to search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM. This supports the proposition that vector databases require significant memory resources for high-throughput workloads.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-9",
+      "claim": "Milvus achieves the highest throughput at 20,000+ QPS via GPU-accelerated indexing for high-volume analytics.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Milvus achieves the highest throughput",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e1"
+          ],
+          "spans": [
+            "Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines."
+          ],
+          "reason": "The evidence states that Milvus 'wins on raw throughput', which implies it achieves the highest throughput among the compared databases.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "at 20,000+ QPS",
+          "role": "quantity",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e1"
+          ],
+          "spans": [
+            "Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines."
+          ],
+          "reason": "The evidence explicitly states '20,000+ QPS' as the throughput metric for Milvus.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "via GPU-accelerated indexing",
+          "role": "causal",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e1"
+          ],
+          "spans": [
+            "Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines."
+          ],
+          "reason": "The evidence states that Milvus achieves its throughput via 'GPU-accelerated indexing'.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "for high-volume analytics",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence states that Milvus is the correct choice for 'high-volume analytics' and event pipelines.",
+          "downgraded": "claimed supported with no valid citation"
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-12",
+      "claim": "Regulatory requirements and data privacy laws impact fraud detection model design and evaluation, particularly through data anonymization and model transparency requirements.",
+      "verdict": "unsupported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Regulatory requirements and data privacy laws",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention regulatory requirements or data privacy laws. The quote is about 'Model performance metrics with SMOTE.' which is related to data augmentation for fraud detection but does not reference regulatory requirements or data:privacy laws.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "impact fraud detection model design and evaluation",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention impact on fraud detection model design and evaluation. The quote is about model performance metrics with SMOTE, which is a technique for handling imbalanced data in fraud detection, but it does not state that regulatory requirements or data privacy laws impact the design and evaluation of fraud detection models.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "particularly through data anonymization and model transparency requirements",
+          "role": "causal",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention data anonymization or model transparency requirements as the means through which regulatory requirements and data privacy laws impact fraud detection models. The quote is about model performance metrics with SMOTE, which is unrelated to data anonymization or model transparency requirements.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-5",
+      "claim": "Vector databases require specialized hardware or memory-intensive configurations for optimal performance, making them less suitable for write-heavy workloads.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Vector databases require specialized hardware or memory-intensive configurations",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The quote from S1-e6 states that if you cannot afford the RAM for optimal performance, you must switch to IVF-PQ indexing, which uses 80% less memory. This implies that specialized hardware or memory-intensive configurations are required for optimal performance.",
+          "downgraded": "supporting fragment is not in the stored quote"
+        },
+        {
+          "clause_id": "2",
+          "text": "for optimal performance",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The quote from S1-e6 does not explicitly mention 'for optimal performance' as a scope. The quote talks about RAM for 'Fastest vector database performance', but it does not specify that the specialized hardware or memory-intensive configurations are for optimal performance.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "making them less suitable for write-heavy workloads",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e6"
+          ],
+          "spans": [
+            "If your evaluation weights read latency alone, you'll pick the wrong database for anything with iterative writes."
+          ],
+          "reason": "The quote from S3-e6 states that if your evaluation weights read latency alone, you'll pick the wrong database for anything with iterative writes. This implies that vector databases are less suitable for write-heavy workloads.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-7",
+      "claim": "Qdrant achieves the lowest p50 query latency at 4ms and leads in p99 latency under 8ms for real-time applications.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Qdrant achieves the lowest p50 query latency",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S5-e1"
+          ],
+          "spans": [
+            "Qdrant OSS Managed 4ms / 25ms"
+          ],
+          "reason": "The evidence states 'Qdrant OSS Managed 4ms / 25ms' which implies Qdr: Qdrant achieves the lowest p50 query latency (4ms) as it's the only value mentioned for p50 in the context of the benchmark.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "at 4ms",
+          "role": "quantity",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S5-e1"
+          ],
+          "spans": [
+            "Qdrant OSS Managed 4ms / 25ms"
+          ],
+          "reason": "The evidence explicitly states '4ms' which matches the claim's 'at 4ms'.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "and leads in p99 latency under 8ms",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention p99 latency or 8ms. It only states '4ms / 25ms' which refers to p50 and p99 but does not specify that Qdrant leads in p99 latency under 8ms.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "for real-time applications",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not mention 'real-time applications' or any scope for the latency metrics. The claim's scope is not established by the evidence.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-4",
+      "claim": "The 2026 Speed Law mandates that vector database latency must not exceed 5% of the total agentic loop time to avoid infrastructure bottlenecks.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "clauses not judged: 5",
+      "clauses": []
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-6",
+      "claim": "Govern is the cross-cutting function that spans the organization as a whole, establishing accountability, policies, and oversight for AI risk management.",
+      "verdict": "supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Govern",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S2-e2"
+          ],
+          "spans": [
+            "Govern is the cross-cutting function."
+          ],
+          "reason": "The evidence S2-e2 states: 'Govern is the cross-cutting function.' This directly supports the proposition 'Govern'.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "the cross-cutting function that spans the organization as a whole",
+          "role": "scope",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S2-e2"
+          ],
+          "spans": [
+            "Govern is the only function that spans the organization as a whole"
+          ],
+          "reason": "The evidence S2-e2 states: 'Govern is the only function that spans the organization as a whole \u2014 it sits above Map, Measure, and Manage and makes them repeatable.' This directly supports the scope description 'the cross-cutting function that spans the organization as a whole'.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "establishing accountability, policies, and oversight for AI risk management",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S2-e2"
+          ],
+          "spans": [
+            "establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle"
+          ],
+          "reason": "The evidence S2-e2 states: 'It cultivates a culture of AI risk management, establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle.' This directly supports the proposition 'establishing accountability, policies, and oversight for AI risk management'.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-5",
+      "claim": "Random Forest and generative models are the most effective approaches for fraud detection in highly imbalanced datasets.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Random Forest and generative models",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e1",
+            "S3-e1"
+          ],
+          "spans": [
+            "Random Forest",
+            "Generative Models"
+          ],
+          "reason": "The quote from S1-e1 mentions 'Random Forest' and S3-e1 mentions 'Generative Models'. Both are explicitly named in the evidence.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "are the most effective",
+          "role": "ranking",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not state that Random Forest and generative models are 'the most effective' approaches. S1-e1 says Random Forest 'emerged as the best-performing model', but this does not equate to being 'the most effective' in a general sense, and S3-e1 only mentions 'Generative Models' without any ranking or effectiveness claim.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "approaches for fraud detection",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The context of the evidence (fraud detection) is clear from the titles of the sources: 'Medicare Fraud Detection' and 'Credit Card Fraud Transaction Detection'. The quotes also relate to fraud detection.",
+          "downgraded": "supporting fragment is not in the stored quote"
+        },
+        {
+          "clause_id": "4",
+          "text": "in highly imbalanced datasets",
+          "role": "scope",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence does not explicitly mention 'highly imbalanced datasets'. S1-e1 refers to 'imbalanced data' but",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-2",
+      "claim": "Traditional search engines like PostgreSQL with pgvector extensions offer cost-efficient storage for smaller datasets but struggle with billion-scale vector indexing.",
+      "verdict": "partially_supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "Traditional search engines like PostgreSQL with pgvector extensions",
+          "role": "scope",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e3"
+          ],
+          "spans": [
+            "pgvector + pgvectorscale: PostgreSQL users with under 100M vectors"
+          ],
+          "reason": "The evidence S3-e4 mentions PostgreSQL in the context of vector databases, but the clause specifies 'Traditional search engines like PostgreSQL with pgvector extensions'. The evidence S3-e3 mentions 'pgvector' and 'pgvectorscale' which are PostgreSQL extensions. However, the clause says 'Traditional search engines like PostgreSQL', which is a bit misleading because PostgreSQL is a database, not a search engine. But the evidence does mention PostgreSQL with pgvector extensions, so it's supported.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "offer cost-efficient storage for smaller datasets",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S3-e3"
+          ],
+          "spans": [
+            "PostgreSQL users with under 100M vectors"
+          ],
+          "reason": "The evidence S3-e3 says 'PostgreSQL users with under 100M vectors' which implies cost-efficient storage for smaller datasets (since under 100M vectors is a smaller dataset).",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "but struggle with billion-scale vector indexing",
+          "role": "proposition",
+          "material": true,
+          "status": "not_supported",
+          "evidence_ids": [],
+          "spans": [],
+          "reason": "The evidence S3-e4 mentions that HNSW handles billions of vectors well, which contradicts the claim that PostgreSQL struggles with billion-scale vector indexing. The claim says PostgreSQL struggles with billion-scale, but the evidence says HNSW (which is used by some vector databases) handles billions well. However, the evidence does not directly say that PostgreSQL struggles with billion-scale. The evidence S3-e4 is about vector databases in general, not specifically PostgreSQL.",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-10",
+      "claim": "To search 10 million vectors at sub-10ms latency, dedicated RAM of 64GB+ is typically required.",
+      "verdict": "supported",
+      "valid": true,
+      "failure": null,
+      "clauses": [
+        {
+          "clause_id": "1",
+          "text": "To search 10 million vectors",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e2"
+          ],
+          "spans": [
+            "To search 10M vectors"
+          ],
+          "reason": "The evidence states 'To search 10M vectors' which matches the clause 'To search 10 million vectors' (10M is equivalent to 10 million).",
+          "downgraded": null
+        },
+        {
+          "clause_id": "2",
+          "text": "at sub-10ms latency",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e2"
+          ],
+          "spans": [
+            "at sub-10ms speed"
+          ],
+          "reason": "The evidence states 'at sub-10ms speed' which matches the clause 'at sub-10ms latency' (sub-10ms speed implies sub-10ms latency in this context).",
+          "downgraded": null
+        },
+        {
+          "clause_id": "3",
+          "text": "dedicated RAM of 64GB+",
+          "role": "proposition",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e2"
+          ],
+          "spans": [
+            "64GB+ of dedicated RAM"
+          ],
+          "reason": "The evidence states '64GB+ of dedicated RAM' which matches the clause 'dedicated RAM of 64GB+'.",
+          "downgraded": null
+        },
+        {
+          "clause_id": "4",
+          "text": "is typically required",
+          "role": "modality",
+          "material": true,
+          "status": "supported",
+          "evidence_ids": [
+            "S1-e2"
+          ],
+          "spans": [
+            "you may need"
+          ],
+          "reason": "The evidence states 'you may need' which implies 'is typically required' (the phrase 'you may need' indicates that it is typically required for the task described).",
+          "downgraded": null
+        }
+      ]
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-9",
+      "claim": "Deploying fraud detection models at scale faces challenges including computational complexity and real-time processing requirements.",
+      "verdict": "unsupported",
+      "valid": false,
+      "failure": "audit judged unknown clause ':3'",
+      "clauses": []
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-3",
+      "failure": "clause audit failed",
+      "clauses": []
+    }
+  ]
+}

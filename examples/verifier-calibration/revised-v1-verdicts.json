@@ -1,0 +1,158 @@
+{
+  "description": "Revised verifier run over the frozen calibration cases.",
+  "model": "ollama:qwen3:4b",
+  "commit": "7d546546c2b67464b7825d52de00df5c241f32db",
+  "prompt": "VERIFIER_SYSTEM with collective-evidence, attribution and numeric-literal rules; claim kind passed to verifier_user",
+  "cases": [
+    {
+      "case_id": "fraud-detection-imbalanced-removed-11",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence item 'S3-e5' only mentions 'Model performance metrics with VAE' without providing any information about fraud detection models failing to generalize when new fraud patterns emerge. The claim specifically addresses the failure of models to generalize due to new fraud patterns not captured in training data, but the evidence does not discuss generalization, fraud patterns, or the training data limitations. The evidence is too vague and does not establish the claim's core proposition."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-8",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states Redis has a latency of 5ms, but the claim specifies 'lowest p5:0 query latency at 5ms among the evaluated systems'. The evidence does not establish that Redis has the lowest latency among all evaluated systems; it only provides a single value (5ms) without context of comparison with other systems. The claim implies a ranking (lowest) and a comparison across systems, which the evidence does not cover."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-12",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The evidence directly states that filtering across 50 complex metadata fields during vector search causes HNSW traversal overhead that can drop QPS by 40-60%. The claim states that filtering across 50 complex metadata fields during vector search can reduce query throughput by 40-60% due to HNSW traversal overhead. The evidence matches the claim exactly: 50 complex metadata fields, vector search, HNSW traversal overhead, and 40-60% reduction in QPS (which is equivalent to query throughput). The evidence does not add any qualifiers or scope beyond what the claim states."
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-2",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence only mentions 'Generative Models' without specifying that they are effective for fraud detection in highly imbalanced datasets. The claim states that generative models such as Autoencoders, Variational Auto:encoders, and Generative Adversarial Networks are effective for fraud detection in highly imbalanced datasets. The evidence does not provide any information about their effectiveness, fraud detection, or highly imbalanced datasets. The evidence is too vague and does not directly support the claim."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-15",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that iterative writes require a different database than what would be chosen if latency is the only factor. The claim states that write-heavy workloads require different recovery mechanisms than traditional RAG systems due to iterative index updates. The evidence does not explicitly mention recovery mechanisms or RAG systems, but it does imply that iterative writes (which are related to index updates) require a different database choice than what would be chosen based on latency alone. This suggests that iterative writes (a component of the claim) might need different handling, but the claim specifically refers to recovery mechanisms and R:AG systems, which are not directly addressed in the evidence. Therefore, the evidence supports the core proposition but does not fully cover the material clauses about recovery mechanisms and RAG systems."
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-4",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The claim states that the framework's four core functions provide a structured approach to managing AI risks across the lifecycle. The evidence shows that NIST AI RMF 1.0 is organized around four core functions (Govern, Map, Measure, Manage) as described in multiple sources. Each source explicitly states the four functions and their purpose in managing AI risks. The evidence does not contradict the claim and directly supports the statement that these functions provide a structured approach to managing AI risks across the lifecycle."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-3",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The claim states that vector databases introduce hidden costs through filtering overhead and memory-intensive preprocessing, which can degrade performance by 40-60% under complex query conditions. The evidence S1-e3 mentions that filtering across 50 complex metadata fields can drop QPS by 40-60%, which directly supports the performance degradation part of the claim. However, the claim also mentions 'memory-intensive preprocessing' as a hidden cost, but the evidence S3-e5 discusses quantization (a form of memory reduction) without explicitly stating that it is a hidden cost or that it causes performance degradation. The evidence S3-e5 does not address filtering overhead or the specific degradation in performance under complex query conditions. Therefore, the evidence supports the performance degradation part but not the memory-intensive preprocessing aspect. The claim requires both aspects to be fully supported, so it is partially supported."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-6",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The claim states that vector databases are optimal for low-latency, high-throughput applications but demand significant memory resources and specialized hardware. The evidence supports the claim that vector databases demand significant memory resources (S1-e2: '64GB+ of dedicated RAM') and specialized hardware (S1-e1: 'GPU-accelerated indexing' for Milvus, 'Rust-based HNSW engine with SIMD optimizations' for Qdrant). However, the evidence does not establish that vector databases are optimal for low-latency, high-throughput applications. The evidence describes specific databases (Qdrant and Milvus) as being optimal for certain applications, but it does not state that vector databases as a category are optimal for low-latency, high-throughput applications in general. The claim uses 'vector databases' as a general category, but the evidence only discusses specific implementations (Qdrant and Milvus) and their performance characteristics. Therefore, the claim's material clause about being optimal for low-latency, high-throughput applications is not directly supported by the evidence, which only describes specific databases. This makes the claim partially supported."
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-2",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The claim states that 'Govern is the cross-cutting function that establishes organizational risk culture, accountability, and AI-related policies across the AI lifecycle.' The evidence from S2-e2 states that 'Govern is the cross-cut: It cultivates a culture of AI risk management, establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle.' This directly supports the claim by stating that Govern establishes organizational risk culture (cultivates a culture of AI risk management), accountability (establishes accountability), and AI-related policies (defines policies and processes) across the AI lifecycle (ensures oversight across the AI lifecycle). The evidence from S1-e2 states that 'The Govern function focuses on organizational risk culture, accountability, and AI-related policies across the lifecycle.' This also directly supports the claim by stating that Govern focuses on organizational risk culture, accountability, and AI-related policies across the lifecycle. Both evidence items directly state or imply the key elements of the claim without adding qualifiers, scope, modality, attribution, causal statements, rankings, or quantities that the evidence does not establish. The evidence does not turn the study into a statement about the field in general, nor does it turn 'may' or 'can' into 'does' or 'will'. The evidence does not add thresholds, rankings, or quantities. The attribution is clear from the source (NIST AI RMF) and the evidence does not contradict the claim. Both evidence items cover the material clauses of the claim: organizational risk culture, accountability, AI-related policies, and AI lifecycle."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-11",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that PostgreSQL with pgvector extensions is used by users with under 10:00M vectors, but it does not explicitly state that it requires less storage than purpose-built vector databases. The claim compares storage requirements between PostgreSQL with pgvector and purpose-built vector databases for datasets under 100 million vectors. The evidence mentions the use case for under 100M vectors but does not provide any storage comparison data. Therefore, the core proposition has support for the scope (under 100 million vectors) but lacks evidence for the storage comparison claim."
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-10",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The claim states that 'Fraudulent behaviors evolve rapidly, and static models often fail to generalize to new fraud patterns unless continuously retrained on updated data.' The evidence quote directly states: 'Fraudulent behaviors evolve as fraudsters develop new ways to exploit the Medicare system. Static models often struggle to keep pace with these changes. To combat this, the method incorporates machine learning models that can adapt over time. By continuously retraining on updated data, the approach ensures that the detection system evolves alongside emerging fraud patterns, reducing the risk of outdated models missing new types of fraud (Ahmadi et al. 2025).'\n\nThe evidence covers both parts of the claim: \n1. 'Fraudulent behaviors evolve rapidly' is directly stated as 'Fraudulent behaviors evolve as fraudsters develop new ways to exploit the Medicare system.' This implies rapid evolution through the development of new exploitation methods.\n2. 'Static models often fail to generalize to new fraud patterns unless continuously retrained on updated data' is directly stated as 'Static models often struggle to keep pace with these changes' and 'By continuously retraining on updated data, the approach ensures that the detection system evolves alongside emerging fraud patterns...' This indicates that static models fail to keep up (i.e., fail to generalize) and that continuous retraining on updated data is necessary for the system to evolve with new patterns.\n\nThe evidence does not add any qualifiers, scope, modality, attribution, causal statements, rankings, or quantities that the claim does not already cover. The claim is a direct proposition that is fully supported by the evidence without requiring synthesis or additional interpretation beyond what is stated in the quote."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-13",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The evidence states that reducing 3:2-bit floats to 8-bit integers cuts memory 75% while maintaining high accuracy. This directly matches the claim's statement about quantization reducing memory usage by 75% while maintaining high recall accuracy by compressing vectors from 32-bit floats to 8-bit integers. The evidence uses the exact terms: 'reducing 32-bit floats to 8-bit integers' and 'cuts memory 75% while maintaining high accuracy'. The claim mentions 'recall accuracy' but the evidence says 'accuracy' \u2014 however, in the context of vector databases, 'accuracy' typically refers to recall accuracy, so this is a straightforward implication. The evidence does not add any qualifiers or thresholds beyond what the claim states."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-14",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The evidence directly states that IVF-P:Q indexing uses 80% less memory and slows query performance by 5x. The claim states that vector databases face a trade-off between speed and memory: IVF-PQ indexing reduces memory usage by 80% but slows query performance by 5x. The evidence supports the claim exactly as stated."
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-1",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that Random Forest achieved high accuracy and F1-score in a specific context (Medicare fraud detection with imbalanced data), but the claim states it is the 'most effective' for fraud detection in 'highly imbalanced transaction datasets' in general. The evidence does not establish that Random Forest is the most effective across all highly imbalanced transaction datasets, only in this specific application. The claim uses a general statement about the field, while the evidence is limited to one study. Additionally, the evidence does not specify the threshold for 'most effective' (e as a measure of effectiveness), so the claim's strength is not fully supported."
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-7",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence supports that NIST AI RM: 1.0 uses profiles to specify use-case and cross-sectoral applications. However, the claim states that the framework 'implements risk management through profiles that specify use-case and cross-sectoral applications of the framework'. The evidence shows that profiles are for applying the framework to specific contexts (use-case and cross-sectoral), but does not explicitly state that the profiles are the mechanism through which risk management is implemented. The claim implies that profiles are the implementation method for risk management, but the evidence only describes what profiles are and their purpose (e.g., documenting application, making tradeoffs). The evidence does not directly state that risk management is implemented through profiles; it describes profiles as a way to apply the framework. Thus, the core proposition has support but the material clause about 'implements risk management through profiles' is stronger than the evidence: the evidence does not establish that profiles are the implementation mechanism for risk management, only that they are a way to apply the framework."
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-1",
+      "verifier_verdict": "supported",
+      "verifier_reason": "All material clauses of the claim are directly stated or straightforwardly implied by the cited evidence. The claim states that the NIST AI Risk Management Framework 1.0 structures AI risk management through four core functions: Govern, Map, Measure, and Manage. Evidence S2-e1 explicitly states that NIST AI RMF 1.0 is organized around four core functions. Evidence S3-e1 provides detailed descriptions of each function (Govern, Map, Measure, Manage) as the interconnected functions of the framework. Evidence S1-e1 confirms the four functions (Govern, Map, Measure, Manage) as the core of the framework. Evidence S5-e1 mentions the four functions (Map, Measure, Manage, Govern) as the principles for the framework. All evidence items consistently identify the four core functions without adding qualifiers, scope, modality, attribution, causal statements, rankings, or quantities that would make the claim partially supported. The evidence does not contradict the claim and covers the specific claim about the four core functions."
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-3",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence only mentions 'Model performance metrics with GAN' without specifying that the Balanced F1 Score (BFDS) is a critical evaluation metric for imbalanced fraud detection. The claim specifies BFDS as critical for imbalanced fraud detection, but the evidence does not mention BFDS or its role in fraud detection. The evidence is too vague and does not establish the claim's specific content."
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-5",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The evidence set directly states that NIST AI RMF 1.0 has four core functions: Govern, Map, Measure, and Manage. Each evidence item explicitly mentions these four functions without adding qualifiers, scope, modality, or causal statements that would make the claim partially supported. The evidence does not turn a study into a general statement, nor does it overstate the claim with stronger language than what is present in the evidence. All material clauses of the claim are directly stated by the evidence."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-1",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The claim states that vector databases excel in low-latency vector search for real-time applications but require significant memory resources for high-throughput workloads. The evidence shows that Qdrant has low latency (under 8ms) for real-time applications and Milvus has high throughput (20,000+ QPS) for high-volume analytics. However, the evidence does not explicitly state that vector databases in general excel in low-latency vector search for real-time applications (it only mentions Qdrant as the leader), nor does it directly state that vector databases require significant memory resources for high-throughput workloads (it mentions the need for 64GB+ RAM for 10M vectors at sub-10ms speed, but this is a specific condition, not a general requirement for high-throughput workloads). The evidence supports the specific cases of Qdrant and Milvus but does not establish the general claim about vector databases as a category. Therefore, the claim is partially supported because it turns one study's result into a statement about the field in general."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-9",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that Milv: 'wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing', which directly supports the claim's throughput and GPU-accelerated indexing aspects. However, the claim states 'achieves the highest throughput', while the evidence only says 'wins on raw throughput' (i.e., it is the best among the benchmarks compared). The evidence does not explicitly state that Milvus achieves the highest throughput in the field in general, only that it wins in this specific benchmark. The claim also states 'for high-volume analytics', which the evidence supports as 'making it the correct choice for high-volume analytics'. The key issue is the claim's use of 'highest' (implying it is the absolute top in the field) versus the evidence's 'wins on raw throughput' (meaning it is the best among the 6 benchmarks compared in this specific test). The evidence does not establish that Milvus achieves the highest throughput in the field in general, only that it wins in this benchmark. Therefore, the claim is partially supported because it turns one study's result (this benchmark) into a statement about the field in general (highest throughput)."
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-12",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The cited evidence only mentions 'Model performance metrics with SMOTE.' which is related to data augmentation (SMOTE) for imbalanced credit card fraud detection. The claim states that regulatory requirements and data privacy laws impact fraud detection model design and evaluation, particularly through data anonymization and model transparency requirements. The evidence does not mention any regulatory requirements, data privacy laws, data anonymization, or model transparency requirements. The evidence is about model performance metrics with SM. The claim is about regulatory impacts on model design and evaluation through specific technical requirements. The evidence does not cover the claim's material clauses."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-5",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence supports that vector databases require specialized hardware or memory-intensive configurations for optimal performance, but does not establish that they are 'less suitable for write-heavy workloads'. The second evidence item says that if you evaluate weights read latency alone, you'll pick the wrong database for anything with iterative writes. This implies that write-heavy workloads might be problematic, but it does not directly state that vector databases are less suitable for write-heavy workloads. The claim uses the phrase 'making them less suitable for write-heavy workloads', which is not directly stated or implied by the evidence. The evidence does not cover the 'less suitable' part of the claim."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-7",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The evidence only states Qdr: 4ms / 25ms, but the claim specifies p50 query latency at 4ms and p99 latency under 8ms for real-time applications. The evidence does not mention p50 or p99, nor does it specify real-time applications. The claim also states 'leads in p99 latency under 8ms', but the evidence does not provide p99 latency at all."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-4",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states that the 2:026 Speed Law dictates that retrieval must never consume more than 5% of the total agentic loop time. This directly supports the claim's material clause about the 5% threshold. However, the claim specifies 'vector database latency' while the evidence refers to 'retrieval' (which may not be equivalent to vector database latency). The evidence does not explicitly state that this applies to vector databases specifically, nor does it clarify whether 'retrieval' in this context is synonymous with vector database latency. Therefore, the claim's material clause about vector database latency is not fully established by the evidence."
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-6",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence supports that 'Govern' spans the organization as a whole and establishes accountability and policies. However, the claim states that Govern 'spans the organization as a whole, establishing accountability, policies, and oversight for AI risk management.' The evidence does not explicitly state that Govern 'establishes oversight for AI risk management' \u2014 it mentions 'ensures oversight across the AI lifecycle' in S2-e2, but 'oversight for AI risk management' is not directly stated. The claim also uses 'spans the organization as a whole' which is supported by S2-e2: 'it sits above Map, Measure, and Manage and makes them repeatable.' However, the phrase 'oversight for AI risk management' is not fully covered by the evidence. The evidence states 'ensures oversight across the AI lifecycle' but not specifically 'for AI risk management.' This is a material clause that is not directly stated or straightforwardly implied by the evidence. Therefore, the claim is partially supported because one material clause ('oversight for AI risk management') is not established by the evidence."
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-5",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The claim states that 'Random Forest and generative models are the most effective approaches for fraud detection in highly imbalanced datasets.' The evidence shows that Random Forest achieved high accuracy and F1-score in Medicare fraud detection (S1-e1), but does not specify that generative models are effective for fraud detection in highly imbalanced datasets. The evidence S3-e1 only mentions 'Generative Models' without context or performance metrics. The claim also claims these approaches are 'the most effective' which implies a comparison to other methods, but the evidence does not provide comparative performance data or establish that they are the most effective in highly im. The evidence does not cover the 'highly imbalanced datasets' context explicitly for generative models. Additionally, the evidence does as a whole does not establish that these approaches are the most effective in general, but rather specific results for Medicare fraud detection (which may not be highly imbalanced) and a generic mention of generative models. The claim requires that both approaches are the most effective for fraud detection in highly imbalanced datasets, but the evidence does not support the generative models part sufficiently or the 'most effective' claim with comparison."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-2",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence supports the claim that traditional search engines like PostgreSQL with pgvector extensions offer cost-efficient storage for smaller datasets but struggles with billion-scale vector indexing. However, the evidence does not explicitly state that PostgreSQL with pgvector extensions struggle with billion-scale vector indexing. The evidence S3-e4 mentions that some vector databases handle billions of vectors well, but it does not directly address PostgreSQL's performance at billion-scale. The claim's material clause about struggling with billion-scale vector indexing is not fully established by the evidence."
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-10",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "The evidence states 'you may need 64GB+ of dedicated RAM' for the condition, but the claim uses 'typically required'. The evidence uses 'may need' which is a weaker statement than 'typically required', implying possibility rather than typical necessity. The claim's stronger assertion of 'typically required' is not fully supported by the evidence's 'may need'."
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-9",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "The cited evidence does not mention computational complexity or real-time processing requirements. The evidence only refers to 'Model performance metrics with AE-GAN.' This is not a direct statement about the challenges of deploying fraud detection models at scale."
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-3",
+      "verifier_verdict": "supported",
+      "verifier_reason": "The evidence explicitly states that there are two common types of profiles: use-case profiles and cross-sectoral profiles. The first evidence item directly states: 'Use-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chat: cross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).'"
+    }
+  ]
+}

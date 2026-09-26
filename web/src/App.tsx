@@ -7,19 +7,13 @@ import {
   type DemoConfig,
   type ExampleSummary,
 } from "./api";
+import { capabilitiesFor, themeFor } from "./badges";
 import { HeroDiagram } from "./HeroDiagram";
 import { advance, emptyPipeline, humanise, STAGES } from "./pipelineState";
 import { Pipeline } from "./Pipeline";
 import { describe } from "./progress";
 import { ReportView } from "./ReportView";
 import type { ProgressEvent, RunResult } from "./types";
-
-/** Capability badges, keyed by recording id rather than guessed from data. */
-const BADGES: Record<string, string> = {
-  "rag-vector-vs-search": "Multi-source research",
-  "nist-ai-risk-framework": "PDF page provenance",
-  "fraud-detection-imbalanced": "6 research dimensions",
-};
 
 export default function App() {
   const [config, setConfig] = useState<DemoConfig | null>(null);
@@ -229,12 +223,20 @@ export default function App() {
               onClick={() => play(example)}
               disabled={running}
             >
-              {BADGES[example.id] && <span className="card__badge">{BADGES[example.id]}</span>}
+              {themeFor(example) && (
+                <span className="card__badge">{themeFor(example)}</span>
+              )}
               <span className="card__title">{example.label}</span>
               <span className="card__desc">{example.description}</span>
+              <span className="card__caps">
+                {capabilitiesFor(example).map((cap) => (
+                  <span key={cap} className="cap">
+                    {cap}
+                  </span>
+                ))}
+              </span>
               <span className="card__facts muted small">
-                {example.sources} sources · {example.citable_evidence} citable ·{" "}
-                {Math.round(example.duration_s)}s
+                {example.citable_evidence} citable evidence · {Math.round(example.duration_s)}s
               </span>
             </button>
           ))}

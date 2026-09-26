@@ -24,6 +24,7 @@ classifiers = [
 # large part of the 0.x surface, so the floors below are real requirements
 # rather than caution. Upper bounds stop at the next major only.
 dependencies = [
+    "tldextract==5.3.2",
     "langgraph>=1.2,<2",
     "langgraph-checkpoint-sqlite>=3.1,<4",
     "langchain-core>=1.6,<2",
@@ -145,7 +146,17 @@ check_untyped_defs = true
 
 # Third-party packages without bundled type information.
 [[tool.mypy.overrides]]
-module = ["trafilatura.*", "langchain_ollama.*"]
+module = ["trafilatura.*", "langchain_ollama.*", "psutil"]
+ignore_missing_imports = true
+
+# torch ships type information, so mypy follows it into numpy, whose
+# stubs use 3.12+ `type` statements while this project targets 3.11 --
+# which aborts the whole check. Neither is called directly here; the NLI
+# adapter imports them inside functions and treats their surface as Any.
+[[tool.mypy.overrides]]
+module = ["numpy", "numpy.*", "torch", "transformers"]
+follow_imports = "skip"
+follow_imports_for_stubs = true
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
@@ -153,10 +164,11 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 # Default runs are hermetic and free: no network, no credentials, no local
 # server. Opt in with `pytest -m ollama` or `pytest -m integration`.
-addopts = "-q --strict-markers -m 'not integration and not ollama'"
+addopts = "-q --strict-markers -m 'not integration and not ollama and not nli'"
 markers = [
     "integration: requires live API credentials; excluded from default runs",
     "ollama: requires a running local Ollama server",
+    "nli: downloads and runs the real NLI checkpoint; excluded from default runs",
 ]
 
 [tool.coverage.run]

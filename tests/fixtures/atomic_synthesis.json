@@ -1,0 +1,184 @@
+{
+  "description": "Prompt regression fixtures for atomic synthesis. Synthetic evidence bundles, each fusing propositions that need different evidence. No text is taken from the development calibration cases. The check is structural: did the synthesiser emit the propositions separately, and did it avoid asserting a relationship the evidence never stated.",
+  "cases": [
+    {
+      "id": "two-numeric-propositions",
+      "question": "What did the benchmark measure for the Ferrite index?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "The Ferrite index cut build time by 40%. Separately, it reduced peak memory by 15% on the same corpus."
+        }
+      ],
+      "must_not_fuse": [
+        "40%",
+        "15%"
+      ],
+      "forbidden_phrases": [
+        "while maintaining",
+        "thereby",
+        "without sacrificing"
+      ]
+    },
+    {
+      "id": "quantity-plus-accuracy",
+      "question": "What was the effect of pruning on the Ferrite index?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "Pruning cut the index size by 60%. The authors report minimal impact on retrieval quality."
+        }
+      ],
+      "must_not_fuse": [
+        "60%",
+        "minimal"
+      ],
+      "forbidden_phrases": [
+        "while maintaining",
+        "while preserving",
+        "without sacrificing",
+        "high quality"
+      ]
+    },
+    {
+      "id": "product-result-to-class-conclusion",
+      "question": "How fast is the Ferrite engine?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "In the vendor's own test, the Ferrite engine returned results in 4 ms."
+        }
+      ],
+      "must_preserve": [
+        "Ferrite"
+      ],
+      "forbidden_phrases": [
+        "engines of this type",
+        "such engines",
+        "this class of",
+        "all engines"
+      ]
+    },
+    {
+      "id": "recommendation-not-necessity",
+      "question": "What does the guide say about connection pooling?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "The guide recommends enabling connection pooling for deployments above 50 concurrent clients."
+        }
+      ],
+      "must_preserve": [
+        "recommend"
+      ],
+      "forbidden_phrases": [
+        "must enable",
+        "is required",
+        "requires",
+        "mandates",
+        "necessary"
+      ]
+    },
+    {
+      "id": "association-not-cause",
+      "question": "What is the relationship between cache size and tail latency?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "Across the sampled deployments, larger cache sizes were associated with lower tail latency."
+        }
+      ],
+      "must_preserve": [
+        "associat"
+      ],
+      "forbidden_phrases": [
+        "caused",
+        "causes",
+        "led to",
+        "leads to",
+        "resulted in",
+        "because of"
+      ]
+    },
+    {
+      "id": "value-not-ranking",
+      "question": "What throughput did the Ferrite engine reach?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "The Ferrite engine reached 12,000 queries per second in the test harness."
+        }
+      ],
+      "forbidden_phrases": [
+        "highest",
+        "fastest",
+        "best",
+        "leading",
+        "outperforms",
+        "top choice"
+      ]
+    },
+    {
+      "id": "historical-not-current",
+      "question": "Is the Ferrite v1 wire format supported?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "As of the 2021 release, the Ferrite v1 wire format was no longer supported."
+        }
+      ],
+      "must_preserve": [
+        "2021"
+      ],
+      "forbidden_phrases": [
+        "is no longer supported",
+        "is currently",
+        "today"
+      ]
+    },
+    {
+      "id": "separate-attributes-not-fused",
+      "note": "Phase J. The evidence states a memory figure, a quality-impact figure and an accuracy figure as three separate propositions. Fusing the last two produces an attribute the source never asserted. Generic wording: no calibration-case text and no special-casing of any phrase.",
+      "question": "What does the source report about pruning the Ferrite index?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "Pruning the Ferrite index cut memory by 60%. The authors report minimal impact on recall. They also report high precision on the held-out set."
+        }
+      ],
+      "forbidden_phrases": [
+        "high recall",
+        "maintaining high recall",
+        "while maintaining",
+        "without sacrificing recall",
+        "high recall precision"
+      ],
+      "must_not_fuse": [
+        "60%",
+        "recall"
+      ]
+    },
+    {
+      "id": "separate-attributes-generic-second-form",
+      "note": "Phase J, a second wording of the same transformation, so passing cannot come from matching one sentence shape.",
+      "question": "What does the source report about the Basalt encoder?",
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "quote": "The Basalt encoder halved index size. Latency was largely unaffected. Throughput remained strong under load."
+        }
+      ],
+      "forbidden_phrases": [
+        "low latency",
+        "while maintaining",
+        "without sacrificing",
+        "strong latency",
+        "thereby"
+      ],
+      "must_not_fuse": [
+        "halved",
+        "latency"
+      ]
+    }
+  ]
+}

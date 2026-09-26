@@ -18,8 +18,11 @@ Checks run cheapest-first, which is also strongest-first:
 1. **Structural** (free, deterministic) — do the referenced evidence ids
    exist, are they citable, do they resolve to retrieved sources, does every
    claim that owes evidence have some? A failure here is always real.
-2. **Entailment** (one model call per claim) — does the cited evidence
-   actually support this claim? A judgement, and the only part that costs.
+2. **Entailment** (a local NLI classifier, no provider request) — does one
+   cited quote actually carry this claim? A judgement, and the only part
+   that is learned rather than derived. It used to cost a generative call
+   per claim, which is why the surrounding code still speaks of sampling;
+   it no longer does, so every checkable candidate is checked.
 """
 
 from __future__ import annotations

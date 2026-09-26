@@ -21,7 +21,6 @@ from agentic_research.schemas import (
     AnalysisOut,
     ClaimOut,
     CoverageOut,
-    EntailmentOut,
     EvidenceOut,
     ExtractionOut,
     FollowupOut,
@@ -36,8 +35,8 @@ from agentic_research.schemas import (
 from agentic_research.search.base import SearchResponse
 
 PAGE_TEXT = (
-    "Fraud detection datasets are severely imbalanced, with positive cases often "
-    "well under one percent of all recorded transactions. Resampling methods such "
+    "Fraud detection datasets are severely imbalanced, with positive cases "
+    "under one percent of all recorded transactions. Resampling methods such "
     "as SMOTE generate synthetic minority examples, while cost-sensitive learning "
     "assigns a higher penalty to missed fraud. Gradient boosted trees remain a "
     "strong baseline in production systems, and precision-recall curves are a more "
@@ -137,7 +136,7 @@ def _default_extraction(user: str) -> ExtractionOut:
                 claim="Fraud datasets are severely imbalanced.",
                 # Copied verbatim from PAGE_TEXT so quote verification passes.
                 quote="Fraud detection datasets are severely imbalanced, with positive "
-                "cases often well under one percent of all recorded transactions",
+                "cases under one percent of all recorded transactions",
                 stance="supports",
                 relevance=0.9,
             ),
@@ -214,10 +213,6 @@ def _default_report(user: str) -> ReportOut:
     )
 
 
-def _default_entailment(_: str) -> EntailmentOut:
-    return EntailmentOut(verdict="supported", reason="the quote states it")
-
-
 _DEFAULTS = {
     "AnalysisOut": _default_analysis,
     "PlanOut": _default_plan,
@@ -226,7 +221,6 @@ _DEFAULTS = {
     "CoverageOut": _default_coverage,
     "FollowupsOut": _default_followups,
     "ReportOut": _default_report,
-    "EntailmentOut": _default_entailment,
 }
 
 

@@ -172,8 +172,21 @@ class RecordingSummary:
     sources: int
     evidence_items: int
     citable_evidence: int
-    has_pdf_evidence: bool
+    page_citation_count: int
+    """Citable evidence items carrying a page number.
+
+    Counted over *citable* items only, because a page on a quote that
+    could not be matched to its source grounds nothing. Deliberately
+    not "this source was a PDF": a PDF whose page-aware extraction
+    failed yields no page-level citation, and conflating the two is how
+    the site came to advertise page provenance on a recording that had
+    none."""
+    published_claims: int
     duration_s: float
+
+    @property
+    def has_page_provenance(self) -> bool:
+        return self.page_citation_count > 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -186,7 +199,9 @@ class RecordingSummary:
             "sources": self.sources,
             "evidence_items": self.evidence_items,
             "citable_evidence": self.citable_evidence,
-            "has_pdf_evidence": self.has_pdf_evidence,
+            "page_citation_count": self.page_citation_count,
+            "has_page_provenance": self.has_page_provenance,
+            "published_claims": self.published_claims,
             "duration_s": self.duration_s,
         }
 
@@ -297,6 +312,35 @@ def assert_no_internal_reasoning(recording_id: str, payload: Any) -> None:
             raise ValueError(f"recording {recording_id!r} contains model self-talk at {where}")
 
 
+def page_citation_count(payload: dict[str, Any]) -> int:
+    """Citable evidence items in a recording that carry a page number.
+
+    The single definition of page provenance, used by the summary, by
+    the schema check and by the tests, so the three cannot drift.
+    """
+    evidence = (payload.get("result", {}) or {}).get("evidence", []) or []
+    return sum(1 for e in evidence if e.get("citable") and e.get("page") is not None)
+
+
+def recompute_summary_fields(payload: dict[str, Any]) -> dict[str, int]:
+    """Counts derived from the payload, for checking stored metadata.
+
+    A badge or count that disagrees with the evidence it describes is a
+    visual lie, and a stale one is indistinguishable from a true one to
+    a reader. Recomputing makes the disagreement a test failure.
+    """
+    result = payload.get("result", {}) or {}
+    evidence = result.get("evidence", []) or []
+    verification = result.get("verification") or {}
+    return {
+        "sources": len(result.get("sources", []) or []),
+        "evidence_items": len(evidence),
+        "citable_evidence": sum(1 for e in evidence if e.get("citable")),
+        "page_citation_count": page_citation_count(payload),
+        "published_claims": int(verification.get("final_published_claims") or 0),
+    }
+
+
 def _summary_from(recording_id: str, payload: dict[str, Any]) -> RecordingSummary:
     meta = payload.get("meta", {})
     result = payload.get("result", {})
@@ -313,7 +357,8 @@ def _summary_from(recording_id: str, payload: dict[str, Any]) -> RecordingSummar
         sources=len(sources),
         evidence_items=len(evidence),
         citable_evidence=sum(1 for e in evidence if e.get("citable")),
-        has_pdf_evidence=any(e.get("page") for e in evidence),
+        page_citation_count=page_citation_count(payload),
+        published_claims=int((result.get("verification") or {}).get("final_published_claims") or 0),
         duration_s=float(metrics.get("duration_s") or 0.0),
     )
 

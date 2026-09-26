@@ -159,12 +159,11 @@ class FollowupsOut(BaseModel):
     )
 
 
-# Bounded at the schema boundary rather than when the verifier renders
-# them. The renderer used to show the first six and the verifier judged
-# the claim as though it had seen them all: one NIST claim cited eight
-# ids, and the item that stated its case outright was the seventh.
-# Refusing an over-long claim up front is honest; silently judging a
-# subset is not.
+# Bounded at the schema boundary. Under the generative verifier this
+# stopped a renderer from showing six of eight quotes while the verdict
+# claimed all eight were seen. The NLI gate scores each quote separately
+# so that particular failure is gone, but the bound stays: a claim
+# resting on more than eight items is not atomic, whatever else it is.
 MAX_EVIDENCE_PER_CLAIM = 8
 
 
@@ -257,25 +256,11 @@ class ReportOut(BaseModel):
     )
 
 
-class EntailmentOut(BaseModel):
-    """Whether cited evidence actually supports a claim."""
-
-    verdict: Literal["supported", "partially_supported", "unsupported"] = Field(
-        description=(
-            "'supported' if the evidence states or directly implies the claim. "
-            "'partially_supported' if it is related but weaker or narrower. "
-            "'unsupported' if the evidence does not establish the claim."
-        )
-    )
-    reason: str = Field(description="One sentence justification")
-
-
 __all__ = [
     "AnalysisOut",
     "ClaimOut",
     "ContradictionOut",
     "CoverageOut",
-    "EntailmentOut",
     "EvidenceOut",
     "ExtractionOut",
     "FollowupOut",

@@ -1,0 +1,42 @@
+
+/* Evidence-only fallback: shown when the publication gate withheld every
+   claim. Styled as quotations rather than findings, so a reader cannot
+   mistake a verbatim excerpt for something the system concluded. */
+.notice--withheld {
+  border-left: 3px solid var(--amber, #b45309);
+  background: color-mix(in srgb, var(--amber, #b45309) 8%, transparent);
+}
+
+.excerpts__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.excerpts__list blockquote {
+  margin: 0 0 0.25rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--line, #334155);
+  font-style: italic;
+}
+
+/* Capability chips on the example cards. Derived from the recording's
+   own contents, never asserted by id -- a badge that outlives the thing
+   it describes is a lie the reader cannot detect. */
+.card__caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0.15rem;
+}
+
+.cap {
+  font-size: 0.72rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--line, #334155);
+  color: var(--muted, #94a3b8);
+  white-space: nowrap;
+}

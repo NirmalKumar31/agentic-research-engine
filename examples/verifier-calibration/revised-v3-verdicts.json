@@ -1,0 +1,157 @@
+{
+  "model": "ollama:qwen3:4b",
+  "commit": "74fb0b62608e2e43264c8eada0eb1d97a4fe82f3",
+  "design": "claim-only decomposition, per-clause audit, deterministic aggregation",
+  "cases": [
+    {
+      "case_id": "fraud-detection-imbalanced-removed-11",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "1 [scope] not_supported; 2 [proposition] not_supported; 3 [causal] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-8",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [proposition] supported; 2 [proposition] not_supported; 3 [quantity] not_supported; 4 [scope] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-12",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [scope] supported; 2 [scope] supported; 3 [proposition] supported; 4 [causal] not_supported"
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-2",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "1 [scope] not_supported; 2 [proposition] not_supported; 3 [scope] not_supported; 4 [scope] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-15",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "clauses not judged: 5"
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-4",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "audit judged unknown clause '1 [scope]'"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-3",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "audit judged unknown clause '1 [scope]: Vector databases'"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-6",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "clauses not judged: 4, 5"
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-2",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "clauses not judged: 4, 5, 6"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-11",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "1 [scope] supported; 2 [proposition] not_supported; 3 [comparison] supported; 4 [scope] supported"
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-10",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "1 [proposition] not_supported; 2 [proposition] not_supported; 3 [causal] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-13",
+      "verifier_verdict": "supported",
+      "verifier_reason": "1 [proposition] supported; 2 [quantity] supported; 3 [proposition] supported; 4 [scope] supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-14",
+      "verifier_verdict": "supported",
+      "verifier_reason": "1 [proposition] supported; 2 [quantity] supported; 3 [quantity] supported"
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-1",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [proposition] supported; 2 [ranking] not_supported; 3 [proposition] not_supported; 4 [scope] not_supported; 5 [scope] not_supported"
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-7",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "audit judged unknown clause '1 [scope]'"
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-1",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "audit judged unknown clause '1 [scope]'"
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-3",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "1 [proposition] not_supported; 2 [proposition] not_supported; 3 [proposition] not_supported; 4 [scope] not_supported"
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-5",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "audit judged unknown clause '1 [scope]'"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-1",
+      "verifier_verdict": "supported",
+      "verifier_reason": "1 [proposition] supported; 2 [proposition] supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-9",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [proposition] supported; 2 [quantity] supported; 3 [causal] supported; 4 [scope] not_supported"
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-12",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "1 [scope] not_supported; 2 [proposition] not_supported; 3 [causal] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-5",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [proposition] not_supported; 2 [scope] not_supported; 3 [proposition] supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-7",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [proposition] supported; 2 [quantity] supported; 3 [proposition] not_supported; 4 [scope] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-4",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "clauses not judged: 5"
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-6",
+      "verifier_verdict": "supported",
+      "verifier_reason": "1 [proposition] supported; 2 [scope] supported; 3 [proposition] supported"
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-5",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [proposition] supported; 2 [ranking] not_supported; 3 [scope] not_supported; 4 [scope] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-2",
+      "verifier_verdict": "partially_supported",
+      "verifier_reason": "1 [scope] supported; 2 [proposition] supported; 3 [proposition] not_supported"
+    },
+    {
+      "case_id": "rag-vector-vs-search-removed-10",
+      "verifier_verdict": "supported",
+      "verifier_reason": "1 [proposition] supported; 2 [proposition] supported; 3 [proposition] supported; 4 [modality] supported"
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-removed-9",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "audit judged unknown clause ':3'"
+    },
+    {
+      "case_id": "nist-ai-risk-framework-removed-3",
+      "verifier_verdict": "unsupported",
+      "verifier_reason": "clause audit failed: StructuredOutputError"
+    }
+  ]
+}

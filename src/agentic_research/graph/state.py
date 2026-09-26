@@ -110,10 +110,11 @@ class ResearchState(TypedDict, total=False):
     exhaustive_verification: bool
     """Check entailment for every eligible claim rather than a sample.
 
-    Off for interactive runs, where one model call per claim is a real
-    latency and cost cost. On for benchmarks, because a sampled figure
-    published as if it were exhaustive is exactly the kind of metric this
-    project exists not to produce."""
+    Vestigial under the NLI gate: classification costs no provider
+    request, so every checkable candidate is checked and this is
+    effectively always on. Retained because recorded runs carry it and
+    because a future remote verifier with a per-call price would make the
+    distinction real again."""
 
     # --- planning (single writer each) --------------------------------
     analysis: QueryAnalysis | None
@@ -210,6 +211,14 @@ class RunContext:
     run_id: str
     started_at: float = 0.0
     warnings: list[str] = field(default_factory=list)
+    nli_scorer: Any = None
+    """The semantic verifier, built from settings on first use.
+
+    Injectable so tests can substitute a deterministic fake rather than
+    loading a 1.4GB checkpoint per test run. Production leaves it None;
+    there is no settings value that selects a fake, because a
+    configuration mistake must not be able to turn the publication gate
+    into a rubber stamp."""
 
 
 def initial_state(

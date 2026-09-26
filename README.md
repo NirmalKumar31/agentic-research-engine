@@ -1,8 +1,9 @@
 # Agentic Research Engine
 
 A LangGraph research system that decomposes a question, searches the web in
-parallel, extracts evidence as exact-normalized source quotes, and
-publishes only the claims its own verifier checked and supported.
+parallel, extracts evidence as exact-normalized source quotes, and publishes
+only the atomic claims a dedicated entailment classifier scored as supported
+by one of their own cited quotes. Everything else is withheld.
 
 ---
 
@@ -27,8 +28,49 @@ This project separates them and measures whether the result holds.
   page-aware PDF extraction succeeded.
 - **Assesses its own coverage** and loops on specific gaps, under hard
   limits on rounds, queries, sources and model calls.
-- **Verifies each claim against its own evidence**, then removes the claims
-  that failed before publishing.
+- **Writes atomic claims** — one verifiable proposition each, with the
+  source's own modality, scope, quantities and time frame preserved.
+- **Checks every claim against each of its own quotes separately**, using a
+  pinned NLI classifier plus deterministic guards, and removes everything
+  that does not clear the bar before publishing.
+- **Falls back to exact source excerpts** when nothing passes, rather than
+  publishing an empty report or relaxing the bar.
+
+## How a claim gets published
+
+Two different models, doing two different jobs. The generative model never
+decides whether its own claims are supported.
+
+| Stage | Who | What |
+|---|---|---|
+| Planning, search, extraction, synthesis | `qwen3:4b` locally, or a cloud model | Decomposes the question, writes queries, pulls exact quotes, writes atomic claims |
+| Deterministic guards | Plain Python | Refuse narrow, high-confidence overclaims: a figure not in the quote, a hedge promoted to a requirement, an invented ranking, causation from association, invented exclusivity |
+| Semantic entailment | `DeBERTa-v3-large-mnli-fever-anli-ling-wanli`, pinned to revision `b3546ea6` | Scores each claim against each cited quote separately and returns probabilities only |
+| Publication gate | Plain Python | Publishes only when one guard-passing quote entails the claim at ≥ 0.98 |
+
+Claims must be **atomic** — one independently verifiable proposition
+each. That is enforced before scoring, not merely requested of the
+synthesiser, because a fused claim defeats every other guard: each of
+them reasons about "the sentence that supports this claim", and a
+compound claim hands them two.
+
+A claim publishes when **a single cited quote carries it on its own**.
+Quotes are never concatenated: assembling a broad claim out of several
+partial ones is the failure this gate exists to prevent. Anything else is
+withheld — below threshold, guard failure, unresolved evidence, a
+non-citable quote, or a classifier that could not be reached. Every failure
+path withholds, and none falls back to asking a generative model.
+
+The threshold is calibrated, not guessed, and the model and revision are
+pinned because a checkpoint that moves silently invalidates every number
+here. All three are recorded on every judgment.
+
+**What this does not mean.** The classifier is a learned model and can be
+wrong. It is conservative by construction and by threshold, so its usual
+error is withholding a true claim, but "withheld" and "published" are not
+proofs. This is not zero hallucinations, not perfect factuality, not general
+entailment correctness — it is a measured, fail-closed filter whose
+behaviour on the cases tested is written down below.
 
 ## Architecture
 
@@ -162,54 +204,84 @@ spends nothing.
 
 ## Measured results
 
-Three recorded local `qwen3:4b` runs, one round each. Every substantive
-claim was checked against its own evidence — `checked == checkable`, with
-every cited item and every quote shown in full — and only claims the
-verifier judged *supported* were published.
+Three recorded local `qwen3:4b` runs, one round each, verified by the
+pinned DeBERTa NLI classifier at threshold 0.98. Every substantive claim
+was checked against each of its own quotes — `checked == checkable` in
+all three — and only claims one quote carried on its own were published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
-| Research rounds | 1 | 1 | 1 |
-| Search queries | 6 | 6 | 6 |
 | Unique sources | 5 | 5 | 5 |
-| Usable sources | 5 | 5 | 3 |
-| Generated substantive claims | 15 | 7 | 13 |
-| Exact duplicates removed | 0 | 0 | 1 |
-| Supported | 0 | 0 | 0 |
-| Partially supported | 14 | 7 | 7 |
-| Unsupported | 1 | 0 | 5 |
-| Never checked | 0 | 0 | 0 |
-| **Removed before publishing** | 15 | 7 | 12 |
-| **Published** | **0** | **0** | **0** |
-| Checked / checkable | 15/15 | 7/7 | 12/12 |
-| Quote fidelity (exact) | 97% | 92% | 94% |
-| Cross-attributed evidence | 63.3% | 20.8% | 83.3% |
-| Page-cited evidence | 0 | 5 | 0 |
-| Duration | 776s | 708s | 524s |
+| Evidence items | 10 | 26 | 30 |
+| Generated substantive claims | 11 | 19 | 16 |
+| Exact duplicates removed | 5 | 12 | 8 |
+| Unique candidates checked | 6/6 | 7/7 | 8/8 |
+| **Withheld** | 4 | 4 | 2 |
+| **Published** | **2** | **3** | **6** |
+| Quote fidelity (exact) | 70% | 92% | 90% |
+| Page-cited evidence | 0 | 6 | 0 |
+| Duration | 1478s | 1453s | 1067s |
 
-Evidence integrity is not listed: all three published reports contain no
-claims, so the denominator is zero and there is no reference that could
-have been wrong. Reporting that as 100% would be scoring an empty page.
+21 unique candidates across the three runs, all checked, **11 published
+and 10 withheld**.
 
-**Every generated claim was removed.** 35 substantive claims were
-generated; one exact duplicate was removed, and the verifier evaluated
-the remaining 34 unique claims — 28 partially supported, 6 unsupported.
-The fail-closed gate removed all of them. That is what the system did;
-whether it was *right* is a separate question this project cannot yet
-answer, because nobody has compared this verifier against human labels.
+### Release validation
 
-There is reason to think it is too strict. Many rejections are compound
-claims whose halves each have supporting evidence, for example *"vector
-databases excel in low-latency search but require significant memory"* —
-where one quote reports sub-8ms p99 latency and another reports the
-64GB+ RAM needed for it. A blind labelling set is committed under
-[`examples/verifier-calibration/`](examples/verifier-calibration/) — 30
-of the 34 cases, carrying the claim and its complete evidence but no
-verifier verdict — so the question can be settled with labels rather
-than argued from selected examples.
+Publishing something is easy; publishing only what the evidence supports
+is the claim being made. So every candidate — not only the published
+ones — was reviewed against the exact quote the gate selected, **with the
+automated verdict, score, guard results and publication decision
+hidden**, and the labels joined back by case id afterwards. The packet,
+the labels and the join are in
+[`examples/release-audit/`](examples/release-audit/).
 
-These are product artifacts, served by the demo. They are not a
-benchmark: n=1 each, one model, one configuration.
+| | published | withheld |
+|---|---|---|
+| **reviewer: supported** | 11 | 8 |
+| **reviewer: unsupported or uncertain** | **0** | 2 |
+
+Precision 1.00, recall 0.58. **Zero unsupported published claims, zero
+uncertain ones.**
+
+Of the 10 withheld: 5 scored below the entailment threshold and 5 were
+refused by a deterministic guard before the score mattered (3 atomicity,
+1 hedge, 1 numeric). One of those — a claim dropping the source's
+*"often"* — is the frequency-deletion rule catching a real overclaim on
+live data.
+
+This is a **blinded self-review, not an independent benchmark**: the
+reviewer built the system. A packet for a genuinely independent second
+reviewer is committed at
+[`examples/release-audit/reviewer-packet.json`](examples/release-audit/reviewer-packet.json),
+carrying only claims, quotes and sources — no verdict, score, guard
+result or prior label.
+
+### How the audits went
+
+Six manually reviewed canonical audits. The first three each published
+exactly one claim that survived every automated check and failed a human
+read, and each produced a general rule rather than a patch:
+
+| Audit | What escaped | Fix |
+|---|---|---|
+| 1 | `"might lack"` published as `"lack"` | hedge-deletion guard |
+| 2 | `"We demonstrate that X"` published as `"X"` | research-voice guard |
+| 3 | `"our dataset"` → `"datasets"`, inside a two-sentence claim | proposition-level atomicity |
+| 4 | — | clean |
+| 5 | — | clean, blinded |
+| 6 | — | clean, blinded, and the first run with atomicity actually wired |
+
+Audit 6 exists because an independent code review found that audits 4
+and 5 were produced with the clause-level atomicity check **written and
+tested but never called** — the guard still counted sentences. The
+property had been reported as enforced and was not. Every guard now has
+an integration test that drives the real publication path with a scorer
+entailing everything, so a disconnected guard fails a test rather than a
+review.
+
+These are product artifacts, served by the demo. Live search is
+nondeterministic, so re-running these questions does not recover these
+sources — see [LIMITATIONS](docs/LIMITATIONS.md).
 
 ### Attribution experiment
 

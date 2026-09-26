@@ -57,3 +57,27 @@ def stub_dns(monkeypatch: pytest.MonkeyPatch) -> str:
 
     monkeypatch.setattr(safety.socket, "getaddrinfo", fake)
     return PUBLIC_TEST_IP
+
+
+@pytest.fixture(autouse=True)
+def fake_nli(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest) -> None:
+    """Never load the real 1.4GB checkpoint in a unit test.
+
+    Verification runs inside the graph, so without this every test that
+    drives a run would download and load DeBERTa -- minutes per run, and
+    a 1.4GB pull in CI for tests that are not about semantics at all.
+
+    The fake entails by default, so pipeline tests see claims survive
+    the gate and can assert on what a report contains. Tests about the
+    gate itself build their own scorers with specific scores, and the
+    real checkpoint runs in the `nli` suite. Guards are NOT faked: they
+    are pure functions and run for real against this.
+    """
+    if request.node.get_closest_marker("nli"):
+        return
+    from agentic_research.citations.fake_nli import FakeScorer
+    from agentic_research.graph.nodes import reporting
+
+    monkeypatch.setattr(
+        reporting, "build_verifier", lambda _settings: FakeScorer(default=(0.99, 0.01, 0.0))
+    )

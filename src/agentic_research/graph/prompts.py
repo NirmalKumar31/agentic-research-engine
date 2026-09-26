@@ -201,11 +201,64 @@ into the claim text and do not name sources; the ids you give are resolved \
 back to their sources automatically, and an id that does not appear in the \
 evidence below is discarded along with anything resting on it.
 
+Write ATOMIC claims. One claim carries exactly one material \
+proposition -- one thing a single quote could confirm or fail to confirm \
+on its own. One subject, one assertion about it.
+
+The test: could someone agree with half of your sentence and disagree \
+with the other half? Then it is two claims. Write both.
+
+Two results are two claims, even in one sentence. 'X improved accuracy \
+and reduced latency' is two. 'X was faster but less accurate' is two. \
+'Accuracy was 92%, recall was 81%' is two. Each half needs its own \
+evidence, so each half is its own claim.
+
+Listing things inside one assertion is fine: 'the benchmark reports \
+precision, recall and F1' is one claim, because it asserts one thing \
+about one benchmark.
+
+A claim carrying two assertions is dropped rather than half-published, \
+so fusing them loses both.
+
+  Not this:
+    "Quantization reduces memory usage by 75% while maintaining high \
+recall accuracy."
+  This:
+    "Quantization reduced memory usage by 75%."
+    "The source reports minimal impact on recall after quantization."
+    "The source reports high accuracy after quantization."
+
+Three separate facts stay three separate claims. Do not invent a \
+relationship between them -- 'while maintaining', 'thereby achieving' and \
+'without sacrificing' all assert something the evidence may never have said.
+
+Each claim is checked against each of its own quotes separately, and it \
+publishes only if one of those quotes carries it by itself. A broad claim \
+assembled from several partial quotes does not pass. Narrow and provable \
+beats broad and impressive.
+
+Carry the source's own wording on every dimension that changes meaning:
+- scope: one product stays one product, one study one study, one \
+benchmark one benchmark, one organisation that organisation. Do not \
+generalise a result to a category.
+- modality: 'may' stays 'may'. Do not promote it to 'typically', \
+'requires', 'must' or 'always'.
+- quantity: reproduce figures exactly, with their units and qualifiers.
+- time: keep 'as of', 'in 2021', 'at the time of writing'.
+- comparison: a reported value is not a ranking. Only write 'highest', \
+'fastest' or 'best' when the source ranks things.
+- cause: only write 'caused', 'led to' or 'because of' when the source \
+states a cause. An association stays an association.
+- recommendation: advice stays advice, not a requirement.
+
 Classify each claim:
-- 'factual': one evidence item establishes it. Give that item's id.
-- 'synthesis': you are drawing a conclusion across several items. Give all \
-the ids it rests on. Synthesis needs more evidence than a plain fact, not \
-less.
+- 'factual': one evidence item establishes it on its own. Give that \
+item's id. Prefer this. If two items each independently state it, give \
+both; do not add ids that merely sit in the same paragraph.
+- 'synthesis': a conclusion genuinely spanning several items, which no \
+single item states. Give every id it rests on. Use this sparingly -- if \
+the conclusion can be written as two atomic factual claims instead, \
+write those.
 
 Every claim you write is an assertion and every one needs evidence. There \
 is no category for connective prose: section headings already provide the \
@@ -214,8 +267,10 @@ structure, so write claims rather than linking sentences.
 The summary claims are the most prominent statements in the report and are \
 held to exactly the same standard as body claims.
 
-Cite at most eight evidence items per claim. A claim resting on more than \
-that cannot be checked against all of them at once and will be dropped.
+Cite at most eight evidence items per claim, and only ids that actually \
+support that specific claim. Attaching every id from a paragraph does not \
+strengthen a claim; each is checked against the claim on its own, and the \
+irrelevant ones simply fail.
 
 When sources disagree, record it as a contradiction with evidence ids on \
 both sides rather than resolving it or mentioning it only in prose.
@@ -256,48 +311,4 @@ def synthesizer_user(
         f"Expected shape of answer: {output_format}\n\n"
         f"Evidence:\n{evidence_block}{gaps}{budget}\n\n"
         "Write the report."
-    )
-
-
-VERIFIER_SYSTEM = """\
-You check whether a specific piece of evidence supports a specific claim.
-
-Judge only the logical relationship between the two. Do not use outside \
-knowledge, and do not consider whether the claim is true in general — only \
-whether this evidence establishes it.
-
-'supported' means the evidence states the claim or directly implies it.
-'partially_supported' means the evidence is on topic but weaker, narrower, or \
-hedged relative to the claim.
-'unsupported' means the evidence does not establish the claim, even if both \
-concern the same subject.
-
-Each piece of evidence names the source it came from. Who published a \
-quote is part of what it establishes.
-
-'Site category' is a retrieval taxonomy describing what kind of page a \
-URL is. It does not make a publisher authoritative for another \
-organisation, and it is not evidence that the claim is true.
-
-Answer 'partially_supported' or 'unsupported' when the claim:
-
-- attributes a statement to an organisation or document, but the quote \
-comes from a different publisher and does not itself establish that \
-attribution — a vendor describing what a standard requires is not the \
-standard saying it;
-- turns one study's result into a general statement about the field;
-- turns 'may', 'can' or 'often' into 'does', 'will' or 'always';
-- turns guidance or a recommendation into a requirement;
-- turns an association or correlation into causation;
-- adds a threshold, ranking, superlative or quantity the evidence does \
-not state;
-- joins several assertions where any material part is unsupported, even \
-if the rest is fine."""
-
-
-def verifier_user(claim: str, evidence_block: str) -> str:
-    return (
-        f"Claim:\n{claim}\n\n"
-        f"Cited evidence:\n{evidence_block}\n\n"
-        "Does this evidence, from these sources, support the claim?"
     )

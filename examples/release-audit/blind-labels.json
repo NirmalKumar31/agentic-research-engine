@@ -1,0 +1,23 @@
+{
+  "fraud-detection-imbalanced-4": "supported",
+  "nist-ai-risk-framework-4": "supported",
+  "nist-ai-risk-framework-6": "supported",
+  "nist-ai-risk-framework-5": "supported",
+  "nist-ai-risk-framework-0": "supported",
+  "fraud-detection-imbalanced-6": "supported",
+  "nist-ai-risk-framework-3": "uncertain",
+  "rag-vector-vs-search-5": "supported",
+  "nist-ai-risk-framework-1": "supported",
+  "fraud-detection-imbalanced-3": "supported",
+  "rag-vector-vs-search-2": "supported",
+  "rag-vector-vs-search-0": "unsupported",
+  "rag-vector-vs-search-4": "supported",
+  "rag-vector-vs-search-3": "supported",
+  "nist-ai-risk-framework-2": "supported",
+  "fraud-detection-imbalanced-5": "supported",
+  "rag-vector-vs-search-1": "supported",
+  "fraud-detection-imbalanced-7": "supported",
+  "fraud-detection-imbalanced-0": "supported",
+  "fraud-detection-imbalanced-1": "supported",
+  "fraud-detection-imbalanced-2": "supported"
+}

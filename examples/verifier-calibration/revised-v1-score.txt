@@ -1,0 +1,18 @@
+# Verifier revision v1 against the frozen reviewer labels.
+# Collective-evidence + attribution + claim-kind + numeric prompt rules.
+# NOT ACCEPTED: introduced 4 supported false positives (baseline had 0).
+
+cases               30
+human labels        {'unsupported': 7, 'partially_supported': 14, 'supported': 9}
+verifier verdicts   {'unsupported': 6, 'partially_supported': 15, 'supported': 9}
+exact agreement     63.3%
+supported TP        5
+supported FP        4
+supported FN        4
+supported precision 0.5555555555555556
+supported recall    0.5555555555555556
+
+confusion matrix (human -> verifier)      sup  par  uns
+             supported     5    4    0
+   partially_supported     4    9    1
+           unsupported     0    2    5

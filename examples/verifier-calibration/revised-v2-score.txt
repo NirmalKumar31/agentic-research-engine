@@ -1,0 +1,18 @@
+# Verifier revision v2 against the frozen reviewer labels.
+# Four-step material-clause procedure in a single classification prompt.
+# REGRESSION: partially_supported collapsed to zero; 16 supported false positives.
+
+cases               30
+human labels        {'unsupported': 7, 'partially_supported': 14, 'supported': 9}
+verifier verdicts   {'unsupported': 5, 'supported': 25}
+exact agreement     46.7%
+supported TP        9
+supported FP        16
+supported FN        0
+supported precision 0.36
+supported recall    1.0
+
+confusion matrix (human -> verifier)      sup  par  uns
+             supported     9    0    0
+   partially_supported    14    0    0
+           unsupported     2    0    5

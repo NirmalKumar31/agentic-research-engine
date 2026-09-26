@@ -1,0 +1,196 @@
+{
+  "description": "Blinded release audit packet. Each case shows a generated claim and the exact evidence quote the verifier selected for it, with no automated verdict, score, guard result or publication decision. Label each supported / unsupported / uncertain, then run `join`.",
+  "instructions": "supported: this quote, by itself, states or directly implies the claim with its scope, modality, quantities and attribution intact. unsupported: it does not. uncertain: you cannot tell from this quote alone.",
+  "shuffle_seed": 20260926,
+  "cases": [
+    {
+      "case_id": "fraud-detection-imbalanced-4",
+      "claim": "The random forest model achieved an ROC-AUC of 0.9759.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-4",
+      "claim": "The Manage function implements mitigations and addresses residual risks.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e2",
+      "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-6",
+      "claim": "The Govern function spans the entire organization.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e2",
+      "quote": "GOVERN is the only function that spans the entire organization.",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-5",
+      "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases through profiles that apply the framework to specific AI systems or technology classes.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e3",
+      "quote": "NIST AI RMF profiles \u200b\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-0",
+      "claim": "The NIST AI Risk Management Framework 1.0 is structured around four core functions: Govern, Map, Measure, and Manage.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e1",
+      "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage.",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-6",
+      "claim": "Synthetic Data Generation: Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e3",
+      "quote": "Synthetic Data Generation: Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-3",
+      "claim": "The Measure function involves testing and monitoring signals to assess AI system performance.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e2",
+      "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-5",
+      "claim": "Vector search prioritizes recall over precision, leading to conceptually related but potentially inaccurate results.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e2",
+      "quote": "Pure vector search creates two problems: raw user questions are converted straight to embeddings without query refinement, and vector similarity favors recall over precision, so results are conceptually related but not always exactly what you need.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-1",
+      "claim": "The Govern function addresses organizational risk culture, accountability, and AI-related policies across the AI lifecycle.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e2",
+      "quote": "The Govern function focuses on organizational risk culture, accountability, and AI-related policies across the lifecycle. It addresses issues such as who approves high-risk use cases, how third-party models are introduced into the environment, and how resources are allocated for safety testing.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-3",
+      "claim": "The random forest model achieved an F1 score of 0.8256.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-2",
+      "claim": "Pure vector search creates two problems: raw user questions are converted directly to embeddings without query refinement and vector similarity favors recall over precision.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e2",
+      "quote": "Pure vector search creates two problems: raw user questions are converted straight to embeddings without query refinement, and vector similarity favors recall over precision, so results are conceptually related but not always exactly what you need.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-0",
+      "claim": "Vector databases provide approximate results based on semantic similarity and require a tradeoff between accuracy and speed.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e1",
+      "quote": "The vector database provides approximate results based on semantic similarity and often requires a tradeoff between accuracy and speed; that is, if you want your results to be highly accurate, you\u2019ll have to compromise on the speed of your output.",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-4",
+      "claim": "RAG systems can incorporate keyword search, structured queries, or hybrid approaches depending on the use case.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "In most RAG implementations, RAG systems rely on vector databases or vector indexing techniques to enable semantic search. However, vector search is not strictly required. RAG architectures can also incorporate keyword search, structured queries or hybrid approaches depending on the use case.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-3",
+      "claim": "Vector databases are not strictly required for RAG implementations.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "In most RAG implementations, RAG systems rely on vector databases or vector indexing techniques to enable semantic search. However, vector search is not strictly required. RAG architectures can also incorporate keyword search, structured queries or hybrid approaches depending on the use case.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-2",
+      "claim": "The Map function focuses on contextual analysis, stakeholder identification, and impact assessment.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e2",
+      "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-5",
+      "claim": "The deep learning model provided the highest precision.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-1",
+      "claim": "Vector search excels at finding conceptually related content (recall) but is less effective at pinpointing exactly what is needed (precision).",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e1",
+      "quote": "Vector search excels at finding conceptually related content (recall): documents that discuss similar topics, even if they use different terminology. However, it's less effective at pinpointing exactly what you need (precision).",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-7",
+      "claim": "This study offers insights into the trade-offs between model accuracy, computational efficiency, and real-time applicability in fraud detection systems.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e4",
+      "quote": "This study offers insights into the trade-offs between model accuracy, computational efficiency, and real-time applicability in fraud detection systems.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-0",
+      "claim": "Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e1",
+      "quote": "The results show that Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall, while LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-1",
+      "claim": "LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e1",
+      "quote": "The results show that Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall, while LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-2",
+      "claim": "The random forest model achieved an accuracy of 99.95%.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+      "source_id": "S2",
+      "page": null
+    }
+  ]
+}
