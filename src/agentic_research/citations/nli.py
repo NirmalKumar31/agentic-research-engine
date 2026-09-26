@@ -46,6 +46,14 @@ class NLIPrediction:
     scores: NLIScores
     model_id: str
     model_revision: str
+    truncated: bool = False
+    """The pair did not fit the model's context and was cut.
+
+    Recorded because a truncated premise is not the premise. A quote
+    whose first half supports a claim and whose second half qualifies it
+    away would score as support with the qualifier cut off, and the
+    score would look entirely normal. Callers withhold on this rather
+    than trusting it."""
 
 
 class NLIUnavailable(RuntimeError):
@@ -136,6 +144,17 @@ class NLIVerifier:
         for start in range(0, len(pairs), self.batch_size):
             batch = pairs[start : start + self.batch_size]
             try:
+                # Tokenised twice on purpose: once unbounded to learn
+                # the true length, once truncated for the model. The
+                # difference is the only way to know whether anything
+                # was cut, and a silently truncated premise is a
+                # different claim than the one on the page.
+                measured = tokenizer(
+                    [p for p, _ in batch],
+                    [h for _, h in batch],
+                    truncation=False,
+                    padding=False,
+                )["input_ids"]
                 encoded = tokenizer(
                     [p for p, _ in batch],
                     [h for _, h in batch],
@@ -144,12 +163,13 @@ class NLIVerifier:
                     padding=True,
                     return_tensors="pt",
                 )
+                overlong = [len(ids) > self.max_length for ids in measured]
                 logits = model(**encoded).logits
                 probs = torch.softmax(logits, dim=-1)
             except Exception as exc:
                 raise NLIUnavailable(f"inference failed: {exc}") from exc
 
-            for (premise, hypothesis), row in zip(batch, probs, strict=True):
+            for (premise, hypothesis), row, cut in zip(batch, probs, overlong, strict=True):
                 values = row.tolist()
                 out.append(
                     NLIPrediction(
@@ -162,6 +182,7 @@ class NLIVerifier:
                         ),
                         model_id=self.model_id,
                         model_revision=self.revision,
+                        truncated=cut,
                     )
                 )
         return out
@@ -245,6 +266,11 @@ class RemoteNLIVerifier:
                         scores=scores,
                         model_id=self.model_id,
                         model_revision=self.revision,
+                        # A remote scorer must say so if it cut the
+                        # pair. Absent the field we assume it did not,
+                        # which is why a hosted endpoint has to be one
+                        # we control the contract of.
+                        truncated=bool(item.get("truncated", False)),
                     )
                 )
         return out

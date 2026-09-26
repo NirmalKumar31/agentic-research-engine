@@ -12,6 +12,7 @@ evaluation harness all drive runs through one code path.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 import uuid
@@ -50,6 +51,12 @@ class RunResult:
     state: dict[str, Any]
     output_dir: Path | None = None
     warnings: list[str] | None = None
+    timed_out: bool = False
+    """The run hit its wall-clock deadline and stopped early.
+
+    Explicit rather than inferred from a short duration, so a caller can
+    tell an incomplete run from a fast one. When true, nothing
+    unverified was published."""
 
 
 def new_run_id() -> str:
@@ -150,22 +157,58 @@ async def stream_research(
             }
 
             final_state: dict[str, Any] = {}
-            async for mode, chunk in app.astream(
-                initial_state(run_id, query, exhaustive_verification=exhaustive_verification),
-                config=config,
-                context=context,
-                # Must be a list: LangGraph switches on isinstance(..., list)
-                # to decide whether to yield (mode, chunk) pairs. A tuple is
-                # accepted by the type checker and yields bare chunks instead.
-                stream_mode=["custom", "values"],
-            ):
-                # With multiple stream modes the parts arrive as
-                # (mode, payload); the payload type varies per mode, so it is
-                # narrowed here rather than in the annotation.
-                if mode == "custom":
-                    yield cast("dict[str, Any]", chunk)
-                elif mode == "values":
-                    final_state = cast("dict[str, Any]", chunk)
+            timed_out = False
+            # Wall-clock ceiling for the whole run. Per-call deadlines
+            # bound each provider request, but many bounded calls still
+            # compose into an unbounded run, and nothing below this
+            # level can see the total. Counted in elapsed time so a slow
+            # provider cannot quietly extend it.
+            try:
+                async with asyncio.timeout(settings.run_timeout_seconds):
+                    async for mode, chunk in app.astream(
+                        initial_state(
+                            run_id, query, exhaustive_verification=exhaustive_verification
+                        ),
+                        config=config,
+                        context=context,
+                        # Must be a list: LangGraph switches on isinstance(..., list)
+                        # to decide whether to yield (mode, chunk) pairs. A tuple is
+                        # accepted by the type checker and yields bare chunks instead.
+                        stream_mode=["custom", "values"],
+                    ):
+                        # With multiple stream modes the parts arrive as
+                        # (mode, payload); the payload type varies per mode, so it is
+                        # narrowed here rather than in the annotation.
+                        if mode == "custom":
+                            yield cast("dict[str, Any]", chunk)
+                        elif mode == "values":
+                            final_state = cast("dict[str, Any]", chunk)
+            except TimeoutError:
+                # Fail closed. Anything the verifier had not finished
+                # checking is dropped rather than published unverified;
+                # a report is kept only if verification actually ran.
+                timed_out = True
+                verified = bool(final_state.get("verification"))
+                if not verified:
+                    final_state.pop("report", None)
+                final_state["stop_reason"] = (
+                    f"run exceeded the {settings.run_timeout_seconds:.0f}s wall-clock deadline"
+                )
+                log.warning(
+                    "run_deadline_exceeded",
+                    deadline_s=settings.run_timeout_seconds,
+                    elapsed_s=round(time.perf_counter() - started, 1),
+                    kept_verified_report=verified,
+                    failure="run_wall_clock_deadline",
+                )
+                warnings.append(
+                    "The run hit its wall-clock deadline. "
+                    + (
+                        "Verification had completed, so the report stands."
+                        if verified
+                        else "Synthesis was not verified, so no claims are published."
+                    )
+                )
 
             duration = time.perf_counter() - started
             metrics = build_metrics(
@@ -206,6 +249,7 @@ async def stream_research(
                     state=final_state,
                     output_dir=output_dir,
                     warnings=warnings,
+                    timed_out=timed_out,
                 ),
             }
     finally:

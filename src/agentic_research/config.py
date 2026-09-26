@@ -141,6 +141,14 @@ class RunBudget(BaseModel):
     max_llm_calls: int = Field(ge=1)
     max_parallel_searches: int = Field(ge=1, le=32)
     max_parallel_fetches: int = Field(ge=1, le=64)
+    max_run_seconds: float = Field(default=3600.0, gt=0)
+    """Wall-clock ceiling for one research run.
+
+    Separate from the per-call deadline because many individually
+    bounded calls still compose into an unbounded run: fifty calls at
+    three minutes each is two and a half hours, and nothing below this
+    level would notice. Counted in elapsed time, not in calls times
+    nominal timeout, so a slow provider cannot quietly extend it."""
 
 
 class Settings(BaseSettings):
@@ -233,6 +241,8 @@ class Settings(BaseSettings):
 
     llm_temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     llm_timeout_seconds: float = Field(default=180.0, gt=0)
+    run_timeout_seconds: float = Field(default=3600.0, gt=0)
+    """Wall-clock ceiling for one whole research run. See RunBudget."""
     llm_max_retries: int = Field(
         default=2,
         ge=0,
@@ -437,6 +447,7 @@ class Settings(BaseSettings):
             max_llm_calls=self.max_llm_calls,
             max_parallel_searches=self.max_parallel_searches,
             max_parallel_fetches=self.max_parallel_fetches,
+            max_run_seconds=self.run_timeout_seconds,
         )
 
     def uses_provider(self, provider: Provider) -> bool:

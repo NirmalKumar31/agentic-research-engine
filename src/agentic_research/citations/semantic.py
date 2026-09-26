@@ -89,14 +89,25 @@ class EvidenceScore:
     neutral: float
     contradiction: float
     guards: list[GuardResult]
+    truncated: bool = False
 
     @property
     def guards_passed(self) -> bool:
-        return guards_pass(self.guards)
+        """Usable as support. A truncated premise is not the premise.
+
+        A quote whose opening supports a claim and whose tail qualifies
+        it away would score as support once the tail is cut, and nothing
+        in the score would show it. Treated here as a failed check
+        rather than a lower number.
+        """
+        return not self.truncated and guards_pass(self.guards)
 
     @property
     def failed_guard_names(self) -> list[str]:
-        return [g.name for g in self.guards if not g.passed]
+        names = [g.name for g in self.guards if not g.passed]
+        if self.truncated:
+            names.append("premise-truncated")
+        return names
 
 
 @dataclass(frozen=True)
@@ -203,6 +214,7 @@ def verify_claim(
                 neutral=s.neutral,
                 contradiction=s.contradiction,
                 guards=run_guards(claim_text, quote, item.source),
+                truncated=getattr(prediction, "truncated", False),
             )
         )
 

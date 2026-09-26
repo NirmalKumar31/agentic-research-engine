@@ -160,8 +160,18 @@ class TestAttributionGuard:
             "According to Microsoft, latency fell by half.", "Latency fell by half.", source
         ).passed
 
-    def test_source_title_can_establish_it(self) -> None:
+    def test_source_title_alone_does_not_establish_it(self) -> None:
+        """Title matching was removed. "NIST guidance explained by
+        VendorCo" contains "NIST" while being published by VendorCo,
+        and no rule about where in the title the name sits separates
+        that from a real NIST page."""
         source = SourceIdentity("example.test", "IEEE Standards Association overview")
+        assert not attribution_guard(
+            "IEEE defines the interchange format.", "The format is defined here.", source
+        ).passed
+
+    def test_registrable_domain_establishes_it(self) -> None:
+        source = SourceIdentity("ieee.org", "Standards overview")
         assert attribution_guard(
             "IEEE defines the interchange format.", "The format is defined here.", source
         ).passed
@@ -362,3 +372,180 @@ class TestResearchVoiceFraming:
             "best evaluation metric for this task."
         )
         assert not framing_guard(claim, evidence).passed
+
+
+CLAIM_TEXT = "NIST requires organizations to manage AI risks."
+
+
+class TestAttributionCannotBeSpoofedByHostname:
+    """Identity is the registrable domain, never a substring.
+
+    Every one of these passed before the domain was parsed: "nist.gov"
+    and "evilnist.gov" share the substring, and so does
+    "nist.gov.example.com", which is registered by whoever owns
+    example.com.
+    """
+
+    CLAIM = "NIST requires organizations to manage AI risks."
+    QUOTE = "Organizations must manage AI risks."
+
+    @pytest.mark.parametrize(
+        "domain",
+        [
+            "evilnist.gov",
+            "nist.gov.example.com",
+            "nist-gov.example.com",
+            "notnist.gov",
+            "example.com/?publisher=nist.gov",
+            "mynist.org",
+            "nistgov.example.com",
+        ],
+    )
+    def test_lookalike_hosts_are_refused(self, domain: str) -> None:
+        assert not attribution_guard(
+            self.CLAIM, self.QUOTE, SourceIdentity(domain, "A Blog")
+        ).passed
+
+    @pytest.mark.parametrize(
+        "domain",
+        ["nist.gov", "www.nist.gov", "NIST.GOV", "https://nist.gov/page", "pages.nist.gov"],
+    )
+    def test_the_real_host_is_accepted(self, domain: str) -> None:
+        assert attribution_guard(self.CLAIM, self.QUOTE, SourceIdentity(domain, "NIST")).passed
+
+    def test_a_public_suffix_alone_identifies_nobody(self) -> None:
+        """A claim attributed to "Gov" must not pass on every .gov host."""
+        assert not attribution_guard(
+            "According to Gov, organizations must manage AI risks.",
+            self.QUOTE,
+            SourceIdentity("nist.gov", "NIST"),
+        ).passed
+
+    def test_multipart_suffixes_resolve_to_the_organisation(self) -> None:
+        assert attribution_guard(
+            "According to Acme, uptime reached a record.",
+            "Uptime reached a record.",
+            SourceIdentity("acme.co.uk", "Acme"),
+        ).passed
+        assert not attribution_guard(
+            "According to Acme, uptime reached a record.",
+            "Uptime reached a record.",
+            SourceIdentity("acme.co.uk.evil.com", "Acme"),
+        ).passed
+
+
+class TestAttributionAndPropositionShareOneSupportPath:
+    """Identity and proposition must come from the same evidence item.
+
+    Otherwise source A proving "NIST" and source B proving "X is
+    required" compose into "NIST requires X", which neither source
+    said. The gate already requires one quote to carry a claim on its
+    own; this pins that the attribution guard runs per evidence item
+    rather than across the bundle.
+    """
+
+    CLAIM = "NIST requires organizations to manage AI risks."
+
+    def test_identity_from_one_source_cannot_license_a_quote_from_another(self) -> None:
+        verdict = verify_claim(
+            self.CLAIM,
+            [
+                # names NIST, but says nothing about the proposition
+                CitedEvidence("E1", "NIST publishes guidance.", SourceIdentity("nist.gov", "NIST")),
+                # carries the proposition, but is not NIST
+                CitedEvidence(
+                    "E2",
+                    "Organizations must manage AI risks across the lifecycle.",
+                    SourceIdentity("vendor.example", "A Vendor Blog"),
+                ),
+            ],
+            FakeScorer(
+                {
+                    ("NIST publishes guidance.", CLAIM_TEXT): (0.10, 0.90, 0.0),
+                    (
+                        "Organizations must manage AI risks across the lifecycle.",
+                        CLAIM_TEXT,
+                    ): (0.99, 0.01, 0.0),
+                }
+            ),
+            support_threshold=0.98,
+        )
+        assert not verdict.publishable
+        # The entailing quote is the one that fails attribution.
+        by_id = {s.evidence_id: s for s in verdict.per_evidence}
+        assert "attribution" in by_id["E2"].failed_guard_names
+
+    def test_one_item_carrying_both_publishes(self) -> None:
+        verdict = verify_claim(
+            self.CLAIM,
+            [
+                CitedEvidence(
+                    "E1",
+                    "Organizations must manage AI risks across the lifecycle.",
+                    SourceIdentity("nist.gov", "NIST"),
+                )
+            ],
+            FakeScorer(default=(0.99, 0.01, 0.0)),
+            support_threshold=0.98,
+        )
+        assert verdict.publishable, verdict.reason
+
+
+class TestHedgeVocabularyDecisions:
+    """§P: each candidate wording decided, not listed.
+
+    The rule covers three kinds of hedge — epistemic doubt, frequency,
+    and evidential reporting — because deleting any of them states as
+    fact something the source qualified. Four wordings are deliberately
+    excluded, and the reasons are part of the contract rather than an
+    oversight.
+    """
+
+    @pytest.mark.parametrize(
+        ("evidence", "claim"),
+        [
+            ("X may fail.", "X fails."),
+            ("X might fail.", "X fails."),
+            ("X is possibly slower.", "X is slower."),
+            ("X is potentially vulnerable.", "X is vulnerable."),
+            ("Perhaps X helps.", "X helps."),
+            ("X is likely slower.", "X is slower."),
+            ("X typically fails.", "X fails."),
+            ("X generally fails.", "X fails."),
+            ("X often fails.", "X fails."),
+            ("X sometimes fails.", "X fails."),
+            ("Evidence suggests X fails.", "X fails."),
+            ("X appears to fail.", "X fails."),
+        ],
+    )
+    def test_deleting_a_covered_hedge_is_refused(self, evidence: str, claim: str) -> None:
+        assert not hedge_guard(claim, evidence).passed
+
+    @pytest.mark.parametrize(
+        ("evidence", "claim", "why"),
+        [
+            ("X can fail.", "X fails.", "capability, not doubt"),
+            ("X could fail.", "X fails.", "ambiguous between capability and doubt"),
+            (
+                "X is unlikely to fail.",
+                "X does not fail.",
+                "deleting it inverts polarity rather than strengthening degree; "
+                "that is negation, which the classifier handles",
+            ),
+            (
+                "X takes approximately 5ms.",
+                "X takes 5ms.",
+                "the numeric guard already pins the literal; the residual "
+                "difference is too small to withhold sound claims over",
+            ),
+        ],
+    )
+    def test_deliberately_excluded_wordings(self, evidence: str, claim: str, why: str) -> None:
+        """Documented omissions. Each would cost more in withheld true
+        claims than it buys, and the reason is recorded so a future
+        change is a decision rather than a drift."""
+        assert hedge_guard(claim, evidence).passed, why
+
+    def test_keeping_a_hedge_of_any_kind_satisfies_the_rule(self) -> None:
+        assert hedge_guard("X sometimes fails.", "X may fail.").passed
+        assert hedge_guard("X may fail.", "X typically fails.").passed

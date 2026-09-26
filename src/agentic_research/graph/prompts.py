@@ -201,12 +201,24 @@ into the claim text and do not name sources; the ids you give are resolved \
 back to their sources automatically, and an id that does not appear in the \
 evidence below is discarded along with anything resting on it.
 
-Write ATOMIC claims. One claim carries one material proposition -- one \
-thing that a single quote could confirm or fail to confirm on its own.
+Write ATOMIC claims. One claim carries exactly one material \
+proposition -- one thing a single quote could confirm or fail to confirm \
+on its own. One subject, one assertion about it.
 
-Do not fuse independent propositions into one sentence with 'and', 'but', \
-'while', 'whereas', 'as well as', 'which also' or 'thereby' when the parts \
-would need different evidence. Split them.
+The test: could someone agree with half of your sentence and disagree \
+with the other half? Then it is two claims. Write both.
+
+Two results are two claims, even in one sentence. 'X improved accuracy \
+and reduced latency' is two. 'X was faster but less accurate' is two. \
+'Accuracy was 92%, recall was 81%' is two. Each half needs its own \
+evidence, so each half is its own claim.
+
+Listing things inside one assertion is fine: 'the benchmark reports \
+precision, recall and F1' is one claim, because it asserts one thing \
+about one benchmark.
+
+A claim carrying two assertions is dropped rather than half-published, \
+so fusing them loses both.
 
   Not this:
     "Quantization reduces memory usage by 75% while maintaining high \

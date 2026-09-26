@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from functools import partial
 from typing import Any, TypeVar, cast
 
@@ -39,6 +39,11 @@ from agentic_research.llm.base import (
 from agentic_research.observability import get_logger
 
 log = get_logger(__name__)
+
+# The wall-clock deadline is a multiple of the configured timeout, so a
+# transport that can detect its own failure reports first with its more
+# specific message. This is the backstop for when it cannot.
+_DEADLINE_SLACK = 1.5
 
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
 
@@ -93,6 +98,7 @@ class RoleModel:
         repair_attempts: int = 1,
         gate: asyncio.Semaphore | None = None,
         rebuild_without_temperature: Callable[[], BaseChatModel] | None = None,
+        timeout_seconds: float = 180.0,
     ) -> None:
         self.role = role
         self.spec = spec
@@ -102,6 +108,56 @@ class RoleModel:
         self._repair_attempts = repair_attempts
         self._gate = gate
         self._rebuild_without_temperature = rebuild_without_temperature
+        self._timeout_seconds = timeout_seconds
+
+    async def _bounded(self, awaitable: Awaitable[Any]) -> Any:
+        """Run one provider call under an enforced wall-clock deadline.
+
+        The HTTP client's own timeout is not a guarantee. It bounds time
+        between socket events, so a connection that goes quiet without
+        closing -- a host suspended mid-request, a server that accepts
+        and never answers -- leaves the await pending forever. That is
+        not theoretical: one run sat at 0% CPU for seven hours inside a
+        single extraction call, and the configured timeout never fired
+        because no read ever timed out.
+
+        ``asyncio.timeout`` bounds elapsed time instead of socket
+        activity, so it fires regardless of what the transport is doing.
+        Every model call in the graph funnels through this one place --
+        planning, query generation, extraction, synthesis -- so the
+        deadline applies uniformly rather than being re-implemented per
+        node.
+
+        A slightly longer budget than the client's own timeout, so that
+        a transport which *can* detect the failure gets to report it
+        with its more specific message first. This is the backstop.
+        """
+        deadline = self._timeout_seconds * _DEADLINE_SLACK
+        started = time.perf_counter()
+        try:
+            async with asyncio.timeout(deadline):
+                return await awaitable
+        except TimeoutError as exc:
+            elapsed = time.perf_counter() - started
+            # Logged rather than left to a traceback: a stalled call is
+            # diagnosed from here, and the next seven-hour hang should
+            # be readable without attaching a debugger. No prompt text
+            # and no credentials.
+            log.warning(
+                "model_call_deadline_exceeded",
+                role=self.role.value,
+                provider=self.spec.provider.value,
+                model=self.spec.model,
+                elapsed_s=round(elapsed, 1),
+                deadline_s=round(deadline, 1),
+                configured_timeout_s=self._timeout_seconds,
+                failure="wall_clock_deadline",
+            )
+            raise ModelTimeoutError(
+                f"{self.spec} exceeded the {deadline:.0f}s wall-clock deadline "
+                f"(configured timeout {self._timeout_seconds:.0f}s); "
+                "the call was cancelled"
+            ) from exc
 
     async def structured(
         self,
@@ -204,7 +260,7 @@ class RoleModel:
                 # include_raw=True always yields the {raw, parsed, parsing_error}
                 # envelope, but the return type is declared as the union of both
                 # modes, so the narrowing has to be stated here.
-                result = cast("dict[str, Any]", await runnable.ainvoke(messages))
+                result = cast("dict[str, Any]", await self._bounded(runnable.ainvoke(messages)))
             except Exception as exc:
                 last_error = f"{type(exc).__name__}: {exc}"
                 domain = self._as_domain_error(exc)
@@ -491,6 +547,7 @@ class ModelRouter:
                 if spec.provider is Provider.OPENAI
                 else None
             ),
+            timeout_seconds=self.settings.llm_timeout_seconds,
         )
 
     def _without_temperature(self, spec: ModelSpec, output_cap: int | None) -> BaseChatModel:

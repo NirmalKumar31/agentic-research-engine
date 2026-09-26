@@ -39,7 +39,7 @@
           "reason": "best entailment 0.979 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 46.29,
+      "seconds": 64.13,
       "results": [
         {
           "id": "modality-faithful",
@@ -59,10 +59,9 @@
           "correct": true,
           "entailment": 0.0118,
           "failed_guards": [
-            "modality",
-            "hedge"
+            "modality"
           ],
-          "reason": "every cited quote failed a deterministic guard: hedge, modality"
+          "reason": "every cited quote failed a deterministic guard: modality"
         },
         {
           "id": "modality-hedge-to-necessity",
@@ -632,7 +631,7 @@
           "reason": "best entailment 0.944 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 5.01,
+      "seconds": 7.06,
       "results": [
         {
           "id": "modality-faithful",
@@ -652,10 +651,9 @@
           "correct": true,
           "entailment": 0.0035,
           "failed_guards": [
-            "modality",
-            "hedge"
+            "modality"
           ],
-          "reason": "every cited quote failed a deterministic guard: hedge, modality"
+          "reason": "every cited quote failed a deterministic guard: modality"
         },
         {
           "id": "modality-hedge-to-necessity",
@@ -1255,7 +1253,7 @@
           "reason": "best entailment 0.579 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 1.77,
+      "seconds": 2.12,
       "results": [
         {
           "id": "modality-faithful",
@@ -1275,10 +1273,9 @@
           "correct": true,
           "entailment": 0.3082,
           "failed_guards": [
-            "modality",
-            "hedge"
+            "modality"
           ],
-          "reason": "every cited quote failed a deterministic guard: hedge, modality"
+          "reason": "every cited quote failed a deterministic guard: modality"
         },
         {
           "id": "modality-hedge-to-necessity",

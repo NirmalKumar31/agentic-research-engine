@@ -74,7 +74,51 @@ _HEDGED = re.compile(
 # becoming "handle large datasets" is faithful. Treating every modal as
 # epistemic was measured against the release audit and rejected a true
 # claim for exactly that reason.
-_EPISTEMIC = ("may", "might", "possibly", "potentially", "perhaps", "maybe", "presumably")
+_EPISTEMIC = (
+    "may",
+    "might",
+    "possibly",
+    "potentially",
+    "perhaps",
+    "maybe",
+    "presumably",
+    "likely",
+)
+
+# Evidential hedges: the source is reporting an indication, not a fact.
+# "Evidence suggests X" published as "X" is the same overclaim as
+# dropping "may", expressed as a verb.
+_EVIDENTIAL = ("suggests", "suggest", "indicates", "indicate", "appears to", "seems to")
+
+# Frequency adverbs. Deleting one widens "often" to "always" by
+# implication. Handled here rather than in the band rule for the same
+# reason as the epistemic case: the band rule compares strengths and a
+# claim with no adverb has no strength to compare.
+_FREQUENCY = (
+    "often",
+    "typically",
+    "generally",
+    "usually",
+    "commonly",
+    "frequently",
+    "sometimes",
+    "occasionally",
+)
+
+# Deliberately absent, each for a stated reason:
+#
+#   can, could      capability, not doubt. "can process" -> "processes"
+#                   is faithful, and treating them as epistemic was
+#                   measured against the release audit and rejected a
+#                   true claim.
+#   unlikely        deleting it inverts polarity rather than
+#                   strengthening degree. That is a negation error, and
+#                   the classifier handles negation well; a guard here
+#                   would fire on the wrong axis.
+#   approximately   the numeric guard already pins the literal, and the
+#                   residual difference between "5ms" and
+#                   "approximately 5ms" is too small to justify
+#                   withholding otherwise sound claims.
 
 _SENTENCE = re.compile(r"(?<=[.!?;])\s+")
 
@@ -266,9 +310,14 @@ def modality_guard(claim: str, evidence: str) -> GuardResult:
     )
 
 
-def _epistemic_terms(text: str) -> list[str]:
+def _hedge_terms(text: str) -> list[tuple[str, str]]:
+    """Hedges present, each tagged with the kind of hedge it is."""
     words = _words(text)
-    return [w for w in _EPISTEMIC if w in words]
+    lowered = (text or "").lower()
+    found = [("epistemic", w) for w in _EPISTEMIC if w in words]
+    found += [("frequency", w) for w in _FREQUENCY if w in words]
+    found += [("evidential", w) for w in _EVIDENTIAL if (w in lowered if " " in w else w in words)]
+    return found
 
 
 def _supporting_sentence(claim: str, evidence: str) -> str:
@@ -308,16 +357,14 @@ def hedge_guard(claim: str, evidence: str) -> GuardResult:
     withhold a faithful claim.
     """
     supporting = _supporting_sentence(claim, evidence)
-    hedges = _epistemic_terms(supporting)
+    hedges = _hedge_terms(supporting)
     if not hedges:
-        return GuardResult("hedge", True, "evidence states no epistemic hedge")
-    if _epistemic_terms(claim):
-        return GuardResult("hedge", True, f"claim keeps the hedge: {', '.join(hedges)}")
-    return GuardResult(
-        "hedge",
-        False,
-        f"evidence hedges with '{', '.join(hedges)}'; the claim states it as fact",
-    )
+        return GuardResult("hedge", True, "evidence states no hedge")
+    kept = _hedge_terms(claim)
+    if kept:
+        return GuardResult("hedge", True, f"claim keeps a hedge: {kept[0][1]}")
+    kinds = ", ".join(sorted({f"{kind} '{word}'" for kind, word in hedges}))
+    return GuardResult("hedge", False, f"evidence hedges with {kinds}; the claim states it as fact")
 
 
 # A source writing in its own research voice is reporting its own
@@ -577,20 +624,96 @@ def attributed_entities(claim: str) -> list[str]:
     return found
 
 
+# Suffixes under which registrations happen one label deeper, so the
+# organisation is the third label rather than the second.
+_MULTIPART_SUFFIXES = frozenset(
+    {
+        "co.uk",
+        "org.uk",
+        "gov.uk",
+        "ac.uk",
+        "net.uk",
+        "sch.uk",
+        "com.au",
+        "net.au",
+        "org.au",
+        "gov.au",
+        "edu.au",
+        "co.jp",
+        "or.jp",
+        "go.jp",
+        "ac.jp",
+        "co.nz",
+        "govt.nz",
+        "co.za",
+        "gov.in",
+        "nic.in",
+        "co.in",
+        "com.br",
+        "gov.br",
+        "com.cn",
+        "gov.cn",
+        "edu.cn",
+    }
+)
+
+
+def _registrable_labels(domain: str) -> set[str]:
+    """Organisation labels of a host's registrable domain.
+
+    Substring matching cannot be used here. "nist.gov" and
+    "evilnist.gov" share the substring, and so do "nist.gov" and
+    "nist.gov.example.com" -- the second of which is registered by
+    whoever owns example.com and has nothing to do with NIST. Both
+    passed before this existed.
+
+    So the host is reduced to its registrable domain and compared label
+    by label. Only a label of that domain can establish identity, which
+    makes a prefix, a suffix, a hyphenated lookalike and a deeper
+    subdomain all fail.
+    """
+    host = (domain or "").strip().lower()
+    host = host.split("//")[-1].split("/")[0].split("?")[0].split("#")[0]
+    host = host.split("@")[-1].split(":")[0].strip(".")
+    if not host:
+        return set()
+
+    labels = [label for label in host.split(".") if label]
+    if len(labels) < 2:
+        return set(labels)
+
+    depth = 3 if ".".join(labels[-2:]) in _MULTIPART_SUFFIXES else 2
+    registrable = labels[-depth:]
+    # The public suffix itself identifies nobody: "gov" must not let a
+    # claim attributed to "Gov" pass on any .gov host.
+    return {label for label in registrable[:-1] if label}
+
+
+def _normalise_entity(name: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", (name or "").lower())
+
+
 def _establishes(name: str, quote: str, source: SourceIdentity | None) -> str:
-    """Where, if anywhere, this attribution is borne out."""
-    needle = name.lower()
-    if needle in (quote or "").lower():
+    """Where, if anywhere, this attribution is borne out.
+
+    Two ways only, both narrow:
+
+    * the quoted text names the party itself, or
+    * the cited source *is* that party by registrable domain.
+
+    Source title is deliberately not a third way. "NIST guidance
+    explained by VendorCo" contains "NIST" while being published by
+    VendorCo, and no constraint on where in the title the name appears
+    separates that from a real NIST page. An unverifiable signal that
+    looks verifiable is worse than no signal.
+    """
+    if _normalise_entity(name) and _normalise_entity(name) in _normalise_entity(quote or ""):
         return "the quoted text names it"
     if source is not None:
-        # Domains drop punctuation: "nist.gov" must match "NIST",
-        # "ieee.org" must match "IEEE".
-        domain = re.sub(r"[^a-z0-9]", "", (source.domain or "").lower())
-        compact = re.sub(r"[^a-z0-9]", "", needle)
-        if compact and compact in domain:
-            return f"the source domain is {source.domain}"
-        if needle in (source.title or "").lower():
-            return "the source title names it"
+        wanted = _normalise_entity(name)
+        labels = {_normalise_entity(label) for label in _registrable_labels(source.domain)}
+        if wanted and wanted in labels:
+            return f"the registrable domain is {source.domain}"
     return ""
 
 

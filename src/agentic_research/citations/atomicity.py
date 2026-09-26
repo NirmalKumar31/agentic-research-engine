@@ -90,9 +90,9 @@ def sentence_count(text: str) -> int:
     """Sentences in a claim, counted conservatively.
 
     Known abbreviations are masked first so "e.g." and "U.S." do not
-    read as sentence ends. Under-counting is the safe direction here:
-    it lets a claim through to the other guards rather than withholding
-    it on a punctuation artefact.
+    read as sentence ends. Under-counting is safe here: it hands the
+    claim to the clause check below rather than resolving it on
+    punctuation.
     """
     masked = text or ""
     for abbreviation in _ABBREVIATIONS:
@@ -103,18 +103,224 @@ def sentence_count(text: str) -> int:
     return len(_SENTENCE_BREAK.split(masked))
 
 
-def is_atomic(text: str) -> bool:
-    """One sentence, one proposition -- the shape the gate can verify.
+# --- proposition-level atomicity -------------------------------------
+#
+# Counting sentences was never the real test. "X increased, Y decreased"
+# is one sentence and two independently falsifiable propositions, and a
+# gate that verifies one quote against one claim cannot honestly call
+# that atomic.
+#
+# What follows is a clause heuristic, not a parser. It splits on
+# coordinators and asks how many of the resulting segments carry a
+# predicate of their own. Two predicates means two assertions. An
+# enumeration -- "precision, recall, and F1 were reported" -- puts the
+# single shared predicate in one segment only, so it survives.
+#
+# It is wrong sometimes, and the direction of the error is chosen: when
+# a sentence cannot be shown to be single-proposition it is treated as
+# compound and withheld. Withholding a true claim costs a line in a
+# report; publishing a fused one is the failure this whole system
+# exists to prevent.
 
-    A claim spanning two sentences cannot be carried by a single quote
-    and cannot be scoped to the sentence that supports it, so every
-    guard that reasons about "the supporting sentence" silently picks
-    one half and ignores the other. The release audit published exactly
-    that: two propositions fused, where the guards examined the half
-    that was clean and the other half had deleted the source's own
-    voice.
+# Contrastive coordinators. These join two assertions about different
+# things essentially always -- "smaller but slower", "X improved while Y
+# regressed" -- so they do not need a predicate count to be suspicious.
+_CONTRASTIVE = re.compile(
+    r"\s+(?:but|whereas|while|however|although|though|yet)\s+|;\s+", re.IGNORECASE
+)
 
-    Enforced structurally rather than by listing conjunctions, because
-    the failure is the shape, not the vocabulary.
+# Coordinators that may join either clauses or list items. Which one it
+# is depends on what follows, so these only split for counting.
+_COORDINATORS = re.compile(r",\s+and\s+|,\s+|\s+and\s+", re.IGNORECASE)
+
+# Auxiliaries, copulas and modals. A segment containing one of these is
+# making an assertion.
+_AUXILIARIES = frozenset(
+    {
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "am",
+        "has",
+        "have",
+        "had",
+        "having",
+        "do",
+        "does",
+        "did",
+        "doing",
+        "will",
+        "would",
+        "shall",
+        "should",
+        "can",
+        "could",
+        "may",
+        "might",
+        "must",
+    }
+)
+
+# Present-tense verbs common in research claims. A lexicon, not a list of
+# forbidden phrasings: it answers "does this fragment assert something",
+# which is the question the clause heuristic needs. Past tense is handled
+# by the -ed rule below, so only -s forms are enumerated.
+_PRESENT_VERBS = frozenset(
+    {
+        "reduces",
+        "increases",
+        "improves",
+        "provides",
+        "supports",
+        "requires",
+        "uses",
+        "shows",
+        "reports",
+        "achieves",
+        "enables",
+        "allows",
+        "handles",
+        "offers",
+        "delivers",
+        "maintains",
+        "remains",
+        "yields",
+        "produces",
+        "generates",
+        "causes",
+        "leads",
+        "makes",
+        "gives",
+        "takes",
+        "needs",
+        "costs",
+        "scales",
+        "performs",
+        "operates",
+        "executes",
+        "processes",
+        "stores",
+        "returns",
+        "matches",
+        "detects",
+        "identifies",
+        "measures",
+        "evaluates",
+        "compares",
+        "ranks",
+        "selects",
+        "filters",
+        "computes",
+        "lowers",
+        "raises",
+        "cuts",
+        "adds",
+        "removes",
+        "avoids",
+        "prevents",
+        "ensures",
+        "guarantees",
+        "outperforms",
+        "exceeds",
+        "falls",
+        "rises",
+        "grows",
+        "shrinks",
+        "varies",
+        "differs",
+        "depends",
+        "consumes",
+        "occupies",
+        "introduces",
+        "eliminates",
+        "simplifies",
+        "complicates",
+        "affects",
+        "impacts",
+        "degrades",
+        "boosts",
+        "speeds",
+        "slows",
+    }
+)
+
+
+# Words ending in -ed that are not past-tense verbs. Without these,
+# "at sub-10ms speed" reads as an assertion and a perfectly atomic claim
+# is withheld for containing the word "speed".
+_NOT_VERBS_ENDING_ED = frozenset(
+    {
+        "speed",
+        "indeed",
+        "breed",
+        "creed",
+        "greed",
+        "tweed",
+        "steed",
+        "hundred",
+        "sacred",
+        "kindred",
+        "naked",
+        "wicked",
+        "rugged",
+        "ragged",
+        "seaweed",
+        "crossbreed",
+        "highspeed",
+        "united",
+        "limited",
+    }
+)
+
+
+def _is_predicate(token: str) -> bool:
+    """Whether a token could be the verb of its own assertion."""
+    word = token.strip(".,;:!?()[]\"'").lower()
+    if word in _AUXILIARIES or word in _PRESENT_VERBS:
+        return True
+    # Past tense and participles. Length-bounded so "bed" and "red" do
+    # not qualify, and filtered so nouns like "speed" do not either.
+    if word in _NOT_VERBS_ENDING_ED:
+        return False
+    return len(word) > 4 and word.endswith("ed")
+
+
+def _carries_predicate(segment: str) -> bool:
+    return any(_is_predicate(token) for token in segment.split())
+
+
+def compound_propositions(text: str) -> list[str]:
+    """Reasons this claim looks like more than one proposition.
+
+    Empty when it reads as a single assertion.
     """
-    return sentence_count(text) <= 1
+    if not (text or "").strip():
+        return []
+
+    reasons: list[str] = []
+    contrast = _CONTRASTIVE.search(text)
+    if contrast:
+        reasons.append(f"contrastive coordinator '{contrast.group(0).strip()}'")
+
+    segments = [s for s in _COORDINATORS.split(text) if s.strip()]
+    asserting = [s for s in segments if _carries_predicate(s)]
+    if len(asserting) > 1:
+        reasons.append(f"{len(asserting)} coordinated clauses each with their own predicate")
+
+    if sentence_count(text) > 1:
+        reasons.append(f"{sentence_count(text)} sentences")
+    return reasons
+
+
+def is_atomic(text: str) -> bool:
+    """One independently verifiable proposition.
+
+    The publication contract says a claim is verified against a single
+    quote. That is only honest if the claim asserts a single thing, so
+    this is enforced rather than documented.
+    """
+    return not compound_propositions(text)
