@@ -110,10 +110,11 @@ class ResearchState(TypedDict, total=False):
     exhaustive_verification: bool
     """Check entailment for every eligible claim rather than a sample.
 
-    Off for interactive runs, where one model call per claim is a real
-    latency and cost cost. On for benchmarks, because a sampled figure
-    published as if it were exhaustive is exactly the kind of metric this
-    project exists not to produce."""
+    Vestigial under the NLI gate: classification costs no provider
+    request, so every checkable candidate is checked and this is
+    effectively always on. Retained because recorded runs carry it and
+    because a future remote verifier with a per-call price would make the
+    distinction real again."""
 
     # --- planning (single writer each) --------------------------------
     analysis: QueryAnalysis | None

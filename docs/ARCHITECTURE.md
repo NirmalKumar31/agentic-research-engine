@@ -474,6 +474,11 @@ graph LR
 Application code asks for a **role**, never a provider. Five roles: planner,
 researcher, critic, synthesizer, verifier.
 
+The `verifier` role no longer decides claim support. It remains a routing
+slot, but semantic verification is a dedicated NLI classifier that takes
+no prompt — see §7.5. The generative verifier prompt and its schema are
+deleted, and a test asserts they cannot return.
+
 ### 7.1 The hybrid split rule
 
 A role goes local when its output is short, schema-constrained, and produced
@@ -515,6 +520,27 @@ fallback that quietly overrides that is a bad surprise either way.
 
 ---
 
+### 7.5 Semantic verification is not a generative role
+
+Claim support is decided by `MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli`
+at a pinned revision, scoring each claim against each of its own cited
+quotes as a sequence pair. It returns probabilities; Python applies the
+threshold and the deterministic guards, and only a claim carried by a
+single quote publishes.
+
+Three things follow from this that are easy to miss:
+
+* **The premise is the exact quote and nothing else.** No source title,
+  domain, quality score or retrieval rank. A classifier told a quote came
+  from an authoritative domain would be scoring reputation. Publisher
+  identity is checked separately by a deterministic attribution guard.
+* **Every failure path withholds.** Model unavailable, inference error,
+  malformed scores, truncated premise, unresolved evidence, failed guard,
+  score below threshold — all produce a withheld claim, and none falls
+  back to a generative model.
+* **It costs no provider request**, which is why every candidate is
+  checked rather than a sample.
+
 ## 8. Constraints imposed by a 4B local model
 
 Three properties of `qwen3:4b` shaped the design rather than merely being
@@ -529,10 +555,14 @@ instruction — which is also why claims carry `evidence_ids` rather than
 being parsed out of prose.
 
 **Quotation is reliable; judgement is not.** Extraction asks the model to
-copy text. Verification asks it to decide whether one sentence establishes
-another. Those are not equally hard at this size, and that asymmetry, not
-an assumption about parameter count, is why hybrid mode places extraction
-locally and reasoning in the cloud.
+copy text. Deciding whether one sentence establishes another is a
+different task, and a 4B instruction model is measurably bad at it: three
+prompt revisions were scored against human labels and all three failed,
+in three different ways. That asymmetry is why hybrid mode places
+extraction locally and reasoning in the cloud — and why entailment was
+eventually taken away from the generative models altogether and given to
+a pinned NLI classifier with the publication decision in Python. See
+§7.5.
 
 Exact-only quote fidelity on `qwen3:4b`:
 
@@ -669,11 +699,14 @@ the old one. Both were published downward rather than quietly redefined.
 
 ### 12.2 Sampled versus exhaustive
 
-Entailment costs one model call per claim. Interactive runs cap at ten and
-the metric is renamed `sampled_claim_support`; benchmark runs check every
-eligible claim and set `entailment_exhaustive`. A sampled figure published
-under an exhaustive name is exactly the kind of number this project exists
-not to produce.
+This distinction used to matter because entailment cost one provider
+request per claim, so an interactive run checked ten and a benchmark run
+checked all of them, under different metric names. Under the NLI gate
+classification is local and costs no provider request, so every checkable
+candidate is checked and `entailment_exhaustive` is true whenever the
+model loaded at all. The sampling machinery is gone rather than dormant:
+an unchecked claim was dropped by the publication gate anyway, so
+sampling only decided how much of the report disappeared silently.
 
 ### 12.3 Controlled comparison
 

@@ -54,9 +54,11 @@ from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, ReportOut
 
 log = get_logger(__name__)
 
-# Entailment costs one model call per claim. Interactive runs sample; the
-# benchmark checks everything, because a sampled number reported as if it were
-# exhaustive is the kind of metric this project exists not to publish.
+# Entailment no longer samples: it used to cost one generative call per
+# claim, and the NLI gate classifies locally at no provider cost, so every
+# checkable candidate is checked. What survives is this number's second
+# job -- the point below which the run is too poor to be worth asking for
+# an unbounded report, used by _claim_budget to size synthesis.
 _DEFAULT_ENTAILMENT_SAMPLE = 10
 
 # Headroom left when sizing the report: verification also spends a call
