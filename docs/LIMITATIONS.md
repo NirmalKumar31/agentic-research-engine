@@ -88,13 +88,14 @@ boundaries flattened, so likely PDFs are fetched directly. If that fetch
 fails the source degrades to provider text — with a warning, but without
 pages.
 
-**Which run carries PDF page evidence is not stable.** In the current
-recordings the RAG comparison has 5 page-numbered evidence items and the
-NIST run has none, the reverse of the earlier recordings. The NIST
-recording's stored description and the site's card badge still advertise
-page-aware PDF evidence for that run, so both are currently wrong.
-Whether a PDF is reached depends on what search returns that day, which
-means a fixed per-run description cannot be relied on.
+**Which run carries PDF page evidence is not stable, and nothing
+promises it.** Whether a PDF is reached depends on what search returns
+that day: across four recording passes the page-numbered citations
+moved between runs and twice vanished entirely. The current recordings
+have none. Capability badges are therefore computed from each
+recording's own contents rather than asserted by recording id, and a
+schema check fails if a stored count disagrees with the payload. A
+recording description may not promise a retrieval outcome.
 
 **Page provenance is not page selection.** Extraction preserves which page
 a quote came from; it does not steer the extractor toward the most
@@ -154,20 +155,23 @@ fuses them into "maintaining high recall accuracy". No guard reaches it
 and all three candidate classifiers score it above 0.95. The fix was in
 synthesis — atomic claims — not in another guard.
 
-**One published claim in the release audit is not supported by its own
-evidence.** A source saying some vector databases *"might lack"*
-standardized encryption was published as *"lack"*. The hedge was
-dropped, and nothing caught it: the classifier scored the sentence
-0.9946, and the modality guard cannot see this class at all. Its rule is
-*claim strength must not exceed evidence strength*, computed over bands
-where "no modality" is band 0 — the weakest. So promoting *may* to
-*must* fails the guard, while deleting *may* outright passes it, even
-though deleting the hedge is the more common overclaim. That is a
-structural gap in the guard, not a threshold that needs moving.
+**The release audit passes, and it took four attempts.** Every
+published claim in the three canonical recordings was read against the
+exact quote the gate chose for it: 11 of 11 supported, 0 unsupported.
+The first three audits each published exactly one claim that survived
+every automated check and failed a human read — a deleted hedge
+("might lack" as "lack"), a deleted research voice ("We demonstrate
+that X" as "X"), and a first-person scope deletion hidden inside a
+two-sentence claim. Each produced a general rule. None of that is
+evidence the next audit would be clean: the runs use live search and
+produce different claims every time, and the only thing that caught
+these was reading every published claim by hand.
 
-The release audit under `examples/release-audit/` records this, with the
-other 22 published claims reviewed and supported. The release is not
-tagged while it stands.
+**The atomicity rule counts sentences, not propositions.** A claim
+spanning two sentences is refused, because every guard that reasons
+about "the sentence that supports this claim" would otherwise inspect
+one half and ignore the other. A comma-spliced claim carrying two
+propositions in one sentence still passes. That is a known gap.
 
 **Zero supported false positives was not achieved on that development
 set.** It was achieved on the synthetic adversarial suite, which is the
@@ -220,6 +224,14 @@ against the same `max_provider_requests` and `max_cloud_calls` ceilings as
 any other, so they are bounded — but nothing limits what share of the
 budget they may consume. A run that retries heavily can exhaust its
 request ceiling and stop early rather than overspend.
+
+**A run can hang indefinitely if its model connection dies mid-flight.**
+Observed once: the host slept for seven hours, the HTTP connection to
+Ollama was severed underneath a running extraction, and the process sat
+at 0% CPU without progressing or failing. `llm_timeout_seconds` did not
+fire, because the socket stayed open and no read ever timed out. A run
+that hangs silently is worse than one that fails, since nothing reports
+it. Not fixed.
 
 **Checkpoint recovery is untested under load.** No test resumes an
 interrupted run.

@@ -200,53 +200,58 @@ spends nothing.
 
 Three recorded local `qwen3:4b` runs, one round each, verified by the
 pinned DeBERTa NLI classifier at threshold 0.98. Every substantive claim
-was checked against each of its own quotes — `checked == checkable` in all
-three — and only claims one quote carried on its own were published.
+was checked against each of its own quotes — `checked == checkable` in
+all three — and only claims one quote carried on its own were published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
 | Research rounds | 1 | 1 | 1 |
 | Search queries | 6 | 6 | 6 |
-| Unique sources (usable) | 5 (5) | 5 (5) | 5 (5) |
-| Evidence items | 30 | 30 | 30 |
-| Generated substantive claims | 28 | 12 | 14 |
-| Exact duplicates removed | 4 | 3 | 8 |
-| Unique candidates checked | 24/24 | 9/9 | 6/6 |
-| Supported | 11 | 8 | 4 |
-| Partially supported | 3 | 0 | 0 |
-| Unsupported | 10 | 1 | 2 |
-| Never checked | 0 | 0 | 0 |
-| **Withheld** | 13 | 1 | 2 |
-| **Published** | **11** | **8** | **4** |
-| Evidence-only excerpts | 0 | 0 | 0 |
-| Quote fidelity (exact) | 90% | 80% | 93% |
-| Evidence integrity | 100% | 100% | 100% |
-| Page-cited evidence | 5 | 0 | 0 |
-| Duration | 846s | 923s | 547s |
+| Unique sources | 5 | 5 | 5 |
+| Evidence items | 30 | 24 | 30 |
+| Generated substantive claims | 23 | 18 | 18 |
+| Exact duplicates removed | 11 | 12 | 6 |
+| Unique candidates checked | 12/12 | 6/6 | 12/12 |
+| **Withheld** | 6 | 6 | 7 |
+| **Published** | **6** | **0** | **5** |
+| Evidence-only excerpts | 0 | 12 | 0 |
+| Quote fidelity (exact) | 93% | 92% | 73% |
+| Page-cited evidence | 0 | 0 | 0 |
+| Duration | 632s | 501s | 633s |
 
-39 unique candidates across the three runs, all checked, **23 published
-and 16 withheld** — a 59% publication rate. The previous generative
-verifier published nothing at all from a comparable set.
+30 unique candidates across the three runs, all checked, **11 published
+and 19 withheld**. The NIST run published nothing and fell back to 12
+verbatim source excerpts under an explicit notice — a supported outcome,
+not a failure.
+
+Of the 19 withheld: 12 fell below the entailment threshold, and 7 were
+refused by a deterministic guard before the classifier's score mattered
+(3 numeric, 2 ranking, 1 modality, 1 atomicity).
 
 ### Release validation
 
 Publishing something is easy; publishing only what the evidence supports
-is the claim being made. So all 23 published claims were read against
-the exact quote the gate selected. That review is recorded per candidate
-in [`examples/release-audit/`](examples/release-audit/), alongside every
-pairwise NLI score and guard result.
+is the claim being made. So every published claim was read against the
+exact quote the gate selected for it. That review is recorded per
+candidate in [`examples/release-audit/`](examples/release-audit/),
+alongside every pairwise NLI score and every guard result.
 
-**Result: 22 of 23 supported, 1 not.** One claim published
-*"some vector databases **lack** standardized encryption features"* from
-a source saying they *"**might** lack"* them. The hedge was dropped, and
-neither layer caught it — the classifier scored it 0.9946, and the
-modality guard compares strength bands where "no modality" is the
-weakest band, so removing a hedge reads as weakening rather than
-strengthening.
+**Result: 11 of 11 supported, 0 unsupported.**
 
-That is a real defect, stated here rather than rounded away. It is
-[tracked in LIMITATIONS](docs/LIMITATIONS.md) and the release is not
-tagged while it stands.
+This is the release gate, and it was not met on the first three
+attempts. Each audit published one claim that survived every automated
+check and failed a human read:
+
+| Audit | Failure | Fix |
+|---|---|---|
+| 1 | `"might lack"` published as `"lack"` | hedge-deletion guard |
+| 2 | `"We demonstrate that X"` published as `"X"` | research-voice framing guard |
+| 3 | `"our dataset"` → `"datasets"`, hidden in a two-sentence claim | structural atomicity rule |
+
+Each fix is a general rule, not a patch for the sentence that exposed
+it, and each was found only by reading every published claim by hand.
+Nothing here is evidence that a fourth audit would come back clean; the
+runs use live search and produce different claims each time.
 
 These are product artifacts, served by the demo. They are not a
 benchmark: n=1 each, one model, one configuration.

@@ -17,7 +17,16 @@ keywords = ["tvly-"]
 [[rules]]
 id = "openai-api-key-broad"
 description = "OpenAI API key (project or legacy form)"
-regex = '''sk-(proj-|svcacct-)?[A-Za-z0-9_-]{32,}'''
+# Anchored at a word boundary. Unanchored, this matched mid-word: a
+# source page titled "ai-ri|sk-management-framework-practical-study-
+# notes" tripped it inside a committed recording, because the slug's
+# hyphens satisfy the character class. A real key always begins at a
+# token boundary -- start of line, or after a quote, space, = or / --
+# so the anchor removes that false-positive class without narrowing
+# what counts as a key. Verified both ways before landing: every real
+# key shape still matches, including project and service-account forms
+# whose bodies legitimately contain - and _.
+regex = '''\bsk-(proj-|svcacct-)?[A-Za-z0-9_-]{32,}'''
 keywords = ["sk-"]
 
 # Uses [[allowlists]] rather than the singular [allowlist]. The two cannot
