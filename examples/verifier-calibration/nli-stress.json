@@ -4,8 +4,8 @@
     "deberta-v3-large": {
       "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
       "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-      "cases": 46,
-      "correct": 44,
+      "cases": 49,
+      "correct": 46,
       "unsafe_publishes": [],
       "over_withheld": [
         {
@@ -27,9 +27,19 @@
           "entailment": 0.6665,
           "failed_guards": [],
           "reason": "best entailment 0.667 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "framing-research-voice-kept",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.9785,
+          "failed_guards": [],
+          "reason": "best entailment 0.979 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 90.81,
+      "seconds": 46.99,
       "results": [
         {
           "id": "modality-faithful",
@@ -528,14 +538,46 @@
           "entailment": 0.9956,
           "failed_guards": [],
           "reason": "entailed by E1 at 0.996 >= 0.98"
+        },
+        {
+          "id": "framing-research-voice-deleted",
+          "category": "framing",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.5801,
+          "failed_guards": [
+            "framing"
+          ],
+          "reason": "every cited quote failed a deterministic guard: framing"
+        },
+        {
+          "id": "framing-research-voice-kept",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.9785,
+          "failed_guards": [],
+          "reason": "best entailment 0.979 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "framing-expository-untouched",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9985,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.999 >= 0.98"
         }
       ]
     },
     "deberta-v3-base": {
       "model_id": "cross-encoder/nli-deberta-v3-base",
       "model_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
-      "cases": 46,
-      "correct": 42,
+      "cases": 49,
+      "correct": 44,
       "unsafe_publishes": [
         {
           "id": "scope-one-study-to-general",
@@ -578,9 +620,19 @@
           "entailment": 0.0251,
           "failed_guards": [],
           "reason": "best entailment 0.025 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "framing-research-voice-kept",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.9436,
+          "failed_guards": [],
+          "reason": "best entailment 0.944 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 14.32,
+      "seconds": 4.89,
       "results": [
         {
           "id": "modality-faithful",
@@ -1079,14 +1131,46 @@
           "entailment": 0.9923,
           "failed_guards": [],
           "reason": "entailed by E1 at 0.992 >= 0.98"
+        },
+        {
+          "id": "framing-research-voice-deleted",
+          "category": "framing",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9958,
+          "failed_guards": [
+            "framing"
+          ],
+          "reason": "every cited quote failed a deterministic guard: framing"
+        },
+        {
+          "id": "framing-research-voice-kept",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.9436,
+          "failed_guards": [],
+          "reason": "best entailment 0.944 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "framing-expository-untouched",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9926,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.993 >= 0.98"
         }
       ]
     },
     "minilm2-l6-h768": {
       "model_id": "cross-encoder/nli-MiniLM2-L6-H768",
       "model_revision": "b95119ce93d3e065de6214e38cd4a97b0f2f2c6d",
-      "cases": 46,
-      "correct": 39,
+      "cases": 49,
+      "correct": 41,
       "unsafe_publishes": [
         {
           "id": "scope-one-study-to-general",
@@ -1159,9 +1243,19 @@
           "entailment": 0.9631,
           "failed_guards": [],
           "reason": "best entailment 0.963 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "framing-research-voice-kept",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.5787,
+          "failed_guards": [],
+          "reason": "best entailment 0.579 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 4.52,
+      "seconds": 1.78,
       "results": [
         {
           "id": "modality-faithful",
@@ -1660,6 +1754,38 @@
           "entailment": 0.9901,
           "failed_guards": [],
           "reason": "entailed by E1 at 0.990 >= 0.98"
+        },
+        {
+          "id": "framing-research-voice-deleted",
+          "category": "framing",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9892,
+          "failed_guards": [
+            "framing"
+          ],
+          "reason": "every cited quote failed a deterministic guard: framing"
+        },
+        {
+          "id": "framing-research-voice-kept",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.5787,
+          "failed_guards": [],
+          "reason": "best entailment 0.579 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "framing-expository-untouched",
+          "category": "framing",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9835,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.983 >= 0.98"
         }
       ]
     }

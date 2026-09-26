@@ -320,6 +320,58 @@ def hedge_guard(claim: str, evidence: str) -> GuardResult:
     )
 
 
+# A source writing in its own research voice is reporting its own
+# finding, not stating a settled fact. "We demonstrate that X" and "X"
+# are different assertions, and the difference is exactly what a reader
+# needs to judge the claim.
+_RESEARCH_VOICE = re.compile(
+    r"\b(?:we\s+(?:demonstrate|show|find|found|propose|argue|observe|conclude|"
+    r"present|report|introduce)|our\s+(?:results?|findings?|experiments?|analysis|"
+    r"study|work|approach)|this\s+(?:paper|study|work|article|report)\s+"
+    r"(?:demonstrates?|shows?|finds?|proposes?|argues?|presents?|reports?|concludes?))\b",
+    re.IGNORECASE,
+)
+
+# Ways a claim can keep that framing.
+_KEEPS_FRAMING = re.compile(
+    r"\b(?:the\s+(?:authors?|study|paper|research|report|work|survey|analysis)|"
+    r"researchers|according to|reportedly|is reported|are reported|was reported|"
+    r"were reported|reports? that|found that|suggests? that|argues? that)\b",
+    re.IGNORECASE,
+)
+
+
+def framing_guard(claim: str, evidence: str) -> GuardResult:
+    """A source's own finding must not be published as settled fact.
+
+    "We demonstrate that X" and a bare "X" are different assertions. The
+    first is one paper reporting a result; the second is the field
+    agreeing. Deleting the frame is the same transformation as dropping
+    "according to the vendor's documentation", which this system already
+    refuses -- it was only missed because the frame is first-person
+    rather than a named attribution.
+
+    The claim satisfies this by keeping any attribution at all: naming
+    the study, the authors, or the publisher. It does not have to
+    reproduce the source's wording.
+
+    Scoped to the supporting sentence, so a methods sentence elsewhere in
+    a long quote does not withhold an unrelated factual claim.
+    """
+    supporting = _supporting_sentence(claim, evidence)
+    match = _RESEARCH_VOICE.search(supporting)
+    if match is None:
+        return GuardResult("framing", True, "evidence states no first-person finding")
+    if _KEEPS_FRAMING.search(claim) or attributed_entities(claim):
+        return GuardResult("framing", True, "claim keeps the attribution")
+    return GuardResult(
+        "framing",
+        False,
+        f"evidence frames this as its own finding ('{match.group(0)}'); "
+        f"the claim states it as settled fact",
+    )
+
+
 def ranking_guard(claim: str, evidence: str) -> GuardResult:
     """A superlative needs the evidence to make some comparison.
 
@@ -546,6 +598,7 @@ ALL_GUARDS = (
     numeric_guard,
     modality_guard,
     hedge_guard,
+    framing_guard,
     ranking_guard,
     causal_guard,
     exclusivity_guard,

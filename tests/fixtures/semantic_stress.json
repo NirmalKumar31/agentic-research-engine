@@ -334,6 +334,29 @@
       "premise": "IEEE requires organizations to manage operational risks across the lifecycle.",
       "hypothesis": "IEEE requires organizations to manage operational risks across the lifecycle.",
       "expected": "publish"
+    },
+    {
+      "id": "framing-research-voice-deleted",
+      "category": "framing",
+      "premise": "We demonstrate that method A is the best choice for this task.",
+      "hypothesis": "Method A is the best choice for this task.",
+      "expected": "withhold",
+      "note": "one paper's finding restated as settled fact"
+    },
+    {
+      "id": "framing-research-voice-kept",
+      "category": "framing",
+      "premise": "We demonstrate that method A is the best choice for this task.",
+      "hypothesis": "The authors demonstrate that method A is the best choice for this task.",
+      "expected": "publish"
+    },
+    {
+      "id": "framing-expository-untouched",
+      "category": "framing",
+      "premise": "Latency is the time taken to process one transaction.",
+      "hypothesis": "Latency is the time taken to process one transaction.",
+      "expected": "publish",
+      "note": "most sources are not reporting their own experiments"
     }
   ]
 }

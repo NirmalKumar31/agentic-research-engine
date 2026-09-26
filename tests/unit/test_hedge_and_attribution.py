@@ -14,6 +14,7 @@ from agentic_research.citations.guards import (
     SourceIdentity,
     attributed_entities,
     attribution_guard,
+    framing_guard,
     hedge_guard,
     modality_guard,
     run_guards,
@@ -283,3 +284,81 @@ class TestTheKnownReleaseDefect:
             support_threshold=0.98,
         )
         assert verdict.publishable, verdict.reason
+
+
+class TestResearchVoiceFraming:
+    """A source's own finding must not be published as settled fact.
+
+    "We demonstrate that X" and a bare "X" are different assertions: one
+    paper reporting a result, versus the field agreeing. The release
+    audit published exactly this transformation -- a superlative about
+    the best evaluation metric, lifted out of one paper's own voice --
+    and it passed every other guard because the wording is otherwise
+    verbatim.
+    """
+
+    @pytest.mark.parametrize(
+        ("claim", "evidence"),
+        [
+            ("Method A is the best choice.", "We demonstrate that method A is the best choice."),
+            ("Latency falls by half.", "We find that latency falls by half."),
+            ("The approach generalises.", "Our results show the approach generalises."),
+            ("Batching improves throughput.", "This paper shows batching improves throughput."),
+            ("The index is smaller.", "We report that the index is smaller."),
+        ],
+    )
+    def test_deleting_the_research_voice_is_refused(self, claim: str, evidence: str) -> None:
+        assert not framing_guard(claim, evidence).passed
+
+    @pytest.mark.parametrize(
+        "claim",
+        [
+            "The authors demonstrate that method A is the best choice.",
+            "The study reports that method A is the best choice.",
+            "According to the paper, method A is the best choice.",
+            "The researchers found that method A is the best choice.",
+        ],
+    )
+    def test_keeping_any_attribution_is_enough(self, claim: str) -> None:
+        """The claim need not copy the source's wording, only preserve
+        that this is somebody's finding."""
+        evidence = "We demonstrate that method A is the best choice."
+        assert framing_guard(claim, evidence).passed
+
+    @pytest.mark.parametrize(
+        ("claim", "evidence"),
+        [
+            ("Latency is measured end to end.", "Latency is measured end to end."),
+            ("The format was deprecated in 2021.", "The format was deprecated in 2021."),
+            ("SMOTE balances datasets.", "Techniques like SMOTE can balance datasets."),
+        ],
+    )
+    def test_ordinary_expository_evidence_is_untouched(self, claim: str, evidence: str) -> None:
+        """Most sources are not reporting their own experiments. The
+        guard must stay silent on them or it withholds everything."""
+        assert framing_guard(claim, evidence).passed
+
+    def test_scoped_to_the_supporting_sentence(self) -> None:
+        """A methods sentence elsewhere in a long quote must not
+        withhold an unrelated factual claim."""
+        passage = (
+            "We demonstrate that the sampler converges quickly. "
+            "Latency is the time taken to process one transaction."
+        )
+        assert framing_guard(
+            "Latency is the time taken to process one transaction.", passage
+        ).passed
+        assert not framing_guard("The sampler converges quickly.", passage).passed
+
+    def test_the_audited_defect_is_refused(self) -> None:
+        """The exact transformation the release audit rejected, stated
+        generically -- no token from the original subject matter."""
+        evidence = (
+            "We demonstrate that a combined precision and recall score, in that "
+            "specific order, is the best evaluation metric for this task."
+        )
+        claim = (
+            "A combined precision and recall score, in that specific order, is the "
+            "best evaluation metric for this task."
+        )
+        assert not framing_guard(claim, evidence).passed

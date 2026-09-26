@@ -198,6 +198,7 @@ class TestRunGuards:
             "numeric",
             "modality",
             "hedge",
+            "framing",
             "ranking",
             "causal",
             "exclusivity",

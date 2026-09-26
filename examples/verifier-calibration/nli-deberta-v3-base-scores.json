@@ -4,14 +4,14 @@
   "cases": 30,
   "pairs": 50,
   "runtime": {
-    "model_load_seconds": 9.22,
-    "inference_seconds": 7.28,
-    "seconds_per_pair": 0.1456
+    "model_load_seconds": 6.32,
+    "inference_seconds": 2.32,
+    "seconds_per_pair": 0.0464
   },
   "memory_mb": {
-    "baseline_rss": 20.7,
-    "after_model_load_rss": 837.5,
-    "peak_rss": 1044.9
+    "baseline_rss": 20.8,
+    "after_model_load_rss": 882.9,
+    "peak_rss": 1142.1
   },
   "scores": [
     {
@@ -37,6 +37,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -83,6 +87,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": false,
               "detail": "claim asserts 'lowest'; evidence ranks nothing"
@@ -127,6 +135,10 @@
             "hedge": {
               "passed": false,
               "detail": "evidence hedges with 'potentially'; the claim states it as fact"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -173,6 +185,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -217,6 +233,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -263,6 +283,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -299,6 +323,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -337,6 +365,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -373,6 +405,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -419,6 +455,10 @@
               "passed": false,
               "detail": "evidence hedges with 'potentially'; the claim states it as fact"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -455,6 +495,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -501,6 +545,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "evidence ranks: 'wins on, leads for, top choice'"
@@ -538,6 +586,10 @@
               "passed": false,
               "detail": "evidence hedges with 'may'; the claim states it as fact"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": false,
               "detail": "claim asserts 'optimal'; evidence ranks nothing"
@@ -574,6 +626,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -620,6 +676,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -656,6 +716,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -702,6 +766,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -746,6 +814,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -792,6 +864,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -836,6 +912,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -882,6 +962,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "evidence ranks: 'best'"
@@ -927,6 +1011,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -963,6 +1051,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1009,6 +1101,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1045,6 +1141,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1083,6 +1183,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1119,6 +1223,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1165,6 +1273,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1210,6 +1322,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1246,6 +1362,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1284,6 +1404,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1320,6 +1444,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1366,6 +1494,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1402,6 +1534,10 @@
             "hedge": {
               "passed": false,
               "detail": "evidence hedges with 'may'; the claim states it as fact"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1448,6 +1584,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "evidence ranks: 'wins on, leads for, top choice'"
@@ -1492,6 +1632,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1538,6 +1682,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "evidence ranks: 'fastest'"
@@ -1574,6 +1722,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": false,
@@ -1620,6 +1772,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": false,
               "detail": "claim asserts 'lowest, leads in'; evidence ranks nothing"
@@ -1664,6 +1820,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1710,6 +1870,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1746,6 +1910,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1792,6 +1960,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "evidence ranks: 'best'"
@@ -1828,6 +2000,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": false,
@@ -1874,6 +2050,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -1910,6 +2090,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -1956,6 +2140,10 @@
               "passed": false,
               "detail": "evidence hedges with 'may'; the claim states it as fact"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -2000,6 +2188,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,
@@ -2046,6 +2238,10 @@
               "passed": true,
               "detail": "evidence states no epistemic hedge"
             },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
+            },
             "ranking": {
               "passed": true,
               "detail": "claim asserts no ranking"
@@ -2082,6 +2278,10 @@
             "hedge": {
               "passed": true,
               "detail": "evidence states no epistemic hedge"
+            },
+            "framing": {
+              "passed": true,
+              "detail": "evidence states no first-person finding"
             },
             "ranking": {
               "passed": true,

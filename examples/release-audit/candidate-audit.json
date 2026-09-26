@@ -4,68 +4,30 @@
   "runs": {
     "fraud-detection-imbalanced": {
       "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
-      "recorded_at": "2026-09-25T21:52:01.747895+00:00",
+      "recorded_at": "2026-09-26T05:22:50.087138+00:00",
       "commit": null,
       "counts": {
-        "raw_generated": 14,
+        "raw_generated": 19,
         "duplicates_removed": 8,
-        "candidates": 6,
-        "checkable": 6,
-        "checked": 6,
+        "candidates": 11,
+        "checkable": 11,
+        "checked": 11,
         "not_checked": 0,
-        "published": 4,
-        "withheld": 2,
+        "published": 6,
+        "withheld": 5,
         "evidence_only_excerpts": 0,
         "exhaustive": true,
-        "publication_rate": 0.6667
+        "publication_rate": 0.5455
       },
       "gate_disagreements": [],
       "candidates": [
         {
-          "claim": "Deep Learning models such as Convolutional Neural Networks, Recurrent Neural Networks, and Long Short-term Memory architectures have shown strong performance in modeling complex transaction sequences and behavioral patterns.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e1",
-              "quote": "Deep Learning (DL) models such as Convolutional Neural Networks (CNNs), Recurrent Neural Networks (RNNs), and Long Short-term Memory (LSTM) architectures have shown strong performance in modeling complex transaction sequences and behavioral patterns",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.986816,
-              "neutral": 0.011978,
-              "contradiction": 0.001118,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e1",
-          "best_entailment": 0.986816,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e1 at 0.987 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim minus the acronym expansions"
-          }
-        },
-        {
-          "claim": "Generative models like autoencoders, variational autoencoders, and generative adversarial networks are effective for fraud detection in imbalanced datasets.",
+          "claim": "Ensemble techniques like Random Forests or Gradient Boosting improve model performance on imbalanced transaction datasets.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S4-e1",
-              "quote": "Generative Models",
+              "quote": "Consider using ensemble techniques like Random Forests or Gradient Boosting, which can help improve model performance on imbalanced datasets.",
               "source_id": "S4",
               "page": null,
               "quote_match": "exact_normalized"
@@ -74,515 +36,33 @@
           "nli_scores": [
             {
               "evidence_id": "S4-e1",
-              "entailment": 0.000708,
-              "neutral": 0.998535,
-              "contradiction": 0.000602,
+              "entailment": 0.001982,
+              "neutral": 0.997559,
+              "contradiction": 0.000516,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S4-e1",
-          "best_entailment": 0.000708,
+          "best_entailment": 0.001982,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S4-e1 is below the 0.98 support threshold",
+          "withhold_reason": "best entailment 0.002 from S4-e1 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "F1-Score is the harmonic mean of Precision and Recall, providing a single-figure balance of both metrics useful when class distribution is skewed.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e1",
-              "quote": "F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metrics, which is useful when we want a combined score for model selection or when class distribution is skewed.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.998047,
-              "neutral": 0.001764,
-              "contradiction": 0.000353,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e1",
-          "best_entailment": 0.998047,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e1 at 0.998 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "faithful subset of the quote; drops a disjunct rather than adding one"
-          }
-        },
-        {
-          "claim": "Hidden costs include computational overhead from generating synthetic data and potential overfitting risks with generative models.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e2",
-              "quote": "Model performance metrics with GAN.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e2",
-              "entailment": 0.000691,
-              "neutral": 0.997559,
-              "contradiction": 0.001674,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e2",
-          "best_entailment": 0.000691,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S4-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "False positives can lead to customer dissatisfaction, while false negatives can result in significant financial losses.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e2",
-              "quote": "False positives, which flag legitimate transactions as fraudulent, can lead to customer dissatisfaction, while false negatives, where fraudulent transactions go undetected, can result in significant financial losses.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e2",
-              "entailment": 0.998535,
-              "neutral": 0.001229,
-              "contradiction": 0.000195,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e2",
-          "best_entailment": 0.998535,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e2 at 0.999 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [
-            "clausal 'while'/'but'"
-          ],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim minus the appositive definitions; flagged compound, but both halves come from the same quote and both are stated there, so the marker is a false alarm here"
-          }
-        },
-        {
-          "claim": "AUC-PR is the go-to metric when fraud cases are rare and we care about catching as many as possible without overwhelming the system with false alarms.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e3",
-              "quote": "AUC-PR is the go-to metric when fraud cases are rare, and we care about catching as many as possible without overwhelming the system with false alarms.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e3",
-              "entailment": 0.986328,
-              "neutral": 0.012787,
-              "contradiction": 0.000875,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.986328,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e3 at 0.986 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim"
-          }
-        }
-      ]
-    },
-    "nist-ai-risk-framework": {
-      "question": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
-      "recorded_at": "2026-09-25T21:42:51.994530+00:00",
-      "commit": null,
-      "counts": {
-        "raw_generated": 12,
-        "duplicates_removed": 3,
-        "candidates": 9,
-        "checkable": 9,
-        "checked": 9,
-        "not_checked": 0,
-        "published": 8,
-        "withheld": 1,
-        "evidence_only_excerpts": 0,
-        "exhaustive": true,
-        "publication_rate": 0.8889
-      },
-      "gate_disagreements": [],
-      "candidates": [
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 is structured around four core functions.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e1",
-              "quote": "The four core functions of the NIST AI RMF \u200b\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S3-e1",
-              "quote": "The framework then turns those characteristics into four core functions that support continuous risk management: Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable. Map focuses on identifying and categorizing AI risks in context. Mapping makes later risk analysis useful because it ties measurement to the system and its points of exposure. It also needs to be revisited as those conditions change. Measure evaluates the mapped risks using context-specific methods to assess performance, impacts, and trustworthiness. It includes assessing for bias, reliability, and alignment with your risk tolerance thresholds. This evaluation is used as evidence for governance and management decisions. Manage turns those findings into action. It covers prioritizing risks, applying mitigations, tracking remediation, and maintaining an updated risk posture. It also addresses incident response.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S2-e1",
-              "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S4-e1",
-              "quote": "It is built around four functions: Govern, Map, Measure and Manage.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e1",
-              "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e2",
-              "quote": "NIST AI RMF 1.0 has four functions: GOVERN (cross-cutting policies and accountability), MAP (system-level risk context), MEASURE (quantitative and qualitative risk assessment), and MANAGE (risk treatment and incident response).",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e3",
-              "quote": "The Core of NIST AI RMF 1.0 is composed of four functions: GOVERN, MAP, MEASURE, and MANAGE.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.992188,
-              "neutral": 0.006893,
-              "contradiction": 0.000829,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.052704,
-              "neutral": 0.946777,
-              "contradiction": 0.000358,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.004925,
-              "neutral": 0.995117,
-              "contradiction": 0.000192,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.002003,
-              "neutral": 0.997559,
-              "contradiction": 0.000436,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.009361,
-              "neutral": 0.98877,
-              "contradiction": 0.001718,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.984863,
-              "neutral": 0.014854,
-              "contradiction": 0.000489,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.982422,
-              "neutral": 0.01683,
-              "contradiction": 0.000573,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e1",
-          "best_entailment": 0.992188,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e1 at 0.992 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "'structured around' restates 'organized around'; the version number is in the quote"
-          }
-        },
-        {
-          "claim": "The four core functions of the NIST AI Risk Management Framework 1.0 are Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e1",
-              "quote": "The four core functions of the NIST AI RMF \u200b\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S3-e1",
-              "quote": "The framework then turns those characteristics into four core functions that support continuous risk management: Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable. Map focuses on identifying and categorizing AI risks in context. Mapping makes later risk analysis useful because it ties measurement to the system and its points of exposure. It also needs to be revisited as those conditions change. Measure evaluates the mapped risks using context-specific methods to assess performance, impacts, and trustworthiness. It includes assessing for bias, reliability, and alignment with your risk tolerance thresholds. This evaluation is used as evidence for governance and management decisions. Manage turns those findings into action. It covers prioritizing risks, applying mitigations, tracking remediation, and maintaining an updated risk posture. It also addresses incident response.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S2-e1",
-              "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S4-e1",
-              "quote": "It is built around four functions: Govern, Map, Measure and Manage.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e1",
-              "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e2",
-              "quote": "NIST AI RMF 1.0 has four functions: GOVERN (cross-cutting policies and accountability), MAP (system-level risk context), MEASURE (quantitative and qualitative risk assessment), and MANAGE (risk treatment and incident response).",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e3",
-              "quote": "The Core of NIST AI RMF 1.0 is composed of four functions: GOVERN, MAP, MEASURE, and MANAGE.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.002588,
-              "neutral": 0.996582,
-              "contradiction": 0.000739,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.902344,
-              "neutral": 0.096436,
-              "contradiction": 0.001402,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.010788,
-              "neutral": 0.98877,
-              "contradiction": 0.000349,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.008057,
-              "neutral": 0.991699,
-              "contradiction": 0.000257,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.006268,
-              "neutral": 0.993164,
-              "contradiction": 0.00047,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.994629,
-              "neutral": 0.004925,
-              "contradiction": 0.00036,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.994141,
-              "neutral": 0.005306,
-              "contradiction": 0.000425,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.994629,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e2 at 0.995 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "the quote names all four against the versioned framework"
-          }
-        },
-        {
-          "claim": "Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e2",
-              "quote": "Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e2",
-              "entailment": 0.991211,
-              "neutral": 0.007866,
-              "contradiction": 0.000895,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e2",
-          "best_entailment": 0.991211,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e2 at 0.991 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim; the claim truncates the quote rather than extending it"
-          }
-        },
-        {
-          "claim": "Map focuses on identifying and categorizing AI risks in context.",
+          "claim": "Machine learning classifiers enhance proactive fraud detection in financial systems.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S3-e1",
-              "quote": "The framework then turns those characteristics into four core functions that support continuous risk management: Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable. Map focuses on identifying and categorizing AI risks in context. Mapping makes later risk analysis useful because it ties measurement to the system and its points of exposure. It also needs to be revisited as those conditions change. Measure evaluates the mapped risks using context-specific methods to assess performance, impacts, and trustworthiness. It includes assessing for bias, reliability, and alignment with your risk tolerance thresholds. This evaluation is used as evidence for governance and management decisions. Manage turns those findings into action. It covers prioritizing risks, applying mitigations, tracking remediation, and maintaining an updated risk posture. It also addresses incident response.",
+              "quote": "The use of machine learning into the financial sector permits more effective protection against fraud and other economic crime. Suitably trained machine learning classifiers help proactive fraud detection, improving stakeholder trust and robustness against illicit transactions.",
               "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
@@ -592,8 +72,8 @@
             {
               "evidence_id": "S3-e1",
               "entailment": 0.998535,
-              "neutral": 0.000848,
-              "contradiction": 0.000854,
+              "neutral": 0.00133,
+              "contradiction": 9.2e-05,
               "guards_passed": true,
               "failed_guards": []
             }
@@ -609,612 +89,52 @@
           "withhold_reason": "entailed by S3-e1 at 0.999 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim sentence within the quote"
-          }
+          "human_review": null
         },
         {
-          "claim": "Measure involves quantitative and qualitative risk assessment.",
+          "claim": "Fraud detection systems typically generate binary outputs indicating fraudulent transactions.",
           "kind": "factual",
           "evidence": [
-            {
-              "evidence_id": "S5-e2",
-              "quote": "NIST AI RMF 1.0 has four functions: GOVERN (cross-cutting policies and accountability), MAP (system-level risk context), MEASURE (quantitative and qualitative risk assessment), and MANAGE (risk treatment and incident response).",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.996094,
-              "neutral": 0.003532,
-              "contradiction": 0.000409,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.996094,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e2 at 0.996 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim from the parenthetical gloss"
-          }
-        },
-        {
-          "claim": "Manage addresses risk treatment and incident response.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e2",
-              "quote": "NIST AI RMF 1.0 has four functions: GOVERN (cross-cutting policies and accountability), MAP (system-level risk context), MEASURE (quantitative and qualitative risk assessment), and MANAGE (risk treatment and incident response).",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.995605,
-              "neutral": 0.003815,
-              "contradiction": 0.000513,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.995605,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e2 at 0.996 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim from the parenthetical gloss"
-          }
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 is structured around four core functions: Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e1",
-              "quote": "The four core functions of the NIST AI RMF \u200b\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S3-e1",
-              "quote": "The framework then turns those characteristics into four core functions that support continuous risk management: Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable. Map focuses on identifying and categorizing AI risks in context. Mapping makes later risk analysis useful because it ties measurement to the system and its points of exposure. It also needs to be revisited as those conditions change. Measure evaluates the mapped risks using context-specific methods to assess performance, impacts, and trustworthiness. It includes assessing for bias, reliability, and alignment with your risk tolerance thresholds. This evaluation is used as evidence for governance and management decisions. Manage turns those findings into action. It covers prioritizing risks, applying mitigations, tracking remediation, and maintaining an updated risk posture. It also addresses incident response.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S2-e1",
-              "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S4-e1",
-              "quote": "It is built around four functions: Govern, Map, Measure and Manage.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
             {
               "evidence_id": "S5-e1",
-              "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e2",
-              "quote": "NIST AI RMF 1.0 has four functions: GOVERN (cross-cutting policies and accountability), MAP (system-level risk context), MEASURE (quantitative and qualitative risk assessment), and MANAGE (risk treatment and incident response).",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e3",
-              "quote": "The Core of NIST AI RMF 1.0 is composed of four functions: GOVERN, MAP, MEASURE, and MANAGE.",
+              "quote": "Most financial fraud detection systems generate a binary output: a prediction indicating whether a transaction (txt) is fraudulent (1) or genuine (0).",
               "source_id": "S5",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.010132,
-              "neutral": 0.98877,
-              "contradiction": 0.001087,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.217163,
-              "neutral": 0.781738,
-              "contradiction": 0.000959,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.006702,
-              "neutral": 0.993164,
-              "contradiction": 0.000268,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.003569,
-              "neutral": 0.996094,
-              "contradiction": 0.000337,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
             {
               "evidence_id": "S5-e1",
-              "entailment": 0.017059,
-              "neutral": 0.981445,
-              "contradiction": 0.00136,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.983887,
-              "neutral": 0.015793,
-              "contradiction": 0.000427,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.984375,
-              "neutral": 0.015312,
-              "contradiction": 0.000363,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e3",
-          "best_entailment": 0.984375,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e3 at 0.984 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim; near-duplicate of an earlier claim but independently supported"
-          }
-        },
-        {
-          "claim": "Organizations can adopt AI RMF 1.0 through use-case profiles that apply the framework to specific AI systems or sectors.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e3",
-              "quote": "NIST AI RMF profiles \u200b\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n Use-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\n Cross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e3",
-              "entailment": 0.999512,
-              "neutral": 0.000398,
-              "contradiction": 0.000141,
+              "entailment": 0.992188,
+              "neutral": 0.00724,
+              "contradiction": 0.000535,
               "guards_passed": false,
               "failed_guards": [
                 "modality"
               ]
-            }
-          ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.999512,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Cross-sectoral profiles apply the framework to technology classes across multiple sectors.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e3",
-              "quote": "NIST AI RMF profiles \u200b\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n Use-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\n Cross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e3",
-              "entailment": 0.999023,
-              "neutral": 0.0005,
-              "contradiction": 0.000376,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.999023,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e3 at 0.999 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "restates the quote's definition; singular to plural is a category description, not a widened claim"
-          }
-        }
-      ]
-    },
-    "rag-vector-vs-search": {
-      "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
-      "recorded_at": "2026-09-25T21:26:33.064705+00:00",
-      "commit": null,
-      "counts": {
-        "raw_generated": 28,
-        "duplicates_removed": 4,
-        "candidates": 24,
-        "checkable": 24,
-        "checked": 24,
-        "not_checked": 0,
-        "published": 11,
-        "withheld": 13,
-        "evidence_only_excerpts": 0,
-        "exhaustive": true,
-        "publication_rate": 0.4583
-      },
-      "gate_disagreements": [],
-      "candidates": [
-        {
-          "claim": "Vector databases handle high-dimensional vector data with semantic meaning and context, unlike traditional keyword-based search systems that only match exact words or phrases.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e1",
-              "quote": "Unlike traditional keyword-based search systems, which only match exact words or phrases, vector search considers the semantic meaning and context of the search query.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.087097,
-              "neutral": 0.912109,
-              "contradiction": 0.000996,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e1",
-          "best_entailment": 0.087097,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.087 from S1-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases have exceptional capabilities for managing high-dimensional data.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e1",
-              "quote": "Vector databases have gained growing attention in industry and academia for their exceptional capabilities of managing data with high dimension.",
-              "source_id": "S3",
-              "page": 1,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.997559,
-              "neutral": 0.002111,
-              "contradiction": 0.000259,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e1",
-          "best_entailment": 0.997559,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e1 at 0.998 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "the quote attributes exceptional capabilities for high-dimensional data to vector databases; 'exceptional' is the source's own word"
-          }
-        },
-        {
-          "claim": "Vector search operates on numerical representations of data called vector embeddings, which capture semantic meaning in a vector space and can identify related objects without requiring exact text matches.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e1",
-              "quote": "Vector search has fundamentally shifted how we approach information retrieval in modern development. It operates on numerical representations of data called vector embeddings, which capture the semantic meaning in a vector space. Vector search can identify related objects without requiring exact text matches, making it increasingly important for modern information retrieval systems, particularly in AI-native applications where traditional search systems fall short.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.998047,
-              "neutral": 0.001238,
-              "contradiction": 0.00069,
-              "guards_passed": true,
-              "failed_guards": []
             }
           ],
           "best_evidence_id": "S5-e1",
-          "best_entailment": 0.998047,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e1 at 0.998 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "near-verbatim restatement of two adjacent sentences, nothing added"
-          }
-        },
-        {
-          "claim": "Vector databases power production systems at scale for semantic search, recommendations, copilots, and internal knowledge tools.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Vector databases power production systems at scale. They run semantic search, recommendations, copilots, and internal knowledge tools.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.969727,
-              "neutral": 0.028305,
-              "contradiction": 0.001894,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e1",
-          "best_entailment": 0.969727,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.970 from S4-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases excel in semantic search and high-dimensional data handling but introduce hidden costs and operational complexity.",
-          "kind": "synthesis",
-          "evidence": [
-            {
-              "evidence_id": "S1-e1",
-              "quote": "Unlike traditional keyword-based search systems, which only match exact words or phrases, vector search considers the semantic meaning and context of the search query.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S3-e1",
-              "quote": "Vector databases have gained growing attention in industry and academia for their exceptional capabilities of managing data with high dimension.",
-              "source_id": "S3",
-              "page": 1,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e1",
-              "quote": "Vector search has fundamentally shifted how we approach information retrieval in modern development. It operates on numerical representations of data called vector embeddings, which capture the semantic meaning in a vector space. Vector search can identify related objects without requiring exact text matches, making it increasingly important for modern information retrieval systems, particularly in AI-native applications where traditional search systems fall short.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Vector databases power production systems at scale. They run semantic search, recommendations, copilots, and internal knowledge tools.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S1-e2",
-              "quote": "It can require significant computational power and expertise to properly design and implement the algorithms and models needed for vector search.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S3-e2",
-              "quote": "Current solutions, however, struggle with scalability for high-dimensional vectors, and offer limited query support.",
-              "source_id": "S3",
-              "page": 1,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S4-e2",
-              "quote": "Hidden costs\u2014embeddings, reranking, backups, reindexing, and egress\u2014can double real production spend.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S2-e2",
-              "quote": "Storing and processing high-dimensional data is very complex and resource intensive.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.000158,
-              "neutral": 0.999023,
-              "contradiction": 0.000597,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.000112,
-              "neutral": 0.998535,
-              "contradiction": 0.001169,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.000118,
-              "neutral": 1.0,
-              "contradiction": 0.000109,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.000161,
-              "neutral": 0.999023,
-              "contradiction": 0.000673,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S1-e2",
-              "entailment": 0.000723,
-              "neutral": 0.999023,
-              "contradiction": 0.000264,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e2",
-              "entailment": 0.001953,
-              "neutral": 0.173462,
-              "contradiction": 0.824707,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S4-e2",
-              "entailment": 0.000471,
-              "neutral": 0.999023,
-              "contradiction": 0.000317,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S2-e2",
-              "entailment": 0.000199,
-              "neutral": 0.999512,
-              "contradiction": 0.000204,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e2",
-          "best_entailment": 0.001953,
+          "best_entailment": 0.992188,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.002 from S3-e2 is below the 0.98 support threshold",
+          "withhold_reason": "every cited quote failed a deterministic guard: modality",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Implementing vector databases requires significant computational power and expertise for complex algorithm design and model implementation.",
+          "claim": "Sensitivity to class distribution is a key consideration for evaluating imbalanced fraud detection models.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S1-e2",
-              "quote": "It can require significant computational power and expertise to properly design and implement the algorithms and models needed for vector search.",
+              "quote": "Key considerations when evaluating imbalanced data include: Sensitivity to Class Distribution: Metrics should reflect how well the model identifies minority class instances, not just overall correctness. Cost of Errors: The impact of false positives and false negatives can be very different depending on the application, so metrics should help you understand these trade-offs. Detailed Performance Breakdown: It's important to analyze performance for each class separately, rather than relying on a single summary statistic.",
               "source_id": "S1",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1223,180 +143,33 @@
           "nli_scores": [
             {
               "evidence_id": "S1-e2",
-              "entailment": 0.061554,
-              "neutral": 0.936035,
-              "contradiction": 0.002539,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
+              "entailment": 0.000564,
+              "neutral": 0.999023,
+              "contradiction": 0.000222,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
           "best_evidence_id": "S1-e2",
-          "best_entailment": 0.061554,
+          "best_entailment": 0.000564,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
+          "withhold_reason": "best entailment 0.001 from S1-e2 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Current solutions struggle with scalability for high-dimensional vectors and offer limited query support.",
+          "claim": "Cost of errors, particularly false positives and false negatives, significantly impacts model evaluation in fraud detection.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S3-e2",
-              "quote": "Current solutions, however, struggle with scalability for high-dimensional vectors, and offer limited query support.",
-              "source_id": "S3",
-              "page": 1,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e2",
-              "entailment": 0.996094,
-              "neutral": 0.003786,
-              "contradiction": 0.000339,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e2",
-          "best_entailment": 0.996094,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e2 at 0.996 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim"
-          }
-        },
-        {
-          "claim": "Hidden costs associated with vector databases include embeddings, reranking, backups, reindexing, and egress, which can double real production spend.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e2",
-              "quote": "Hidden costs\u2014embeddings, reranking, backups, reindexing, and egress\u2014can double real production spend.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e2",
-              "entailment": 0.001205,
-              "neutral": 0.998047,
-              "contradiction": 0.000708,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e2",
-          "best_entailment": 0.001205,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S4-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Storing and processing high-dimensional data is very complex and resource-intensive for vector databases.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S2-e2",
-              "quote": "Storing and processing high-dimensional data is very complex and resource intensive.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S2-e2",
-              "entailment": 0.001494,
-              "neutral": 0.998047,
-              "contradiction": 0.000406,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S2-e2",
-          "best_entailment": 0.001494,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S2-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Manually computing cosine similarity over every vector in a large dataset becomes computationally expensive and requires high memory consumption without an indexing mechanism.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e2",
-              "quote": "Although this method is able to give us similar items based on text vectors, it\u2019s pretty inefficient. Manually computing cosine similarity over every vector in a large dataset can become computationally expensive fast. Also, without an indexing mechanism, all the vectors are stored in their raw form, requiring high memory consumption and slowing down search speeds.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.997559,
-              "neutral": 0.002106,
-              "contradiction": 0.000147,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.997559,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Operational complexity of vector databases is higher due to the need for significant computational power and expertise.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e3",
-              "quote": "It can require significant computational power and expertise to properly design and implement the algorithms and models needed for vector search.",
+              "evidence_id": "S1-e2",
+              "quote": "Key considerations when evaluating imbalanced data include: Sensitivity to Class Distribution: Metrics should reflect how well the model identifies minority class instances, not just overall correctness. Cost of Errors: The impact of false positives and false negatives can be very different depending on the application, so metrics should help you understand these trade-offs. Detailed Performance Breakdown: It's important to analyze performance for each class separately, rather than relying on a single summary statistic.",
               "source_id": "S1",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1404,109 +177,69 @@
           ],
           "nli_scores": [
             {
-              "evidence_id": "S1-e3",
-              "entailment": 0.46167,
-              "neutral": 0.537598,
-              "contradiction": 0.000949,
-              "guards_passed": false,
-              "failed_guards": [
-                "causal"
-              ]
+              "evidence_id": "S1-e2",
+              "entailment": 0.000139,
+              "neutral": 0.999512,
+              "contradiction": 0.000205,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.46167,
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.000139,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: causal",
+          "withhold_reason": "best entailment 0.000 from S1-e2 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Managing vector databases requires a deeper understanding of indexing techniques, distance metrics, and data distribution than traditional databases.",
+          "claim": "A combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection models.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S2-e3",
-              "quote": "Managing vector databases is more complex than traditional databases, and it requires a deeper understanding of indexing techniques, distance metrics, and data distribution.",
-              "source_id": "S2",
+              "evidence_id": "S3-e2",
+              "quote": "We demonstrate that a combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection model classification.",
+              "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S2-e3",
-              "entailment": 0.998047,
-              "neutral": 0.00141,
-              "contradiction": 0.000315,
+              "evidence_id": "S3-e2",
+              "entailment": 0.983887,
+              "neutral": 0.015732,
+              "contradiction": 0.000559,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S2-e3",
-          "best_entailment": 0.998047,
+          "best_evidence_id": "S3-e2",
+          "best_entailment": 0.983887,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S2-e3 at 0.998 >= 0.98",
+          "withhold_reason": "entailed by S3-e2 at 0.984 >= 0.98",
           "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "the comparison to traditional databases is in the same sentence and 'deeper' is already comparative; making it explicit is not an addition"
-          }
-        },
-        {
-          "claim": "At high, predictable query volume, self-hosting vector databases can cut costs 50\u201375% and improve spend predictability.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e3",
-              "quote": "At high, predictable query volume, self-hosting can cut costs 50\u201375% and improve spend predictability.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e3",
-              "entailment": 0.005516,
-              "neutral": 0.993164,
-              "contradiction": 0.00128,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e3",
-          "best_entailment": 0.005516,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.006 from S4-e3 is below the 0.98 support threshold",
-          "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Vector databases use Approximate Nearest Neighbor (ANN) algorithms, which trade off a bit of accuracy for a huge gain in speed.",
+          "claim": "Latency is the time it takes for the system to process a transaction and make an inference.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S5-e3",
-              "quote": "Instead of comparing vectors one by one, most vector databases use Approximate Nearest Neighbor (ANN) algorithms, which trade off a bit of accuracy (hence the A in the name) for a huge gain in speed.",
+              "quote": "Latency is the time it takes for the system to process a transaction and make an inference. Keeping latency low is crucial for real-time systems.",
               "source_id": "S5",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1516,8 +249,8 @@
             {
               "evidence_id": "S5-e3",
               "entailment": 0.990723,
-              "neutral": 0.006485,
-              "contradiction": 0.002666,
+              "neutral": 0.008713,
+              "contradiction": 0.000582,
               "guards_passed": true,
               "failed_guards": []
             }
@@ -1533,282 +266,120 @@
           "withhold_reason": "entailed by S5-e3 at 0.991 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "near-verbatim; 'most vector databases' generalised to 'vector databases' is a mild widening but the quote presents it as the standard approach"
-          }
+          "human_review": null
         },
         {
-          "claim": "The inner workings of vector search engines are often opaque due to reliance on pre-trained LLMs for vectorization, which can be a drawback in regulatory compliance and auditing processes.",
+          "claim": "SMOTE (Synthetic Minority Over-sampling Technique) generates synthetic examples of the minority class to balance datasets.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S1-e4",
-              "quote": "The inner workings of vector search engines are often opaque since they rely on pre-trained LLMs to vectorize the content. This lack of transparency can be a drawback in scenarios where you must explain or justify search results, such as in regulatory compliance or auditing processes.",
-              "source_id": "S1",
+              "evidence_id": "S4-e4",
+              "quote": "Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
+              "source_id": "S4",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S1-e4",
-              "entailment": 0.998047,
-              "neutral": 0.001532,
-              "contradiction": 0.000213,
-              "guards_passed": false,
-              "failed_guards": [
-                "causal"
-              ]
+              "evidence_id": "S4-e4",
+              "entailment": 0.996582,
+              "neutral": 0.00309,
+              "contradiction": 0.000237,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
-          "best_evidence_id": "S1-e4",
-          "best_entailment": 0.998047,
+          "best_evidence_id": "S4-e4",
+          "best_entailment": 0.996582,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S4-e4 at 0.997 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Credit card fraud detection systems face challenges including massively unbalanced fraud data and difficulty creating gold standard ground truth.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S3-e5",
+              "quote": "Unfortunately, credit card fraud detection via machine learning has several major constraints and challenges [5, 15], including massively unbalanced nature of fraud data, difficulty of identifying the frauds accurately and completely to create a gold standard ground truth and the lack of standard classifier evaluation metrics to measure and identify better performing [7].",
+              "source_id": "S3",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S3-e5",
+              "entailment": 0.99707,
+              "neutral": 0.002817,
+              "contradiction": 0.000172,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S3-e5",
+          "best_entailment": 0.99707,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S3-e5 at 0.997 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Latency and complexity affect payment systems when scaling fraud detection models to high transaction volumes.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S5-e5",
+              "quote": "Latency and complexity matter in payment systems. In the example below, the Payment Server dispatches parallel calls to KYC Service, Fraud Check, and Payment Rail, but the transaction can only complete once the slowest of these services responds (the KYC Service in this example).",
+              "source_id": "S5",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S5-e5",
+              "entailment": 0.000765,
+              "neutral": 0.999023,
+              "contradiction": 0.00044,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S5-e5",
+          "best_entailment": 0.000765,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: causal",
+          "withhold_reason": "best entailment 0.001 from S5-e5 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Traditional databases offer robust encryption options, but some vector databases lack standardized encryption features, making it challenging to secure vectors in public cloud environments.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S2-e4",
-              "quote": "Traditional databases offer robust encryption options for data, but some vector databases might lack standardized encryption features. This can make it challenging to secure vectors, particularly when they are stored in public cloud environments.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S2-e4",
-              "entailment": 0.994629,
-              "neutral": 0.00486,
-              "contradiction": 0.00034,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S2-e4",
-          "best_entailment": 0.994629,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S2-e4 at 0.995 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [
-            "clausal 'while'/'but'"
-          ],
-          "human_review": {
-            "verdict": "unsupported",
-            "note": "modality dropped twice: the source says vector databases 'might lack' encryption and that this 'can make' securing them challenging; the claim asserts both as fact. It also flattens 'particularly when stored in public cloud environments' into a plain assertion about public cloud"
-          }
-        },
-        {
-          "claim": "Weaviate's implementation of HNSW supports full CRUD operations and real-time querying, updates, and deletions with features like incremental disk writes for crash recovery.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e4",
-              "quote": "In Weaviate's implementation, HNSW is enhanced to support full CRUD operations and allows for real-time querying, updates, and deletions, with features like incremental disk writes for crash recovery and asynchronous cleanup processes for maintaining index freshness.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e4",
-              "entailment": 0.99707,
-              "neutral": 0.002544,
-              "contradiction": 0.000276,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e4",
-          "best_entailment": 0.99707,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e4 at 0.997 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim and correctly scoped to Weaviate"
-          }
-        },
-        {
-          "claim": "Vector search engines use approximate closest neighbor (ANN) techniques to accelerate processing while sacrificing some search precision.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e5",
-              "quote": "The high dimensionality, however, comes at a higher processing cost and slower response times. As a result, vector search engines use approximate closest neighbor (ANN) techniques to accelerate the process while sacrificing some search precision.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e5",
-              "entailment": 0.996094,
-              "neutral": 0.003479,
-              "contradiction": 0.000395,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e5",
-          "best_entailment": 0.996094,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e5 at 0.996 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim, including the trade-off clause"
-          }
-        },
-        {
-          "claim": "Vector databases use advanced indexing techniques like approximate nearest neighbor (ANN) search to efficiently handle large-scale datasets and provide rapid querying capabilities.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S2-e5",
-              "quote": "By using advanced indexing techniques like approximate nearest neighbor (ANN) search, vector databases can efficiently handle large-scale datasets and provide rapid querying capabilities even in high-dimensional environments.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S2-e5",
-              "entailment": 0.99707,
-              "neutral": 0.002619,
-              "contradiction": 0.000327,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S2-e5",
-          "best_entailment": 0.99707,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S2-e5 at 0.997 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim"
-          }
-        },
-        {
-          "claim": "ANN algorithms may not return the true k nearest vectors but maintain good performance (sublinear time, e.g., (poly)logarithmic complexity) on very large-scale datasets.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e5",
-              "quote": "ANN algorithms may not return the true k nearest vectors, but they are very efficient. ANN algorithms maintain good performance (sublinear time, e.g. (poly)logarithmic complexity) on very large-scale datasets.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e5",
-              "entailment": 0.995605,
-              "neutral": 0.00388,
-              "contradiction": 0.000473,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e5",
-          "best_entailment": 0.995605,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e5 at 0.996 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "verbatim, and the 'may not' hedge is preserved"
-          }
-        },
-        {
-          "claim": "The obvious advantage of vector databases for retrieval-augmented generation becomes a disadvantage in specialized and niche contexts where precise terminology is crucial.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e6",
-              "quote": "Vector search encounters difficulties with rare or niche items, struggles to capture nuanced semantic meanings, and may need more precision in highly specialized fields.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e6",
-              "entailment": 0.704102,
-              "neutral": 0.294434,
-              "contradiction": 0.001493,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e6",
-          "best_entailment": 0.704102,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.704 from S1-e6 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "At 60\u2013100M queries/month, self-hosting vector databases becomes 50\u201375% cheaper than cloud hosting.",
+          "claim": "Traditional accuracy metrics can be misleading when evaluating models on imbalanced datasets.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S4-e6",
-              "quote": "At 60\u2013100M queries/month, self-hosting becomes 50\u201375% cheaper than cloud.",
+              "quote": "When evaluating models on imbalanced datasets, traditional metrics like accuracy can be misleading.",
               "source_id": "S4",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1817,33 +388,54 @@
           "nli_scores": [
             {
               "evidence_id": "S4-e6",
-              "entailment": 0.002291,
-              "neutral": 0.997559,
-              "contradiction": 0.000351,
+              "entailment": 0.999023,
+              "neutral": 0.000659,
+              "contradiction": 7.9e-05,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S4-e6",
-          "best_entailment": 0.002291,
+          "best_entailment": 0.999023,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.002 from S4-e6 is below the 0.98 support threshold",
-          "present_in_published_report": false,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S4-e6 at 0.999 >= 0.98",
+          "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
-        },
+        }
+      ]
+    },
+    "nist-ai-risk-framework": {
+      "question": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
+      "recorded_at": "2026-09-26T05:12:47.991389+00:00",
+      "commit": null,
+      "counts": {
+        "raw_generated": 18,
+        "duplicates_removed": 12,
+        "candidates": 6,
+        "checkable": 6,
+        "checked": 6,
+        "not_checked": 0,
+        "published": 0,
+        "withheld": 6,
+        "evidence_only_excerpts": 12,
+        "exhaustive": true,
+        "publication_rate": 0.0
+      },
+      "gate_disagreements": [],
+      "candidates": [
         {
-          "claim": "Vector search is not limited to text or single-language documents; it can handle images, audio, video, and multi-lingual documents.",
+          "claim": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S5-e6",
-              "quote": "Vector search is not just limited to text, or even text in a single language. Anything can be converted into a vector with the right embedding model, whether it\u2019s images, audio, video, or multi-lingual documents.",
+              "evidence_id": "S5-e1",
+              "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
               "source_id": "S5",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1851,37 +443,147 @@
           ],
           "nli_scores": [
             {
-              "evidence_id": "S5-e6",
-              "entailment": 0.997559,
-              "neutral": 0.002234,
-              "contradiction": 0.00012,
-              "guards_passed": true,
-              "failed_guards": []
+              "evidence_id": "S5-e1",
+              "entailment": 0.021301,
+              "neutral": 0.978027,
+              "contradiction": 0.000428,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
             }
           ],
-          "best_evidence_id": "S5-e6",
-          "best_entailment": 0.997559,
+          "best_evidence_id": "S5-e1",
+          "best_entailment": 0.021301,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e6 at 0.998 >= 0.98",
-          "present_in_published_report": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
+          "present_in_published_report": false,
           "compound_markers": [],
-          "human_review": {
-            "verdict": "supported",
-            "note": "faithful; the quote's 'anything can be converted into a vector' covers the enumerated modalities"
-          }
+          "human_review": null
         },
         {
-          "claim": "Vector databases become disadvantageous under specific conditions where high-dimensional data processing is complex and resource-intensive, potentially leading to higher costs and operational challenges.",
+          "claim": "The NIST AI Risk Management Framework 1.0 organizes AI risk work into four functions that operate continuously rather than as a one-time sequence.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e2",
+              "quote": "The core of the AI RMF is organized around four functions that operate continuously rather than as a one-time sequence. Each function contains categories and subcategories that organizations tailor to their own systems and risk profile.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e2",
+              "entailment": 0.002838,
+              "neutral": 0.99707,
+              "contradiction": 0.000208,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S4-e2",
+          "best_entailment": 0.002838,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 defines governance for AI risk management through the function that establishes organizational culture, policies, and accountability structures.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e3",
+              "quote": "Govern establishes the organizational culture, policies, and accountability structures that support AI risk management.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e3",
+              "entailment": 0.002365,
+              "neutral": 0.996094,
+              "contradiction": 0.001319,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S4-e3",
+          "best_entailment": 0.002365,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management including adopting the Govern function at the organization layer, mapping each AI system, defining Measure signals, and running Manage as a continuous loop.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e4",
+              "quote": "A practical rollout typically looks like:\n1. Adopt the Govern function at the organization layer \u2014 roles, policies, oversight, and approval gates.\n2. Map each AI system \u2014 scope, stakeholders, impacts, data lineage, third-party dependencies.\n3. Define Measure signals \u2014 evaluations, red-teaming, and monitoring with thresholds and owners.\n4. Run Manage as a continuous loop \u2014 prioritize, treat, accept residual risk, respond to incidents.",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e4",
+              "entailment": 0.001678,
+              "neutral": 0.998047,
+              "contradiction": 0.0001,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S1-e4",
+          "best_entailment": 0.001678,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Map function, which identifies context, stakeholders, system boundaries, and potential harms.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S2-e6",
-              "quote": "databases excel in their ability to manage high-dimensional data and efficient similar searches. However, they come with some trade-offs. We need to carefully consider the problem, available resources, and long-term scalability needs, before deciding to use them.",
+              "quote": "The Map function identifies context, stakeholders, system boundaries, and potential harms. It examines data flows, intended uses, and possible failure modes before organizations define performance metrics.",
               "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1890,52 +592,366 @@
           "nli_scores": [
             {
               "evidence_id": "S2-e6",
-              "entailment": 0.00231,
-              "neutral": 0.99707,
-              "contradiction": 0.00076,
+              "entailment": 0.00716,
+              "neutral": 0.992188,
+              "contradiction": 0.000443,
               "guards_passed": false,
               "failed_guards": [
-                "modality",
-                "ranking"
+                "numeric"
               ]
             }
           ],
           "best_evidence_id": "S2-e6",
-          "best_entailment": 0.00231,
+          "best_entailment": 0.00716,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality, ranking",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
           "present_in_published_report": false,
           "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Measure function, which assesses and monitors AI system performance and trustworthiness over time.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S5-e6",
+              "quote": "Measure \u2014 assess and monitor AI system performance and trustworthiness over time",
+              "source_id": "S5",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S5-e6",
+              "entailment": 0.008202,
+              "neutral": 0.991699,
+              "contradiction": 0.000186,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S5-e6",
+          "best_entailment": 0.008202,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        }
+      ]
+    },
+    "rag-vector-vs-search": {
+      "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
+      "recorded_at": "2026-09-26T04:50:21.870007+00:00",
+      "commit": null,
+      "counts": {
+        "raw_generated": 13,
+        "duplicates_removed": 6,
+        "candidates": 7,
+        "checkable": 7,
+        "checked": 7,
+        "not_checked": 0,
+        "published": 2,
+        "withheld": 5,
+        "evidence_only_excerpts": 0,
+        "exhaustive": true,
+        "publication_rate": 0.2857
+      },
+      "gate_disagreements": [],
+      "candidates": [
+        {
+          "claim": "Vector databases require 64GB+ of RAM to search 10M vectors at sub-10ms speed.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e1",
+              "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e1",
+              "entailment": 0.169189,
+              "neutral": 0.830078,
+              "contradiction": 0.000778,
+              "guards_passed": false,
+              "failed_guards": [
+                "modality",
+                "hedge"
+              ]
+            }
+          ],
+          "best_evidence_id": "S1-e1",
+          "best_entailment": 0.169189,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: hedge, modality",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Binary quantization reduces the number of vectors a single $96/month DigitalOcean Droplet can handle from 10\u201320M to 300\u2013640M.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "A DigitalOcean 16GB RAM / 8 vCPU Droplet costs $96/month and handles approximately 10\u201320M vectors in RAM without quantization. With binary quantization (32x compression), the same $96/month node handles 300\u2013640M logical vectors.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.046814,
+              "neutral": 0.001993,
+              "contradiction": 0.951172,
+              "guards_passed": false,
+              "failed_guards": [
+                "modality"
+              ]
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.046814,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: modality",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Pinecone uses serverless object storage with $0.33/GB/month storage pricing.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e2",
+              "quote": "Pinecone: Serverless + Dedicated Read Nodes\nPinecone eliminated pod-based pricing in 2024 and migrated all workloads to serverless object storage architecture. The pricing structure has three levers verified from pinecone.io/pricing (March 2026):\n- Storage: $0.33/GB/month. At 10M 1,536-dim vectors (float32): ~58GB raw \u2192 with 1.5x HNSW overhead = ~87GB \u2192 $28.71/month storage.\n- Read Units (RUs): $16/million on Standard, $24/million on Enterprise. A query consumes 1 RU per 1GB of namespace. Minimum 0.25 RU per query regardless of namespace size.\n- Write Units (WUs): Billed for upsert, update, delete operations. Exact per-unit rate varies by region and provider. Plan minimums: Standard $50/month, Enterprise $500/month.\n- Dedicated Read Nodes (DRN): Per-node hourly billing. Verified production benchmark: 135M vectors at 600 QPS, P50 45ms, P99 96ms (December 2025 release notes). 1.4B vectors at 5,700 QPS, P99 60ms (official customer benchmark).",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e2",
+              "entailment": 0.999512,
+              "neutral": 0.000183,
+              "contradiction": 0.000495,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e2",
+          "best_entailment": 0.999512,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S2-e2 at 1.000 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Pinecone's Read Units (RUs) cost $1 per 1 million RUs on Standard.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e2",
+              "quote": "Pinecone: Serverless + Dedicated Read Nodes\nPinecone eliminated pod-based pricing in 2024 and migrated all workloads to serverless object storage architecture. The pricing structure has three levers verified from pinecone.io/pricing (March 2026):\n- Storage: $0.33/GB/month. At 10M 1,536-dim vectors (float32): ~58GB raw \u2192 with 1.5x HNSW overhead = ~87GB \u2192 $28.71/month storage.\n- Read Units (RUs): $16/million on Standard, $24/million on Enterprise. A query consumes 1 RU per 1GB of namespace. Minimum 0.25 RU per query regardless of namespace size.\n- Write Units (WUs): Billed for upsert, update, delete operations. Exact per-unit rate varies by region and provider. Plan minimums: Standard $50/month, Enterprise $500/month.\n- Dedicated Read Nodes (DRN): Per-node hourly billing. Verified production benchmark: 135M vectors at 600 QPS, P50 45ms, P99 96ms (December 2025 release notes). 1.4B vectors at 5,700 QPS, P99 60ms (official customer benchmark).",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e2",
+              "entailment": 0.000477,
+              "neutral": 0.000127,
+              "contradiction": 0.999512,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e2",
+          "best_entailment": 0.000477,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "best entailment 0.000 from S2-e2 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Qdrant achieves the lowest p99 query latency at under 8ms among vector databases.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e3",
+              "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e3",
+              "entailment": 0.002142,
+              "neutral": 0.997559,
+              "contradiction": 0.000321,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e3",
+          "best_entailment": 0.002142,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "best entailment 0.002 from S1-e3 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Milvus achieves the highest raw query throughput at 20,000+ QPS.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e3",
+              "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e3",
+              "entailment": 0.990234,
+              "neutral": 0.009193,
+              "contradiction": 0.000498,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e3",
+          "best_entailment": 0.990234,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e3 at 0.990 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Vector databases require significant RAM for low-latency searches, but quantization can scale storage capacity without increasing costs.",
+          "kind": "synthesis",
+          "evidence": [
+            {
+              "evidence_id": "S1-e1",
+              "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            },
+            {
+              "evidence_id": "S2-e1",
+              "quote": "A DigitalOcean 16GB RAM / 8 vCPU Droplet costs $96/month and handles approximately 10\u201320M vectors in RAM without quantization. With binary quantization (32x compression), the same $96/month node handles 300\u2013640M logical vectors.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e1",
+              "entailment": 0.000968,
+              "neutral": 0.998535,
+              "contradiction": 0.000287,
+              "guards_passed": false,
+              "failed_guards": [
+                "modality",
+                "hedge"
+              ]
+            },
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.002741,
+              "neutral": 0.99707,
+              "contradiction": 0.000118,
+              "guards_passed": false,
+              "failed_guards": [
+                "modality"
+              ]
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.002741,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: hedge, modality",
+          "present_in_published_report": false,
+          "compound_markers": [
+            "clausal 'while'/'but'"
+          ],
           "human_review": null
         }
       ]
     }
   },
   "totals": {
-    "candidates": 39,
-    "checked": 39,
-    "published": 23,
+    "candidates": 24,
+    "checked": 24,
+    "published": 8,
     "withheld": 16,
-    "excerpts": 0
-  },
-  "release_metric": {
-    "definition": "Published atomic claims a human reviewer judged unsupported by their own cited evidence.",
-    "published_claims_reviewed": 23,
-    "unsupported_published_atomic_claims": 1,
-    "passes": false,
-    "failures": [
-      {
-        "run": "rag-vector-vs-search",
-        "claim": "Traditional databases offer robust encryption options, but some vector databases lack standardized encryption features, making it challenging to secure vectors in public cloud environments.",
-        "best_evidence_id": "S2-e4",
-        "best_entailment": 0.994629,
-        "why": "modality dropped twice: the source says vector databases 'might lack' encryption and that this 'can make' securing them challenging; the claim asserts both as fact. It also flattens 'particularly when stored in public cloud environments' into a plain assertion about public cloud"
-      }
-    ]
+    "excerpts": 12
   }
 }
