@@ -134,9 +134,9 @@ class TestRealQuotesFitTheContext:
         from pathlib import Path
 
         from agentic_research.citations.nli import _load
-        from agentic_research.config import Settings
+        from agentic_research.config import LLMMode, Settings
 
-        settings = Settings()
+        settings = Settings(llm_mode=LLMMode.LOCAL)
         tokenizer, _model, _labels = _load(settings.nli_model_id, settings.nli_model_revision)
         longest = 0
         recordings = Path("src/agentic_research/web/recorded_runs")

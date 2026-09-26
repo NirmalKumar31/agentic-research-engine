@@ -17,7 +17,7 @@ import pytest
 
 from agentic_research.citations.nli import NLIVerifier
 from agentic_research.citations.semantic import verify_claim
-from agentic_research.config import Settings
+from agentic_research.config import LLMMode, Settings
 
 pytestmark = pytest.mark.nli
 
@@ -26,7 +26,11 @@ FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "semantic_stress.js
 
 @pytest.fixture(scope="module")
 def gate() -> tuple[NLIVerifier, float]:
-    settings = Settings()
+    # LLM_MODE is pinned so the fixture does not depend on a
+    # developer's .env. The default is hybrid, which requires an
+    # API key that CI has no reason to hold, and this job is about
+    # the NLI checkpoint rather than any generative provider.
+    settings = Settings(llm_mode=LLMMode.LOCAL)
     return (
         NLIVerifier(settings.nli_model_id, settings.nli_model_revision),
         settings.nli_support_threshold,
