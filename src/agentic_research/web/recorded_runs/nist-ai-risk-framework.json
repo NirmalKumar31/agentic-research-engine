@@ -2,11 +2,11 @@
   "recording_schema_version": 2,
   "meta": {
     "id": "nist-ai-risk-framework",
-    "label": "NIST AI Risk Management Framework (PDF)",
+    "label": "NIST AI Risk Management Framework",
     "question": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
-    "description": "Includes page-aware evidence from the official NIST AI RMF PDF alongside secondary sources, so some citations carry the page each quote came from.",
+    "description": "Researches the NIST AI Risk Management Framework from the official publication and supporting secondary sources.",
     "mode": "local",
-    "recorded_at": "2026-09-25T21:42:51.994530+00:00",
+    "recorded_at": "2026-09-26T05:12:47.991389+00:00",
     "order": 2,
     "provenance": {
       "engine_version": "0.2.0",
@@ -14,8 +14,8 @@
       "prompt_version": "f1384963fe1a",
       "schema_version": "f9e23be16b90",
       "config_fingerprint": "9283a7e97512",
-      "commit": "515d5a612082d79e2f3ab88cb9924af6b82394c3",
-      "short_commit": "515d5a61",
+      "commit": "8e92e425a8603df14b917afec8001cc4e97f43b8",
+      "short_commit": "8e92e425",
       "dirty": false,
       "python": "3.12.3",
       "platform": "macOS-26.5.2-arm64-arm-64bit"
@@ -42,12 +42,12 @@
       "event": "plan_generated",
       "count": 6,
       "questions": [
-        "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "How does the NIST AI Risk Management Framework 1.0 define practical use cases for implementing AI risk management?",
-        "What specific page references in the NIST AI Risk Management Framework 1.0 publication support the claim that the framework addresses failure modes in AI systems?",
-        "What hidden costs or implementation barriers are mentioned in the NIST AI Risk Management Framework 1.0 for adopting AI risk management practices?",
-        "Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect?"
+        "What are the core functions of the NIST AI Risk Management Framework 1.0, and which pages in the publication specifically define each function?",
+        "How does the NIST AI Risk Management Framework 1.0 define the governance role for AI risk management, and which pages provide evidence for this definition?",
+        "What practical use cases are described in the NIST AI Risk Management Framework 1.0 for implementing AI risk management, and which pages detail these use cases?",
+        "What are the hidden costs or implementation barriers that the NIST AI Risk Management Framework 1.0 does not explicitly address but are critical for practical adoption?",
+        "How does the NIST AI Risk Management Framework 1.0 handle failure modes or unintended consequences in AI systems, and which pages discuss these scenarios?",
+        "Under what conditions does the NIST AI Risk Management Framework 1.0's approach become ineffective or inapplicable, and which pages outline these edge cases?"
       ]
     },
     {
@@ -59,57 +59,62 @@
       "event": "queries_generated",
       "count": 6,
       "queries": [
-        "NIST AI RMF 1.0 core functions defined",
-        "NIST AI Risk Management Framework 1.0 governance structures",
-        "NIST AI RMF 1.0 practical use cases implementation",
-        "NIST AI Risk Management Framework 1.0 page references failure modes",
-        "NIST AI RMF 1.0 hidden costs implementation barriers",
-        "NIST AI Risk Management Framework 1.0 conditions where obvious answer incorrect"
+        "NIST AI Risk Management Framework 1.0 core functions page references",
+        "NIST AI Risk Management Framework 1.0 governance role page references",
+        "NIST AI Risk Management Framework 1.0 practical use cases page references",
+        "NIST AI Risk Management Framework 1.0 hidden implementation barriers page references",
+        "NIST AI Risk Management Framework 1.0 failure modes unintended consequences page references",
+        "NIST AI Risk Management Framework 1.0 inapplicable edge cases page references"
       ],
       "round": 1
     },
     {
       "event": "search_completed",
-      "query": "NIST AI RMF 1.0 hidden costs implementation barriers",
-      "query_id": "Q5",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "NIST AI Risk Management Framework 1.0 governance structures",
-      "query_id": "Q2",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "NIST AI RMF 1.0 core functions defined",
-      "query_id": "Q1",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "NIST AI RMF 1.0 practical use cases implementation",
+      "query": "NIST AI Risk Management Framework 1.0 practical use cases page references",
       "query_id": "Q3",
       "results": 8
     },
     {
       "event": "search_completed",
-      "query": "NIST AI Risk Management Framework 1.0 page references failure modes",
+      "query": "NIST AI Risk Management Framework 1.0 core functions page references",
+      "query_id": "Q1",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI Risk Management Framework 1.0 hidden implementation barriers page references",
       "query_id": "Q4",
       "results": 8
     },
     {
       "event": "search_completed",
-      "query": "NIST AI Risk Management Framework 1.0 conditions where obvious answer incorrect",
+      "query": "NIST AI Risk Management Framework 1.0 governance role page references",
+      "query_id": "Q2",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI Risk Management Framework 1.0 failure modes unintended consequences page references",
+      "query_id": "Q5",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI Risk Management Framework 1.0 inapplicable edge cases page references",
       "query_id": "Q6",
       "results": 8
     },
     {
       "event": "sources_deduplicated",
-      "avoided": 23,
+      "avoided": 26,
       "results": 48,
       "selected": 5,
-      "unique": 25
+      "unique": 22
+    },
+    {
+      "event": "source_retrieved",
+      "source_id": "S3",
+      "title": "[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)"
     },
     {
       "event": "sources_registered",
@@ -130,11 +135,6 @@
     {
       "event": "evidence_extracted",
       "items": 6,
-      "source_id": "S2"
-    },
-    {
-      "event": "evidence_extracted",
-      "items": 6,
       "source_id": "S4"
     },
     {
@@ -143,27 +143,124 @@
       "source_id": "S5"
     },
     {
+      "event": "evidence_extracted",
+      "items": 6,
+      "source_id": "S2"
+    },
+    {
       "event": "assessing_coverage",
       "round": 1
     },
     {
       "event": "coverage_evaluated",
       "covered": 5,
-      "missing": 0,
+      "missing": 1,
       "ratio": 0.8333,
       "round": 1,
-      "sufficient": true,
+      "sufficient": false,
       "total": 6,
-      "weak": 1
+      "weak": 0
+    },
+    {
+      "event": "generating_queries",
+      "round": 2,
+      "sub_questions": 4
+    },
+    {
+      "event": "queries_generated",
+      "count": 4,
+      "queries": [
+        "NIST AI RMF 1.0 input uncertainty failure conditions",
+        "NIST AI RMF 1.0 model drift concept shift guidance gaps",
+        "NIST AI RMF 1.0 regulatory change risk management",
+        "NIST AI RMF 1.0 dynamic unpredictable environments risk assessment inadequacy"
+      ],
+      "round": 2
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF 1.0 input uncertainty failure conditions",
+      "query_id": "Q7",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF 1.0 model drift concept shift guidance gaps",
+      "query_id": "Q8",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF 1.0 dynamic unpredictable environments risk assessment inadequacy",
+      "query_id": "Q10",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "NIST AI RMF 1.0 regulatory change risk management",
+      "query_id": "Q9",
+      "results": 8
+    },
+    {
+      "event": "sources_deduplicated",
+      "avoided": 14,
+      "results": 32,
+      "selected": 5,
+      "unique": 18
+    },
+    {
+      "event": "sources_registered",
+      "duplicates": 0,
+      "extracting": 5,
+      "usable": 10
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 5,
+      "source_id": "S7"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 5,
+      "source_id": "S6"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 5,
+      "source_id": "S8"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 5,
+      "source_id": "S9"
+    },
+    {
+      "event": "evidence_extracted",
+      "items": 5,
+      "source_id": "S10"
+    },
+    {
+      "event": "assessing_coverage",
+      "round": 2
+    },
+    {
+      "event": "coverage_evaluated",
+      "covered": 10,
+      "missing": 0,
+      "ratio": 1.0,
+      "round": 2,
+      "sufficient": true,
+      "total": 10,
+      "weak": 0
     },
     {
       "event": "synthesizing",
-      "evidence": 30
+      "evidence": 55
     },
     {
       "event": "synthesized",
-      "findings": 1,
-      "sections": 3
+      "findings": 6,
+      "sections": 4
     },
     {
       "event": "verifying_citations"
@@ -173,12 +270,12 @@
       "evidence_integrity": 1.0,
       "exhaustive": true,
       "support": {
-        "supported": 8,
+        "supported": 0,
         "partially_supported": 0,
-        "unsupported": 1,
+        "unsupported": 6,
         "not_checked": 0
       },
-      "total": 20
+      "total": 0
     },
     {
       "event": "completed",
@@ -186,181 +283,146 @@
     }
   ],
   "result": {
-    "run_id": "20260925-212728-a9729d",
+    "run_id": "20260926-045024-dbe710",
     "report": {
-      "title": "NIST AI Risk Management Framework 1.0: Core Functions, Governance, and Practical Implementation",
-      "summary_claims": [
-        {
-          "text": "The NIST AI Risk Management Framework 1.0 is structured around four core functions.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S1-e1",
-            "S3-e1",
-            "S2-e1",
-            "S4-e1",
-            "S5-e1",
-            "S5-e2",
-            "S5-e3"
-          ],
-          "citation_ids": [
-            "S1",
-            "S3",
-            "S2",
-            "S4",
-            "S5"
-          ]
-        },
-        {
-          "text": "The four core functions of the NIST AI Risk Management Framework 1.0 are Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S1-e1",
-            "S3-e1",
-            "S2-e1",
-            "S4-e1",
-            "S5-e1",
-            "S5-e2",
-            "S5-e3"
-          ],
-          "citation_ids": [
-            "S1",
-            "S3",
-            "S2",
-            "S4",
-            "S5"
-          ]
-        },
-        {
-          "text": "Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S3-e2"
-          ],
-          "citation_ids": [
-            "S3"
-          ]
-        },
-        {
-          "text": "Map focuses on identifying and categorizing AI risks in context.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S3-e1"
-          ],
-          "citation_ids": [
-            "S3"
-          ]
-        },
-        {
-          "text": "Measure involves quantitative and qualitative risk assessment.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S5-e2"
-          ],
-          "citation_ids": [
-            "S5"
-          ]
-        },
-        {
-          "text": "Manage addresses risk treatment and incident response.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S5-e2"
-          ],
-          "citation_ids": [
-            "S5"
-          ]
-        }
-      ],
-      "key_findings": [
-        {
-          "text": "The NIST AI Risk Management Framework 1.0 is structured around four core functions: Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S1-e1",
-            "S3-e1",
-            "S2-e1",
-            "S4-e1",
-            "S5-e1",
-            "S5-e2",
-            "S5-e3"
-          ],
-          "citation_ids": [
-            "S1",
-            "S3",
-            "S2",
-            "S4",
-            "S5"
-          ]
-        }
-      ],
-      "sections": [
-        {
-          "heading": "Practical Use Cases",
-          "claims": [
-            {
-              "text": "Cross-sectoral profiles apply the framework to technology classes across multiple sectors.",
-              "kind": "factual",
-              "evidence_ids": [
-                "S1-e3"
-              ],
-              "citation_ids": [
-                "S1"
-              ]
-            }
-          ]
-        }
-      ],
+      "title": "NIST AI Risk Management Framework 1.0: Structure and Implementation",
+      "summary_claims": [],
+      "key_findings": [],
+      "sections": [],
       "contradictions": [],
       "limitations": [
-        "The evidence does not specify page references for the claim that the framework addresses failure modes in AI systems.",
-        "The evidence does not address the conditions under which the obvious answer for AI risk management is incorrect.",
-        "The evidence does not provide detailed implementation barriers beyond the general rollout steps described.",
-        "Only limited evidence was found for: Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect.",
-        "6 extracted finding(s) were excluded because their quotes could not be located in the source text",
-        "1 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget."
+        "The evidence does not explicitly address how the NIST AI Risk Management Framework 1.0 handles AI systems with high levels of uncertainty in input data.",
+        "The evidence does not explicitly address how the NIST AI Risk Management Framework 1.0 handles AI systems that experience model drift and concept shift.",
+        "The evidence does not explicitly address how the NIST AI Risk Management Framework 1.0 handles AI systems deployed in environments with rapidly changing regulatory requirements.",
+        "12 extracted finding(s) were excluded because their quotes could not be located in the source text",
+        "6 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget."
       ]
     },
     "plan": {
       "sub_questions": [
         {
           "id": "SQ1",
-          "text": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
+          "text": "What are the core functions of the NIST AI Risk Management Framework 1.0, and which pages in the publication specifically define each function?",
           "is_followup": false
         },
         {
           "id": "SQ2",
-          "text": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
+          "text": "How does the NIST AI Risk Management Framework 1.0 define the governance role for AI risk management, and which pages provide evidence for this definition?",
           "is_followup": false
         },
         {
           "id": "SQ3",
-          "text": "How does the NIST AI Risk Management Framework 1.0 define practical use cases for implementing AI risk management?",
+          "text": "What practical use cases are described in the NIST AI Risk Management Framework 1.0 for implementing AI risk management, and which pages detail these use cases?",
           "is_followup": false
         },
         {
           "id": "SQ4",
-          "text": "What specific page references in the NIST AI Risk Management Framework 1.0 publication support the claim that the framework addresses failure modes in AI systems?",
+          "text": "What are the hidden costs or implementation barriers that the NIST AI Risk Management Framework 1.0 does not explicitly address but are critical for practical adoption?",
           "is_followup": false
         },
         {
           "id": "SQ5",
-          "text": "What hidden costs or implementation barriers are mentioned in the NIST AI Risk Management Framework 1.0 for adopting AI risk management practices?",
+          "text": "How does the NIST AI Risk Management Framework 1.0 handle failure modes or unintended consequences in AI systems, and which pages discuss these scenarios?",
           "is_followup": false
         },
         {
           "id": "SQ6",
-          "text": "Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect?",
+          "text": "Under what conditions does the NIST AI Risk Management Framework 1.0's approach become ineffective or inapplicable, and which pages outline these edge cases?",
           "is_followup": false
         }
       ]
     },
     "evidence": [
       {
+        "id": "S3-e1",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "The core functions of the NIST AI Risk Management Framework 1.0 are GOVERN, MAP, MEASURE, and MANAGE",
+        "quote": "5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31",
+        "quote_match": "exact_normalized",
+        "page": 4,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e2",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "The core functions of the NIST AI Risk Management Framework 1.0 are defined on pages 21, 24, 28, and 31",
+        "quote": "5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31",
+        "quote_match": "exact_normalized",
+        "page": 4,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e3",
+        "source_id": "S3",
+        "sub_question_id": "SQ2",
+        "claim": "The governance role for AI risk management is defined as a cross-cutting function that informs and is infused throughout the other three functions",
+        "quote": "5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31",
+        "quote_match": "exact_normalized",
+        "page": 4,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e4",
+        "source_id": "S3",
+        "sub_question_id": "SQ2",
+        "claim": "The governance role for AI risk management is defined as a cross-cutting function that informs and is infused throughout the other three functions",
+        "quote": "5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31",
+        "quote_match": "exact_normalized",
+        "page": 4,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e5",
+        "source_id": "S3",
+        "sub_question_id": "SQ3",
+        "claim": "The practical use cases for implementing AI risk management are described in the AI RMF Playbook",
+        "quote": "Additional resources related to the Framework are included in the AI RMF Playbook, which is available via the NIST AI RMF website: https://www.nist.gov/itl/ai-risk-management-framework.",
+        "quote_match": "exact_normalized",
+        "page": 8,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e6",
+        "source_id": "S3",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI Risk Management Framework 1.0 does not explicitly address hidden costs or implementation barriers",
+        "quote": "The Framework is intended to be practical, to adapt to the AI landscape as AI technologies continue to develop, and to be operationalized by organizations in varying degrees and capacities so society can benefit from AI while also being protected from its potential harms.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
+        "query_id": "Q4",
+        "cross_attributed": false
+      },
+      {
         "id": "S1-e1",
         "source_id": "S1",
         "sub_question_id": "SQ1",
-        "claim": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "quote": "The four core functions of the NIST AI RMF \u200b\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
+        "claim": "The NIST AI Risk Management Framework 1.0 has four core functions: Govern, Map, Measure, and Manage",
+        "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -372,163 +434,9 @@
       {
         "id": "S1-e2",
         "source_id": "S1",
-        "sub_question_id": "SQ2",
-        "claim": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S1-e3",
-        "source_id": "S1",
-        "sub_question_id": "SQ3",
-        "claim": "How does the NIST AI Risk Management Framework 1.0 define practical use cases for implementing AI risk management?",
-        "quote": "NIST AI RMF profiles \u200b\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n Use-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\n Cross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S1-e4",
-        "source_id": "S1",
-        "sub_question_id": "SQ4",
-        "claim": "What specific page references in the NIST AI Risk Management Framework 1.0 publication support the claim that the framework addresses failure modes in AI systems?",
-        "quote": "The seven characteristics of trustworthy AI \u200b\nAI RMF 1.0 defines trustworthy AI along seven characteristics: valid and reliable, safe, secure and resilient, accountable and transparent, explainable and interpretable, privacy-enhanced, and fair with harmful bias managed. Every Measure and Manage decision should map back to at least one of these.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S1-e5",
-        "source_id": "S1",
-        "sub_question_id": "SQ5",
-        "claim": "What hidden costs or implementation barriers are mentioned in the NIST AI Risk Management Framework 1.0 for adopting AI risk management practices?",
-        "quote": "How do you operationalize the NIST AI RMF in practice? \u200b\nA practical rollout typically looks like:\n1. Adopt the Govern function at the organization layer \u2014 roles, policies, oversight, and approval gates.\n2. Map each AI system \u2014 scope, stakeholders, impacts, data lineage, third-party dependencies.\n3. Define Measure signals \u2014 evaluations, red-teaming, and monitoring with thresholds and owners.\n4. Run Manage as a continuous loop \u2014 prioritize, treat, accept residual risk, respond to incidents.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S1-e6",
-        "source_id": "S1",
-        "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect?",
-        "quote": "AI RMF 1.0 assumes two things that separate it from older IT risk frameworks:\n AI risk is socio-technical \u2014 harms can flow from data, models, deployment context, and human oversight, not just from code.\n AI risk is continuous \u2014 systems drift, context changes, and new risks appear over the lifecycle, so risk management must be ongoing, not one-shot.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S3-e1",
-        "source_id": "S3",
         "sub_question_id": "SQ1",
-        "claim": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "quote": "The framework then turns those characteristics into four core functions that support continuous risk management: Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable. Map focuses on identifying and categorizing AI risks in context. Mapping makes later risk analysis useful because it ties measurement to the system and its points of exposure. It also needs to be revisited as those conditions change. Measure evaluates the mapped risks using context-specific methods to assess performance, impacts, and trustworthiness. It includes assessing for bias, reliability, and alignment with your risk tolerance thresholds. This evaluation is used as evidence for governance and management decisions. Manage turns those findings into action. It covers prioritizing risks, applying mitigations, tracking remediation, and maintaining an updated risk posture. It also addresses incident response.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S3-e2",
-        "source_id": "S3",
-        "sub_question_id": "SQ2",
-        "claim": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "quote": "Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "Q2",
-        "cross_attributed": false
-      },
-      {
-        "id": "S3-e3",
-        "source_id": "S3",
-        "sub_question_id": "SQ3",
-        "claim": "How does the NIST AI Risk Management Framework 1.0 define practical use cases for implementing AI risk management?",
-        "quote": "For organizations without a dedicated security executive, a team-based vCISO model can give AI risk management clear ownership from day one. Vistrada\u2019s vCISO service combines executive guidance with specialist support to help structure and operationalize AI governance without the need for a full-time internal hire.",
-        "quote_match": "fuzzy",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.4,
-        "citable": false,
-        "query_id": "Q3",
-        "cross_attributed": false
-      },
-      {
-        "id": "S3-e4",
-        "source_id": "S3",
-        "sub_question_id": "SQ4",
-        "claim": "What specific page references in the NIST AI Risk Management Framework 1.0 publication support the claim that the framework addresses failure modes in AI systems?",
-        "quote": "AI inaccuracies are harder to spot because they don\u2019t trigger an obvious alert, which results in organizations carrying compliance and operational risk for extended periods before detecting that anything has gone wrong.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S3-e5",
-        "source_id": "S3",
-        "sub_question_id": "SQ5",
-        "claim": "What hidden costs or implementation barriers are mentioned in the NIST AI Risk Management Framework 1.0 for adopting AI risk management practices?",
-        "quote": "For organizations without a dedicated security executive, a team-based vCISO model can give AI risk management clear ownership from day one. Vistrada\u2019s vCISO service combines executive guidance with specialist support to help structure and operationalize AI governance without the need for a full-time internal hire.",
-        "quote_match": "fuzzy",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.4,
-        "citable": false,
-        "query_id": "Q5",
-        "cross_attributed": false
-      },
-      {
-        "id": "S3-e6",
-        "source_id": "S3",
-        "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect?",
-        "quote": "For organizations without a dedicated security executive, a team-based vCISO model can give AI risk management clear ownership from day one. Vistrada\u2019s vCISO service combines executive guidance with specialist support to help structure and operationalize AI governance without the need for a full-time internal hire.",
-        "quote_match": "fuzzy",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.4,
-        "citable": false,
-        "query_id": "Q6",
-        "cross_attributed": false
-      },
-      {
-        "id": "S2-e1",
-        "source_id": "S2",
-        "sub_question_id": "SQ1",
-        "claim": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
+        "claim": "The NIST AI Risk Management Framework 1.0 defines each function on pages 1-2 of the publication",
+        "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -538,25 +446,25 @@
         "cross_attributed": false
       },
       {
-        "id": "S2-e2",
-        "source_id": "S2",
+        "id": "S1-e3",
+        "source_id": "S1",
         "sub_question_id": "SQ2",
-        "claim": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "quote": "The framework emphasizes trustworthy and responsible AI. Trustworthy AI characteristics in NIST AI RMF documentation include: Validity and reliability, Safety, Security and resilience, Accountability and transparency, Explainability and interpretability, Privacy-enhanced design, Fairness with harmful bias managed",
-        "quote_match": "none",
+        "claim": "The NIST AI Risk Management Framework 1.0 defines the governance role for AI risk management as the cross-cutting function that cultivates a culture of AI risk management, establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle",
+        "quote": "Govern is the cross-cutting function. It cultivates a culture of AI risk management, establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle. Govern is the only function that spans the organization as a whole \u2014 it sits above Map, Measure, and Manage and makes them repeatable.",
+        "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
-        "confidence": 0.15,
-        "citable": false,
+        "confidence": 1.0,
+        "citable": true,
         "query_id": "Q2",
         "cross_attributed": false
       },
       {
-        "id": "S2-e3",
-        "source_id": "S2",
+        "id": "S1-e4",
+        "source_id": "S1",
         "sub_question_id": "SQ3",
-        "claim": "How does the NIST AI Risk Management Framework 1.0 define practical use cases for implementing AI risk management?",
-        "quote": "If you already run ISO 27001, SOC 2, or NIST CSF programs, treat AI RMF as an overlay. Map existing controls to Govern and Manage functions first. Add AI-specific tests where Map and Measure demand new evidence, such as model cards, evaluation harnesses, and runtime monitoring for prompt injection.",
+        "claim": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management including adopting the Govern function at the organization layer, mapping each AI system, defining Measure signals, and running Manage as a continuous loop",
+        "quote": "A practical rollout typically looks like:\n1. Adopt the Govern function at the organization layer \u2014 roles, policies, oversight, and approval gates.\n2. Map each AI system \u2014 scope, stakeholders, impacts, data lineage, third-party dependencies.\n3. Define Measure signals \u2014 evaluations, red-teaming, and monitoring with thresholds and owners.\n4. Run Manage as a continuous loop \u2014 prioritize, treat, accept residual risk, respond to incidents.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -566,44 +474,30 @@
         "cross_attributed": false
       },
       {
-        "id": "S2-e4",
-        "source_id": "S2",
+        "id": "S1-e5",
+        "source_id": "S1",
         "sub_question_id": "SQ4",
-        "claim": "What specific page references in the NIST AI Risk Management Framework 1.0 publication support the claim that the framework addresses failure modes in AI systems?",
-        "quote": "The Map function identifies context, stakeholders, system boundaries, and potential harms. It examines data flows, intended uses, and possible failure modes before organizations define performance metrics.",
-        "quote_match": "exact_normalized",
+        "claim": "The NIST AI Risk Management Framework 1.0 does not explicitly address the hidden costs or implementation barriers such as the need for continuous monitoring and the complexity of cross-functional coordination",
+        "quote": "The NIST AI RMF 1.0 is a voluntary, non-prescriptive framework for managing AI risk. It gives organizations a common vocabulary, a set of outcomes to aim for, and a repeatable operating model \u2014 without dictating tools or techniques.",
+        "quote_match": "fuzzy",
         "page": null,
         "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "Q4",
-        "cross_attributed": false
-      },
-      {
-        "id": "S2-e5",
-        "source_id": "S2",
-        "sub_question_id": "SQ5",
-        "claim": "What hidden costs or implementation barriers are mentioned in the NIST AI Risk Management Framework 1.0 for adopting AI risk management practices?",
-        "quote": "Organizations also benefit from documenting data lineage, human review processes, and known failure modes to improve accountability and transparency.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "Q5",
-        "cross_attributed": false
-      },
-      {
-        "id": "S2-e6",
-        "source_id": "S2",
-        "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect?",
-        "quote": "The framework emphasizes trustworthy and responsible AI. Trustworthy AI characteristics in NIST AI RMF documentation include: Validity and reliability, Safety, Security and resilience, Accountability and transparency, Explainability and interpretability, Privacy-enhanced design, Fairness with harmful bias managed",
-        "quote_match": "none",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.15,
+        "confidence": 0.4,
         "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S1-e6",
+        "source_id": "S1",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Measure function, which uses quantitative and qualitative tools to analyze, assess, benchmark, and monitor AI risk",
+        "quote": "Measure uses quantitative and qualitative tools, techniques, and methodologies to analyze, assess, benchmark, and monitor AI risk. Measure is how you know whether your mitigations actually work \u2014 and how you surface issues when the system drifts or misbehaves.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
         "query_id": "",
         "cross_attributed": true
       },
@@ -611,8 +505,8 @@
         "id": "S4-e1",
         "source_id": "S4",
         "sub_question_id": "SQ1",
-        "claim": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "quote": "It is built around four functions: Govern, Map, Measure and Manage.",
+        "claim": "The NIST AI Risk Management Framework 1.0 organizes AI risk work into four functions: Govern, Map, Measure, and Manage.",
+        "quote": "It organizes AI risk work into four functions: Govern, Map, Measure, and Manage.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -624,23 +518,23 @@
       {
         "id": "S4-e2",
         "source_id": "S4",
-        "sub_question_id": "SQ2",
-        "claim": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "quote": "Govern is cross-cutting and sits above the other three. It covers the policies, accountability structures, workforce competence, culture, third-party arrangements and incident processes that make AI risk management repeatable rather than heroic.",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI Risk Management Framework 1.0 defines each function on pages 1-2 of the publication.",
+        "quote": "The core of the AI RMF is organized around four functions that operate continuously rather than as a one-time sequence. Each function contains categories and subcategories that organizations tailor to their own systems and risk profile.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
         "confidence": 1.0,
         "citable": true,
-        "query_id": "",
-        "cross_attributed": true
+        "query_id": "Q1",
+        "cross_attributed": false
       },
       {
         "id": "S4-e3",
         "source_id": "S4",
-        "sub_question_id": "SQ3",
-        "claim": "How does the NIST AI Risk Management Framework 1.0 define practical use cases for implementing AI risk management?",
-        "quote": "A workable first ninety days looks like this: 1. Build an AI system inventory covering built, bought and embedded AI, including features switched on inside existing SaaS tools. 2. Assign an accountable owner per system and a single owner for the AI risk program. That is most of Govern. 3. Run Map on the two or three highest-exposure systems rather than all of them. 4. Pick a small set of metrics you can actually collect for Measure, and record honestly where no metric exists. 5. Write down risk decisions and acceptance in the same register you already use for enterprise risk, so Manage is not a parallel process.",
+        "sub_question_id": "SQ2",
+        "claim": "The NIST AI Risk Management Framework 1.0 defines the governance role for AI risk management as establishing organizational culture, policies, and accountability structures.",
+        "quote": "Govern establishes the organizational culture, policies, and accountability structures that support AI risk management.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -652,37 +546,9 @@
       {
         "id": "S4-e4",
         "source_id": "S4",
-        "sub_question_id": "SQ4",
-        "claim": "What specific page references in the NIST AI Risk Management Framework 1.0 publication support the claim that the framework addresses failure modes in AI systems?",
-        "quote": "Map establishes context for a specific AI system: what it is for, who it affects, what the intended and foreseeable misuses are, what the system boundaries and dependencies are, and what could go wrong.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S4-e5",
-        "source_id": "S4",
-        "sub_question_id": "SQ5",
-        "claim": "What hidden costs or implementation barriers are mentioned in the NIST AI Risk Management Framework 1.0 for adopting AI risk management practices?",
-        "quote": "The most common failure is starting with Measure because it feels technical and tractable, and ending up with dashboards nobody can act on because Govern was never done.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S4-e6",
-        "source_id": "S4",
-        "sub_question_id": "SQ6",
-        "claim": "Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect?",
-        "quote": "The framework is candid that these trade-offs are explicit and documenting who decided is much of the point.",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management, including building an AI inventory, establishing governance, mapping context and risk, measuring against criteria, and managing ongoing risk.",
+        "quote": "Adopting the AI RMF is an incremental process, not a single project with a defined end date. Most organizations move through the following stages: 1. Build an AI inventory, 2. Establish governance, 3. Map context and risk, 4. Measure against defined criteria, 5. Manage ongoing risk, 6. Expand and mature over time.",
         "quote_match": "none",
         "page": null,
         "stance": "supports",
@@ -692,11 +558,39 @@
         "cross_attributed": true
       },
       {
+        "id": "S4-e5",
+        "source_id": "S4",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI Risk Management Framework 1.0 does not explicitly address hidden costs or implementation barriers such as incomplete AI inventory, translating principles into controls, measurement gaps, fragmented ownership, and shadow AI adoption.",
+        "quote": "Organizations that adopt the AI RMF tend to run into a similar set of obstacles: Incomplete AI inventory, Translating principles into controls, Measurement gaps, Fragmented ownership, Shadow AI adoption.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
+        "query_id": "Q4",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e6",
+        "source_id": "S4",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems by identifying context, stakeholders, data sources, and potential failure modes during the Map function.",
+        "quote": "Map identifies the context around a given AI system: its intended use, stakeholders, data sources, and potential failure modes.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q5",
+        "cross_attributed": false
+      },
+      {
         "id": "S5-e1",
         "source_id": "S5",
         "sub_question_id": "SQ1",
-        "claim": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage.",
+        "claim": "The NIST AI Risk Management Framework 1.0 has four core functions: Govern, Map, Measure, and Manage",
+        "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -709,8 +603,8 @@
         "id": "S5-e2",
         "source_id": "S5",
         "sub_question_id": "SQ1",
-        "claim": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "quote": "NIST AI RMF 1.0 has four functions: GOVERN (cross-cutting policies and accountability), MAP (system-level risk context), MEASURE (quantitative and qualitative risk assessment), and MANAGE (risk treatment and incident response).",
+        "claim": "The four core functions are defined on page 1 of the NIST AI Risk Management Framework 1.0",
+        "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -722,23 +616,9 @@
       {
         "id": "S5-e3",
         "source_id": "S5",
-        "sub_question_id": "SQ1",
-        "claim": "What are the core functions of the NIST AI Risk Management Framework 1.0 as defined in the publication?",
-        "quote": "The Core of NIST AI RMF 1.0 is composed of four functions: GOVERN, MAP, MEASURE, and MANAGE.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 1.0,
-        "citable": true,
-        "query_id": "Q1",
-        "cross_attributed": false
-      },
-      {
-        "id": "S5-e4",
-        "source_id": "S5",
         "sub_question_id": "SQ2",
-        "claim": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "quote": "GOVERN is the only function that spans the entire organization. MAP, MEASURE, and MANAGE are applied at the individual AI system level.",
+        "claim": "The NIST AI Risk Management Framework 1.0 defines governance for AI risk management through the four core functions: Govern, Map, Measure, and Manage",
+        "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -748,11 +628,25 @@
         "cross_attributed": true
       },
       {
+        "id": "S5-e4",
+        "source_id": "S5",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management through the five-step process: Initial Understanding & Discovery, Scope Clarification & Alignment, Structured Execution & Preparation, Readiness Review & Refinement, and Ongoing Lifecycle Support",
+        "quote": "Step #1 Initial Understanding & Discovery\nIdentify AI systems, data flows, deployment contexts, and stakeholders across the organization.\n\nInventory AI systems and use cases in scope\nMap data flows, deployment contexts, and dependencies\nIdentify key stakeholders and accountability roles",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
         "id": "S5-e5",
         "source_id": "S5",
-        "sub_question_id": "SQ2",
-        "claim": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "quote": "GOVERN is organized into six categories (GOVERN 1 through GOVERN 6) covering 19 subcategories.",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI Risk Management Framework 1.0 does not explicitly address hidden costs or implementation barriers such as regulatory complexity, resource constraints, and lack of expertise",
+        "quote": "RSI Security provides advisory and educational support only. The NIST AI RMF is a voluntary framework \u2014 no certification or attestation is issued.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
@@ -764,12 +658,446 @@
       {
         "id": "S5-e6",
         "source_id": "S5",
-        "sub_question_id": "SQ2",
-        "claim": "Which governance structures are explicitly outlined in the NIST AI Risk Management Framework 1:0 for AI risk management?",
-        "quote": "GOVERN 1: Policies, processes, and procedures for AI risk management are in place, transparent, and implemented across the organization.",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences through the 'Measure' function, which assesses and monitors AI system performance and trustworthiness over time",
+        "quote": "Measure \u2014 assess and monitor AI system performance and trustworthiness over time",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S2-e1",
+        "source_id": "S2",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI Risk Management Framework 1.0 has four core functions: Govern, Map, Measure, and Manage",
+        "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e2",
+        "source_id": "S2",
+        "sub_question_id": "SQ1",
+        "claim": "The NIST AI Risk Management Framework 1.0 defines each function on pages 1-2 of the publication",
+        "quote": "The NIST AI Risk Management Framework (AI RMF 1.0) is voluntary guidance for managing risks across the AI lifecycle, from design through deployment and retirement.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e3",
+        "source_id": "S2",
+        "sub_question_id": "SQ2",
+        "claim": "The NIST AI Risk Management Framework 1.0 defines the governance role for AI risk management as the 'Govern' function",
+        "quote": "The framework emphasizes trustworthy and responsible AI. Trustworthy AI characteristics in NIST AI RMF documentation include: Validity and reliability, Safety, Security and resilience, Accountability and transparency, Explainability and interpretability, Privacy-enhanced design, Fairness with harmful bias managed",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
+        "query_id": "Q2",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e4",
+        "source_id": "S2",
+        "sub_question_id": "SQ3",
+        "claim": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management in the cloud",
+        "quote": "How Orca Security Operationalizes AI RMF in the Cloud",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e5",
+        "source_id": "S2",
+        "sub_question_id": "SQ4",
+        "claim": "The NIST AI Risk Management Framework 1.0 does not explicitly address hidden costs or implementation barriers such as cloud security posture management integration",
+        "quote": "AI security posture management (AI-SPM) tools help teams maintain visibility as models and data pipelines change.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q4",
+        "cross_attributed": false
+      },
+      {
+        "id": "S2-e6",
+        "source_id": "S2",
+        "sub_question_id": "SQ5",
+        "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the 'Map' function",
+        "quote": "The Map function identifies context, stakeholders, system boundaries, and potential harms. It examines data flows, intended uses, and possible failure modes before organizations define performance metrics.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q5",
+        "cross_attributed": false
+      },
+      {
+        "id": "S6-e1",
+        "source_id": "S6",
+        "sub_question_id": "SQ6",
+        "claim": "Under what conditions does the NIST AI Risk Management Framework 1.0's approach become ineffective or inapplicable, and which pages outline these edge cases?",
+        "quote": "The NIST AI Risk Management Framework (AI RMF) is designed to help organizations manage AI systems effectively through risk-based governance. Building on other established NIST frameworks, such as the Cybersecurity Framework (CSF) and the Risk Management Framework (RMF), the AI RMF provides guidance across the entire AI lifecycle, from design and development to deployment and ongoing monitoring.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S6-e2",
+        "source_id": "S6",
+        "sub_question_id": "SQ7",
+        "claim": "Under what specific conditions does the NIST AI Risk Management Framework 1.0 fail to provide adequate guidance for AI systems with high levels of uncertainty in input data?",
+        "quote": "The NIST AI Risk Management Framework (AI RMF) is designed to help organizations manage AI systems responsibly through structured risk management. It builds upon other widely recognized NIST frameworks, such as the NIST Cybersecurity Framework (CSF) and the NIST Risk Management Framework (RMF).",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S6-e3",
+        "source_id": "S6",
+        "sub_question_id": "SQ8",
+        "claim": "For which types of AI systems does the NIST AI Risk Management Framework 1.0 lack sufficient guidance on managing risks related to model drift and concept shift?",
+        "quote": "The NIST AI Risk Management Framework (AI RMF) provides guidance across the entire AI lifecycle, from design and development to deployment and ongoing monitoring\u2014addressing risks that can affect security, privacy, data integrity, and intellectual property (IP).",
+        "quote_match": "none",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.09,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S6-e4",
+        "source_id": "S6",
+        "sub_question_id": "SQ9",
+        "claim": "How does the NIST AI Risk Management Framework 1.0 handle the risk of AI systems being deployed in environments with rapidly changing regulatory requirements?",
+        "quote": "Unlike some other NIST standards, such as SP 800-171, the AI RMF is voluntary and is not mandated by local, federal, or international law. Organizations are not legally required to implement it; instead, the framework provides best practices for achieving responsible and trustworthy AI outcomes.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.5,
+        "citable": true,
+        "query_id": "Q9",
+        "cross_attributed": false
+      },
+      {
+        "id": "S6-e5",
+        "source_id": "S6",
+        "sub_question_id": "SQ10",
+        "claim": "In what specific scenarios does the NIST AI Risk Management Framework 1.0's risk assessment methodology become inadequate for AI systems that operate in highly dynamic and unpredictable environments?",
+        "quote": "The NIST AI Risk Management Framework (AI RMF) emphasizes a set of ideal outcomes rather than prescriptive controls. Organizations are encouraged to adapt these outcomes to their specific context. To support implementation, NIST also publishes the NIST AI RMF Playbook, which provides optional guidance and practical examples to facilitate alignment with the framework.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.06,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S7-e1",
+        "source_id": "S7",
+        "sub_question_id": "SQ6",
+        "claim": "Under what conditions does the NIST AI Risk Management Framework 1.0's approach become ineffective or inapplicable, and which pages outline these edge cases?",
+        "quote": "NIST AI RMF 1.0 is designed for any organization that develops, deploys, or uses AI systems.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.5,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S7-e2",
+        "source_id": "S7",
+        "sub_question_id": "SQ7",
+        "claim": "Under what specific conditions does the NIST AI Risk Management Framework 1.0 fail to provide adequate guidance for AI systems with high levels of uncertainty in input data?",
+        "quote": "NIST AI RMF helps organizations manage the unique risks of AI systems, including issues like bias, security vulnerabilities, lack of transparency, and system drift.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.5,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S7-e3",
+        "source_id": "S7",
+        "sub_question_id": "SQ8",
+        "claim": "For which types of AI systems does the NIST AI Risk Management Framework 1.0 lack sufficient guidance on managing risks related to model drift and concept shift?",
+        "quote": "NIST AI RMF helps organizations manage the unique risks of AI systems, including issues like bias, security vulnerabilities, lack of transparency, and system drift.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.5,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S7-e4",
+        "source_id": "S7",
+        "sub_question_id": "SQ9",
+        "claim": "How does the NIST AI Risk Management Framework 1.0 handle the risk of AI systems being deployed in environments with rapidly changing regulatory requirements?",
+        "quote": "No. NIST AI RMF 1.0 is a voluntary framework, but it is expected to influence future regulations and procurement standards across sectors.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.5,
+        "citable": true,
+        "query_id": "Q9",
+        "cross_attributed": false
+      },
+      {
+        "id": "S7-e5",
+        "source_id": "S7",
+        "sub_question_id": "SQ10",
+        "claim": "In what specific scenarios does the NIST AI Risk Management Framework 1.0's risk assessment methodology become inadequate for AI systems that operate in highly dynamic and unpredictable environments?",
+        "quote": "Yes. AI RMF was designed to be flexible and accessible to organizations of all types and sizes, not just AI developers. It\u2019s usable by any team managing or overseeing AI adoption.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.5,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S8-e1",
+        "source_id": "S8",
+        "sub_question_id": "SQ6",
+        "claim": "The NIST AI Risk Management Framework 1.0's approach becomes ineffective or inapplicable under conditions where the framework's foundational assumptions do not hold, such as when the AI system is deployed in environments with rapidly changing regulatory requirements or when the AI system operates in highly dynamic and unpredictable environments.",
+        "quote": "The NIST AI Framework is designed to assist organizations and individuals - referred to as AI actors. AI actors, as described by the Organization for Economic Co-operation and Development (OECD)\u201d, are \"those who play an active role in the AI system lifecycle, including organizations and individuals that deploy or operate AI.\"",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.32,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S8-e2",
+        "source_id": "S8",
+        "sub_question_id": "SQ7",
+        "claim": "The NIST AI Risk Management Framework 1.0 fails to provide adequate guidance for AI systems with high levels of uncertainty in input data when the framework's risk measurement challenges are not addressed, such as when the AI system's outputs are not statistically predictable or when the AI system is inscrutable.",
+        "quote": "Undefined or poorly understood AI risks or failures are challenging to quantify statistically or subjectively. The inability to accurately assess the risks posed by AI systems does not always mean that those risks are either high or low risk.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S8-e3",
+        "source_id": "S8",
+        "sub_question_id": "SQ8",
+        "claim": "The NIST AI Risk Management Framework 1.0 lacks sufficient guidance on managing risks related to model drift and concept shift for AI systems that operate in environments with rapidly changing regulatory requirements or highly dynamic and unpredictable environments.",
+        "quote": "Different risks may arise at different stages of the AI life cycle.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S8-e4",
+        "source_id": "S8",
+        "sub_question_id": "SQ9",
+        "claim": "The NIST AI Risk Management Framework 1.0 handles the risk of AI systems being deployed in environments with rapidly changing regulatory requirements by requiring organizations to define reasonable risk tolerance when established guidelines do not exist for specific sectors or applications.",
+        "quote": "The criteria, tolerance, and response to risk set by organizational, domain, discipline, sector, or professional requirements should be followed by organizations based on existing regulations and guidelines. Where established guidelines do not exist for specific sectors or specific applications, organizations must define reasonable risk tolerance.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "Q9",
+        "cross_attributed": false
+      },
+      {
+        "id": "S8-e5",
+        "source_id": "S8",
+        "sub_question_id": "SQ10",
+        "claim": "The NIST AI Risk Management Framework 1.0's risk assessment methodology becomes inadequate for AI systems that operate in highly dynamic and unpredictable environments when the framework's risk measurement challenges are not addressed, such as when the AI system's outputs are not statistically predictable or when the AI system is inscrutable.",
+        "quote": "Undefined or poorly understood AI risks or failures are challenging to quantify statistically or subjectively. The inability to accurately assess the risks posed by AI systems does not always mean that those risks are either high or low risk.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S9-e1",
+        "source_id": "S9",
+        "sub_question_id": "SQ6",
+        "claim": "The NIST AI Risk Management Framework 1.0's approach becomes ineffective or inapplicable under conditions where AI systems are deployed in environments with rapidly changing regulatory requirements",
+        "quote": "NIST's AI RMF directly responds to this reality, helping organisations create repeatable, auditable, and lifecycle-grounded practices.",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.32,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S9-e2",
+        "source_id": "S9",
+        "sub_question_id": "SQ7",
+        "claim": "The NIST AI Risk Management Framework 1.0 fails to provide adequate guidance for AI systems with high levels of uncertainty in input data",
+        "quote": "Generative AI introduces a distinct set of risks that NIST urges organisations to evaluate from the earliest stages of system design and documentation. These include hallucinations and misleading content, where models confidently produce inaccurate or fabricated information that can misguide users or automated downstream processes.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "Q7",
+        "cross_attributed": false
+      },
+      {
+        "id": "S9-e3",
+        "source_id": "S9",
+        "sub_question_id": "SQ8",
+        "claim": "The NIST AI Risk Management Framework 1.0 lacks sufficient guidance on managing risks related to model drift and concept shift for AI systems that operate in highly dynamic environments",
+        "quote": "Emergent and downstream risks... NIST also warns of cascading systemic failures, in which a flaw in a widely used model, dataset, or cloud service can propagate across an entire ecosystem, affecting multiple organisations at once.",
+        "quote_match": "none",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.09,
+        "citable": false,
+        "query_id": "Q8",
+        "cross_attributed": false
+      },
+      {
+        "id": "S9-e4",
+        "source_id": "S9",
+        "sub_question_id": "SQ9",
+        "claim": "The NIST AI Risk Management Framework 1.0 handles the risk of AI systems being deployed in environments with rapidly changing regulatory requirements",
+        "quote": "NIST's AI RMF directly responds to this reality, helping organisations create repeatable, auditable, and lifecycle-grounded practices.",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.32,
+        "citable": false,
+        "query_id": "Q9",
+        "cross_attributed": false
+      },
+      {
+        "id": "S9-e5",
+        "source_id": "S9",
+        "sub_question_id": "SQ10",
+        "claim": "The NIST AI Risk Management Framework 1.0's risk assessment methodology becomes inadequate for AI systems that operate in highly dynamic and unpredictable environments",
+        "quote": "Generative AI introduces a distinct set of risks that NIST urges organisations to evaluate from the earliest stages of system design and documentation. These include hallucinations and misleading content, where models confidently produce inaccurate or fabricated information that can misguide users or automated downstream processes.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 0.7,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S10-e1",
+        "source_id": "S10",
+        "sub_question_id": "SQ6",
+        "claim": "Under what conditions does the NIST AI Risk Management Framework 1.0's approach become ineffective or inapplicable, and which pages outline these edge cases?",
+        "quote": "The NIST AI Risk Management Framework 1.0 Official was created to give organizations a structured way to assess and manage AI risk, and it applies to any organization that designs, develops, deploys, or uses AI systems.",
+        "quote_match": "fuzzy",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 0.4,
+        "citable": false,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S10-e2",
+        "source_id": "S10",
+        "sub_question_id": "SQ7",
+        "claim": "Under what specific conditions does the NIST AI Risk Management Framework 1.0 fail to provide adequate guidance for AI systems with high levels of uncertainty in input data?",
+        "quote": "AI inaccuracies are harder to spot because they don\u2019t trigger an obvious alert, which results in organizations carrying compliance and operational risk for extended periods before detecting that anything has gone wrong.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q7",
+        "cross_attributed": false
+      },
+      {
+        "id": "S10-e3",
+        "source_id": "S10",
+        "sub_question_id": "SQ8",
+        "claim": "For which types of AI systems does the NIST AI Risk Management Framework 1.0 lack sufficient guidance on managing risks related to model drift and concept shift?",
+        "quote": "Where traditional software breaks in ways that are obvious and reproducible (like an application crashing or an API throwing an error), AI models can continue to generate convincing outputs even when performance is degrading as data distributions change.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S10-e4",
+        "source_id": "S10",
+        "sub_question_id": "SQ9",
+        "claim": "How does the NIST AI Risk Management Framework 1.0 handle the risk of AI systems being deployed in environments with rapidly changing regulatory requirements?",
+        "quote": "For example, 20 different proposals for AI legislation were offered in the US Congress in 2025 alone. Organizations with no formal AI risk program are behind where the market is moving.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q9",
+        "cross_attributed": false
+      },
+      {
+        "id": "S10-e5",
+        "source_id": "S10",
+        "sub_question_id": "SQ10",
+        "claim": "In what specific scenarios does the NIST AI Risk Management Framework 1.0's risk assessment methodology become inadequate for AI systems that operate in highly dynamic and unpredictable environments?",
+        "quote": "AI Risk Often Looks Normal, Until It Isn\u2019t",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "contradicts",
         "confidence": 1.0,
         "citable": true,
         "query_id": "",
@@ -780,7 +1108,7 @@
       {
         "id": "S1",
         "url": "https://docs.modulos.ai/frameworks/nist-ai-rmf",
-        "title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs",
+        "title": "NIST AI Risk Management Framework 1.0 (NIST AI RMF)",
         "domain": "docs.modulos.ai",
         "source_type": "official_docs",
         "content_origin": "provider_raw",
@@ -796,60 +1124,120 @@
         "domain": "orca.security",
         "source_type": "blog",
         "content_origin": "provider_raw",
-        "quality_score": 0.586,
+        "quality_score": 0.581,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S3",
-        "url": "https://vistrada.com/resources/insights/nist-ai-risk-management-framework-1-0",
-        "title": "The Essential Guide to the NIST AI Risk Management Framework 1.0",
-        "domain": "vistrada.com",
-        "source_type": "other",
-        "content_origin": "provider_raw",
-        "quality_score": 0.636,
-        "page_count": null,
+        "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+        "title": "[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+        "domain": "nvlpubs.nist.gov",
+        "source_type": "standards_body",
+        "content_origin": "pdf_extract",
+        "quality_score": 1.0,
+        "page_count": 8,
         "usable": true,
-        "fetch_status": "provider_content"
+        "fetch_status": "ok"
       },
       {
         "id": "S4",
-        "url": "https://compyl.com/blog/nist-ai-rmf-explained",
-        "title": "NIST AI RMF Explained: The 4 Core Functions | Compyl",
-        "domain": "compyl.com",
-        "source_type": "blog",
+        "url": "https://www.cyberhaven.com/infosec-essentials/nist-ai-risk-management-framework",
+        "title": "NIST AI Risk Management Framework (AI RMF) Explained",
+        "domain": "cyberhaven.com",
+        "source_type": "other",
         "content_origin": "provider_raw",
-        "quality_score": 0.586,
+        "quality_score": 0.625,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S5",
-        "url": "https://neuraltrust.ai/blog/nist-ai-rmf-implementation-guide",
-        "title": "NIST AI RMF Implementation: 8-Step Guide + 20-Week ...",
-        "domain": "neuraltrust.ai",
-        "source_type": "blog",
+        "url": "https://www.rsisecurity.com/nist-ai-risk-management",
+        "title": "NIST AI Risk Management Framework (AI RMF) Advisory",
+        "domain": "rsisecurity.com",
+        "source_type": "other",
         "content_origin": "provider_raw",
-        "quality_score": 0.583,
+        "quality_score": 0.615,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S6",
+        "url": "https://blog.rsisecurity.com/nist-ai-risk-management-framework-guide",
+        "title": "Roadmap to Achieving NIST AI RMF",
+        "domain": "blog.rsisecurity.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.623,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S7",
+        "url": "https://cynomi.com/frameworks/nist-ai-rmf-1-0",
+        "title": "NIST AI RMF 1.0 - Cynomi",
+        "domain": "cynomi.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.621,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S8",
+        "url": "https://securiti.ai/nist-ai-risk-management-framework",
+        "title": "NIST AI Risk Management Framework (AI RMF 1.0) Guide",
+        "domain": "securiti.ai",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.62,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S9",
+        "url": "https://digital.nemko.com/regulations/nist-rmf",
+        "title": "NIST AI Risk Management Framework: AI RMF 1.0 Guide",
+        "domain": "digital.nemko.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.617,
+        "page_count": null,
+        "usable": true,
+        "fetch_status": "provider_content"
+      },
+      {
+        "id": "S10",
+        "url": "https://vistrada.com/resources/insights/nist-ai-risk-management-framework-1-0",
+        "title": "The NIST AI Risk Management Framework 1.0 Official",
+        "domain": "vistrada.com",
+        "source_type": "other",
+        "content_origin": "provider_raw",
+        "quality_score": 0.616,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       }
     ],
     "verification": {
-      "total_claims": 8,
-      "substantive_claims": 8,
-      "total_citations": 20,
-      "resolvable_citations": 20,
-      "total_evidence_refs": 26,
-      "resolvable_evidence_refs": 26,
-      "supported_claims": 8,
+      "total_claims": 0,
+      "substantive_claims": 0,
+      "total_citations": 0,
+      "resolvable_citations": 0,
+      "total_evidence_refs": 0,
+      "resolvable_evidence_refs": 0,
+      "supported_claims": 0,
       "partially_supported_claims": 0,
-      "unsupported_claims": 1,
-      "checked_claims": 9,
-      "checkable_claims": 9,
+      "unsupported_claims": 6,
+      "checked_claims": 6,
+      "checkable_claims": 6,
       "not_checked_claims": 0,
       "entailment_exhaustive": true,
       "contradictions_total": 0,
@@ -857,459 +1245,301 @@
       "contradiction_sides_checkable": 0,
       "contradiction_sides_checked": 0,
       "contradictions_semantically_supported": 0,
-      "duplicate_claims_removed": 3,
+      "duplicate_claims_removed": 12,
       "judgments": [
         {
-          "claim_text": "The NIST AI Risk Management Framework 1.0 is structured around four core functions.",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
           "kind": "factual",
           "evidence_ids": [
-            "S1-e1",
-            "S3-e1",
-            "S2-e1",
-            "S4-e1",
-            "S5-e1",
-            "S5-e2",
-            "S5-e3"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S1-e1 at 0.992 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.992188,
-              "neutral": 0.006893,
-              "contradiction": 0.000829,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.052704,
-              "neutral": 0.946777,
-              "contradiction": 0.000358,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.004925,
-              "neutral": 0.995117,
-              "contradiction": 0.000192,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.002003,
-              "neutral": 0.997559,
-              "contradiction": 0.000436,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.009361,
-              "neutral": 0.98877,
-              "contradiction": 0.001718,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.984863,
-              "neutral": 0.014854,
-              "contradiction": 0.000489,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.982422,
-              "neutral": 0.01683,
-              "contradiction": 0.000573,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e1",
-          "best_entailment": 0.992188,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "The four core functions of the NIST AI Risk Management Framework 1.0 are Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S1-e1",
-            "S3-e1",
-            "S2-e1",
-            "S4-e1",
-            "S5-e1",
-            "S5-e2",
-            "S5-e3"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S5-e2 at 0.995 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.002588,
-              "neutral": 0.996582,
-              "contradiction": 0.000739,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.902344,
-              "neutral": 0.096436,
-              "contradiction": 0.001402,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.010788,
-              "neutral": 0.98877,
-              "contradiction": 0.000349,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.008057,
-              "neutral": 0.991699,
-              "contradiction": 0.000257,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.006268,
-              "neutral": 0.993164,
-              "contradiction": 0.00047,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.994629,
-              "neutral": 0.004925,
-              "contradiction": 0.00036,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.994141,
-              "neutral": 0.005306,
-              "contradiction": 0.000425,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.994629,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S3-e2"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S3-e2 at 0.991 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S3-e2",
-              "entailment": 0.991211,
-              "neutral": 0.007866,
-              "contradiction": 0.000895,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e2",
-          "best_entailment": 0.991211,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Map focuses on identifying and categorizing AI risks in context.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S3-e1"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S3-e1 at 0.999 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.998535,
-              "neutral": 0.000848,
-              "contradiction": 0.000854,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e1",
-          "best_entailment": 0.998535,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Measure involves quantitative and qualitative risk assessment.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S5-e2"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S5-e2 at 0.996 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.996094,
-              "neutral": 0.003532,
-              "contradiction": 0.000409,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.996094,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Manage addresses risk treatment and incident response.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S5-e2"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S5-e2 at 0.996 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.995605,
-              "neutral": 0.003815,
-              "contradiction": 0.000513,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.995605,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "The NIST AI Risk Management Framework 1.0 is structured around four core functions: Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S1-e1",
-            "S3-e1",
-            "S2-e1",
-            "S4-e1",
-            "S5-e1",
-            "S5-e2",
-            "S5-e3"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S5-e3 at 0.984 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.010132,
-              "neutral": 0.98877,
-              "contradiction": 0.001087,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 0.217163,
-              "neutral": 0.781738,
-              "contradiction": 0.000959,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.006702,
-              "neutral": 0.993164,
-              "contradiction": 0.000268,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.003569,
-              "neutral": 0.996094,
-              "contradiction": 0.000337,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.017059,
-              "neutral": 0.981445,
-              "contradiction": 0.00136,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.983887,
-              "neutral": 0.015793,
-              "contradiction": 0.000427,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.984375,
-              "neutral": 0.015312,
-              "contradiction": 0.000363,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e3",
-          "best_entailment": 0.984375,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Organizations can adopt AI RMF 1.0 through use-case profiles that apply the framework to specific AI systems or sectors.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S1-e3"
+            "S5-e1"
           ],
           "verdict": "unsupported",
-          "reason": "every cited quote failed a deterministic guard: modality",
+          "reason": "every cited quote failed a deterministic guard: numeric",
           "checked": true,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "evidence_scores": [
             {
-              "evidence_id": "S1-e3",
-              "entailment": 0.999512,
-              "neutral": 0.000398,
-              "contradiction": 0.000141,
+              "evidence_id": "S5-e1",
+              "entailment": 0.021301,
+              "neutral": 0.978027,
+              "contradiction": 0.000428,
               "guards_passed": false,
               "failed_guards": [
-                "modality"
+                "numeric"
               ]
             }
           ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.999512,
+          "best_evidence_id": "S5-e1",
+          "best_entailment": 0.021301,
           "guards_passed": false,
           "publishable": false
         },
         {
-          "claim_text": "Cross-sectoral profiles apply the framework to technology classes across multiple sectors.",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 organizes AI risk work into four functions that operate continuously rather than as a one-time sequence.",
           "kind": "factual",
           "evidence_ids": [
-            "S1-e3"
+            "S4-e2"
           ],
-          "verdict": "supported",
-          "reason": "entailed by S1-e3 at 0.999 >= 0.98",
+          "verdict": "unsupported",
+          "reason": "every cited quote failed a deterministic guard: numeric",
           "checked": true,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "evidence_scores": [
             {
-              "evidence_id": "S1-e3",
-              "entailment": 0.999023,
-              "neutral": 0.0005,
-              "contradiction": 0.000376,
-              "guards_passed": true,
-              "failed_guards": []
+              "evidence_id": "S4-e2",
+              "entailment": 0.002838,
+              "neutral": 0.99707,
+              "contradiction": 0.000208,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
             }
           ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.999023,
-          "guards_passed": true,
-          "publishable": true
+          "best_evidence_id": "S4-e2",
+          "best_entailment": 0.002838,
+          "guards_passed": false,
+          "publishable": false
+        },
+        {
+          "claim_text": "The NIST AI Risk Management Framework 1.0 defines governance for AI risk management through the function that establishes organizational culture, policies, and accountability structures.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S4-e3"
+          ],
+          "verdict": "unsupported",
+          "reason": "every cited quote failed a deterministic guard: numeric",
+          "checked": true,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "evidence_scores": [
+            {
+              "evidence_id": "S4-e3",
+              "entailment": 0.002365,
+              "neutral": 0.996094,
+              "contradiction": 0.001319,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S4-e3",
+          "best_entailment": 0.002365,
+          "guards_passed": false,
+          "publishable": false
+        },
+        {
+          "claim_text": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management including adopting the Govern function at the organization layer, mapping each AI system, defining Measure signals, and running Manage as a continuous loop.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e4"
+          ],
+          "verdict": "unsupported",
+          "reason": "every cited quote failed a deterministic guard: numeric",
+          "checked": true,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "evidence_scores": [
+            {
+              "evidence_id": "S1-e4",
+              "entailment": 0.001678,
+              "neutral": 0.998047,
+              "contradiction": 0.0001,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S1-e4",
+          "best_entailment": 0.001678,
+          "guards_passed": false,
+          "publishable": false
+        },
+        {
+          "claim_text": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Map function, which identifies context, stakeholders, system boundaries, and potential harms.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e6"
+          ],
+          "verdict": "unsupported",
+          "reason": "every cited quote failed a deterministic guard: numeric",
+          "checked": true,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "evidence_scores": [
+            {
+              "evidence_id": "S2-e6",
+              "entailment": 0.00716,
+              "neutral": 0.992188,
+              "contradiction": 0.000443,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S2-e6",
+          "best_entailment": 0.00716,
+          "guards_passed": false,
+          "publishable": false
+        },
+        {
+          "claim_text": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Measure function, which assesses and monitors AI system performance and trustworthiness over time.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S5-e6"
+          ],
+          "verdict": "unsupported",
+          "reason": "every cited quote failed a deterministic guard: numeric",
+          "checked": true,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "evidence_scores": [
+            {
+              "evidence_id": "S5-e6",
+              "entailment": 0.008202,
+              "neutral": 0.991699,
+              "contradiction": 0.000186,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S5-e6",
+          "best_entailment": 0.008202,
+          "guards_passed": false,
+          "publishable": false
         }
       ],
-      "generated_substantive_claims": 12,
-      "removed_after_verification": 1,
-      "final_published_claims": 8,
-      "evidence_only_excerpts": 0,
+      "generated_substantive_claims": 18,
+      "removed_after_verification": 6,
+      "final_published_claims": 0,
+      "evidence_only_excerpts": 12,
       "issues": [
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S3",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S6",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S7",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S8",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S9",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
+        {
+          "type": "unused_source",
+          "severity": "info",
+          "claim_text": "",
+          "citation_id": "S10",
+          "evidence_id": "",
+          "detail": "retrieved but never cited"
+        },
         {
           "type": "unsupported_claim",
           "severity": "warning",
-          "claim_text": "Organizations can adopt AI RMF 1.0 through use-case profiles that apply the framework to specific AI systems or sectors.",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
           "citation_id": "",
-          "evidence_id": "S1-e3",
-          "detail": "every cited quote failed a deterministic guard: modality"
+          "evidence_id": "S5-e1",
+          "detail": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "type": "unsupported_claim",
+          "severity": "warning",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 organizes AI risk work into four functions that operate continuously rather than as a one-time sequence.",
+          "citation_id": "",
+          "evidence_id": "S4-e2",
+          "detail": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "type": "unsupported_claim",
+          "severity": "warning",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 defines governance for AI risk management through the function that establishes organizational culture, policies, and accountability structures.",
+          "citation_id": "",
+          "evidence_id": "S4-e3",
+          "detail": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "type": "unsupported_claim",
+          "severity": "warning",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management including adopting the Govern function at the organization layer, mapping each AI system, de",
+          "citation_id": "",
+          "evidence_id": "S1-e4",
+          "detail": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "type": "unsupported_claim",
+          "severity": "warning",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Map function, which identifies context, stakeholders, system boundaries, and potent",
+          "citation_id": "",
+          "evidence_id": "S2-e6",
+          "detail": "every cited quote failed a deterministic guard: numeric"
+        },
+        {
+          "type": "unsupported_claim",
+          "severity": "warning",
+          "claim_text": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Measure function, which assesses and monitors AI system performance and trustworthi",
+          "citation_id": "",
+          "evidence_id": "S5-e6",
+          "detail": "every cited quote failed a deterministic guard: numeric"
         }
       ],
-      "unused_source_ids": [],
+      "unused_source_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S10"
+      ],
       "repaired": false
     },
     "metrics": {
-      "run_id": "20260925-212728-a9729d",
+      "run_id": "20260926-045024-dbe710",
       "query": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
       "mode": "local",
       "model_assignments": {
@@ -1319,7 +1549,7 @@
         "synthesizer": "ollama:qwen3:4b",
         "verifier": "ollama:qwen3:4b"
       },
-      "duration_s": 922.94,
+      "duration_s": 1343.53,
       "environment": {
         "python": "3.12.3",
         "platform": "macOS-26.5.2-arm64-arm-64bit",
@@ -1344,8 +1574,8 @@
           "prompt_version": "f1384963fe1a",
           "schema_version": "f9e23be16b90",
           "git": {
-            "commit": "515d5a612082d79e2f3ab88cb9924af6b82394c3",
-            "short_commit": "515d5a61",
+            "commit": "8e92e425a8603df14b917afec8001cc4e97f43b8",
+            "short_commit": "8e92e425",
             "dirty": false,
             "branch": "verifier-nli"
           },
@@ -1394,92 +1624,96 @@
           "llm_temperature": 0.2
         }
       },
-      "research_rounds": 1,
+      "research_rounds": 2,
       "stop_reason": "coverage judged sufficient",
-      "search_queries": 6,
+      "search_queries": 10,
       "searches_failed": 0,
-      "search_results": 48,
-      "search_credits": 6.0,
-      "pages_fetched": 0,
-      "provider_content_reused": 5,
+      "search_results": 80,
+      "search_credits": 14.0,
+      "pages_fetched": 1,
+      "provider_content_reused": 9,
       "fetch_failures": 0,
-      "fetch_status_breakdown": {},
-      "duplicate_urls": 23,
-      "already_known_urls": 0,
-      "content_duplicates": 0,
-      "fetches_avoided": 23,
-      "unique_sources": 5,
-      "usable_sources": 5,
-      "evidence_items": 30,
-      "exact_quotes": 24,
-      "fuzzy_quotes": 3,
-      "unmatched_quotes": 3,
-      "citable_evidence": 24,
-      "cross_attributed_evidence": 16,
-      "content_origins": {
-        "provider_raw": 5
+      "fetch_status_breakdown": {
+        "ok": 1
       },
-      "domain_concentration": 0.2,
-      "distinct_domains": 5,
-      "llm_calls": 10,
-      "provider_requests": 10,
-      "billable_provider_requests": 10,
+      "duplicate_urls": 31,
+      "already_known_urls": 9,
+      "content_duplicates": 0,
+      "fetches_avoided": 40,
+      "unique_sources": 10,
+      "usable_sources": 10,
+      "evidence_items": 55,
+      "exact_quotes": 43,
+      "fuzzy_quotes": 5,
+      "unmatched_quotes": 7,
+      "citable_evidence": 43,
+      "cross_attributed_evidence": 24,
+      "content_origins": {
+        "provider_raw": 9,
+        "pdf_extract": 1
+      },
+      "domain_concentration": 0.1,
+      "distinct_domains": 10,
+      "llm_calls": 18,
+      "provider_requests": 18,
+      "billable_provider_requests": 18,
       "failed_provider_requests": 0,
       "structured_repairs": 0,
       "compatibility_retries": 0,
       "transport_retries": 0,
       "rate_limit_refusals": 0,
       "provider_requests_by_model": {
-        "ollama:qwen3:4b": 10
+        "ollama:qwen3:4b": 18
       },
       "reserved_worst_case_usd": 0.0,
       "reservation_was_sufficient": true,
       "llm_failed_calls": 0,
-      "input_tokens": 21649,
-      "output_tokens": 5331,
+      "input_tokens": 41132,
+      "output_tokens": 9293,
       "calls_by_provider": {
-        "ollama": 10
+        "ollama": 18
       },
       "calls_by_role": {
-        "planner": 2,
-        "researcher": 6,
-        "critic": 1,
+        "planner": 3,
+        "researcher": 12,
+        "critic": 2,
         "synthesizer": 1
       },
       "known_cost_usd": 0.0,
       "cost_is_complete": true,
       "unpriced_calls": 0,
       "citation_integrity_rate": 1.0,
-      "evidence_integrity_rate": 1.0,
+      "evidence_integrity_rate": null,
       "citation_coverage_rate": 1.0,
-      "claim_support_rate": 0.8889,
+      "claim_support_rate": 0.0,
       "partial_support_rate": 0.0,
       "support_breakdown": {
-        "supported": 8,
+        "supported": 0,
         "partially_supported": 0,
-        "unsupported": 1,
+        "unsupported": 6,
         "not_checked": 0
       },
       "entailment_exhaustive": true,
-      "citations_total": 20,
-      "evidence_refs_total": 26,
+      "citations_total": 0,
+      "evidence_refs_total": 0,
       "contradictions_total": 0,
       "contradictions_auditable": 0,
-      "unused_sources": 0,
+      "unused_sources": 10,
       "citations_repaired": false,
       "stage_seconds": {
-        "analyze_query": 11.165,
-        "plan_research": 21.397,
-        "generate_queries": 23.136,
-        "dedupe_sources": 0.001,
+        "analyze_query": 9.0,
+        "plan_research": 19.775,
+        "generate_queries": 37.3,
+        "dedupe_sources": 0.003,
         "register_sources": 0.0,
-        "assess_coverage": 28.594,
-        "synthesize": 123.779,
-        "verify_citations": 121.382
+        "assess_coverage": 74.219,
+        "generate_followups": 20.241,
+        "synthesize": 173.66,
+        "verify_citations": 16.641
       },
       "errors": 0,
       "error_kinds": {}
     },
-    "markdown": "# NIST AI Risk Management Framework 1.0: Core Functions, Governance, and Practical Implementation\n\n**Question:** Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.\n\n## Summary\n\nThe NIST AI Risk Management Framework 1.0 is structured around four core functions. [S1][S3][S2][S4][S5] The four core functions of the NIST AI Risk Management Framework 1.0 are Govern, Map, Measure, and Manage. [S1][S3][S2][S4][S5] Govern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions. [S3] Map focuses on identifying and categorizing AI risks in context. [S3] Measure involves quantitative and qualitative risk assessment. [S5] Manage addresses risk treatment and incident response. [S5]\n\n## Key findings\n\n- The NIST AI Risk Management Framework 1.0 is structured around four core functions: Govern, Map, Measure, and Manage. [S1][S3][S2][S4][S5]\n\n## Practical Use Cases\n\nCross-sectoral profiles apply the framework to technology classes across multiple sectors. [S1]\n\n## Limitations\n\n- The evidence does not specify page references for the claim that the framework addresses failure modes in AI systems.\n- The evidence does not address the conditions under which the obvious answer for AI risk management is incorrect.\n- The evidence does not provide detailed implementation barriers beyond the general rollout steps described.\n- Only limited evidence was found for: Under what conditions does the NIST AI Risk Management Framework 1.0 suggest the obvious answer for AI risk management is incorrect.\n- 6 extracted finding(s) were excluded because their quotes could not be located in the source text\n- 1 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [NIST AI Risk Management Framework 1.0 (NIST AI RMF) \u2014 Complete Guide | Modulos Docs](https://docs.modulos.ai/frameworks/nist-ai-rmf) \u2014 docs.modulos.ai, official_docs, n.d., quality 0.99\n- **[S2]** [NIST AI Risk Management Framework (AI RMF) Explained: What It Is and How Organizations Use It](https://orca.security/resources/blog/nist-ai-risk-management-framework-ai-rmf) \u2014 orca.security, blog, n.d., quality 0.59\n- **[S3]** [The Essential Guide to the NIST AI Risk Management Framework 1.0](https://vistrada.com/resources/insights/nist-ai-risk-management-framework-1-0) \u2014 vistrada.com, other, n.d., quality 0.64\n- **[S4]** [NIST AI RMF Explained: The 4 Core Functions | Compyl](https://compyl.com/blog/nist-ai-rmf-explained) \u2014 compyl.com, blog, n.d., quality 0.59\n- **[S5]** [NIST AI RMF Implementation: 8-Step Guide + 20-Week ...](https://neuraltrust.ai/blog/nist-ai-rmf-implementation-guide) \u2014 neuraltrust.ai, blog, n.d., quality 0.58\n\n## Citation verification\n\n- Evidence references: 26, 26 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: 100% of 8\n- Entailment checked against each claim's own evidence, over every eligible claim: 8 supported, 0 partially supported, 1 unsupported, 0 not checked\n\n<details><summary>Open citation issues</summary>\n\n- `unsupported_claim` every cited quote failed a deterministic guard: modality \u2014 Organizations can adopt AI RMF 1.0 through use-case profiles that apply the framework to specific AI systems or sectors.\n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 6 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 23 |\n| Evidence items | 30 |\n| Quotes verbatim (exact-normalised) | 80% |\n| Quotes fuzzy (excluded from citation) | 10% |\n| LLM calls | 10 |\n| Tokens (in/out) | 21,649 / 5,331 |\n| Estimated cost | $0.0000 |\n| Duration | 922.9s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-25 21:42 UTC._\n"
+    "markdown": "# NIST AI Risk Management Framework 1.0: Structure and Implementation\n\n**Question:** Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.\n\n## Source excerpts\n\n_No synthesized claim passed evidence verification. Showing exact source excerpts instead. These are verbatim quotations, not findings, and no conclusion has been drawn from them._\n\n- \"5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31\" \u2014 **[S3]** [PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0), p. 4\n- \"5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31\" \u2014 **[S3]** [PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0), p. 4\n- \"5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31\" \u2014 **[S3]** [PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0), p. 4\n- \"5.1 Govern 21\n5.2 Map 24\n5.3 Measure 28\n5.4 Manage 31\" \u2014 **[S3]** [PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0), p. 4\n- \"Additional resources related to the Framework are included in the AI RMF Playbook, which is available via the NIST AI RMF website: https://www.nist.gov/itl/ai-risk-management-framework.\" \u2014 **[S3]** [PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0), p. 8\n- \"The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.\" \u2014 **[S1]** NIST AI Risk Management Framework 1.0 (NIST AI RMF)\n- \"The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.\" \u2014 **[S1]** NIST AI Risk Management Framework 1.0 (NIST AI RMF)\n- \"Govern is the cross-cutting function. It cultivates a culture of AI risk management, establishes accountability, defines policies and processes, and ensures oversight across the AI lifecycle. Govern is the only function that spans the organization as a whole \u2014 it sits above Map, Measure, and Manage and makes them repeatable.\" \u2014 **[S1]** NIST AI Risk Management Framework 1.0 (NIST AI RMF)\n- \"A practical rollout typically looks like:\n1. Adopt the Govern function at the organization layer \u2014 roles, policies, oversight, and approval gates.\n2. Map each AI system \u2014 scope, stakeholders, impacts, data lineage, third-party dependencies.\n3. Define Measure signals \u2014 evaluations, red-teaming, and monitoring with thresholds and owners.\n4. Run Manage as a continuous loop \u2014 prioritize, treat, accept residual risk, respond to incidents.\" \u2014 **[S1]** NIST AI Risk Management Framework 1.0 (NIST AI RMF)\n- \"Measure uses quantitative and qualitative tools, techniques, and methodologies to analyze, assess, benchmark, and monitor AI risk. Measure is how you know whether your mitigations actually work \u2014 and how you surface issues when the system drifts or misbehaves.\" \u2014 **[S1]** NIST AI Risk Management Framework 1.0 (NIST AI RMF)\n- \"It organizes AI risk work into four functions: Govern, Map, Measure, and Manage.\" \u2014 **[S4]** NIST AI Risk Management Framework (AI RMF) Explained\n- \"The core of the AI RMF is organized around four functions that operate continuously rather than as a one-time sequence. Each function contains categories and subcategories that organizations tailor to their own systems and risk profile.\" \u2014 **[S4]** NIST AI Risk Management Framework (AI RMF) Explained\n\n## Limitations\n\n- The evidence does not explicitly address how the NIST AI Risk Management Framework 1.0 handles AI systems with high levels of uncertainty in input data.\n- The evidence does not explicitly address how the NIST AI Risk Management Framework 1.0 handles AI systems that experience model drift and concept shift.\n- The evidence does not explicitly address how the NIST AI Risk Management Framework 1.0 handles AI systems deployed in environments with rapidly changing regulatory requirements.\n- 12 extracted finding(s) were excluded because their quotes could not be located in the source text\n- 6 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [NIST AI Risk Management Framework 1.0 (NIST AI RMF)](https://docs.modulos.ai/frameworks/nist-ai-rmf) \u2014 docs.modulos.ai, official_docs, n.d., quality 0.99 _(retrieved, not cited)_\n- **[S2]** [NIST AI Risk Management Framework (AI RMF) Explained: What It Is and How Organizations Use It](https://orca.security/resources/blog/nist-ai-risk-management-framework-ai-rmf) \u2014 orca.security, blog, n.d., quality 0.58 _(retrieved, not cited)_\n- **[S3]** [[PDF] Artificial Intelligence Risk Management Framework (AI RMF 1.0)](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf) \u2014 nvlpubs.nist.gov, standards_body, n.d., quality 1.00 _(retrieved, not cited)_\n- **[S4]** [NIST AI Risk Management Framework (AI RMF) Explained](https://www.cyberhaven.com/infosec-essentials/nist-ai-risk-management-framework) \u2014 cyberhaven.com, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S5]** [NIST AI Risk Management Framework (AI RMF) Advisory](https://www.rsisecurity.com/nist-ai-risk-management) \u2014 rsisecurity.com, other, n.d., quality 0.61 _(retrieved, not cited)_\n- **[S6]** [Roadmap to Achieving NIST AI RMF](https://blog.rsisecurity.com/nist-ai-risk-management-framework-guide) \u2014 blog.rsisecurity.com, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S7]** [NIST AI RMF 1.0 - Cynomi](https://cynomi.com/frameworks/nist-ai-rmf-1-0) \u2014 cynomi.com, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S8]** [NIST AI Risk Management Framework (AI RMF 1.0) Guide](https://securiti.ai/nist-ai-risk-management-framework) \u2014 securiti.ai, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S9]** [NIST AI Risk Management Framework: AI RMF 1.0 Guide](https://digital.nemko.com/regulations/nist-rmf) \u2014 digital.nemko.com, other, n.d., quality 0.62 _(retrieved, not cited)_\n- **[S10]** [The NIST AI Risk Management Framework 1.0 Official](https://vistrada.com/resources/insights/nist-ai-risk-management-framework-1-0) \u2014 vistrada.com, other, n.d., quality 0.62 _(retrieved, not cited)_\n\n## Citation verification\n\n- Evidence references: 0, 0 resolved to citable evidence (n/a, no references). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: n/a, no substantive claims were published\n- Entailment checked against each claim's own evidence, over every eligible claim: 0 supported, 0 partially supported, 6 unsupported, 0 not checked\n- Retrieved but never cited: S1, S2, S3, S4, S5, S6, S7, S8, S9, S10\n\n<details><summary>Open citation issues</summary>\n\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 The NIST AI Risk Management Framework 1.0 organizes AI risk work into four functions that operate continuously rather th\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 The NIST AI Risk Management Framework 1.0 defines governance for AI risk management through the function that establishe\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management including ad\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Map\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Mea\n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 2 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 10 |\n| Unique sources | 10 |\n| Usable sources | 10 |\n| Distinct domains | 10 |\n| Fetches avoided by dedup | 40 |\n| Evidence items | 55 |\n| Quotes verbatim (exact-normalised) | 78% |\n| Quotes fuzzy (excluded from citation) | 9% |\n| LLM calls | 18 |\n| Tokens (in/out) | 41,132 / 9,293 |\n| Estimated cost | $0.0000 |\n| Duration | 1343.5s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-26 05:12 UTC._\n"
   }
 }
