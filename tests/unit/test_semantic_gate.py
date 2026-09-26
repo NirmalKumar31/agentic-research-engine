@@ -302,3 +302,81 @@ class TestCompoundClaimFailureClass:
 
         assert looks_compound("Pruning cut index memory by 60% while maintaining high recall.")
         assert not looks_compound("Pruning cut index memory by 60%.")
+
+
+class TestOneClaimOneSupportContract:
+    """§F: one claim, one supporting evidence item.
+
+    Stated explicitly rather than left implicit in the max(). The
+    invariant is that a claim publishes because a *single* quote carries
+    it, never because several partial quotes add up. Otherwise evidence
+    A supporting one clause and evidence B supporting another compose
+    into a sentence neither source made.
+
+    Synthesis-kind claims go through the identical rule. There is no
+    separate multi-evidence contract in v1: a conclusion that genuinely
+    needs two sources should be written as two claims, and if it cannot
+    be, it is not publishable here. That is a deliberate limitation, not
+    an oversight.
+    """
+
+    CLAIM = "Latency fell and memory use fell."
+    LEFT = "Latency fell by half."
+    RIGHT = "Memory use fell by a third."
+
+    def test_two_partial_quotes_cannot_combine(self) -> None:
+        """Neither quote carries the whole claim, so neither publishes
+        it, however high both score."""
+        scorer = FakeScorer(
+            {
+                (self.LEFT, self.CLAIM): (0.97, 0.03, 0.0),
+                (self.RIGHT, self.CLAIM): (0.97, 0.03, 0.0),
+            }
+        )
+        verdict = verify_claim(
+            self.CLAIM,
+            [("E1", self.LEFT), ("E2", self.RIGHT)],
+            scorer,
+            support_threshold=0.98,
+        )
+        assert not verdict.publishable
+
+    def test_the_decision_rests_on_one_item_not_an_aggregate(self) -> None:
+        """A single item at threshold publishes; the verdict names it."""
+        scorer = FakeScorer(
+            {
+                (self.LEFT, "Latency fell."): (0.99, 0.01, 0.0),
+                (self.RIGHT, "Latency fell."): (0.01, 0.99, 0.0),
+            }
+        )
+        verdict = verify_claim(
+            "Latency fell.", [("E1", self.LEFT), ("E2", self.RIGHT)], scorer, support_threshold=0.98
+        )
+        assert verdict.publishable
+        assert verdict.best_evidence_id == "E1"
+
+    def test_quotes_are_never_concatenated_into_one_premise(self) -> None:
+        """The scorer must see each quote separately. Joining them is
+        how a broad claim gets rescued by unrelated fragments."""
+        scorer = FakeScorer(default=(0.0, 1.0, 0.0))
+        verify_claim(
+            self.CLAIM, [("E1", self.LEFT), ("E2", self.RIGHT)], scorer, support_threshold=0.98
+        )
+        premises = [premise for premise, _ in scorer.seen]
+        assert premises == [self.LEFT, self.RIGHT]
+        assert not any(self.LEFT in p and self.RIGHT in p for p in premises)
+
+    def test_a_synthesis_claim_uses_the_same_rule(self) -> None:
+        """No separate contract. If one quote does not carry it, it does
+        not publish, whatever kind it declares itself to be."""
+        scorer = FakeScorer(
+            {
+                (self.LEFT, self.CLAIM): (0.97, 0.03, 0.0),
+                (self.RIGHT, self.CLAIM): (0.97, 0.03, 0.0),
+            }
+        )
+        verdict = verify_claim(
+            self.CLAIM, [("E1", self.LEFT), ("E2", self.RIGHT)], scorer, support_threshold=0.98
+        )
+        assert not verdict.publishable
+        assert "below the" in verdict.reason

@@ -1,0 +1,430 @@
+{
+  "description": "Blinded release audit packet. Each case shows a generated claim and the exact evidence quote the verifier selected for it, with no automated verdict, score, guard result or publication decision. Label each supported / unsupported / uncertain, then run `join`.",
+  "instructions": "supported: this quote, by itself, states or directly implies the claim with its scope, modality, quantities and attribution intact. unsupported: it does not. uncertain: you cannot tell from this quote alone.",
+  "shuffle_seed": 20260926,
+  "cases": [
+    {
+      "case_id": "nist-ai-risk-framework-3",
+      "claim": "Adoption of the NIST AI Risk Management Framework 1.0 is iterative, starting with an AI inventory and governance structure before expanding into risk mapping, measurement, and ongoing monitoring.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e4",
+      "quote": "Adoption is iterative: organizations typically start with an AI inventory and governance structure, then expand into risk mapping, measurement, and ongoing monitoring.",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-5",
+      "claim": "The NIST AI Risk Management Framework 1.0 includes an AI Center of Excellence committee and an executive board that validates responsible AI principles.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e2",
+      "quote": "Having an AI Center of Excellence committee can help the organization develop AI principles to ensure responsible AI development is cascaded throughout the organization, just as a charter might do.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-7",
+      "claim": "Vector databases have operational complexity due to the need for specialized expertise and infrastructure.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e3",
+      "quote": "Operational complexity",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-4",
+      "claim": "The NIST AI Risk Management Framework 1.0 specifies governance structures through the four core functions: Govern, Map, Measure, and Manage.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e2",
+      "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-12",
+      "claim": "Vector databases are less suitable than traditional search engines in specialized fields where precise terminology is crucial.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e5",
+      "quote": "Vector search encounters difficulties with rare or niche items, struggles to capture nuanced semantic meanings, and may need more precision in highly specialized fields. This limitation can lead to suboptimal search results in industries where precise terminology is crucial, like legal, healthcare, or scientific research.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-6",
+      "claim": "Vector databases excel in high-dimensional data processing for AI applications but introduce hidden costs and operational complexity.",
+      "claim_kind": "synthesis",
+      "evidence_id": "S3-e2",
+      "quote": "Can become costly at scale",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-0",
+      "claim": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-12",
+      "claim": "Customer trust erosion affects 35% of leads due to delayed follow-up from system lag.",
+      "claim_kind": "factual",
+      "evidence_id": "S9-e2",
+      "quote": "Customer Trust Erosion: 35% of leads go cold due to delayed follow-up from system lag. Imagine the impact when fraud compromises customer accounts",
+      "source_id": "S9",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-14",
+      "claim": "Vector search engines face performance vs. accuracy trade-offs due to high dimensionality, which can result in slower response times and reduced precision.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e6",
+      "quote": "Performance vs. Accuracy Trade-off: LLM-based content vectorization can provide vectors of varying dimensions. The higher the dimensionality, the more information can be kept in vectors, resulting in more exact search results. The high dimensionality, however, comes at a higher processing cost and slower response times. As a result, vector search engines use approximate closest neighbor (ANN) techniques to accelerate the process while sacrificing some search precision.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-3",
+      "claim": "Pinecone is optimized for high-dimensional vector indexing and similarity search, making it a powerful tool for applications that rely on finding similar items or recommendations in real-time.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e1",
+      "quote": "Pinecone is optimized for high-dimensional vector indexing and similarity search, making it a powerful tool for applications that rely on finding similar items or recommendations in real-time.",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-13",
+      "claim": "Regulatory penalties under PCI-DSS, GDPR, and financial regulations require timely fraud prevention measures.",
+      "claim_kind": "factual",
+      "evidence_id": "S9-e3",
+      "quote": "Regulatory Penalties: PCI-DSS, GDPR, and financial regulations mandate timely fraud prevention measures",
+      "source_id": "S9",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-20",
+      "claim": "Anomalous transactions include sudden large purchases from new devices and IP addresses in unfamiliar countries.",
+      "claim_kind": "factual",
+      "evidence_id": "S10-e3",
+      "quote": "If a user who normally spends $50 suddenly makes a $500 purchase from a new device and IP address in a country they\u2019ve never transacted from before, that\u2019s an anomaly that raises a red flag.",
+      "source_id": "S10",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-0",
+      "claim": "Random forest models achieve the highest accuracy of 99.95% in fraud detection for highly imbalanced transaction datasets.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e1",
+      "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-21",
+      "claim": "Mobile banking transactions with real-time session patterns, geolocation data, and device fingerprinting are vulnerable.",
+      "claim_kind": "factual",
+      "evidence_id": "S7-e3",
+      "quote": "Mobile banking transactions with real-time session patterns, geolocation data, and device fingerprinting.",
+      "source_id": "S7",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-6",
+      "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases for implementing AI risk management through profiles and operationalization.",
+      "claim_kind": "factual",
+      "evidence_id": "S2-e3",
+      "quote": "NIST AI RMF profiles \u200b\n\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
+      "source_id": "S2",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-1",
+      "claim": "Vector databases play a crucial role in various industries due to their ability to handle high-dimensional data effectively.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e1",
+      "quote": "Vector databases play a crucial role in various industries due to their ability to handle high-dimensional data effectively (opens new window).",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-8",
+      "claim": "Vespa excels in horizontal scaling, allowing for effortless expansion as data volumes grow.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e3",
+      "quote": "Vespa excels in horizontal scaling (opens new window), allowing for effortless expansion as data volumes grow.",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-10",
+      "claim": "The longer it takes to detect fraud, the more money is lost due to fraudulent transactions completing.",
+      "claim_kind": "factual",
+      "evidence_id": "S10-e1",
+      "quote": "The longer it takes to detect fraud, the more money you stand to lose. By intervening in real-time, you can prevent fraudulent transactions from completing, saving you direct financial damage. This also avoids the downstream costs of chargebacks and disputes.",
+      "source_id": "S10",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-16",
+      "claim": "Traditional batch analytics create a dangerous window where funds are lost before detection.",
+      "claim_kind": "factual",
+      "evidence_id": "S9-e6",
+      "quote": "The traditional approach of running batch analytics overnight creates a dangerous window. By the time your system identifies suspicious patterns, the funds are gone and the criminal has vanished.",
+      "source_id": "S9",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-4",
+      "claim": "Vector databases can handle high-dimensional data more effectively than traditional search engines.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e1",
+      "quote": "Vector search engines have LLMs that interpret and process linguistic nuances, ensuring accurate information retrieval even in complex multilingual settings.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-1",
+      "claim": "The NIST AI Risk Management Framework 1.0 is voluntary guidance for identifying, measuring, and managing risk across the AI lifecycle, not a certification standard.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e1",
+      "quote": "The NIST AI Risk Management Framework (AI RMF 1.0) is voluntary guidance for identifying, measuring, and managing risk across the AI lifecycle, not a certification standard.",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-5",
+      "claim": "Recall assesses the model's ability to identify class instances in fraud detection models.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e2",
+      "quote": "To overcome accuracy limitations, consider precision, recall, and F1-score. These classification metrics offer a more detailed view of model performance: Precision: Measures prediction accuracy for specific classes Recall: Assesses the model's ability to identify class instances F1-score: Balances precision and recall",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-2",
+      "claim": "Vector search engines and databases have gained significant traction in recent years, thanks to their ability to handle high-dimensional data and perform similarity search efficiently.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e1",
+      "quote": "Vector search engines and databases have gained significant traction in recent years, thanks to their ability to handle high-dimensional data and perform similarity search efficiently.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-9",
+      "claim": "Vector databases have security implications including encryption at rest and in transit, role-based access control (RBAC), and encryption support.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e4",
+      "quote": "Encryption at rest and in transit; Not publicly stated",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-18",
+      "claim": "Oversampling can lead to model overfitting in fraud detection.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e6",
+      "quote": "Both methods have their benefits and drawbacks. Undersampling might lose information from the majority class, while oversampling could lead to overfitting. The choice depends on the dataset's complexity and size.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-6",
+      "claim": "Random forest models outperform deep learning models in accuracy but deep learning models excel in precision for fraud detection.",
+      "claim_kind": "synthesis",
+      "evidence_id": "S4-e1",
+      "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-19",
+      "claim": "Instant payments via Zelle, RTP, and FedNow create unprecedented fraud exposure.",
+      "claim_kind": "factual",
+      "evidence_id": "S6-e3",
+      "quote": "The explosive growth of instant payments\u2014growing sharply annually across Zelle, RTP, and FedNow\u2014has created unprecedented fraud exposure for financial institutions.",
+      "source_id": "S6",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-17",
+      "claim": "Fraudsters seek speed to slip through the cracks before detection.",
+      "claim_kind": "factual",
+      "evidence_id": "S10-e2",
+      "quote": "Fraudsters are also looking for speed, often trying to slip through the cracks before anyone notices. This is where the \"real-time\" part becomes crucial.",
+      "source_id": "S10",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-22",
+      "claim": "Real-time fraud detection systems require multi-year, multi-million dollar investments for data science requirements.",
+      "claim_kind": "factual",
+      "evidence_id": "S6-e4",
+      "quote": "The data science requirements alone\u2014including feature engineering for millisecond-latency models, continuous model retraining pipelines, and A/B testing frameworks for fraud rules\u2014represent a multi-year, multi-million dollar investment.",
+      "source_id": "S6",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-9",
+      "claim": "Resampling techniques are vital for balancing datasets in classification tasks to address class imbalance.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e3",
+      "quote": "Resampling techniques are vital for balancing datasets in classification tasks. They tackle the common problem of class imbalance, which can severely affect model performance.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-11",
+      "claim": "Vector databases are less suitable than traditional search engines for scenarios where traditional transactional systems or structured relational workloads are needed.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e5",
+      "quote": "Not ideal for: Traditional transactional systems or structured relational workloads.",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-3",
+      "claim": "The key metrics for evaluating fraud detection models in imbalanced datasets include precision, recall, F1 score, accuracy, and ROC-AUC curve.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e2",
+      "quote": "performance is evaluated using standard metrics, including precision, recall, F1 score, accuracy, and the ROC-AUC curve",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-2",
+      "claim": "The framework is technology neutral and does not require specific tools, so most organizations pair it with technical controls for data discovery, classification, and monitoring.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e5",
+      "quote": "The framework is technology neutral. It does not require specific tools, so most organizations pair it with technical controls for data discovery, classification, and monitoring.",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-8",
+      "claim": "SMOTE is employed to enhance the performance of classification models on real-world credit card fraud datasets.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e3",
+      "quote": "In this study, SMOTE is employed to enhance the performance of three classification models\u2014Logistic Regression, Decision Tree, and Random Forest\u2014on a real-world credit card fraud dataset.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-10",
+      "claim": "Handling sensitive or personal data with vector search engines may raise privacy concerns, potentially leading to data exposure and privacy violations.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e4",
+      "quote": "Handling sensitive or personal data with vector search engines, especially when using APIs to access and train LLM services, may raise privacy concerns. If not carefully managed, the training and utilization of such models could result in unintentional data exposure, leading to data breaches or privacy violations.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-15",
+      "claim": "Brand reputation damage occurs when security breaches spread rapidly on social media.",
+      "claim_kind": "factual",
+      "evidence_id": "S9-e5",
+      "quote": "Brand Reputation Damage: News of security breaches spreads rapidly on social media, affecting customer acquisition",
+      "source_id": "S9",
+      "page": null
+    },
+    {
+      "case_id": "nist-ai-risk-framework-7",
+      "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases for implementing AI risk management through companion artifacts such as the Playbook, Crosswalks, Roadmap, and Use Cases.",
+      "claim_kind": "factual",
+      "evidence_id": "S1-e3",
+      "quote": "The NIST AI RMF is supported by several companion artifacts that help organizations apply the framework in practice. These include the Playbook, which suggests actions mapped to RMF outcomes; Crosswalks, which connect AI RMF activities to other standards and frameworks; Roadmap documents, which outline future research and measurement needs; and Use Cases, which demonstrate how different sectors operationalize the RMF functions under varying constraints.",
+      "source_id": "S1",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-23",
+      "claim": "Financial institutions can reduce risk while maintaining operational agility and cost control.",
+      "claim_kind": "factual",
+      "evidence_id": "S7-e4",
+      "quote": "Financial institutions can reduce risk while maintaining operational agility and cost control.",
+      "source_id": "S7",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-7",
+      "claim": "The most critical metrics for evaluating fraud detection models in imbalanced datasets are precision, recall, and F1 score.",
+      "claim_kind": "synthesis",
+      "evidence_id": "S4-e2",
+      "quote": "performance is evaluated using standard metrics, including precision, recall, F1 score, accuracy, and the ROC-AUC curve",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-13",
+      "claim": "Vector databases have failure modes specific to their architecture, including memory-intensive operations and the need for manual integration.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e6",
+      "quote": "Memory intensive",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-11",
+      "claim": "Direct financial losses occur when fraudulent transactions clear before detection.",
+      "claim_kind": "factual",
+      "evidence_id": "S9-e1",
+      "quote": "The true cost of delayed fraud detection includes: Direct Financial Losses: Fraudulent transactions that clear before detection drain accounts and generate chargebacks",
+      "source_id": "S9",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-0",
+      "claim": "Vector databases are optimized for AI-driven workloads like LLMs, recommendation systems, search engines, and generative AI applications, enabling fast nearest-neighbor search (ANN), similarity matching, and context retrieval from embeddings.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e1",
+      "quote": "Vector Database Platforms are modern data storage systems designed to store, manage, and search high-dimensional vector embeddings generated by AI and machine learning models. These vectors represent unstructured data such as text, images, audio, and video in numerical form, enabling semantic search and similarity matching.",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-14",
+      "claim": "Operational overhead from manual review processes consumes analyst time and delays legitimate transactions.",
+      "claim_kind": "factual",
+      "evidence_id": "S9-e4",
+      "quote": "Operational Overhead: Manual review processes for suspicious transactions consume analyst time and delay legitimate transactions",
+      "source_id": "S9",
+      "page": null
+    },
+    {
+      "case_id": "rag-vector-vs-search-5",
+      "claim": "Vector databases can become costly at scale and require infrastructure expertise.",
+      "claim_kind": "factual",
+      "evidence_id": "S3-e2",
+      "quote": "Can become costly at scale",
+      "source_id": "S3",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-1",
+      "claim": "Deep learning models provide the highest precision in fraud detection for highly imbalanced transaction datasets.",
+      "claim_kind": "factual",
+      "evidence_id": "S4-e1",
+      "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+      "source_id": "S4",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-2",
+      "claim": "Random forest models achieve a recall score of 0.7653 when trained on SMOTE-enhanced datasets for fraud detection.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e1",
+      "quote": "A RandomForestClassifier trained on the SMOTE-enhanced dataset correctly identified 75 fraudulent transactions. It achieved a recall score of 0.7653.",
+      "source_id": "S5",
+      "page": null
+    },
+    {
+      "case_id": "fraud-detection-imbalanced-4",
+      "claim": "Precision measures the prediction accuracy for specific classes in fraud detection models.",
+      "claim_kind": "factual",
+      "evidence_id": "S5-e2",
+      "quote": "To overcome accuracy limitations, consider precision, recall, and F1-score. These classification metrics offer a more detailed view of model performance: Precision: Measures prediction accuracy for specific classes Recall: Assesses the model's ability to identify class instances F1-score: Balances precision and recall",
+      "source_id": "S5",
+      "page": null
+    }
+  ]
+}

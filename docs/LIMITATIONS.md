@@ -88,6 +88,19 @@ boundaries flattened, so likely PDFs are fetched directly. If that fetch
 fails the source degrades to provider text — with a warning, but without
 pages.
 
+**A recorded run is a snapshot of one afternoon's web, not a
+reproducible experiment.** Live search returns different results on
+different days, so re-running the same question does not recover the
+same sources, the same evidence or the same claims. Across five
+recording passes of the identical three questions the candidate count
+ranged from 6 to 24 per run and page-level citations appeared in
+different runs each time. Each recording stores the commit, the model
+and its digest, the NLI model, revision and threshold, the retrieval
+configuration fingerprint and the timestamp — everything except the
+corpus, which is why the runs are snapshots rather than experiments.
+Only the frozen-corpus attribution experiment is reproducible in that
+stronger sense.
+
 **Which run carries PDF page evidence is not stable, and nothing
 promises it.** Whether a PDF is reached depends on what search returns
 that day: across four recording passes the page-numbered citations

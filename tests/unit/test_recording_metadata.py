@@ -142,3 +142,50 @@ class TestDescriptionsDoNotAssertRetrievalOutcomes:
     )
     def test_recording_loads(self, name: str, payload: dict) -> None:
         assert load(name) is not None
+
+
+class TestRecordingsCarryTheirProvenance:
+    """§Y: a public artifact has to say what produced it.
+
+    Live search is nondeterministic, so a recording cannot be
+    reproduced by re-running it. What it can do is state exactly what
+    it was: which commit, which models, which threshold, when.
+    """
+
+    @pytest.mark.parametrize(
+        ("name", "payload"), payloads(), ids=lambda v: v if isinstance(v, str) else ""
+    )
+    def test_commit_and_timestamp_are_recorded(self, name: str, payload: dict) -> None:
+        meta = payload["meta"]
+        assert meta.get("recorded_at"), f"{name}: no timestamp"
+        provenance = meta.get("provenance") or {}
+        assert provenance.get("commit"), f"{name}: no commit"
+        assert provenance.get("dirty") is False, f"{name}: recorded from a dirty tree"
+
+    @pytest.mark.parametrize(
+        ("name", "payload"), payloads(), ids=lambda v: v if isinstance(v, str) else ""
+    )
+    def test_configuration_fingerprints_are_recorded(self, name: str, payload: dict) -> None:
+        provenance = payload["meta"]["provenance"]
+        for field in ("config_fingerprint", "prompt_version", "schema_version", "engine_version"):
+            assert provenance.get(field), f"{name}: missing {field}"
+
+    @pytest.mark.parametrize(
+        ("name", "payload"), payloads(), ids=lambda v: v if isinstance(v, str) else ""
+    )
+    def test_the_verifier_identity_is_on_every_judgment(self, name: str, payload: dict) -> None:
+        """Which classifier, which revision, which threshold. A verdict
+        without these cannot be re-derived."""
+        judgments = (payload["result"].get("verification") or {}).get("judgments") or []
+        assert judgments, f"{name}: no judgments recorded"
+        for judgment in judgments:
+            assert judgment.get("model_id"), f"{name}: judgment without a model id"
+            assert judgment.get("model_revision"), f"{name}: judgment without a revision"
+            assert judgment.get("support_threshold") is not None, f"{name}: no threshold"
+
+    def test_limitations_states_that_search_is_nondeterministic(self) -> None:
+        """The artifact must not imply another run recovers these
+        sources, because five passes of the same questions did not."""
+        text = Path("docs/LIMITATIONS.md").read_text().lower()
+        assert "live search returns different results" in text
+        assert "snapshot" in text

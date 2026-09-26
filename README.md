@@ -205,56 +205,64 @@ all three — and only claims one quote carried on its own were published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
-| Research rounds | 1 | 1 | 1 |
-| Search queries | 6 | 6 | 6 |
-| Unique sources | 5 | 5 | 5 |
-| Evidence items | 30 | 24 | 30 |
-| Generated substantive claims | 23 | 18 | 18 |
-| Exact duplicates removed | 11 | 12 | 6 |
-| Unique candidates checked | 12/12 | 6/6 | 12/12 |
-| **Withheld** | 6 | 6 | 7 |
-| **Published** | **6** | **0** | **5** |
-| Evidence-only excerpts | 0 | 12 | 0 |
-| Quote fidelity (exact) | 93% | 92% | 73% |
-| Page-cited evidence | 0 | 0 | 0 |
-| Duration | 632s | 501s | 633s |
+| Unique sources | 5 | 5 | 10 |
+| Evidence items | 20 | 30 | 34 |
+| Generated substantive claims | 21 | 14 | 30 |
+| Exact duplicates removed | 6 | 6 | 6 |
+| Unique candidates checked | 15/15 | 8/8 | 24/24 |
+| **Withheld** | 12 | 7 | 14 |
+| **Published** | **3** | **1** | **10** |
+| Quote fidelity (exact) | 100% | 83% | 94% |
+| Page-cited evidence | 0 | 6 | 0 |
+| Duration | 1231s | 1135s | 1180s |
 
-30 unique candidates across the three runs, all checked, **11 published
-and 19 withheld**. The NIST run published nothing and fell back to 12
-verbatim source excerpts under an explicit notice — a supported outcome,
-not a failure.
-
-Of the 19 withheld: 12 fell below the entailment threshold, and 7 were
-refused by a deterministic guard before the classifier's score mattered
-(3 numeric, 2 ranking, 1 modality, 1 atomicity).
+47 unique candidates across the three runs, all checked, **14 published
+and 33 withheld**.
 
 ### Release validation
 
 Publishing something is easy; publishing only what the evidence supports
-is the claim being made. So every published claim was read against the
-exact quote the gate selected for it. That review is recorded per
-candidate in [`examples/release-audit/`](examples/release-audit/),
-alongside every pairwise NLI score and every guard result.
+is the claim being made. So every candidate — not only the published
+ones — was reviewed against the exact quote the gate selected, **with the
+automated verdict, score, guard results and publication decision
+hidden**, and the labels joined back by case id afterwards. The packet,
+the labels and the join are in
+[`examples/release-audit/`](examples/release-audit/).
 
-**Result: 11 of 11 supported, 0 unsupported.**
+| | published | withheld |
+|---|---|---|
+| **reviewer: supported** | 14 | 11 |
+| **reviewer: unsupported or uncertain** | **0** | 22 |
 
-This is the release gate, and it was not met on the first three
-attempts. Each audit published one claim that survived every automated
-check and failed a human read:
+Precision 1.00, recall 0.56. **Zero unsupported published claims, and
+zero uncertain ones.** Every claim the reviewer judged unsupported was
+withheld by the system.
 
-| Audit | Failure | Fix |
+The 11 withheld-but-supportable claims are the cost of that: 6 scored
+below the entailment threshold and 5 were refused by a guard that was
+being conservative. The design accepts this trade deliberately —
+withholding a true claim costs a line in a report, publishing a false
+one costs the thing the project is for.
+
+This is a **blinded release audit, not an independent benchmark**: the
+reviewer is the same party that built the system. It is evidence about
+these runs, and nothing stronger.
+
+Two consecutive manually reviewed canonical release audits have now
+found zero unsupported published substantive claims. Three earlier
+audits each found exactly one, and each produced a general rule:
+
+| Audit | What escaped | Fix |
 |---|---|---|
 | 1 | `"might lack"` published as `"lack"` | hedge-deletion guard |
-| 2 | `"We demonstrate that X"` published as `"X"` | research-voice framing guard |
-| 3 | `"our dataset"` → `"datasets"`, hidden in a two-sentence claim | structural atomicity rule |
+| 2 | `"We demonstrate that X"` published as `"X"` | research-voice guard |
+| 3 | `"our dataset"` → `"datasets"`, hidden in a two-sentence claim | proposition-level atomicity |
+| 4 | — | clean |
+| 5 | — | clean, and blinded |
 
-Each fix is a general rule, not a patch for the sentence that exposed
-it, and each was found only by reading every published claim by hand.
-Nothing here is evidence that a fourth audit would come back clean; the
-runs use live search and produce different claims each time.
-
-These are product artifacts, served by the demo. They are not a
-benchmark: n=1 each, one model, one configuration.
+These are product artifacts, served by the demo. Live search is
+nondeterministic, so re-running these questions does not recover these
+sources — see [LIMITATIONS](docs/LIMITATIONS.md).
 
 ### Attribution experiment
 

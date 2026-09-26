@@ -129,3 +129,42 @@ class TestExcerptsAreNotClaims:
     def test_store_reports_only_citable_evidence(self) -> None:
         store = EvidenceStore([_source()], [_evidence("A quoted sentence.")])
         assert len(store.citable_evidence()) == 1
+
+
+class TestFallbackIntroducesNoGeneratedProse:
+    """§X: the zero-claim path must not become a writing opportunity.
+
+    A report that withheld everything is the one place a system is most
+    tempted to say something anyway. Every line of the fallback is
+    either a fixed notice or a verbatim quote.
+    """
+
+    def test_every_excerpt_line_is_a_verbatim_quote(self) -> None:
+        quotes = [
+            "Throughput reached 12,000 QPS in the vendor's test harness.",
+            "As of the 2021 release, the v1 wire format was unsupported.",
+        ]
+        evidence = [_evidence(q, f"S1-e{i}") for i, q in enumerate(quotes)]
+        text = _render(ResearchReport(title="T"), evidence)
+        for line in text.splitlines():
+            if line.startswith('- "'):
+                assert any(q in line for q in quotes), f"line is not a stored quote: {line}"
+
+    def test_the_notice_is_fixed_text_not_a_summary(self) -> None:
+        """No model output reaches this path, so the wording cannot
+        vary with the content it introduces."""
+        one = _render(ResearchReport(title="T"), [_evidence("Alpha beta gamma.")])
+        two = _render(ResearchReport(title="T"), [_evidence("Entirely different wording.")])
+        notice = "No synthesized claim passed evidence verification"
+        assert notice in one and notice in two
+
+    def test_excerpts_are_labelled_as_quotations(self) -> None:
+        text = _render(ResearchReport(title="T"), [_evidence("A quoted sentence.")])
+        assert "verbatim quotations, not findings" in text
+        assert "no conclusion has been drawn" in text
+
+    def test_excerpt_provenance_survives(self) -> None:
+        """An excerpt without its source is an unattributed assertion."""
+        text = _render(ResearchReport(title="T"), [_evidence("A quoted sentence.")])
+        assert "[S1]" in text
+        assert "A Technical Note" in text
