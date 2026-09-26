@@ -6,7 +6,7 @@
     "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
     "description": "Decomposes a methods-and-evaluation question into several research dimensions searched in parallel.",
     "mode": "local",
-    "recorded_at": "2026-09-26T05:22:50.087138+00:00",
+    "recorded_at": "2026-09-26T06:12:44.157089+00:00",
     "order": 3,
     "provenance": {
       "engine_version": "0.2.0",
@@ -14,8 +14,8 @@
       "prompt_version": "f1384963fe1a",
       "schema_version": "f9e23be16b90",
       "config_fingerprint": "9283a7e97512",
-      "commit": "d0b6177d40b1c5644da918cd11417894daa9a703",
-      "short_commit": "d0b6177d",
+      "commit": "38162488147376b95549edee167a3efb6da2e1ad",
+      "short_commit": "38162488",
       "dirty": false,
       "python": "3.12.3",
       "platform": "macOS-26.5.2-arm64-arm-64bit"
@@ -43,11 +43,11 @@
       "count": 6,
       "questions": [
         "What are the most effective machine learning models for fraud detection in highly imbalanced transaction datasets?",
-        "What are the key evaluation metrics that accurately reflect model performance in imbalanced fraud detection scenarios?",
-        "What are the hidden costs associated with implementing fraud detection models in real-time transaction processing systems?",
-        "How do data preprocessing techniques impact model accuracy and computational efficiency in fraud detection?",
-        "What are the common failure modes when scaling fraud detection models to handle high transaction volumes?",
-        "Under what specific conditions does the use of traditional accuracy metrics fail to adequately evaluate fraud detection models?"
+        "What are the hidden costs of implementing fraud detection models in highly imbalanced datasets?",
+        "How do different evaluation metrics handle class imbalance in fraud detection models?",
+        "What are the failure modes of fraud detection models when deployed in real-world transaction environments?",
+        "What are the conditions under which traditional evaluation metrics fail for fraud detection models?",
+        "How do data preprocessing techniques impact model performance in highly imbalanced fraud detection?"
       ]
     },
     {
@@ -59,57 +59,57 @@
       "event": "queries_generated",
       "count": 6,
       "queries": [
-        "machine learning fraud detection imbalanced data effective models",
-        "fraud detection imbalanced data evaluation metrics model performance",
-        "fraud detection real-time transaction processing hidden costs implementation",
-        "fraud detection data preprocessing model accuracy computational efficiency",
-        "fraud detection high transaction volumes scaling failure modes",
-        "fraud detection traditional accuracy metrics failure conditions"
+        "machine learning fraud detection highly imbalanced datasets effective models",
+        "fraud detection implementation costs highly imbalanced datasets hidden costs",
+        "evaluation metrics class imbalance fraud detection model performance",
+        "fraud detection model failure modes real-world transaction deployment",
+        "traditional evaluation metrics failure conditions fraud detection imbalanced data",
+        "data preprocessing techniques impact fraud detection model performance imbalanced datasets"
       ],
       "round": 1
     },
     {
       "event": "search_completed",
-      "query": "fraud detection real-time transaction processing hidden costs implementation",
-      "query_id": "Q3",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "machine learning fraud detection imbalanced data effective models",
-      "query_id": "Q1",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "fraud detection high transaction volumes scaling failure modes",
-      "query_id": "Q5",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "fraud detection data preprocessing model accuracy computational efficiency",
+      "query": "fraud detection model failure modes real-world transaction deployment",
       "query_id": "Q4",
       "results": 8
     },
     {
       "event": "search_completed",
-      "query": "fraud detection traditional accuracy metrics failure conditions",
-      "query_id": "Q6",
-      "results": 8
-    },
-    {
-      "event": "search_completed",
-      "query": "fraud detection imbalanced data evaluation metrics model performance",
+      "query": "fraud detection implementation costs highly imbalanced datasets hidden costs",
       "query_id": "Q2",
       "results": 8
     },
     {
+      "event": "search_completed",
+      "query": "machine learning fraud detection highly imbalanced datasets effective models",
+      "query_id": "Q1",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "evaluation metrics class imbalance fraud detection model performance",
+      "query_id": "Q3",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "traditional evaluation metrics failure conditions fraud detection imbalanced data",
+      "query_id": "Q5",
+      "results": 8
+    },
+    {
+      "event": "search_completed",
+      "query": "data preprocessing techniques impact fraud detection model performance imbalanced datasets",
+      "query_id": "Q6",
+      "results": 8
+    },
+    {
       "event": "sources_deduplicated",
-      "avoided": 3,
+      "avoided": 12,
       "results": 48,
       "selected": 5,
-      "unique": 45
+      "unique": 36
     },
     {
       "event": "sources_registered",
@@ -130,12 +130,12 @@
     {
       "event": "evidence_extracted",
       "items": 6,
-      "source_id": "S2"
+      "source_id": "S4"
     },
     {
       "event": "evidence_extracted",
-      "items": 4,
-      "source_id": "S4"
+      "items": 6,
+      "source_id": "S2"
     },
     {
       "event": "evidence_extracted",
@@ -158,12 +158,12 @@
     },
     {
       "event": "synthesizing",
-      "evidence": 28
+      "evidence": 30
     },
     {
       "event": "synthesized",
-      "findings": 2,
-      "sections": 6
+      "findings": 4,
+      "sections": 5
     },
     {
       "event": "verifying_citations"
@@ -173,12 +173,12 @@
       "evidence_integrity": 1.0,
       "exhaustive": true,
       "support": {
-        "supported": 6,
-        "partially_supported": 0,
-        "unsupported": 5,
+        "supported": 3,
+        "partially_supported": 3,
+        "unsupported": 0,
         "not_checked": 0
       },
-      "total": 6
+      "total": 3
     },
     {
       "event": "completed",
@@ -186,102 +186,50 @@
     }
   ],
   "result": {
-    "run_id": "20260926-051250-575138",
+    "run_id": "20260926-055100-998a43",
     "report": {
       "title": "Timeline of Modern Fraud Detection Approaches for Highly Imbalanced Transaction Datasets",
       "summary_claims": [
         {
-          "text": "Machine learning classifiers enhance proactive fraud detection in financial systems.",
+          "text": "The proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies.",
           "kind": "factual",
           "evidence_ids": [
-            "S3-e1"
+            "S4-e1"
           ],
           "citation_ids": [
-            "S3"
+            "S4"
           ]
         },
         {
-          "text": "A combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection models.",
+          "text": "The Numbers Game: In datasets spanning 2019\u20132020, months with only 258 fraudulent transactions among 139,538 total transactions (0.18%) were observed. The European Bank Authority\u2019s 2024 report shows fraud represents only 0.015% of total card payments in Q1 2023.",
           "kind": "factual",
           "evidence_ids": [
-            "S3-e2"
+            "S5-e1"
           ],
           "citation_ids": [
-            "S3"
+            "S5"
+          ]
+        },
+        {
+          "text": "Electronic companies anticipate a surge in fraudulent transactions globally, resulting in losses of 40.62 billion USD by 2027, with fraudulent transactions increasing from 9.84 billion USD in 2011 to 32.39 billion USD in 2020.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S1-e2"
+          ],
+          "citation_ids": [
+            "S1"
           ]
         }
       ],
       "key_findings": [],
-      "sections": [
-        {
-          "heading": "Real-Time Implementation Challenges",
-          "claims": [
-            {
-              "text": "Latency is the time it takes for the system to process a transaction and make an inference.",
-              "kind": "factual",
-              "evidence_ids": [
-                "S5-e3"
-              ],
-              "citation_ids": [
-                "S5"
-              ]
-            }
-          ]
-        },
-        {
-          "heading": "Data Preprocessing Techniques",
-          "claims": [
-            {
-              "text": "SMOTE (Synthetic Minority Over-sampling Technique) generates synthetic examples of the minority class to balance datasets.",
-              "kind": "factual",
-              "evidence_ids": [
-                "S4-e4"
-              ],
-              "citation_ids": [
-                "S4"
-              ]
-            }
-          ]
-        },
-        {
-          "heading": "Scalability Challenges",
-          "claims": [
-            {
-              "text": "Credit card fraud detection systems face challenges including massively unbalanced fraud data and difficulty creating gold standard ground truth.",
-              "kind": "factual",
-              "evidence_ids": [
-                "S3-e5"
-              ],
-              "citation_ids": [
-                "S3"
-              ]
-            }
-          ]
-        },
-        {
-          "heading": "Failure Modes of Traditional Metrics",
-          "claims": [
-            {
-              "text": "Traditional accuracy metrics can be misleading when evaluating models on imbalanced datasets.",
-              "kind": "factual",
-              "evidence_ids": [
-                "S4-e6"
-              ],
-              "citation_ids": [
-                "S4"
-              ]
-            }
-          ]
-        }
-      ],
+      "sections": [],
       "contradictions": [],
       "limitations": [
-        "The evidence does not provide specific details on the computational efficiency trade-offs of SMOTE or other preprocessing techniques.",
-        "The evidence does not specify the exact thresholds for false positive and false negative costs in fraud detection systems.",
-        "The evidence does not detail the impact of latency on model accuracy in real-time systems beyond the general statement of latency importance.",
-        "The evidence does not provide concrete examples of how to balance the trade-offs between false positives and false negatives in practice.",
-        "8 extracted finding(s) were excluded because their quotes could not be located in the source text",
-        "5 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget."
+        "The evidence does not specify the exact impact of data preprocessing techniques on model performance beyond the application of SMOTE.",
+        "The evidence does not provide detailed information on the failure modes of fraud detection models in real-world transaction environments beyond concept drift and high-dimensional categorical features.",
+        "The evidence does not clarify the conditions under which traditional evaluation metrics fail for fraud detection models beyond the thought experiment example.",
+        "2 extracted finding(s) were excluded because their quotes could not be located in the source text",
+        "3 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget."
       ]
     },
     "plan": {
@@ -293,127 +241,43 @@
         },
         {
           "id": "SQ2",
-          "text": "What are the key evaluation metrics that accurately reflect model performance in imbalanced fraud detection scenarios?",
+          "text": "What are the hidden costs of implementing fraud detection models in highly imbalanced datasets?",
           "is_followup": false
         },
         {
           "id": "SQ3",
-          "text": "What are the hidden costs associated with implementing fraud detection models in real-time transaction processing systems?",
+          "text": "How do different evaluation metrics handle class imbalance in fraud detection models?",
           "is_followup": false
         },
         {
           "id": "SQ4",
-          "text": "How do data preprocessing techniques impact model accuracy and computational efficiency in fraud detection?",
+          "text": "What are the failure modes of fraud detection models when deployed in real-world transaction environments?",
           "is_followup": false
         },
         {
           "id": "SQ5",
-          "text": "What are the common failure modes when scaling fraud detection models to handle high transaction volumes?",
+          "text": "What are the conditions under which traditional evaluation metrics fail for fraud detection models?",
           "is_followup": false
         },
         {
           "id": "SQ6",
-          "text": "Under what specific conditions does the use of traditional accuracy metrics fail to adequately evaluate fraud detection models?",
+          "text": "How do data preprocessing techniques impact model performance in highly imbalanced fraud detection?",
           "is_followup": false
         }
       ]
     },
     "evidence": [
       {
-        "id": "S3-e1",
-        "source_id": "S3",
-        "sub_question_id": "SQ1",
-        "claim": "The most effective machine learning models for fraud detection in highly imbalanced transaction datasets",
-        "quote": "The use of machine learning into the financial sector permits more effective protection against fraud and other economic crime. Suitably trained machine learning classifiers help proactive fraud detection, improving stakeholder trust and robustness against illicit transactions.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S3-e2",
-        "source_id": "S3",
-        "sub_question_id": "SQ2",
-        "claim": "The key evaluation metrics that accurately reflect model performance in imbalanced fraud detection scenarios",
-        "quote": "We demonstrate that a combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection model classification.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.9,
-        "citable": true,
-        "query_id": "Q2",
-        "cross_attributed": false
-      },
-      {
-        "id": "S3-e3",
-        "source_id": "S3",
-        "sub_question_id": "SQ3",
-        "claim": "The hidden costs associated with implementing fraud detection models in real-time transaction processing systems",
-        "quote": "US LexisNexis Group 11 Lexisnexis.com reported that, for each $1 of fraud, the additional costs related to card and merchandise replacement, charge-backs and administrative overheads results in a true loss of $2.40 per $ in 2016, which is an 8% increase from the previous year.",
-        "quote_match": "fuzzy",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.28,
-        "citable": false,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S3-e4",
-        "source_id": "S3",
-        "sub_question_id": "SQ4",
-        "claim": "How data preprocessing techniques impact model accuracy and computational efficiency in fraud detection",
-        "quote": "The use of machine learning into the financial sector permits more effective protection against fraud and other economic crime. Suitably trained machine learning classifiers help proactive fraud detection, improving stakeholder trust and robustness against illicit transactions.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.3,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S3-e5",
-        "source_id": "S3",
-        "sub_question_id": "SQ5",
-        "claim": "Common failure modes when scaling fraud detection models to handle high transaction volumes",
-        "quote": "Unfortunately, credit card fraud detection via machine learning has several major constraints and challenges [5, 15], including massively unbalanced nature of fraud data, difficulty of identifying the frauds accurately and completely to create a gold standard ground truth and the lack of standard classifier evaluation metrics to measure and identify better performing [7].",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.6,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S3-e6",
-        "source_id": "S3",
-        "sub_question_id": "SQ6",
-        "claim": "Specific conditions where traditional accuracy metrics fail to evaluate fraud detection models",
-        "quote": "Traditional measures such as Accuracy cannot be used to identify better performing classifiers due to the massive imbalance in fraud data [2].",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
         "id": "S1-e1",
         "source_id": "S1",
         "sub_question_id": "SQ1",
-        "claim": "What are the most effective machine learning models for fraud detection in highly imbalanced transaction datasets?",
-        "quote": "In this opening unit, we'll dive into comprehensive evaluation strategies for machine learning models, specifically focusing on the challenges of imbalanced data.",
-        "quote_match": "exact_normalized",
+        "claim": "The most effective machine learning models for fraud detection in highly imbalanced transaction datasets",
+        "quote": "CNN achieving the highest performance (95% accuracy and 94% F1 score), followed by RF, LSTM, and SVM.",
+        "quote_match": "none",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.0,
-        "citable": true,
+        "stance": "supports",
+        "confidence": 0.15,
+        "citable": false,
         "query_id": "",
         "cross_attributed": true
       },
@@ -421,26 +285,26 @@
         "id": "S1-e2",
         "source_id": "S1",
         "sub_question_id": "SQ2",
-        "claim": "What are the key evaluation metrics that accurately reflect model performance in imbalanced fraud detection scenarios?",
-        "quote": "Key considerations when evaluating imbalanced data include: Sensitivity to Class Distribution: Metrics should reflect how well the model identifies minority class instances, not just overall correctness. Cost of Errors: The impact of false positives and false negatives can be very different depending on the application, so metrics should help you understand these trade-offs. Detailed Performance Breakdown: It's important to analyze performance for each class separately, rather than relying on a single summary statistic.",
+        "claim": "The hidden costs of implementing fraud detection models in highly imbalanced datasets",
+        "quote": "Electronic companies anticipate a surge in fraudulent transactions globally, resulting in losses of 40.62$ billion by 2027. Fraudulent transactions around the world increased from 9.84$ billion in 2011 to 32.39$ billion in 2020",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
+        "stance": "supports",
         "confidence": 1.0,
         "citable": true,
-        "query_id": "Q2",
-        "cross_attributed": false
+        "query_id": "",
+        "cross_attributed": true
       },
       {
         "id": "S1-e3",
         "source_id": "S1",
         "sub_question_id": "SQ3",
-        "claim": "What are the hidden costs associated with implementing fraud detection models in real-time transaction processing systems?",
-        "quote": "The confusion matrix is particularly insightful for imbalanced datasets because it reveals the specific types of errors your model makes.",
+        "claim": "How different evaluation metrics handle class imbalance in fraud detection models",
+        "quote": "Metrics such as accuracy, precision, recall, and F1 score exhibit high results",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.0,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -449,12 +313,12 @@
         "id": "S1-e4",
         "source_id": "S1",
         "sub_question_id": "SQ4",
-        "claim": "How do data preprocessing techniques impact model accuracy and computational efficiency in fraud detection?",
-        "quote": "This code performs three essential steps in our machine learning pipeline. First, we import the necessary libraries for data manipulation (pandas) and model evaluation (sklearn.metrics). Then, we load our training and testing datasets from CSV files. Finally, we separate the features from the target variable, creating the four key datasets (Xtrain, ytrain, Xtest, ytest) that we'll use throughout our evaluation process.",
+        "claim": "Failure modes of fraud detection models when deployed in real-world transaction environments",
+        "quote": "Fraud detection has become a critical challenge, particularly with the growth of e-commerce.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.0,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -463,12 +327,12 @@
         "id": "S1-e5",
         "source_id": "S1",
         "sub_question_id": "SQ5",
-        "claim": "What are the common failure modes when scaling fraud detection models to handle high transaction volumes?",
-        "quote": "In this example, the model performs very well on the majority class but poorly on the minority class, which is often the class of greatest interest.",
+        "claim": "Conditions under which traditional evaluation metrics fail for fraud detection models",
+        "quote": "The growing number of transactions presents new challenges in identifying and preventing fraudulent activities",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "neutral",
-        "confidence": 0.0,
+        "stance": "supports",
+        "confidence": 1.0,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -477,8 +341,176 @@
         "id": "S1-e6",
         "source_id": "S1",
         "sub_question_id": "SQ6",
-        "claim": "Under what specific conditions does the use of traditional accuracy metrics fail to adequately evaluate fraud detection models?",
-        "quote": "When it comes to evaluating models trained on imbalanced datasets, the main challenge is that standard metrics like accuracy can paint an overly optimistic picture of model performance. Since the majority class dominates, a model can achieve high accuracy simply by always predicting the majority class, while completely failing to identify the minority class\u2014often the class of greatest interest.",
+        "claim": "How data preprocessing techniques impact model performance in highly imbalanced fraud detection",
+        "quote": "The application of SMOTE directly addresses the class imbalance.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q6",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e1",
+        "source_id": "S3",
+        "sub_question_id": "SQ1",
+        "claim": "FraudX AI combines random forest and XGBoost as baseline models",
+        "quote": "FraudX AI combines random forest and XGBoost as baseline models, integrating their results by averaging probabilities and optimizing thresholds to improve detection performance.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S3-e2",
+        "source_id": "S3",
+        "sub_question_id": "SQ2",
+        "claim": "Hidden costs of implementing fraud detection models in highly imbalanced datasets",
+        "quote": "FraudX AI achieved a recall value of 95% and an AUC-PR of 97%, effectively detecting rare fraudulent transactions and minimizing false positives.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e3",
+        "source_id": "S3",
+        "sub_question_id": "SQ3",
+        "claim": "How different evaluation metrics handle class imbalance in fraud detection models",
+        "quote": "Comparison of recall and AUC-PR across fraud detection models.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e4",
+        "source_id": "S3",
+        "sub_question_id": "SQ4",
+        "claim": "Failure modes of fraud detection models when deployed in real-world transaction environments",
+        "quote": "Traditional rule-based fraud detection systems struggle to adapt to evolving fraud patterns and often generate high false positive rates, causing financial and operational inefficiencies.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e5",
+        "source_id": "S3",
+        "sub_question_id": "SQ5",
+        "claim": "Conditions under which traditional evaluation metrics fail for fraud detection models",
+        "quote": "FraudX AI achieved a recall value of 95% and an AUC-PR of 97%, effectively detecting rare fraudulent transactions and minimizing false positives.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S3-e6",
+        "source_id": "S3",
+        "sub_question_id": "SQ6",
+        "claim": "Data preprocessing techniques impact model performance in highly imbalanced fraud detection",
+        "quote": "FraudX AI combines random forest and XGBoost as baseline models, integrating their results by averaging probabilities and optimizing thresholds to improve detection performance.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "supports",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e1",
+        "source_id": "S4",
+        "sub_question_id": "SQ1",
+        "claim": "The most effective machine learning models for fraud detection in highly imbalanced transaction datasets",
+        "quote": "The proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "Q1",
+        "cross_attributed": false
+      },
+      {
+        "id": "S4-e2",
+        "source_id": "S4",
+        "sub_question_id": "SQ2",
+        "claim": "The hidden costs of implementing fraud detection models in highly imbalanced datasets",
+        "quote": "The proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies.",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e3",
+        "source_id": "S4",
+        "sub_question_id": "SQ3",
+        "claim": "How different evaluation metrics handle class imbalance in fraud detection models",
+        "quote": "Moreover, credit card fraud detection using machine learning suffers from concept drift [3], high-dimensional categorical features [4], lack of public databases, and even some performance measures can be misleading when used for imbalanced data [5].",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e4",
+        "source_id": "S4",
+        "sub_question_id": "SQ4",
+        "claim": "Failure modes of fraud detection models when deployed in real-world transaction environments",
+        "quote": "Moreover, credit card fraud detection using machine learning suffers from concept drift [3], high-dimensional categorical features [4], lack of public databases, and even some performance measures can be misleading when used for imbalanced data [5].",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e5",
+        "source_id": "S4",
+        "sub_question_id": "SQ5",
+        "claim": "Conditions under which traditional evaluation metrics fail for fraud detection models",
+        "quote": "Moreover, credit card fraud detection using machine learning suffers from concept drift [3], high-dimensional categorical features [4], lack of public databases, and even some performance measures can be misleading when used for imbalanced data [5].",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 1.0,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
+      },
+      {
+        "id": "S4-e6",
+        "source_id": "S4",
+        "sub_question_id": "SQ6",
+        "claim": "How data preprocessing techniques impact model performance in highly imbalanced fraud detection",
+        "quote": "The proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
@@ -491,27 +523,27 @@
         "id": "S2-e1",
         "source_id": "S2",
         "sub_question_id": "SQ1",
-        "claim": "Generative models such as autoencoders (AE), variational autoencoders (VAE), and generative adversarial networks (GAN) are effective for fraud detection in imbalanced datasets.",
-        "quote": "Generative Models\n\nThe proposed solution uses generative models to address the imbalanced nature of fraud transactions. Specifically, autoencoders (AE), variational autoencoders (VAE), and generative adversarial networks (GAN) are employed to generate synthetic data for the minority class (fraud transactions).",
-        "quote_match": "none",
+        "claim": "The most effective machine learning models for fraud detection in highly imbalanced transaction datasets",
+        "quote": "F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metrics, which is useful when we want a combined score for model selection or when class distribution is skewed.",
+        "quote_match": "exact_normalized",
         "page": null,
-        "stance": "supports",
-        "confidence": 0.15,
-        "citable": false,
-        "query_id": "Q1",
-        "cross_attributed": false
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "",
+        "cross_attributed": true
       },
       {
         "id": "S2-e2",
         "source_id": "S2",
         "sub_question_id": "SQ2",
-        "claim": "The best evaluation metrics for imbalanced fraud detection are the Balanced F1 Score (BFDS) and the Area Under the ROC Curve (AUC-ROC), as they better capture the model's ability to identify fraud while minimizing false positives.",
-        "quote": "Model performance metrics with GAN, AE-GAN, AE, VAE, SMOTE, and ADASYN are compared using the Balanced F1 Score (BFDS) and AUC-ROC.",
-        "quote_match": "none",
+        "claim": "The hidden costs of implementing fraud detection models in highly imbalanced datasets",
+        "quote": "False positives, which flag legitimate transactions as fraudulent, can lead to customer dissatisfaction, while false negatives, where fraudulent transactions go undetected, can result in significant financial losses.",
+        "quote_match": "exact_normalized",
         "page": null,
-        "stance": "supports",
-        "confidence": 0.15,
-        "citable": false,
+        "stance": "neutral",
+        "confidence": 0.9,
+        "citable": true,
         "query_id": "",
         "cross_attributed": true
       },
@@ -519,27 +551,27 @@
         "id": "S2-e3",
         "source_id": "S2",
         "sub_question_id": "SQ3",
-        "claim": "Hidden costs include the computational overhead of generating synthetic data using generative models, the need for specialized hardware to handle real-time processing, and the potential for model drift due to changing fraud patterns.",
-        "quote": "The computational overhead of generating synthetic data using generative models and the need for specialized hardware to handle real-time processing are significant hidden costs in fraud detection systems.",
-        "quote_match": "none",
+        "claim": "How do different evaluation metrics handle class imbalance in fraud detection models",
+        "quote": "AUC-PR is the go-to metric when fraud cases are rare, and we care about catching as many as possible without overwhelming the system with false alarms.",
+        "quote_match": "exact_normalized",
         "page": null,
-        "stance": "supports",
-        "confidence": 0.15,
-        "citable": false,
-        "query_id": "",
-        "cross_attributed": true
+        "stance": "neutral",
+        "confidence": 0.8,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
       },
       {
         "id": "S2-e4",
         "source_id": "S2",
         "sub_question_id": "SQ4",
-        "claim": "Data preprocessing techniques such as oversampling (SMOTE, ADASYN) and synthetic data generation using generative models impact model accuracy and computational efficiency in fraud detection.",
-        "quote": "Oversampling techniques (SMOTE, ADASYN) and synthetic data generation using generative models (AE, VAE, GAN) impact model accuracy and computational efficiency.",
-        "quote_match": "none",
+        "claim": "The failure modes of fraud detection models when deployed in real-world transaction environments",
+        "quote": "Latency and complexity matter in payment systems. In the example below, the Payment Server dispatches parallel calls to KYC Service, Fraud Check, and Payment Rail, but the transaction can only complete once the slowest of these services responds (the KYC Service in this example). Even though Fraud Check takes just 25 ms, any fluctuation (like a network hiccup or a slow third-party response) can bottleneck the entire flow.",
+        "quote_match": "exact_normalized",
         "page": null,
-        "stance": "supports",
-        "confidence": 0.15,
-        "citable": false,
+        "stance": "neutral",
+        "confidence": 0.7,
+        "citable": true,
         "query_id": "",
         "cross_attributed": true
       },
@@ -547,12 +579,12 @@
         "id": "S2-e5",
         "source_id": "S2",
         "sub_question_id": "SQ5",
-        "claim": "Failure modes when scaling fraud detection models to handle high transaction volumes include model latency, increased false positives, and the need for continuous retraining to maintain accuracy.",
-        "quote": "When scaling fraud detection models to handle high transaction volumes, failure modes include model latency, increased false positives, and the need for continuous retraining to maintain accuracy.",
-        "quote_match": "none",
+        "claim": "The conditions under which traditional evaluation metrics fail for fraud detection models",
+        "quote": "AUC-ROC is threshold-independent: it summarizes performance across all thresholds, and it\u2019s less sensitive to class imbalance than accuracy.",
+        "quote_match": "fuzzy",
         "page": null,
-        "stance": "supports",
-        "confidence": 0.15,
+        "stance": "neutral",
+        "confidence": 0.28,
         "citable": false,
         "query_id": "",
         "cross_attributed": true
@@ -561,68 +593,12 @@
         "id": "S2-e6",
         "source_id": "S2",
         "sub_question_id": "SQ6",
-        "claim": "Traditional accuracy metrics fail to adequately evaluate fraud detection models when the dataset is imbalanced, as they do not account for the minority class (fraud transactions).",
-        "quote": "Traditional accuracy metrics fail to adequately evaluate fraud detection models when the dataset is imbalanced, as they do not account for the minority class (fraud transactions).",
-        "quote_match": "none",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.15,
-        "citable": false,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S4-e1",
-        "source_id": "S4",
-        "sub_question_id": "SQ1",
-        "claim": "What are the most effective machine learning models for fraud detection in highly imbalanced transaction datasets?",
-        "quote": "Consider using ensemble techniques like Random Forests or Gradient Boosting, which can help improve model performance on imbalanced datasets.",
+        "claim": "How data preprocessing techniques impact model performance in highly imbalanced fraud detection",
+        "quote": "F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metrics, which is useful when we want a combined score for model selection or when class distribution is skewed.",
         "quote_match": "exact_normalized",
         "page": null,
-        "stance": "supports",
-        "confidence": 0.9,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S4-e2",
-        "source_id": "S4",
-        "sub_question_id": "SQ2",
-        "claim": "What are the key evaluation metrics that accurately reflect model performance in imbalanced fraud detection scenarios?",
-        "quote": "When evaluating models on imbalanced datasets, traditional metrics like accuracy can be misleading. Instead, consider the following metrics: 1. Confusion Matrix 2. Precision 3. Recall (Sensitivity) 4. F1 Score 5. ROC AUC",
-        "quote_match": "none",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.135,
-        "citable": false,
-        "query_id": "Q2",
-        "cross_attributed": false
-      },
-      {
-        "id": "S4-e4",
-        "source_id": "S4",
-        "sub_question_id": "SQ4",
-        "claim": "How do data preprocessing techniques impact model accuracy and computational efficiency in fraud detection?",
-        "quote": "Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.8,
-        "citable": true,
-        "query_id": "",
-        "cross_attributed": true
-      },
-      {
-        "id": "S4-e6",
-        "source_id": "S4",
-        "sub_question_id": "SQ6",
-        "claim": "Under what specific conditions does the use of traditional accuracy metrics fail to adequately evaluate fraud detection models?",
-        "quote": "When evaluating models on imbalanced datasets, traditional metrics like accuracy can be misleading.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "supports",
-        "confidence": 0.9,
+        "stance": "neutral",
+        "confidence": 0.6,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -632,11 +608,11 @@
         "source_id": "S5",
         "sub_question_id": "SQ1",
         "claim": "The most effective machine learning models for fraud detection in highly imbalanced transaction datasets",
-        "quote": "Most financial fraud detection systems generate a binary output: a prediction indicating whether a transaction (txt) is fraudulent (1) or genuine (0).",
+        "quote": "The Numbers Game\nIn our dataset spanning 2019\u20132020, we observed months with only 258 fraudulent transactions among 139,538 total transactions (0.18%). The European Bank Authority\u2019s 2024 report shows even more extreme imbalance: fraud represents only 0.015% of total card payments in Q1 2023.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.5,
+        "confidence": 0.8,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -645,40 +621,40 @@
         "id": "S5-e2",
         "source_id": "S5",
         "sub_question_id": "SQ2",
-        "claim": "The key evaluation metrics that accurately reflect model performance in imbalanced fraud detection scenarios",
-        "quote": "In this post, I cover the most common metrics and considerations for evaluating fraud detection models while keeping these unique challenges in mind.",
+        "claim": "The hidden costs of implementing fraud detection models in highly imbalanced datasets",
+        "quote": "The Numbers Game\nIn our dataset spanning 2019\u20132020, we observed months with only 258 fraudulent transactions among 139,538 total transactions (0.18%). The European Bank Authority\u2019s 2024 report shows even more extreme imbalance: fraud represents only 0.015% of total card payments in Q1 2023.",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.5,
-        "citable": true,
-        "query_id": "Q2",
-        "cross_attributed": false
-      },
-      {
-        "id": "S5-e3",
-        "source_id": "S5",
-        "sub_question_id": "SQ3",
-        "claim": "The hidden costs associated with implementing fraud detection models in real-time transaction processing systems",
-        "quote": "Latency is the time it takes for the system to process a transaction and make an inference. Keeping latency low is crucial for real-time systems.",
-        "quote_match": "exact_normalized",
-        "page": null,
-        "stance": "neutral",
-        "confidence": 0.5,
+        "confidence": 0.8,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
       },
       {
-        "id": "S5-e4",
+        "id": "S5-e3",
         "source_id": "S5",
-        "sub_question_id": "SQ4",
-        "claim": "How data preprocessing techniques impact model accuracy and computational efficiency in fraud detection",
-        "quote": "By leveraging this universal approach to binary classification, we can establish standard evaluation methodologies to assess the performance of this type of models.",
+        "sub_question_id": "SQ3",
+        "claim": "How do different evaluation metrics handle class imbalance in fraud detection models?",
+        "quote": "Why Traditional Metrics Lie\nHere\u2019s a fun thought experiment: A model that simply predicts \"not fraud\" for all transactions would achieve:\n Accuracy: 99.985%\n Precision: Undefined (0/0)\n Recall: 0%\n F1 Score: 0%",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.5,
+        "confidence": 0.9,
+        "citable": true,
+        "query_id": "Q3",
+        "cross_attributed": false
+      },
+      {
+        "id": "S5-e4",
+        "source_id": "S5",
+        "sub_question_id": "SQ4",
+        "claim": "What are the failure modes of fraud detection models when deployed in real-world transaction environments?",
+        "quote": "Performance Analysis Across Datasets\nOur model\u2019s performance reveals:\n PR-AUC: Shows significant overfitting (0.4 drop from Training to OOT)\n ROC-AUC: Remains stable (around 0.99) but masks underlying issues",
+        "quote_match": "exact_normalized",
+        "page": null,
+        "stance": "neutral",
+        "confidence": 0.8,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -687,12 +663,12 @@
         "id": "S5-e5",
         "source_id": "S5",
         "sub_question_id": "SQ5",
-        "claim": "Common failure modes when scaling fraud detection models to handle high transaction volumes",
-        "quote": "Latency and complexity matter in payment systems. In the example below, the Payment Server dispatches parallel calls to KYC Service, Fraud Check, and Payment Rail, but the transaction can only complete once the slowest of these services responds (the KYC Service in this example).",
+        "claim": "What are the conditions under which traditional evaluation metrics fail for fraud detection models?",
+        "quote": "Why Traditional Metrics Lie\nHere\u2019s a fun thought experiment: A model that simply predicts \"not fraud\" for all transactions would achieve:\n Accuracy: 99.985%\n Precision: Undefined (0/0)\n Recall: 0%\n F1 Score: 0%",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.5,
+        "confidence": 0.9,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -701,12 +677,12 @@
         "id": "S5-e6",
         "source_id": "S5",
         "sub_question_id": "SQ6",
-        "claim": "Specific conditions where traditional accuracy metrics fail to adequately evaluate fraud detection models",
-        "quote": "AUC-PR is the go-to metric when fraud cases are rare, and we care about catching as many as possible without overwhelming the system with false alarms.",
+        "claim": "How do data preprocessing techniques impact model performance in highly imbalanced fraud detection?",
+        "quote": "Best Practices: Technical Implementation\n1. Metric Selection\n- Primary: PR-AUC for overall performance\n- Secondary: Precision and Recall for specific aspects\n- Business metrics for operational impact",
         "quote_match": "exact_normalized",
         "page": null,
         "stance": "neutral",
-        "confidence": 0.5,
+        "confidence": 0.7,
         "citable": true,
         "query_id": "",
         "cross_attributed": true
@@ -715,77 +691,77 @@
     "sources": [
       {
         "id": "S1",
-        "url": "https://codesignal.com/learn/courses/evaluation-metrics-advanced-techniques/lessons/comprehensive-evaluation-strategies-for-imbalanced-data",
-        "title": "Comprehensive Evaluation Strategies for Imbalanced Data | CodeSignal Learn",
-        "domain": "codesignal.com",
+        "url": "https://mjcis.journals.ekb.eg/article_414893_9e92b6e04aa25efa9bcbeef5275ebfc0.pdf",
+        "title": "Enhancing Fraud Detection in Imbalanced Datasets",
+        "domain": "mjcis.journals.ekb.eg",
         "source_type": "other",
         "content_origin": "provider_raw",
-        "quality_score": 0.627,
+        "quality_score": 0.633,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S2",
-        "url": "https://www.mdpi.com/2624-800X/5/1/9",
-        "title": "Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection",
-        "domain": "mdpi.com",
-        "source_type": "other",
+        "url": "https://www.cesarsotovalero.net/blog/evaluation-metrics-for-real-time-financial-fraud-detection-ml-models.html",
+        "title": "Evaluation Metrics for Real-Time Financial Fraud Detection ...",
+        "domain": "cesarsotovalero.net",
+        "source_type": "blog",
         "content_origin": "provider_raw",
-        "quality_score": 0.626,
+        "quality_score": 0.581,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S3",
-        "url": "https://arxiv.org/html/2208.11904v1",
-        "title": "Empirical study of Machine Learning Classifier Evaluation Metrics behavior in Massively Imbalanced and Noisy data",
-        "domain": "arxiv.org",
-        "source_type": "academic",
+        "url": "https://www.mdpi.com/2073-431X/14/4/120",
+        "title": "FraudX AI: An Interpretable Machine Learning Framework for Credit Card Fraud Detection on Imbalanced Datasets",
+        "domain": "mdpi.com",
+        "source_type": "other",
         "content_origin": "provider_raw",
-        "quality_score": 0.973,
+        "quality_score": 0.629,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S4",
-        "url": "https://www.bugfree.ai/knowledge-hub/evaluating-models-on-imbalanced-data-best-practices",
-        "title": "Evaluating Models on Imbalanced Data: Best Practices - Machine Learning Interview Guide | bugfree.ai",
-        "domain": "bugfree.ai",
+        "url": "https://link.springer.com/article/10.1186/s40537-024-01059-5",
+        "title": "Enhancing credit card fraud detection: highly imbalanced data case | Journal of Big Data | Springer Nature Link",
+        "domain": "link.springer.com",
         "source_type": "other",
         "content_origin": "provider_raw",
-        "quality_score": 0.572,
+        "quality_score": 0.628,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       },
       {
         "id": "S5",
-        "url": "https://www.cesarsotovalero.net/blog/evaluation-metrics-for-real-time-financial-fraud-detection-ml-models.html",
-        "title": "Evaluation Metrics for Real-Time Financial Fraud Detection ML Models",
-        "domain": "cesarsotovalero.net",
+        "url": "https://medium.com/@valeria.verzi1/understanding-model-evaluation-metrics-in-fraud-detection-beyond-accuracy-52b224ac0418",
+        "title": "Understanding Model Evaluation Metrics in Fraud Detection: Beyond Accuracy",
+        "domain": "medium.com",
         "source_type": "blog",
         "content_origin": "provider_raw",
-        "quality_score": 0.571,
+        "quality_score": 0.577,
         "page_count": null,
         "usable": true,
         "fetch_status": "provider_content"
       }
     ],
     "verification": {
-      "total_claims": 6,
-      "substantive_claims": 6,
-      "total_citations": 6,
-      "resolvable_citations": 6,
-      "total_evidence_refs": 6,
-      "resolvable_evidence_refs": 6,
-      "supported_claims": 6,
-      "partially_supported_claims": 0,
-      "unsupported_claims": 5,
-      "checked_claims": 11,
-      "checkable_claims": 11,
+      "total_claims": 3,
+      "substantive_claims": 3,
+      "total_citations": 3,
+      "resolvable_citations": 3,
+      "total_evidence_refs": 3,
+      "resolvable_evidence_refs": 3,
+      "supported_claims": 3,
+      "partially_supported_claims": 3,
+      "unsupported_claims": 0,
+      "checked_claims": 6,
+      "checkable_claims": 6,
       "not_checked_claims": 0,
       "entailment_exhaustive": true,
       "contradictions_total": 0,
@@ -793,43 +769,16 @@
       "contradiction_sides_checkable": 0,
       "contradiction_sides_checked": 0,
       "contradictions_semantically_supported": 0,
-      "duplicate_claims_removed": 8,
+      "duplicate_claims_removed": 9,
       "judgments": [
         {
-          "claim_text": "Ensemble techniques like Random Forests or Gradient Boosting improve model performance on imbalanced transaction datasets.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S4-e1"
-          ],
-          "verdict": "unsupported",
-          "reason": "best entailment 0.002 from S4-e1 is below the 0.98 support threshold",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.001982,
-              "neutral": 0.997559,
-              "contradiction": 0.000516,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e1",
-          "best_entailment": 0.001982,
-          "guards_passed": true,
-          "publishable": false
-        },
-        {
-          "claim_text": "Machine learning classifiers enhance proactive fraud detection in financial systems.",
+          "claim_text": "FraudX AI combines random forest and XGBoost as baseline models, integrating their results by averaging probabilities and optimizing thresholds to improve detection performance.",
           "kind": "factual",
           "evidence_ids": [
             "S3-e1"
           ],
-          "verdict": "supported",
-          "reason": "entailed by S3-e1 at 0.999 >= 0.98",
+          "verdict": "partially_supported",
+          "reason": "best entailment 0.916 from S3-e1 is below the 0.98 support threshold",
           "checked": true,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
@@ -837,26 +786,80 @@
           "evidence_scores": [
             {
               "evidence_id": "S3-e1",
-              "entailment": 0.998535,
-              "neutral": 0.00133,
-              "contradiction": 9.2e-05,
+              "entailment": 0.915527,
+              "neutral": 0.080627,
+              "contradiction": 0.003719,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S3-e1",
-          "best_entailment": 0.998535,
+          "best_entailment": 0.915527,
+          "guards_passed": true,
+          "publishable": false
+        },
+        {
+          "claim_text": "The proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S4-e1"
+          ],
+          "verdict": "supported",
+          "reason": "entailed by S4-e1 at 0.985 >= 0.98",
+          "checked": true,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "evidence_scores": [
+            {
+              "evidence_id": "S4-e1",
+              "entailment": 0.985352,
+              "neutral": 0.013405,
+              "contradiction": 0.001132,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S4-e1",
+          "best_entailment": 0.985352,
           "guards_passed": true,
           "publishable": true
         },
         {
-          "claim_text": "Fraud detection systems typically generate binary outputs indicating fraudulent transactions.",
+          "claim_text": "F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metrics, which is useful when we want a combined score for model selection or when class distribution is skewed.",
+          "kind": "factual",
+          "evidence_ids": [
+            "S2-e1"
+          ],
+          "verdict": "partially_supported",
+          "reason": "best entailment 0.933 from S2-e1 is below the 0.98 support threshold",
+          "checked": true,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "evidence_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.932617,
+              "neutral": 0.060394,
+              "contradiction": 0.006847,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.932617,
+          "guards_passed": true,
+          "publishable": false
+        },
+        {
+          "claim_text": "The Numbers Game: In datasets spanning 2019\u20132020, months with only 258 fraudulent transactions among 139,538 total transactions (0.18%) were observed. The European Bank Authority\u2019s 2024 report shows fraud represents only 0.015% of total card payments in Q1 2023.",
           "kind": "factual",
           "evidence_ids": [
             "S5-e1"
           ],
-          "verdict": "unsupported",
-          "reason": "every cited quote failed a deterministic guard: modality",
+          "verdict": "supported",
+          "reason": "entailed by S5-e1 at 0.989 >= 0.98",
           "checked": true,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
@@ -864,28 +867,26 @@
           "evidence_scores": [
             {
               "evidence_id": "S5-e1",
-              "entailment": 0.992188,
-              "neutral": 0.00724,
-              "contradiction": 0.000535,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
+              "entailment": 0.98877,
+              "neutral": 0.007515,
+              "contradiction": 0.003588,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
           "best_evidence_id": "S5-e1",
-          "best_entailment": 0.992188,
-          "guards_passed": false,
-          "publishable": false
+          "best_entailment": 0.98877,
+          "guards_passed": true,
+          "publishable": true
         },
         {
-          "claim_text": "Sensitivity to class distribution is a key consideration for evaluating imbalanced fraud detection models.",
+          "claim_text": "Electronic companies anticipate a surge in fraudulent transactions globally, resulting in losses of 40.62 billion USD by 2027, with fraudulent transactions increasing from 9.84 billion USD in 2011 to 32.39 billion USD in 2020.",
           "kind": "factual",
           "evidence_ids": [
             "S1-e2"
           ],
-          "verdict": "unsupported",
-          "reason": "best entailment 0.001 from S1-e2 is below the 0.98 support threshold",
+          "verdict": "supported",
+          "reason": "entailed by S1-e2 at 0.986 >= 0.98",
           "checked": true,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
@@ -893,53 +894,26 @@
           "evidence_scores": [
             {
               "evidence_id": "S1-e2",
-              "entailment": 0.000564,
-              "neutral": 0.999023,
-              "contradiction": 0.000222,
+              "entailment": 0.986328,
+              "neutral": 0.012291,
+              "contradiction": 0.001234,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S1-e2",
-          "best_entailment": 0.000564,
+          "best_entailment": 0.986328,
           "guards_passed": true,
-          "publishable": false
+          "publishable": true
         },
         {
-          "claim_text": "Cost of errors, particularly false positives and false negatives, significantly impacts model evaluation in fraud detection.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S1-e2"
-          ],
-          "verdict": "unsupported",
-          "reason": "best entailment 0.000 from S1-e2 is below the 0.98 support threshold",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S1-e2",
-              "entailment": 0.000139,
-              "neutral": 0.999512,
-              "contradiction": 0.000205,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e2",
-          "best_entailment": 0.000139,
-          "guards_passed": true,
-          "publishable": false
-        },
-        {
-          "claim_text": "A combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection models.",
+          "claim_text": "FraudX AI achieved a recall value of 95% and an AUC-PR of 97%, effectively detecting rare fraudulent transactions and minimizing false positives.",
           "kind": "factual",
           "evidence_ids": [
             "S3-e2"
           ],
-          "verdict": "supported",
-          "reason": "entailed by S3-e2 at 0.984 >= 0.98",
+          "verdict": "partially_supported",
+          "reason": "best entailment 0.911 from S3-e2 is below the 0.98 support threshold",
           "checked": true,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
@@ -947,216 +921,57 @@
           "evidence_scores": [
             {
               "evidence_id": "S3-e2",
-              "entailment": 0.983887,
-              "neutral": 0.015732,
-              "contradiction": 0.000559,
+              "entailment": 0.911133,
+              "neutral": 0.085205,
+              "contradiction": 0.003819,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S3-e2",
-          "best_entailment": 0.983887,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Latency is the time it takes for the system to process a transaction and make an inference.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S5-e3"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S5-e3 at 0.991 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.990723,
-              "neutral": 0.008713,
-              "contradiction": 0.000582,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e3",
-          "best_entailment": 0.990723,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "SMOTE (Synthetic Minority Over-sampling Technique) generates synthetic examples of the minority class to balance datasets.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S4-e4"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S4-e4 at 0.997 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S4-e4",
-              "entailment": 0.996582,
-              "neutral": 0.00309,
-              "contradiction": 0.000237,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e4",
-          "best_entailment": 0.996582,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Credit card fraud detection systems face challenges including massively unbalanced fraud data and difficulty creating gold standard ground truth.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S3-e5"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S3-e5 at 0.997 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S3-e5",
-              "entailment": 0.99707,
-              "neutral": 0.002817,
-              "contradiction": 0.000172,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e5",
-          "best_entailment": 0.99707,
-          "guards_passed": true,
-          "publishable": true
-        },
-        {
-          "claim_text": "Latency and complexity affect payment systems when scaling fraud detection models to high transaction volumes.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S5-e5"
-          ],
-          "verdict": "unsupported",
-          "reason": "best entailment 0.001 from S5-e5 is below the 0.98 support threshold",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S5-e5",
-              "entailment": 0.000765,
-              "neutral": 0.999023,
-              "contradiction": 0.00044,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e5",
-          "best_entailment": 0.000765,
+          "best_entailment": 0.911133,
           "guards_passed": true,
           "publishable": false
-        },
-        {
-          "claim_text": "Traditional accuracy metrics can be misleading when evaluating models on imbalanced datasets.",
-          "kind": "factual",
-          "evidence_ids": [
-            "S4-e6"
-          ],
-          "verdict": "supported",
-          "reason": "entailed by S4-e6 at 0.999 >= 0.98",
-          "checked": true,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "evidence_scores": [
-            {
-              "evidence_id": "S4-e6",
-              "entailment": 0.999023,
-              "neutral": 0.000659,
-              "contradiction": 7.9e-05,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e6",
-          "best_entailment": 0.999023,
-          "guards_passed": true,
-          "publishable": true
         }
       ],
-      "generated_substantive_claims": 19,
-      "removed_after_verification": 5,
-      "final_published_claims": 6,
+      "generated_substantive_claims": 15,
+      "removed_after_verification": 3,
+      "final_published_claims": 3,
       "evidence_only_excerpts": 0,
       "issues": [
         {
-          "type": "unused_source",
-          "severity": "info",
-          "claim_text": "",
-          "citation_id": "S2",
-          "evidence_id": "",
-          "detail": "retrieved but never cited"
+          "type": "partially_supported_claim",
+          "severity": "warning",
+          "claim_text": "FraudX AI combines random forest and XGBoost as baseline models, integrating their results by averaging probabilities and optimizing thresholds to improve detection performance.",
+          "citation_id": "",
+          "evidence_id": "S3-e1",
+          "detail": "best entailment 0.916 from S3-e1 is below the 0.98 support threshold"
         },
         {
-          "type": "unsupported_claim",
+          "type": "partially_supported_claim",
           "severity": "warning",
-          "claim_text": "Ensemble techniques like Random Forests or Gradient Boosting improve model performance on imbalanced transaction datasets.",
+          "claim_text": "F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metrics, which is useful when we want a combined score for model selection or when cla",
           "citation_id": "",
-          "evidence_id": "S4-e1",
-          "detail": "best entailment 0.002 from S4-e1 is below the 0.98 support threshold"
+          "evidence_id": "S2-e1",
+          "detail": "best entailment 0.933 from S2-e1 is below the 0.98 support threshold"
         },
         {
-          "type": "unsupported_claim",
+          "type": "partially_supported_claim",
           "severity": "warning",
-          "claim_text": "Fraud detection systems typically generate binary outputs indicating fraudulent transactions.",
+          "claim_text": "FraudX AI achieved a recall value of 95% and an AUC-PR of 97%, effectively detecting rare fraudulent transactions and minimizing false positives.",
           "citation_id": "",
-          "evidence_id": "S5-e1",
-          "detail": "every cited quote failed a deterministic guard: modality"
-        },
-        {
-          "type": "unsupported_claim",
-          "severity": "warning",
-          "claim_text": "Sensitivity to class distribution is a key consideration for evaluating imbalanced fraud detection models.",
-          "citation_id": "",
-          "evidence_id": "S1-e2",
-          "detail": "best entailment 0.001 from S1-e2 is below the 0.98 support threshold"
-        },
-        {
-          "type": "unsupported_claim",
-          "severity": "warning",
-          "claim_text": "Cost of errors, particularly false positives and false negatives, significantly impacts model evaluation in fraud detection.",
-          "citation_id": "",
-          "evidence_id": "S1-e2",
-          "detail": "best entailment 0.000 from S1-e2 is below the 0.98 support threshold"
-        },
-        {
-          "type": "unsupported_claim",
-          "severity": "warning",
-          "claim_text": "Latency and complexity affect payment systems when scaling fraud detection models to high transaction volumes.",
-          "citation_id": "",
-          "evidence_id": "S5-e5",
-          "detail": "best entailment 0.001 from S5-e5 is below the 0.98 support threshold"
+          "evidence_id": "S3-e2",
+          "detail": "best entailment 0.911 from S3-e2 is below the 0.98 support threshold"
         }
       ],
       "unused_source_ids": [
-        "S1",
-        "S2"
+        "S2",
+        "S3"
       ],
       "repaired": false
     },
     "metrics": {
-      "run_id": "20260926-051250-575138",
+      "run_id": "20260926-055100-998a43",
       "query": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
       "mode": "local",
       "model_assignments": {
@@ -1166,7 +981,7 @@
         "synthesizer": "ollama:qwen3:4b",
         "verifier": "ollama:qwen3:4b"
       },
-      "duration_s": 599.34,
+      "duration_s": 1303.09,
       "environment": {
         "python": "3.12.3",
         "platform": "macOS-26.5.2-arm64-arm-64bit",
@@ -1191,8 +1006,8 @@
           "prompt_version": "f1384963fe1a",
           "schema_version": "f9e23be16b90",
           "git": {
-            "commit": "d0b6177d40b1c5644da918cd11417894daa9a703",
-            "short_commit": "d0b6177d",
+            "commit": "38162488147376b95549edee167a3efb6da2e1ad",
+            "short_commit": "38162488",
             "dirty": false,
             "branch": "verifier-nli"
           },
@@ -1208,6 +1023,12 @@
         "ollama": {
           "version": "0.32.5",
           "models": {
+            "qwen2.5:7b-instruct": {
+              "digest": "845dbda0ea48ed74",
+              "size_bytes": 4683087332,
+              "quantization": "Q4_K_M",
+              "parameter_size": "7.6B"
+            },
             "qwen3:4b": {
               "digest": "359d7dd4bcdab3d8",
               "size_bytes": 2497293931,
@@ -1250,19 +1071,21 @@
       "pages_fetched": 0,
       "provider_content_reused": 5,
       "fetch_failures": 0,
-      "fetch_status_breakdown": {},
-      "duplicate_urls": 3,
+      "fetch_status_breakdown": {
+        "empty": 1
+      },
+      "duplicate_urls": 12,
       "already_known_urls": 0,
       "content_duplicates": 0,
-      "fetches_avoided": 3,
+      "fetches_avoided": 12,
       "unique_sources": 5,
       "usable_sources": 5,
-      "evidence_items": 28,
-      "exact_quotes": 20,
+      "evidence_items": 30,
+      "exact_quotes": 28,
       "fuzzy_quotes": 1,
-      "unmatched_quotes": 7,
-      "citable_evidence": 20,
-      "cross_attributed_evidence": 23,
+      "unmatched_quotes": 1,
+      "citable_evidence": 28,
+      "cross_attributed_evidence": 25,
       "content_origins": {
         "provider_raw": 5
       },
@@ -1282,8 +1105,8 @@
       "reserved_worst_case_usd": 0.0,
       "reservation_was_sufficient": true,
       "llm_failed_calls": 0,
-      "input_tokens": 18855,
-      "output_tokens": 4940,
+      "input_tokens": 21352,
+      "output_tokens": 4925,
       "calls_by_provider": {
         "ollama": 10
       },
@@ -1299,34 +1122,34 @@
       "citation_integrity_rate": 1.0,
       "evidence_integrity_rate": 1.0,
       "citation_coverage_rate": 1.0,
-      "claim_support_rate": 0.5455,
-      "partial_support_rate": 0.0,
+      "claim_support_rate": 0.5,
+      "partial_support_rate": 0.5,
       "support_breakdown": {
-        "supported": 6,
-        "partially_supported": 0,
-        "unsupported": 5,
+        "supported": 3,
+        "partially_supported": 3,
+        "unsupported": 0,
         "not_checked": 0
       },
       "entailment_exhaustive": true,
-      "citations_total": 6,
-      "evidence_refs_total": 6,
+      "citations_total": 3,
+      "evidence_refs_total": 3,
       "contradictions_total": 0,
       "contradictions_auditable": 0,
       "unused_sources": 2,
       "citations_repaired": false,
       "stage_seconds": {
-        "analyze_query": 6.94,
-        "plan_research": 16.193,
-        "generate_queries": 15.783,
-        "dedupe_sources": 0.003,
+        "analyze_query": 6.834,
+        "plan_research": 14.345,
+        "generate_queries": 14.148,
+        "dedupe_sources": 0.004,
         "register_sources": 0.0,
-        "assess_coverage": 20.425,
-        "synthesize": 125.702,
-        "verify_citations": 21.961
+        "assess_coverage": 32.319,
+        "synthesize": 437.303,
+        "verify_citations": 146.205
       },
       "errors": 0,
       "error_kinds": {}
     },
-    "markdown": "# Timeline of Modern Fraud Detection Approaches for Highly Imbalanced Transaction Datasets\n\n**Question:** Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.\n\n## Summary\n\nMachine learning classifiers enhance proactive fraud detection in financial systems. [S3] A combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection models. [S3]\n\n## Real-Time Implementation Challenges\n\nLatency is the time it takes for the system to process a transaction and make an inference. [S5]\n\n## Data Preprocessing Techniques\n\nSMOTE (Synthetic Minority Over-sampling Technique) generates synthetic examples of the minority class to balance datasets. [S4]\n\n## Scalability Challenges\n\nCredit card fraud detection systems face challenges including massively unbalanced fraud data and difficulty creating gold standard ground truth. [S3]\n\n## Failure Modes of Traditional Metrics\n\nTraditional accuracy metrics can be misleading when evaluating models on imbalanced datasets. [S4]\n\n## Limitations\n\n- The evidence does not provide specific details on the computational efficiency trade-offs of SMOTE or other preprocessing techniques.\n- The evidence does not specify the exact thresholds for false positive and false negative costs in fraud detection systems.\n- The evidence does not detail the impact of latency on model accuracy in real-time systems beyond the general statement of latency importance.\n- The evidence does not provide concrete examples of how to balance the trade-offs between false positives and false negatives in practice.\n- 8 extracted finding(s) were excluded because their quotes could not be located in the source text\n- 5 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [Comprehensive Evaluation Strategies for Imbalanced Data | CodeSignal Learn](https://codesignal.com/learn/courses/evaluation-metrics-advanced-techniques/lessons/comprehensive-evaluation-strategies-for-imbalanced-data) \u2014 codesignal.com, other, n.d., quality 0.63 _(retrieved, not cited)_\n- **[S2]** [Generative Modeling for Imbalanced Credit Card Fraud Transaction Detection](https://www.mdpi.com/2624-800X/5/1/9) \u2014 mdpi.com, other, n.d., quality 0.63 _(retrieved, not cited)_\n- **[S3]** [Empirical study of Machine Learning Classifier Evaluation Metrics behavior in Massively Imbalanced and Noisy data](https://arxiv.org/html/2208.11904v1) \u2014 arxiv.org, academic, n.d., quality 0.97\n- **[S4]** [Evaluating Models on Imbalanced Data: Best Practices - Machine Learning Interview Guide | bugfree.ai](https://www.bugfree.ai/knowledge-hub/evaluating-models-on-imbalanced-data-best-practices) \u2014 bugfree.ai, other, n.d., quality 0.57\n- **[S5]** [Evaluation Metrics for Real-Time Financial Fraud Detection ML Models](https://www.cesarsotovalero.net/blog/evaluation-metrics-for-real-time-financial-fraud-detection-ml-models.html) \u2014 cesarsotovalero.net, blog, n.d., quality 0.57\n\n## Citation verification\n\n- Evidence references: 6, 6 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: 100% of 6\n- Entailment checked against each claim's own evidence, over every eligible claim: 6 supported, 0 partially supported, 5 unsupported, 0 not checked\n- Retrieved but never cited: S1, S2\n\n<details><summary>Open citation issues</summary>\n\n- `unsupported_claim` best entailment 0.002 from S4-e1 is below the 0.98 support threshold \u2014 Ensemble techniques like Random Forests or Gradient Boosting improve model performance on imbalanced transaction dataset\n- `unsupported_claim` every cited quote failed a deterministic guard: modality \u2014 Fraud detection systems typically generate binary outputs indicating fraudulent transactions.\n- `unsupported_claim` best entailment 0.001 from S1-e2 is below the 0.98 support threshold \u2014 Sensitivity to class distribution is a key consideration for evaluating imbalanced fraud detection models.\n- `unsupported_claim` best entailment 0.000 from S1-e2 is below the 0.98 support threshold \u2014 Cost of errors, particularly false positives and false negatives, significantly impacts model evaluation in fraud detect\n- `unsupported_claim` best entailment 0.001 from S5-e5 is below the 0.98 support threshold \u2014 Latency and complexity affect payment systems when scaling fraud detection models to high transaction volumes.\n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 6 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 3 |\n| Evidence items | 28 |\n| Quotes verbatim (exact-normalised) | 71% |\n| Quotes fuzzy (excluded from citation) | 4% |\n| LLM calls | 10 |\n| Tokens (in/out) | 18,855 / 4,940 |\n| Estimated cost | $0.0000 |\n| Duration | 599.3s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-26 05:22 UTC._\n"
+    "markdown": "# Timeline of Modern Fraud Detection Approaches for Highly Imbalanced Transaction Datasets\n\n**Question:** Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.\n\n## Summary\n\nThe proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies. [S4] The Numbers Game: In datasets spanning 2019\u20132020, months with only 258 fraudulent transactions among 139,538 total transactions (0.18%) were observed. The European Bank Authority\u2019s 2024 report shows fraud represents only 0.015% of total card payments in Q1 2023. [S5] Electronic companies anticipate a surge in fraudulent transactions globally, resulting in losses of 40.62 billion USD by 2027, with fraudulent transactions increasing from 9.84 billion USD in 2011 to 32.39 billion USD in 2020. [S1]\n\n## Limitations\n\n- The evidence does not specify the exact impact of data preprocessing techniques on model performance beyond the application of SMOTE.\n- The evidence does not provide detailed information on the failure modes of fraud detection models in real-world transaction environments beyond concept drift and high-dimensional categorical features.\n- The evidence does not clarify the conditions under which traditional evaluation metrics fail for fraud detection models beyond the thought experiment example.\n- 2 extracted finding(s) were excluded because their quotes could not be located in the source text\n- 3 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [Enhancing Fraud Detection in Imbalanced Datasets](https://mjcis.journals.ekb.eg/article_414893_9e92b6e04aa25efa9bcbeef5275ebfc0.pdf) \u2014 mjcis.journals.ekb.eg, other, n.d., quality 0.63\n- **[S2]** [Evaluation Metrics for Real-Time Financial Fraud Detection ...](https://www.cesarsotovalero.net/blog/evaluation-metrics-for-real-time-financial-fraud-detection-ml-models.html) \u2014 cesarsotovalero.net, blog, n.d., quality 0.58 _(retrieved, not cited)_\n- **[S3]** [FraudX AI: An Interpretable Machine Learning Framework for Credit Card Fraud Detection on Imbalanced Datasets](https://www.mdpi.com/2073-431X/14/4/120) \u2014 mdpi.com, other, n.d., quality 0.63 _(retrieved, not cited)_\n- **[S4]** [Enhancing credit card fraud detection: highly imbalanced data case | Journal of Big Data | Springer Nature Link](https://link.springer.com/article/10.1186/s40537-024-01059-5) \u2014 link.springer.com, other, n.d., quality 0.63\n- **[S5]** [Understanding Model Evaluation Metrics in Fraud Detection: Beyond Accuracy](https://medium.com/@valeria.verzi1/understanding-model-evaluation-metrics-in-fraud-detection-beyond-accuracy-52b224ac0418) \u2014 medium.com, blog, n.d., quality 0.58\n\n## Citation verification\n\n- Evidence references: 3, 3 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: 100% of 3\n- Entailment checked against each claim's own evidence, over every eligible claim: 3 supported, 3 partially supported, 0 unsupported, 0 not checked\n- Retrieved but never cited: S2, S3\n\n<details><summary>Open citation issues</summary>\n\n- `partially_supported_claim` best entailment 0.916 from S3-e1 is below the 0.98 support threshold \u2014 FraudX AI combines random forest and XGBoost as baseline models, integrating their results by averaging probabilities an\n- `partially_supported_claim` best entailment 0.933 from S2-e1 is below the 0.98 support threshold \u2014 F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metric\n- `partially_supported_claim` best entailment 0.911 from S3-e2 is below the 0.98 support threshold \u2014 FraudX AI achieved a recall value of 95% and an AUC-PR of 97%, effectively detecting rare fraudulent transactions and mi\n\n</details>\n\n## Run metrics\n\n| Metric | Value |\n| --- | --- |\n| Mode | local |\n| Research rounds | 1 |\n| Stopped because | coverage judged sufficient |\n| Search queries | 6 |\n| Unique sources | 5 |\n| Usable sources | 5 |\n| Distinct domains | 5 |\n| Fetches avoided by dedup | 12 |\n| Evidence items | 30 |\n| Quotes verbatim (exact-normalised) | 93% |\n| Quotes fuzzy (excluded from citation) | 3% |\n| LLM calls | 10 |\n| Tokens (in/out) | 21,352 / 4,925 |\n| Estimated cost | $0.0000 |\n| Duration | 1303.1s |\n\n---\n\n_Generated by Agentic Research Engine on 2026-09-26 06:12 UTC._\n"
   }
 }
