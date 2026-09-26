@@ -4,65 +4,30 @@
   "runs": {
     "fraud-detection-imbalanced": {
       "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
-      "recorded_at": "2026-09-26T05:22:50.087138+00:00",
+      "recorded_at": "2026-09-26T06:12:44.157089+00:00",
       "commit": null,
       "counts": {
-        "raw_generated": 19,
-        "duplicates_removed": 8,
-        "candidates": 11,
-        "checkable": 11,
-        "checked": 11,
+        "raw_generated": 15,
+        "duplicates_removed": 9,
+        "candidates": 6,
+        "checkable": 6,
+        "checked": 6,
         "not_checked": 0,
-        "published": 6,
-        "withheld": 5,
+        "published": 3,
+        "withheld": 3,
         "evidence_only_excerpts": 0,
         "exhaustive": true,
-        "publication_rate": 0.5455
+        "publication_rate": 0.5
       },
       "gate_disagreements": [],
       "candidates": [
         {
-          "claim": "Ensemble techniques like Random Forests or Gradient Boosting improve model performance on imbalanced transaction datasets.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Consider using ensemble techniques like Random Forests or Gradient Boosting, which can help improve model performance on imbalanced datasets.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.001982,
-              "neutral": 0.997559,
-              "contradiction": 0.000516,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e1",
-          "best_entailment": 0.001982,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.002 from S4-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Machine learning classifiers enhance proactive fraud detection in financial systems.",
+          "claim": "FraudX AI combines random forest and XGBoost as baseline models, integrating their results by averaging probabilities and optimizing thresholds to improve detection performance.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S3-e1",
-              "quote": "The use of machine learning into the financial sector permits more effective protection against fraud and other economic crime. Suitably trained machine learning classifiers help proactive fraud detection, improving stakeholder trust and robustness against illicit transactions.",
+              "quote": "FraudX AI combines random forest and XGBoost as baseline models, integrating their results by averaging probabilities and optimizing thresholds to improve detection performance.",
               "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
@@ -71,33 +36,103 @@
           "nli_scores": [
             {
               "evidence_id": "S3-e1",
-              "entailment": 0.998535,
-              "neutral": 0.00133,
-              "contradiction": 9.2e-05,
+              "entailment": 0.915527,
+              "neutral": 0.080627,
+              "contradiction": 0.003719,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S3-e1",
-          "best_entailment": 0.998535,
+          "best_entailment": 0.915527,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.916 from S3-e1 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e1",
+              "quote": "The proposed FID-SOM method has demonstrated its ability to perform on par with, if not surpass, existing methodologies.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e1",
+              "entailment": 0.985352,
+              "neutral": 0.013405,
+              "contradiction": 0.001132,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S4-e1",
+          "best_entailment": 0.985352,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e1 at 0.999 >= 0.98",
+          "withhold_reason": "entailed by S4-e1 at 0.985 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Fraud detection systems typically generate binary outputs indicating fraudulent transactions.",
+          "claim": "F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metrics, which is useful when we want a combined score for model selection or when class distribution is skewed.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S2-e1",
+              "quote": "F1-Score, or F1 for short, is the harmonic mean of Precision and Recall. It gives a single-figure balance of both metrics, which is useful when we want a combined score for model selection or when class distribution is skewed.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.932617,
+              "neutral": 0.060394,
+              "contradiction": 0.006847,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.932617,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.933 from S2-e1 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Numbers Game: In datasets spanning 2019\u20132020, months with only 258 fraudulent transactions among 139,538 total transactions (0.18%) were observed. The European Bank Authority\u2019s 2024 report shows fraud represents only 0.015% of total card payments in Q1 2023.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S5-e1",
-              "quote": "Most financial fraud detection systems generate a binary output: a prediction indicating whether a transaction (txt) is fraudulent (1) or genuine (0).",
+              "quote": "The Numbers Game\nIn our dataset spanning 2019\u20132020, we observed months with only 258 fraudulent transactions among 139,538 total transactions (0.18%). The European Bank Authority\u2019s 2024 report shows even more extreme imbalance: fraud represents only 0.015% of total card payments in Q1 2023.",
               "source_id": "S5",
               "page": null,
               "quote_match": "exact_normalized"
@@ -106,35 +141,33 @@
           "nli_scores": [
             {
               "evidence_id": "S5-e1",
-              "entailment": 0.992188,
-              "neutral": 0.00724,
-              "contradiction": 0.000535,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
+              "entailment": 0.98877,
+              "neutral": 0.007515,
+              "contradiction": 0.003588,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
           "best_evidence_id": "S5-e1",
-          "best_entailment": 0.992188,
+          "best_entailment": 0.98877,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
-          "present_in_published_report": false,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S5-e1 at 0.989 >= 0.98",
+          "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Sensitivity to class distribution is a key consideration for evaluating imbalanced fraud detection models.",
+          "claim": "Electronic companies anticipate a surge in fraudulent transactions globally, resulting in losses of 40.62 billion USD by 2027, with fraudulent transactions increasing from 9.84 billion USD in 2011 to 32.39 billion USD in 2020.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S1-e2",
-              "quote": "Key considerations when evaluating imbalanced data include: Sensitivity to Class Distribution: Metrics should reflect how well the model identifies minority class instances, not just overall correctness. Cost of Errors: The impact of false positives and false negatives can be very different depending on the application, so metrics should help you understand these trade-offs. Detailed Performance Breakdown: It's important to analyze performance for each class separately, rather than relying on a single summary statistic.",
+              "quote": "Electronic companies anticipate a surge in fraudulent transactions globally, resulting in losses of 40.62$ billion by 2027. Fraudulent transactions around the world increased from 9.84$ billion in 2011 to 32.39$ billion in 2020",
               "source_id": "S1",
               "page": null,
               "quote_match": "exact_normalized"
@@ -143,68 +176,33 @@
           "nli_scores": [
             {
               "evidence_id": "S1-e2",
-              "entailment": 0.000564,
-              "neutral": 0.999023,
-              "contradiction": 0.000222,
+              "entailment": 0.986328,
+              "neutral": 0.012291,
+              "contradiction": 0.001234,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S1-e2",
-          "best_entailment": 0.000564,
+          "best_entailment": 0.986328,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S1-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e2 at 0.986 >= 0.98",
+          "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Cost of errors, particularly false positives and false negatives, significantly impacts model evaluation in fraud detection.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e2",
-              "quote": "Key considerations when evaluating imbalanced data include: Sensitivity to Class Distribution: Metrics should reflect how well the model identifies minority class instances, not just overall correctness. Cost of Errors: The impact of false positives and false negatives can be very different depending on the application, so metrics should help you understand these trade-offs. Detailed Performance Breakdown: It's important to analyze performance for each class separately, rather than relying on a single summary statistic.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e2",
-              "entailment": 0.000139,
-              "neutral": 0.999512,
-              "contradiction": 0.000205,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e2",
-          "best_entailment": 0.000139,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.000 from S1-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "A combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection models.",
+          "claim": "FraudX AI achieved a recall value of 95% and an AUC-PR of 97%, effectively detecting rare fraudulent transactions and minimizing false positives.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S3-e2",
-              "quote": "We demonstrate that a combined F1 score and g-mean, in that specific order, is the best evaluation metric for typical imbalanced fraud detection model classification.",
+              "quote": "FraudX AI achieved a recall value of 95% and an AUC-PR of 97%, effectively detecting rare fraudulent transactions and minimizing false positives.",
               "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
@@ -213,198 +211,23 @@
           "nli_scores": [
             {
               "evidence_id": "S3-e2",
-              "entailment": 0.983887,
-              "neutral": 0.015732,
-              "contradiction": 0.000559,
+              "entailment": 0.911133,
+              "neutral": 0.085205,
+              "contradiction": 0.003819,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S3-e2",
-          "best_entailment": 0.983887,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e2 at 0.984 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Latency is the time it takes for the system to process a transaction and make an inference.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e3",
-              "quote": "Latency is the time it takes for the system to process a transaction and make an inference. Keeping latency low is crucial for real-time systems.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.990723,
-              "neutral": 0.008713,
-              "contradiction": 0.000582,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e3",
-          "best_entailment": 0.990723,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e3 at 0.991 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "SMOTE (Synthetic Minority Over-sampling Technique) generates synthetic examples of the minority class to balance datasets.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e4",
-              "quote": "Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e4",
-              "entailment": 0.996582,
-              "neutral": 0.00309,
-              "contradiction": 0.000237,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e4",
-          "best_entailment": 0.996582,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S4-e4 at 0.997 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Credit card fraud detection systems face challenges including massively unbalanced fraud data and difficulty creating gold standard ground truth.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e5",
-              "quote": "Unfortunately, credit card fraud detection via machine learning has several major constraints and challenges [5, 15], including massively unbalanced nature of fraud data, difficulty of identifying the frauds accurately and completely to create a gold standard ground truth and the lack of standard classifier evaluation metrics to measure and identify better performing [7].",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e5",
-              "entailment": 0.99707,
-              "neutral": 0.002817,
-              "contradiction": 0.000172,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e5",
-          "best_entailment": 0.99707,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e5 at 0.997 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Latency and complexity affect payment systems when scaling fraud detection models to high transaction volumes.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e5",
-              "quote": "Latency and complexity matter in payment systems. In the example below, the Payment Server dispatches parallel calls to KYC Service, Fraud Check, and Payment Rail, but the transaction can only complete once the slowest of these services responds (the KYC Service in this example).",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e5",
-              "entailment": 0.000765,
-              "neutral": 0.999023,
-              "contradiction": 0.00044,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e5",
-          "best_entailment": 0.000765,
+          "best_entailment": 0.911133,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S5-e5 is below the 0.98 support threshold",
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.911 from S3-e2 is below the 0.98 support threshold",
           "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Traditional accuracy metrics can be misleading when evaluating models on imbalanced datasets.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e6",
-              "quote": "When evaluating models on imbalanced datasets, traditional metrics like accuracy can be misleading.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e6",
-              "entailment": 0.999023,
-              "neutral": 0.000659,
-              "contradiction": 7.9e-05,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e6",
-          "best_entailment": 0.999023,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S4-e6 at 0.999 >= 0.98",
-          "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         }
@@ -412,20 +235,20 @@
     },
     "nist-ai-risk-framework": {
       "question": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
-      "recorded_at": "2026-09-26T05:12:47.991389+00:00",
+      "recorded_at": "2026-09-26T05:50:56.556178+00:00",
       "commit": null,
       "counts": {
-        "raw_generated": 18,
-        "duplicates_removed": 12,
+        "raw_generated": 17,
+        "duplicates_removed": 11,
         "candidates": 6,
         "checkable": 6,
         "checked": 6,
         "not_checked": 0,
-        "published": 0,
-        "withheld": 6,
-        "evidence_only_excerpts": 12,
+        "published": 2,
+        "withheld": 4,
+        "evidence_only_excerpts": 0,
         "exhaustive": true,
-        "publication_rate": 0.0
+        "publication_rate": 0.3333
       },
       "gate_disagreements": [],
       "candidates": [
@@ -434,156 +257,29 @@
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S5-e1",
-              "quote": "The framework is organized around four interconnected functions: Govern \u2014 establish policies, roles, and oversight for AI risk management; Map \u2014 understand AI systems in context, including intended use and impacts; Measure \u2014 assess and monitor AI system performance and trustworthiness over time; Manage \u2014 prioritize risks, implement mitigation strategies, and respond to incidents or changes.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.021301,
-              "neutral": 0.978027,
-              "contradiction": 0.000428,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            }
-          ],
-          "best_evidence_id": "S5-e1",
-          "best_entailment": 0.021301,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 organizes AI risk work into four functions that operate continuously rather than as a one-time sequence.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e2",
-              "quote": "The core of the AI RMF is organized around four functions that operate continuously rather than as a one-time sequence. Each function contains categories and subcategories that organizations tailor to their own systems and risk profile.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e2",
-              "entailment": 0.002838,
-              "neutral": 0.99707,
-              "contradiction": 0.000208,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            }
-          ],
-          "best_evidence_id": "S4-e2",
-          "best_entailment": 0.002838,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 defines governance for AI risk management through the function that establishes organizational culture, policies, and accountability structures.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e3",
-              "quote": "Govern establishes the organizational culture, policies, and accountability structures that support AI risk management.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e3",
-              "entailment": 0.002365,
-              "neutral": 0.996094,
-              "contradiction": 0.001319,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            }
-          ],
-          "best_evidence_id": "S4-e3",
-          "best_entailment": 0.002365,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 describes practical use cases for implementing AI risk management including adopting the Govern function at the organization layer, mapping each AI system, defining Measure signals, and running Manage as a continuous loop.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e4",
-              "quote": "A practical rollout typically looks like:\n1. Adopt the Govern function at the organization layer \u2014 roles, policies, oversight, and approval gates.\n2. Map each AI system \u2014 scope, stakeholders, impacts, data lineage, third-party dependencies.\n3. Define Measure signals \u2014 evaluations, red-teaming, and monitoring with thresholds and owners.\n4. Run Manage as a continuous loop \u2014 prioritize, treat, accept residual risk, respond to incidents.",
+              "evidence_id": "S1-e1",
+              "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
               "source_id": "S1",
               "page": null,
               "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
+            },
             {
-              "evidence_id": "S1-e4",
-              "entailment": 0.001678,
-              "neutral": 0.998047,
-              "contradiction": 0.0001,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            }
-          ],
-          "best_evidence_id": "S1-e4",
-          "best_entailment": 0.001678,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Map function, which identifies context, stakeholders, system boundaries, and potential harms.",
-          "kind": "factual",
-          "evidence": [
+              "evidence_id": "S3-e1",
+              "quote": "The framework then turns those characteristics into four core functions that support continuous risk management:\nGovern establishes a foundation of policies, accountability structures, defined roles, and oversight conditions that make the other three functions workable.\nMap focuses on identifying and categorizing AI risks in context. Mapping makes later risk analysis useful because it ties measurement to the system and its points of exposure. It also needs to be revisited as those conditions change.\nMeasure evaluates the mapped risks using context-specific methods to assess performance, impacts, and trustworthiness. It includes assessing for bias, reliability, and alignment with your risk tolerance thresholds. This evaluation is used as evidence for governance and management decisions.\nManage turns those findings into action. It covers prioritizing risks, applying mitigations, tracking remediation, and maintaining an updated risk posture. It also addresses incident response.",
+              "source_id": "S3",
+              "page": null,
+              "quote_match": "exact_normalized"
+            },
             {
-              "evidence_id": "S2-e6",
-              "quote": "The Map function identifies context, stakeholders, system boundaries, and potential harms. It examines data flows, intended uses, and possible failure modes before organizations define performance metrics.",
+              "evidence_id": "S4-e1",
+              "quote": "It organizes AI risk work into four functions: Govern, Map, Measure, and Manage.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            },
+            {
+              "evidence_id": "S2-e1",
+              "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
               "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
@@ -591,18 +287,118 @@
           ],
           "nli_scores": [
             {
-              "evidence_id": "S2-e6",
-              "entailment": 0.00716,
-              "neutral": 0.992188,
-              "contradiction": 0.000443,
+              "evidence_id": "S1-e1",
+              "entailment": 0.012146,
+              "neutral": 0.98584,
+              "contradiction": 0.001817,
+              "guards_passed": true,
+              "failed_guards": []
+            },
+            {
+              "evidence_id": "S3-e1",
+              "entailment": 0.313721,
+              "neutral": 0.685059,
+              "contradiction": 0.001285,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            },
+            {
+              "evidence_id": "S4-e1",
+              "entailment": 0.009483,
+              "neutral": 0.990234,
+              "contradiction": 0.000381,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            },
+            {
+              "evidence_id": "S2-e1",
+              "entailment": 0.024612,
+              "neutral": 0.974609,
+              "contradiction": 0.000875,
               "guards_passed": false,
               "failed_guards": [
                 "numeric"
               ]
             }
           ],
-          "best_evidence_id": "S2-e6",
-          "best_entailment": 0.00716,
+          "best_evidence_id": "S1-e1",
+          "best_entailment": 0.012146,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "best entailment 0.012 from S1-e1 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 governance loop includes four stations: Govern, Map, Measure, and Manage.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e2",
+              "quote": "Governance loop\n\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\n\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e2",
+              "entailment": 0.995117,
+              "neutral": 0.004639,
+              "contradiction": 0.000372,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.995117,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e2 at 0.995 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 assigns accountability for AI governance to CISOs, CIOs, or chief risk officers.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S3-e2",
+              "quote": "Assign accountability for AI governance to a specific leader, who is usually the CISO, CIO, or chief risk officer. They must have the authority to carry out the following responsibilities:\nApprove new AI use cases and deployments\nEstablish oversight responsibilities across security, legal, privacy, and technical teams\nCreate baseline policies governing acceptable AI use.",
+              "source_id": "S3",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S3-e2",
+              "entailment": 0.002184,
+              "neutral": 0.997559,
+              "contradiction": 0.000106,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S3-e2",
+          "best_entailment": 0.002184,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
@@ -615,31 +411,120 @@
           "human_review": null
         },
         {
-          "claim": "The NIST AI Risk Management Framework 1.0 handles failure modes or unintended consequences in AI systems through the Measure function, which assesses and monitors AI system performance and trustworthiness over time.",
+          "claim": "The NIST AI Risk Management Framework 1.0 involves governance responsibilities across security, legal, and product teams.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S5-e6",
-              "quote": "Measure \u2014 assess and monitor AI system performance and trustworthiness over time",
-              "source_id": "S5",
+              "evidence_id": "S4-e2",
+              "quote": "Security, legal, and product teams increasingly rely on this artificial intelligence risk management framework as a shared vocabulary when they talk about AI risk, since it gives auditors, executives, and engineers a consistent way to describe what has been assessed and what has not.",
+              "source_id": "S4",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S5-e6",
-              "entailment": 0.008202,
-              "neutral": 0.991699,
-              "contradiction": 0.000186,
+              "evidence_id": "S4-e2",
+              "entailment": 0.000682,
+              "neutral": 0.999023,
+              "contradiction": 0.00049,
               "guards_passed": false,
               "failed_guards": [
                 "numeric"
               ]
             }
           ],
-          "best_evidence_id": "S5-e6",
-          "best_entailment": 0.008202,
+          "best_evidence_id": "S4-e2",
+          "best_entailment": 0.000682,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: numeric",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases for implementing AI risk management through use-case profiles and cross-sectoral profiles.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e3",
+              "quote": "NIST AI RMF profiles \u200b\n\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e3",
+              "entailment": 0.989746,
+              "neutral": 0.009819,
+              "contradiction": 0.000554,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e3",
+          "best_entailment": 0.989746,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e3 at 0.990 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 publication contains evidence for the core functions on page 12.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e4",
+              "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            },
+            {
+              "evidence_id": "S2-e4",
+              "quote": "The NIST AI Risk Management Framework (AI RMF 1.0) is voluntary guidance for managing risks across the AI lifecycle, from design through deployment and retirement.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e4",
+              "entailment": 0.000215,
+              "neutral": 0.999512,
+              "contradiction": 0.000142,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            },
+            {
+              "evidence_id": "S2-e4",
+              "entailment": 7.4e-05,
+              "neutral": 0.999512,
+              "contradiction": 0.000293,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
+            }
+          ],
+          "best_evidence_id": "S1-e4",
+          "best_entailment": 0.000215,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
@@ -655,30 +540,30 @@
     },
     "rag-vector-vs-search": {
       "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
-      "recorded_at": "2026-09-26T04:50:21.870007+00:00",
+      "recorded_at": "2026-09-26T05:37:14.965202+00:00",
       "commit": null,
       "counts": {
-        "raw_generated": 13,
-        "duplicates_removed": 6,
-        "candidates": 7,
-        "checkable": 7,
-        "checked": 7,
+        "raw_generated": 14,
+        "duplicates_removed": 8,
+        "candidates": 6,
+        "checkable": 6,
+        "checked": 6,
         "not_checked": 0,
-        "published": 2,
-        "withheld": 5,
+        "published": 3,
+        "withheld": 3,
         "evidence_only_excerpts": 0,
         "exhaustive": true,
-        "publication_rate": 0.2857
+        "publication_rate": 0.5
       },
       "gate_disagreements": [],
       "candidates": [
         {
-          "claim": "Vector databases require 64GB+ of RAM to search 10M vectors at sub-10ms speed.",
+          "claim": "Vector databases require significant memory and compute resources for indexing millions of vectors.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S1-e1",
-              "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
+              "quote": "Indexing millions of vectors requires significant memory and compute resources.",
               "source_id": "S1",
               "page": null,
               "quote_match": "exact_normalized"
@@ -687,36 +572,33 @@
           "nli_scores": [
             {
               "evidence_id": "S1-e1",
-              "entailment": 0.169189,
-              "neutral": 0.830078,
-              "contradiction": 0.000778,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality",
-                "hedge"
-              ]
+              "entailment": 0.653809,
+              "neutral": 0.345703,
+              "contradiction": 0.000367,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
           "best_evidence_id": "S1-e1",
-          "best_entailment": 0.169189,
+          "best_entailment": 0.653809,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: hedge, modality",
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.654 from S1-e1 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Binary quantization reduces the number of vectors a single $96/month DigitalOcean Droplet can handle from 10\u201320M to 300\u2013640M.",
+          "claim": "Vector databases are in-memory systems that execute queries with ultra-low latency in single-digit milliseconds.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S2-e1",
-              "quote": "A DigitalOcean 16GB RAM / 8 vCPU Droplet costs $96/month and handles approximately 10\u201320M vectors in RAM without quantization. With binary quantization (32x compression), the same $96/month node handles 300\u2013640M logical vectors.",
+              "quote": "Being in-memory, vector queries and filters execute with ultra-low latency in the single-digit milliseconds.",
               "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
@@ -725,105 +607,68 @@
           "nli_scores": [
             {
               "evidence_id": "S2-e1",
-              "entailment": 0.046814,
-              "neutral": 0.001993,
-              "contradiction": 0.951172,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
-            }
-          ],
-          "best_evidence_id": "S2-e1",
-          "best_entailment": 0.046814,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Pinecone uses serverless object storage with $0.33/GB/month storage pricing.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S2-e2",
-              "quote": "Pinecone: Serverless + Dedicated Read Nodes\nPinecone eliminated pod-based pricing in 2024 and migrated all workloads to serverless object storage architecture. The pricing structure has three levers verified from pinecone.io/pricing (March 2026):\n- Storage: $0.33/GB/month. At 10M 1,536-dim vectors (float32): ~58GB raw \u2192 with 1.5x HNSW overhead = ~87GB \u2192 $28.71/month storage.\n- Read Units (RUs): $16/million on Standard, $24/million on Enterprise. A query consumes 1 RU per 1GB of namespace. Minimum 0.25 RU per query regardless of namespace size.\n- Write Units (WUs): Billed for upsert, update, delete operations. Exact per-unit rate varies by region and provider. Plan minimums: Standard $50/month, Enterprise $500/month.\n- Dedicated Read Nodes (DRN): Per-node hourly billing. Verified production benchmark: 135M vectors at 600 QPS, P50 45ms, P99 96ms (December 2025 release notes). 1.4B vectors at 5,700 QPS, P99 60ms (official customer benchmark).",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S2-e2",
-              "entailment": 0.999512,
-              "neutral": 0.000183,
-              "contradiction": 0.000495,
+              "entailment": 0.981445,
+              "neutral": 0.018295,
+              "contradiction": 0.000155,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S2-e2",
-          "best_entailment": 0.999512,
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.981445,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S2-e2 at 1.000 >= 0.98",
+          "withhold_reason": "entailed by S2-e1 at 0.981 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Pinecone's Read Units (RUs) cost $1 per 1 million RUs on Standard.",
+          "claim": "For many data-heavy industries like IoT, manufacturing, and retail, there are rarely practical ways to run vector databases where data actually lives.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S2-e2",
-              "quote": "Pinecone: Serverless + Dedicated Read Nodes\nPinecone eliminated pod-based pricing in 2024 and migrated all workloads to serverless object storage architecture. The pricing structure has three levers verified from pinecone.io/pricing (March 2026):\n- Storage: $0.33/GB/month. At 10M 1,536-dim vectors (float32): ~58GB raw \u2192 with 1.5x HNSW overhead = ~87GB \u2192 $28.71/month storage.\n- Read Units (RUs): $16/million on Standard, $24/million on Enterprise. A query consumes 1 RU per 1GB of namespace. Minimum 0.25 RU per query regardless of namespace size.\n- Write Units (WUs): Billed for upsert, update, delete operations. Exact per-unit rate varies by region and provider. Plan minimums: Standard $50/month, Enterprise $500/month.\n- Dedicated Read Nodes (DRN): Per-node hourly billing. Verified production benchmark: 135M vectors at 600 QPS, P50 45ms, P99 96ms (December 2025 release notes). 1.4B vectors at 5,700 QPS, P99 60ms (official customer benchmark).",
-              "source_id": "S2",
+              "evidence_id": "S3-e1",
+              "quote": "For many data-heavy industries like IoT, manufacturing, and retail, there are rarely practical ways to run these databases where data actually lives.",
+              "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S2-e2",
-              "entailment": 0.000477,
-              "neutral": 0.000127,
-              "contradiction": 0.999512,
+              "evidence_id": "S3-e1",
+              "entailment": 0.018921,
+              "neutral": 0.962402,
+              "contradiction": 0.018784,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S2-e2",
-          "best_entailment": 0.000477,
+          "best_evidence_id": "S3-e1",
+          "best_entailment": 0.018921,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.000 from S2-e2 is below the 0.98 support threshold",
+          "withhold_reason": "best entailment 0.019 from S3-e1 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Qdrant achieves the lowest p99 query latency at under 8ms among vector databases.",
+          "claim": "Vector databases may require on-premises deployment for regulatory compliance when scaled to enterprise-level usage.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S1-e3",
-              "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
+              "evidence_id": "S1-e2",
+              "quote": "You must evaluate whether you need a fully managed cloud database-as-a-service (DBaaS) solution to handle this scaling overhead, or whether an on-premises deployment is required for regulatory compliance.",
               "source_id": "S1",
               "page": null,
               "quote_match": "exact_normalized"
@@ -831,76 +676,71 @@
           ],
           "nli_scores": [
             {
-              "evidence_id": "S1-e3",
-              "entailment": 0.002142,
+              "evidence_id": "S1-e2",
+              "entailment": 0.001919,
               "neutral": 0.997559,
-              "contradiction": 0.000321,
-              "guards_passed": true,
-              "failed_guards": []
+              "contradiction": 0.000323,
+              "guards_passed": false,
+              "failed_guards": [
+                "causal"
+              ]
             }
           ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.002142,
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.001919,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.002 from S1-e3 is below the 0.98 support threshold",
+          "withhold_reason": "every cited quote failed a deterministic guard: causal",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Milvus achieves the highest raw query throughput at 20,000+ QPS.",
+          "claim": "Snowflake and Databricks spent approximately $1.25B acquiring PostgreSQL-first companies in 2025.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S1-e3",
-              "quote": "Qdrant leads for pure p99 latency at under 8ms its Rust-based HNSW engine with SIMD optimizations makes it the top choice for real-time voice agents and fraud detection systems. Milvus wins on raw throughput at 20,000+ QPS via GPU-accelerated indexing, making it the correct choice for high-volume analytics and event pipelines.",
-              "source_id": "S1",
+              "evidence_id": "S3-e2",
+              "quote": "In 2025 alone, Snowflake and Databricks spent approximately $1.25B acquiring PostgreSQL-first companies.",
+              "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S1-e3",
-              "entailment": 0.990234,
-              "neutral": 0.009193,
-              "contradiction": 0.000498,
+              "evidence_id": "S3-e2",
+              "entailment": 0.998535,
+              "neutral": 0.001252,
+              "contradiction": 0.000278,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.990234,
+          "best_evidence_id": "S3-e2",
+          "best_entailment": 0.998535,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e3 at 0.990 >= 0.98",
+          "withhold_reason": "entailed by S3-e2 at 0.999 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Vector databases require significant RAM for low-latency searches, but quantization can scale storage capacity without increasing costs.",
-          "kind": "synthesis",
+          "claim": "Real-time or interactive RAG applications demand sub-100ms query times even under high QPS and with datasets scaling to billions of vectors.",
+          "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S1-e1",
-              "quote": "The Speed Tax: To search 10M vectors at sub-10ms speed, you may need 64GB+ of dedicated RAM.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S2-e1",
-              "quote": "A DigitalOcean 16GB RAM / 8 vCPU Droplet costs $96/month and handles approximately 10\u201320M vectors in RAM without quantization. With binary quantization (32x compression), the same $96/month node handles 300\u2013640M logical vectors.",
+              "evidence_id": "S2-e3",
+              "quote": "Real-time or interactive RAG apps like AI agents and chatbots demand sub-100ms query times, even under high QPS (queries per second) and with datasets scaling to billions of vectors.",
               "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
@@ -908,50 +748,35 @@
           ],
           "nli_scores": [
             {
-              "evidence_id": "S1-e1",
-              "entailment": 0.000968,
-              "neutral": 0.998535,
-              "contradiction": 0.000287,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality",
-                "hedge"
-              ]
-            },
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.002741,
-              "neutral": 0.99707,
-              "contradiction": 0.000118,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
+              "evidence_id": "S2-e3",
+              "entailment": 0.995117,
+              "neutral": 0.004372,
+              "contradiction": 0.000539,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
-          "best_evidence_id": "S2-e1",
-          "best_entailment": 0.002741,
+          "best_evidence_id": "S2-e3",
+          "best_entailment": 0.995117,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: hedge, modality",
-          "present_in_published_report": false,
-          "compound_markers": [
-            "clausal 'while'/'but'"
-          ],
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S2-e3 at 0.995 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
           "human_review": null
         }
       ]
     }
   },
   "totals": {
-    "candidates": 24,
-    "checked": 24,
+    "candidates": 18,
+    "checked": 18,
     "published": 8,
-    "withheld": 16,
-    "excerpts": 12
+    "withheld": 10,
+    "excerpts": 0
   }
 }

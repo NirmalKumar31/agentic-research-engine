@@ -4,14 +4,14 @@
   "cases": 30,
   "pairs": 50,
   "runtime": {
-    "model_load_seconds": 4.34,
-    "inference_seconds": 0.78,
-    "seconds_per_pair": 0.0157
+    "model_load_seconds": 5.21,
+    "inference_seconds": 0.75,
+    "seconds_per_pair": 0.0151
   },
   "memory_mb": {
-    "baseline_rss": 21.0,
-    "after_model_load_rss": 552.2,
-    "peak_rss": 675.2
+    "baseline_rss": 20.7,
+    "after_model_load_rss": 553.8,
+    "peak_rss": 675.4
   },
   "scores": [
     {
@@ -26,6 +26,10 @@
           "neutral": 0.989531,
           "contradiction": 0.007603,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -75,6 +79,10 @@
           "neutral": 0.989861,
           "contradiction": 0.003591,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 5ms"
@@ -124,6 +132,10 @@
           "neutral": 0.020083,
           "contradiction": 0.012899,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 50, 40-60%"
@@ -173,6 +185,10 @@
           "neutral": 0.993741,
           "contradiction": 0.004276,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -222,6 +238,10 @@
           "neutral": 0.97763,
           "contradiction": 0.008975,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -271,6 +291,10 @@
           "neutral": 0.993584,
           "contradiction": 0.003971,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -312,6 +336,10 @@
           "neutral": 0.849996,
           "contradiction": 0.003537,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -353,6 +381,10 @@
           "neutral": 0.9883,
           "contradiction": 0.004922,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -394,6 +426,10 @@
           "neutral": 0.372368,
           "contradiction": 0.600266,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -443,6 +479,10 @@
           "neutral": 0.952921,
           "contradiction": 0.001717,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 40-60%"
@@ -484,6 +524,10 @@
           "neutral": 0.13789,
           "contradiction": 0.860095,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 40-60%, absent from the cited evidence"
@@ -533,6 +577,10 @@
           "neutral": 0.971524,
           "contradiction": 0.026675,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -574,6 +622,10 @@
           "neutral": 0.991471,
           "contradiction": 0.00349,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -615,6 +667,10 @@
           "neutral": 0.980205,
           "contradiction": 0.012545,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -664,6 +720,10 @@
           "neutral": 0.940636,
           "contradiction": 0.001556,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -705,6 +765,10 @@
           "neutral": 0.465001,
           "contradiction": 0.28532,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -754,6 +818,10 @@
           "neutral": 0.988956,
           "contradiction": 0.005295,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 100, absent from the cited evidence"
@@ -803,6 +871,10 @@
           "neutral": 0.017088,
           "contradiction": 0.001528,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -852,6 +924,10 @@
           "neutral": 0.007814,
           "contradiction": 0.037445,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 75%, 32-bit, 8-bit"
@@ -901,6 +977,10 @@
           "neutral": 0.053771,
           "contradiction": 0.001796,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 80%, 5x"
@@ -950,6 +1030,10 @@
           "neutral": 0.993277,
           "contradiction": 0.004898,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -999,6 +1083,10 @@
           "neutral": 0.512937,
           "contradiction": 0.19271,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 1.0"
@@ -1040,6 +1128,10 @@
           "neutral": 0.995036,
           "contradiction": 0.001444,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 1.0, absent from the cited evidence"
@@ -1089,6 +1181,10 @@
           "neutral": 0.990065,
           "contradiction": 0.007459,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 1.0"
@@ -1130,6 +1226,10 @@
           "neutral": 0.991522,
           "contradiction": 0.001136,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 1.0, absent from the cited evidence"
@@ -1171,6 +1271,10 @@
           "neutral": 0.994669,
           "contradiction": 0.001155,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 1.0, absent from the cited evidence"
@@ -1212,6 +1316,10 @@
           "neutral": 0.973903,
           "contradiction": 0.009998,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 1.0, absent from the cited evidence"
@@ -1261,6 +1369,10 @@
           "neutral": 0.918817,
           "contradiction": 0.078573,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1310,6 +1422,10 @@
           "neutral": 0.987608,
           "contradiction": 0.010379,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 1.0"
@@ -1351,6 +1467,10 @@
           "neutral": 0.992448,
           "contradiction": 0.001224,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 1.0, absent from the cited evidence"
@@ -1392,6 +1512,10 @@
           "neutral": 0.995518,
           "contradiction": 0.001838,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 1.0, absent from the cited evidence"
@@ -1433,6 +1557,10 @@
           "neutral": 0.980352,
           "contradiction": 0.01038,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 1.0, absent from the cited evidence"
@@ -1482,6 +1610,10 @@
           "neutral": 0.964314,
           "contradiction": 0.03298,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1523,6 +1655,10 @@
           "neutral": 0.987974,
           "contradiction": 0.005048,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1572,6 +1708,10 @@
           "neutral": 0.806442,
           "contradiction": 0.009646,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 20,000+"
@@ -1621,6 +1761,10 @@
           "neutral": 0.906529,
           "contradiction": 0.091307,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1670,6 +1814,10 @@
           "neutral": 0.959944,
           "contradiction": 0.008218,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1711,6 +1859,10 @@
           "neutral": 0.98347,
           "contradiction": 0.010993,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1760,6 +1912,10 @@
           "neutral": 0.986351,
           "contradiction": 0.009754,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 8ms, absent from the cited evidence"
@@ -1809,6 +1965,10 @@
           "neutral": 0.277633,
           "contradiction": 0.005834,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "evidence states 2026, 5%"
@@ -1858,6 +2018,10 @@
           "neutral": 0.971584,
           "contradiction": 0.002023,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1899,6 +2063,10 @@
           "neutral": 0.084035,
           "contradiction": 0.005965,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1948,6 +2116,10 @@
           "neutral": 0.990196,
           "contradiction": 0.007832,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -1989,6 +2161,10 @@
           "neutral": 0.990322,
           "contradiction": 0.008176,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -2038,6 +2214,10 @@
           "neutral": 0.987781,
           "contradiction": 0.00881,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -2079,6 +2259,10 @@
           "neutral": 0.968849,
           "contradiction": 0.023712,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -2128,6 +2312,10 @@
           "neutral": 0.222881,
           "contradiction": 0.111674,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": false,
               "detail": "claim states 10, absent from the cited evidence"
@@ -2177,6 +2365,10 @@
           "neutral": 0.992443,
           "contradiction": 0.005587,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -2226,6 +2418,10 @@
           "neutral": 0.668174,
           "contradiction": 0.083539,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"
@@ -2267,6 +2463,10 @@
           "neutral": 0.912271,
           "contradiction": 0.002508,
           "guards": {
+            "atomicity": {
+              "passed": true,
+              "detail": "claim is a single sentence"
+            },
             "numeric": {
               "passed": true,
               "detail": "claim states no numeric literal"

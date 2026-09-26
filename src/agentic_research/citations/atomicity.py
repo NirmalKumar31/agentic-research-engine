@@ -57,3 +57,64 @@ def compound_markers(text: str) -> list[str]:
 
 def looks_compound(text: str) -> bool:
     return bool(compound_markers(text))
+
+
+# Abbreviations whose full stop does not end a sentence. Without these a
+# claim citing "e.g." or "U.S." would read as two.
+_ABBREVIATIONS = (
+    "e.g.",
+    "i.e.",
+    "etc.",
+    "vs.",
+    "cf.",
+    "approx.",
+    "Fig.",
+    "No.",
+    "Dr.",
+    "Mr.",
+    "Ms.",
+    "Inc.",
+    "Ltd.",
+    "U.S.",
+    "U.K.",
+    "Q1.",
+    "Q2.",
+    "Q3.",
+    "Q4.",
+)
+
+_SENTENCE_BREAK = re.compile(r"[.!?]['\")\]]*\s+(?=[A-Z0-9])")
+
+
+def sentence_count(text: str) -> int:
+    """Sentences in a claim, counted conservatively.
+
+    Known abbreviations are masked first so "e.g." and "U.S." do not
+    read as sentence ends. Under-counting is the safe direction here:
+    it lets a claim through to the other guards rather than withholding
+    it on a punctuation artefact.
+    """
+    masked = text or ""
+    for abbreviation in _ABBREVIATIONS:
+        masked = masked.replace(abbreviation, abbreviation.replace(".", "\u2024"))
+    masked = masked.strip()
+    if not masked:
+        return 0
+    return len(_SENTENCE_BREAK.split(masked))
+
+
+def is_atomic(text: str) -> bool:
+    """One sentence, one proposition -- the shape the gate can verify.
+
+    A claim spanning two sentences cannot be carried by a single quote
+    and cannot be scoped to the sentence that supports it, so every
+    guard that reasons about "the supporting sentence" silently picks
+    one half and ignores the other. The release audit published exactly
+    that: two propositions fused, where the guards examined the half
+    that was clean and the other half had deleted the source's own
+    voice.
+
+    Enforced structurally rather than by listing conjunctions, because
+    the failure is the shape, not the vocabulary.
+    """
+    return sentence_count(text) <= 1

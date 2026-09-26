@@ -325,10 +325,22 @@ def hedge_guard(claim: str, evidence: str) -> GuardResult:
 # are different assertions, and the difference is exactly what a reader
 # needs to judge the claim.
 _RESEARCH_VOICE = re.compile(
-    r"\b(?:we\s+(?:demonstrate|show|find|found|propose|argue|observe|conclude|"
-    r"present|report|introduce)|our\s+(?:results?|findings?|experiments?|analysis|"
-    r"study|work|approach)|this\s+(?:paper|study|work|article|report)\s+"
-    r"(?:demonstrates?|shows?|finds?|proposes?|argues?|presents?|reports?|concludes?))\b",
+    r"\b(?:"
+    # First-person reporting, both tenses. The first version listed
+    # present forms only, so "we observed" slipped through and a
+    # source's own dataset was published as a general finding.
+    r"we\s+(?:demonstrate|demonstrated|show|showed|find|found|propose|proposed|"
+    r"argue|argued|observe|observed|conclude|concluded|present|presented|"
+    r"report|reported|introduce|introduced|evaluate|evaluated|measure|measured|"
+    r"test|tested|collect|collected|train|trained)"
+    # Any first-person possessive. "our dataset", "our users", "our
+    # benchmark" all scope a proposition to the source, and dropping the
+    # possessive widens it to everyone.
+    r"|our\s+\w+"
+    r"|this\s+(?:paper|study|work|article|report)\s+"
+    r"(?:demonstrates?|demonstrated|shows?|showed|finds?|found|proposes?|proposed|"
+    r"argues?|argued|presents?|presented|reports?|reported|concludes?|concluded)"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -336,9 +348,34 @@ _RESEARCH_VOICE = re.compile(
 _KEEPS_FRAMING = re.compile(
     r"\b(?:the\s+(?:authors?|study|paper|research|report|work|survey|analysis)|"
     r"researchers|according to|reportedly|is reported|are reported|was reported|"
-    r"were reported|reports? that|found that|suggests? that|argues? that)\b",
+    r"were reported|reports? that|found that|suggests? that|argues? that|"
+    r"our\s+\w+|in\s+one\s+(?:study|dataset|experiment))\b",
     re.IGNORECASE,
 )
+
+
+def atomicity_guard(claim: str, evidence: str) -> GuardResult:
+    """A substantive claim must be one sentence.
+
+    Not a style rule. Every guard that reasons about "the sentence that
+    supports this claim" needs the claim to be one proposition; given
+    two, it scopes to whichever half matches more words and never looks
+    at the other. The release audit published a two-sentence claim whose
+    first half had deleted the source's own voice, and the guards
+    examined the second half, which was clean.
+
+    Structural, so it does not depend on which conjunction was used.
+    """
+    from agentic_research.citations.atomicity import sentence_count
+
+    count = sentence_count(claim)
+    if count <= 1:
+        return GuardResult("atomicity", True, "claim is a single sentence")
+    return GuardResult(
+        "atomicity",
+        False,
+        f"claim spans {count} sentences; only one proposition can be verified against one quote",
+    )
 
 
 def framing_guard(claim: str, evidence: str) -> GuardResult:
@@ -595,6 +632,7 @@ def attribution_guard(
 
 
 ALL_GUARDS = (
+    atomicity_guard,
     numeric_guard,
     modality_guard,
     hedge_guard,

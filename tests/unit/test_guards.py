@@ -195,6 +195,7 @@ class TestRunGuards:
         rather than stopping at the first failure."""
         results = run_guards("System A had the lowest latency", "System A: 5ms")
         assert [r.name for r in results] == [
+            "atomicity",
             "numeric",
             "modality",
             "hedge",
