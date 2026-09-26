@@ -48,6 +48,12 @@ decides whether its own claims are supported.
 | Semantic entailment | `DeBERTa-v3-large-mnli-fever-anli-ling-wanli`, pinned to revision `b3546ea6` | Scores each claim against each cited quote separately and returns probabilities only |
 | Publication gate | Plain Python | Publishes only when one guard-passing quote entails the claim at ≥ 0.98 |
 
+Claims must be **atomic** — one independently verifiable proposition
+each. That is enforced before scoring, not merely requested of the
+synthesiser, because a fused claim defeats every other guard: each of
+them reasons about "the sentence that supports this claim", and a
+compound claim hands them two.
+
 A claim publishes when **a single cited quote carries it on its own**.
 Quotes are never concatenated: assembling a broad claim out of several
 partial ones is the failure this gate exists to prevent. Anything else is

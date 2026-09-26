@@ -180,11 +180,27 @@ evidence the next audit would be clean: the runs use live search and
 produce different claims every time, and the only thing that caught
 these was reading every published claim by hand.
 
-**The atomicity rule counts sentences, not propositions.** A claim
-spanning two sentences is refused, because every guard that reasons
-about "the sentence that supports this claim" would otherwise inspect
-one half and ignore the other. A comma-spliced claim carrying two
-propositions in one sentence still passes. That is a known gap.
+**Atomicity is enforced by a heuristic, not a parser.** A claim must
+assert one independently verifiable proposition, and this is checked
+before publication rather than merely documented: the check splits on
+coordinators and counts segments carrying their own predicate, treating
+contrastive coordinators as compound on sight. Synthesis is asked for
+atomic claims first; this is the backstop for when it does not comply.
+
+It is a clause and predicate heuristic and will be wrong in both
+directions. It calls some single-proposition sentences compound and
+withholds them. A genuinely fused single-predicate proposition can
+still evade it, because nothing here parses grammar. Where it cannot
+tell, it treats the claim as compound — false positives withhold, which
+is the chosen direction of error.
+
+One release shipped with this check written, tested against a
+seventeen-case matrix, and *not wired into the guard*, which still
+counted sentences. The report said proposition atomicity gated
+publication and it did not. Every guard now has an integration test
+that drives the real publication path with a scorer entailing
+everything at 1.0, so a disconnected guard fails a test rather than a
+review.
 
 **Zero supported false positives was not achieved on that development
 set.** It was achieved on the synthetic adversarial suite, which is the
@@ -246,13 +262,29 @@ any other, so they are bounded — but nothing limits what share of the
 budget they may consume. A run that retries heavily can exhaust its
 request ceiling and stop early rather than overspend.
 
-**A run can hang indefinitely if its model connection dies mid-flight.**
-Observed once: the host slept for seven hours, the HTTP connection to
-Ollama was severed underneath a running extraction, and the process sat
-at 0% CPU without progressing or failing. `llm_timeout_seconds` did not
-fire, because the socket stayed open and no read ever timed out. A run
-that hangs silently is worse than one that fails, since nothing reports
-it. Not fixed.
+**Model calls are bounded by wall-clock deadlines, within the limits
+of cooperative cancellation.** A run once sat at 0% CPU for seven hours
+inside a single extraction: the host slept, the connection to Ollama
+went quiet without closing, and `llm_timeout_seconds` never fired
+because an HTTP client timeout bounds time between socket events and
+there were no further events.
+
+Every provider call now runs under an `asyncio.timeout` at the single
+router boundary they share, which bounds elapsed time rather than
+socket activity, and each run has an independent total wall-clock
+deadline because many bounded calls still compose into an unbounded
+run. Timeouts fail closed: the call is cancelled, a typed error is
+raised, budget and concurrency are released, and nothing unverified is
+published.
+
+What this does not claim: that a model call can never hang. Asyncio
+cancellation is cooperative. A coroutine that permanently suppresses
+`CancelledError` and never yields cannot be forcibly terminated inside
+one Python event-loop process, and no timeout here changes that. What
+is bounded is ordinary cooperative async calls and the silent network
+stall actually observed. Subprocess supervision would be needed for the
+stronger guarantee and has not been added, because no provider has
+demonstrated the need.
 
 **Checkpoint recovery is untested under load.** No test resumes an
 interrupted run.
@@ -273,10 +305,16 @@ available either.
 
 The verifier therefore has a remote mode that calls a hosted inference
 endpoint instead of loading the checkpoint in-process. It fails closed on
-timeout, 429, 5xx, malformed body and network error — every one withholds
-the claim. No hosted provider has been selected or tested yet, so remote
-mode is implemented and unit-tested against mocked transports, not proven
-against a live endpoint.
+timeout, 429, 5xx, malformed body, network error, a response that does not
+state which checkpoint served it, a checkpoint differing from the configured
+one, a missing truncation flag, and scores that are not a probability
+distribution — every one withholds the claim.
+
+**v1 ships replay-only, and remote mode is experimental.** No hosted
+provider has been selected, and remote mode is unit-tested against mocked
+transports only. It has never run against a live endpoint, so nothing here
+should be read as remote verification being production-tested. Presenting
+it as such would need a real endpoint and a live acceptance run.
 
 **Provider prices are estimates** from a local table. They do not account
 for cached input, long-context tiers, region or service tier.

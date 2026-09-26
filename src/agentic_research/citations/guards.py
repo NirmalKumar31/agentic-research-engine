@@ -28,6 +28,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
+from typing import Any
 
 from agentic_research.citations.numerics import compare_key, literals
 
@@ -402,26 +404,41 @@ _KEEPS_FRAMING = re.compile(
 
 
 def atomicity_guard(claim: str, evidence: str) -> GuardResult:
-    """A substantive claim must be one sentence.
+    """A substantive claim must assert exactly one proposition.
 
     Not a style rule. Every guard that reasons about "the sentence that
-    supports this claim" needs the claim to be one proposition; given
-    two, it scopes to whichever half matches more words and never looks
-    at the other. The release audit published a two-sentence claim whose
-    first half had deleted the source's own voice, and the guards
-    examined the second half, which was clean.
+    supports this claim" needs the claim to be one assertion; given two,
+    it scopes to whichever half shares more words and never examines the
+    other. One audit published a two-sentence claim whose first half had
+    deleted the source's own voice while the guards inspected its clean
+    second half.
 
-    Structural, so it does not depend on which conjunction was used.
+    Counting sentences is not enough, which is how this guard was wrong
+    for one release: "X increased, Y decreased" is a single sentence and
+    two independently falsifiable assertions, and a gate that verifies
+    one quote against one claim cannot honestly call that atomic. The
+    decision is delegated to
+    :func:`agentic_research.citations.atomicity.compound_propositions`,
+    which looks at clause structure. Sentence counting survives inside
+    it as one of several signals.
+
+    Conservative by construction: where the claim cannot be shown to
+    assert one thing it is treated as compound and withheld. Withholding
+    a true claim costs a line in a report; publishing a fused one costs
+    the thing this system is for.
     """
-    from agentic_research.citations.atomicity import sentence_count
+    from agentic_research.citations.atomicity import compound_propositions
 
-    count = sentence_count(claim)
-    if count <= 1:
-        return GuardResult("atomicity", True, "claim is a single sentence")
+    reasons = compound_propositions(claim)
+    if not reasons:
+        return GuardResult(
+            "atomicity", True, "claim contains one independently verifiable proposition"
+        )
     return GuardResult(
         "atomicity",
         False,
-        f"claim spans {count} sentences; only one proposition can be verified against one quote",
+        f"claim asserts more than one proposition ({'; '.join(reasons)}); "
+        "only one can be verified against one quote",
     )
 
 
@@ -624,38 +641,26 @@ def attributed_entities(claim: str) -> list[str]:
     return found
 
 
-# Suffixes under which registrations happen one label deeper, so the
-# organisation is the third label rather than the second.
-_MULTIPART_SUFFIXES = frozenset(
-    {
-        "co.uk",
-        "org.uk",
-        "gov.uk",
-        "ac.uk",
-        "net.uk",
-        "sch.uk",
-        "com.au",
-        "net.au",
-        "org.au",
-        "gov.au",
-        "edu.au",
-        "co.jp",
-        "or.jp",
-        "go.jp",
-        "ac.jp",
-        "co.nz",
-        "govt.nz",
-        "co.za",
-        "gov.in",
-        "nic.in",
-        "co.in",
-        "com.br",
-        "gov.br",
-        "com.cn",
-        "gov.cn",
-        "edu.cn",
-    }
-)
+@lru_cache(maxsize=1)
+def _suffix_parser() -> Any:
+    """Public Suffix List lookup, pinned and strictly offline.
+
+    A hand-curated suffix set is incomplete by construction -- it had
+    co.uk and com.au and would have mis-parsed pages.dev, s3 buckets
+    and every ccTLD nobody thought of. tldextract ships a PSL snapshot;
+    configured with no suffix URLs it never fetches at runtime, so
+    behaviour is deterministic and the data is versioned with the
+    dependency rather than with the network.
+    """
+    import tldextract
+
+    # Private suffixes included: a page hosted at acme.pages.dev or
+    # acme.github.io is registered by acme, not by the platform, and
+    # identity is the question being asked. Without this the platform
+    # label would be the "organisation" for every such host.
+    return tldextract.TLDExtract(
+        suffix_list_urls=(), fallback_to_snapshot=True, include_psl_private_domains=True
+    )
 
 
 def _registrable_labels(domain: str) -> set[str]:
@@ -667,10 +672,13 @@ def _registrable_labels(domain: str) -> set[str]:
     whoever owns example.com and has nothing to do with NIST. Both
     passed before this existed.
 
-    So the host is reduced to its registrable domain and compared label
-    by label. Only a label of that domain can establish identity, which
-    makes a prefix, a suffix, a hyphenated lookalike and a deeper
-    subdomain all fail.
+    Only the registrable domain's own label identifies anyone. The
+    public suffix does not: a claim attributed to "Gov" must not pass on
+    every .gov host, and a subdomain must not either.
+
+    Fails closed. A host whose suffix the PSL does not recognise yields
+    no labels, so an attributed claim citing it is withheld rather than
+    accepted on a guess.
     """
     host = (domain or "").strip().lower()
     host = host.split("//")[-1].split("/")[0].split("?")[0].split("#")[0]
@@ -678,19 +686,67 @@ def _registrable_labels(domain: str) -> set[str]:
     if not host:
         return set()
 
-    labels = [label for label in host.split(".") if label]
-    if len(labels) < 2:
-        return set(labels)
-
-    depth = 3 if ".".join(labels[-2:]) in _MULTIPART_SUFFIXES else 2
-    registrable = labels[-depth:]
-    # The public suffix itself identifies nobody: "gov" must not let a
-    # claim attributed to "Gov" pass on any .gov host.
-    return {label for label in registrable[:-1] if label}
+    try:
+        extracted = _suffix_parser()(host)
+    except Exception:  # pragma: no cover - parser should not raise
+        return set()
+    if not extracted.domain or not extracted.suffix:
+        return set()
+    return {extracted.domain}
 
 
 def _normalise_entity(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", (name or "").lower())
+
+
+def _entity_tokens(name: str) -> list[str]:
+    """The name as a token sequence.
+
+    Hyphens stay inside a token, so "NIST-like" is one token and does
+    not match "NIST": a framework described as NIST-like is explicitly
+    not NIST, and splitting on the hyphen made it establish NIST as the
+    publisher. Apostrophes, periods and spaces still separate, so
+    "NIST's" and "U.S. Department" resolve as expected.
+    """
+    return [t.strip("-") for t in re.split(r"[^A-Za-z0-9-]+", name or "") if t.strip("-")]
+
+
+def _names_in_text(entity: str, text: str) -> bool:
+    """Whether the text names this party, at token boundaries.
+
+    Substring matching cannot be used. Collapsing both sides to
+    alphanumerics and asking for containment makes "WHO" match "people
+    who use X", "US" match "business", "AI" match "retail chain" via
+    "chain", and "NIST" match "a NIST-like framework". All four passed
+    before this existed, and none is the organisation being cited.
+
+    An acronym must appear as a standalone token in its own case -- "WHO"
+    is the agency, "who" is a pronoun, and that distinction is the only
+    thing separating them. A multi-word name must appear as a complete
+    consecutive token sequence. Possessives and internal punctuation are
+    tolerated on both sides, so "NIST's" and "U.S. Department" match.
+    """
+    wanted = _entity_tokens(entity)
+    if not wanted:
+        return False
+
+    tokens = _entity_tokens(text)
+    if not tokens:
+        return False
+
+    def matches(candidate: str, target: str) -> bool:
+        stripped = candidate[:-1] if candidate.lower().endswith("s") else candidate
+        if target.isupper() and len(target) <= 5:
+            # Acronym: case-sensitive, so the pronoun "who" cannot
+            # establish the World Health Organization.
+            return candidate == target or stripped == target
+        return candidate.lower() == target.lower() or stripped.lower() == target.lower()
+
+    span = len(wanted)
+    return any(
+        all(matches(tokens[i + offset], wanted[offset]) for offset in range(span))
+        for i in range(len(tokens) - span + 1)
+    )
 
 
 def _establishes(name: str, quote: str, source: SourceIdentity | None) -> str:
@@ -698,7 +754,7 @@ def _establishes(name: str, quote: str, source: SourceIdentity | None) -> str:
 
     Two ways only, both narrow:
 
-    * the quoted text names the party itself, or
+    * the quoted text names the party at token boundaries, or
     * the cited source *is* that party by registrable domain.
 
     Source title is deliberately not a third way. "NIST guidance
@@ -707,7 +763,7 @@ def _establishes(name: str, quote: str, source: SourceIdentity | None) -> str:
     separates that from a real NIST page. An unverifiable signal that
     looks verifiable is worse than no signal.
     """
-    if _normalise_entity(name) and _normalise_entity(name) in _normalise_entity(quote or ""):
+    if _names_in_text(name, quote or ""):
         return "the quoted text names it"
     if source is not None:
         wanted = _normalise_entity(name)

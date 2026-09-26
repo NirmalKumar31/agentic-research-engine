@@ -1,23 +1,23 @@
-"""A conservative check for compound claims. Diagnostic only.
+"""Whether a claim asserts one proposition or several.
 
-A compound claim is the input shape that defeats the semantic verifier.
-Three propositions fused into one sentence cannot be carried by any
-single quote, so either the claim is withheld despite its parts being
-evidenced, or -- the dangerous case -- one quote scores high enough on
-the sentence as a whole and an unevidenced clause rides along with it.
-The single development-set false positive is exactly that: "reduces
-memory by 75%" and "high accuracy" are both in the quote, and "high
-recall accuracy" is not.
+This gates publication. An earlier version said it was diagnostic only
+and never gated anything, and for one release that was accidentally
+true -- the guard called sentence_count and this module's clause check
+was reachable only from its own tests. The wiring is the property that
+matters, not the helper.
 
-The real fix is in the synthesiser prompt, which asks for one
-proposition per claim. This module only measures whether that worked.
-It never gates publication: a heuristic that withheld claims would be
-deciding publication questions on sentence shape, which is precisely
-the reasoning this project replaced with a classifier.
+Two layers defend atomicity. The synthesiser is asked for one
+proposition per claim and is the first line; this is the backstop for
+when it does not comply. A compound claim is the input shape that
+defeats every other guard, because each of them reasons about "the
+sentence that supports this claim" and a fused claim gives them two.
 
-Deliberately shallow. It looks for the joiners the prompt names and
-does not parse anything. False positives here cost a line in an audit
-report and nothing else.
+Conservative on purpose. It is a clause and predicate heuristic, not a
+semantic parser: it will call some single-proposition sentences
+compound and withhold them, and a genuinely fused single-predicate
+proposition can still slip past it. The direction of error is chosen --
+withholding a true claim costs a line in a report, publishing a fused
+one costs the thing this system is for.
 """
 
 from __future__ import annotations
@@ -277,10 +277,65 @@ _NOT_VERBS_ENDING_ED = frozenset(
 )
 
 
+# Irregular past tenses. The -ed rule cannot see these, so without them
+# "Latency fell, throughput rose" reads as a single proposition -- two
+# assertions and no detected predicate in either.
+_IRREGULAR_PAST = frozenset(
+    {
+        "fell",
+        "rose",
+        "grew",
+        "shrank",
+        "shrunk",
+        "took",
+        "made",
+        "gave",
+        "went",
+        "became",
+        "ran",
+        "held",
+        "kept",
+        "left",
+        "lost",
+        "won",
+        "met",
+        "saw",
+        "drove",
+        "brought",
+        "began",
+        "broke",
+        "chose",
+        "led",
+        "spent",
+        "sent",
+        "built",
+        "came",
+        "got",
+        "drew",
+        "threw",
+        "wrote",
+        "read",
+        "beat",
+        "cost",
+        "hit",
+        "let",
+        "set",
+        "put",
+        "cut",
+        "hurt",
+        "burst",
+        "arose",
+        "outran",
+        "overtook",
+        "underwent",
+    }
+)
+
+
 def _is_predicate(token: str) -> bool:
     """Whether a token could be the verb of its own assertion."""
     word = token.strip(".,;:!?()[]\"'").lower()
-    if word in _AUXILIARIES or word in _PRESENT_VERBS:
+    if word in _AUXILIARIES or word in _PRESENT_VERBS or word in _IRREGULAR_PAST:
         return True
     # Past tense and participles. Length-bounded so "bed" and "red" do
     # not qualify, and filtered so nouns like "speed" do not either.

@@ -17,6 +17,24 @@ from agentic_research.citations.semantic import verify_claim
 from agentic_research.config import Settings
 
 ENDPOINT = "https://nli.example.test/score"
+
+
+def well_formed(results: list[dict]) -> dict:
+    """A response satisfying the remote contract.
+
+    The endpoint must state which checkpoint served the request and
+    whether each pair was truncated. Neither is inferred: a silently
+    redeployed remote answering with a different model would otherwise
+    publish claims against a threshold never measured for it.
+    """
+    return {
+        "contract_version": 1,
+        "model_id": "test/model",
+        "model_revision": "abc123",
+        "results": [{"truncated": False, **r} for r in results],
+    }
+
+
 PAIRS = [("Throughput increased by 20%.", "Throughput increased by 20%.")]
 
 
@@ -28,7 +46,7 @@ def verifier() -> RemoteNLIVerifier:
 def test_well_formed_response_is_scored() -> None:
     respx.post(ENDPOINT).mock(
         return_value=httpx.Response(
-            200, json={"results": [{"entailment": 0.99, "neutral": 0.01, "contradiction": 0.0}]}
+            200, json=well_formed([{"entailment": 0.99, "neutral": 0.01, "contradiction": 0.0}])
         )
     )
     [prediction] = verifier().score(PAIRS)
@@ -69,6 +87,41 @@ def test_network_error_raises() -> None:
         {"results": [{"entailment": 0.9}]},
         {"results": [{"entailment": "high", "neutral": 0.0, "contradiction": 0.0}]},
         {"results": [{}, {}]},
+        # contract metadata missing entirely
+        {"results": [{"entailment": 1.0, "neutral": 0.0, "contradiction": 0.0}]},
+        # served by a different checkpoint than the one configured
+        {
+            "contract_version": 1,
+            "model_id": "other/model",
+            "model_revision": "abc123",
+            "results": [
+                {"entailment": 1.0, "neutral": 0.0, "contradiction": 0.0, "truncated": False}
+            ],
+        },
+        {
+            "contract_version": 1,
+            "model_id": "test/model",
+            "model_revision": "deadbee",
+            "results": [
+                {"entailment": 1.0, "neutral": 0.0, "contradiction": 0.0, "truncated": False}
+            ],
+        },
+        # truncation status omitted: must not be assumed false
+        {
+            "contract_version": 1,
+            "model_id": "test/model",
+            "model_revision": "abc123",
+            "results": [{"entailment": 1.0, "neutral": 0.0, "contradiction": 0.0}],
+        },
+        # not a probability distribution
+        {
+            "contract_version": 1,
+            "model_id": "test/model",
+            "model_revision": "abc123",
+            "results": [
+                {"entailment": 1.0, "neutral": 1.0, "contradiction": 1.0, "truncated": False}
+            ],
+        },
     ],
 )
 def test_malformed_body_raises(body: dict) -> None:
@@ -103,10 +156,12 @@ def test_remote_failure_withholds_rather_than_publishes() -> None:
 def test_api_key_is_sent_as_a_bearer_token_and_not_logged() -> None:
     route = respx.post(ENDPOINT).mock(
         return_value=httpx.Response(
-            200, json={"results": [{"entailment": 0.1, "neutral": 0.9, "contradiction": 0.0}]}
+            200, json=well_formed([{"entailment": 0.1, "neutral": 0.9, "contradiction": 0.0}])
         )
     )
-    RemoteNLIVerifier(ENDPOINT, api_key="unit-test-placeholder").score(PAIRS)
+    RemoteNLIVerifier(ENDPOINT, "test/model", "abc123", api_key="unit-test-placeholder").score(
+        PAIRS
+    )
     assert route.calls.last.request.headers["authorization"].startswith("Bearer ")
 
 

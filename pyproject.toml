@@ -24,6 +24,7 @@ classifiers = [
 # large part of the 0.x surface, so the floors below are real requirements
 # rather than caution. Upper bounds stop at the next major only.
 dependencies = [
+    "tldextract==5.3.2",
     "langgraph>=1.2,<2",
     "langgraph-checkpoint-sqlite>=3.1,<4",
     "langchain-core>=1.6,<2",

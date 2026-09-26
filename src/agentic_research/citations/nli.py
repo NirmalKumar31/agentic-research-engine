@@ -16,6 +16,7 @@ takes an instruction prompt; it is sequence-pair classification.
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
@@ -32,11 +33,32 @@ DEFAULT_REVISION = "main"
 ALTERNATIVE_MODEL_ID = "cross-encoder/nli-deberta-v3-base"
 
 
+# Softmax outputs sum to one. A scorer whose three values do not are
+# not probabilities, and comparing one of them to a threshold is
+# meaningless -- (1, 1, 1) has "entailment 1.0" and says nothing.
+_DISTRIBUTION_TOLERANCE = 0.02
+
+
 @dataclass(frozen=True)
 class NLIScores:
     entailment: float
     neutral: float
     contradiction: float
+
+    def is_distribution(self) -> bool:
+        """Whether these are three probabilities over one decision.
+
+        The local model's softmax satisfies this by construction. The
+        check exists for remote and alternate scorers, where nothing
+        guarantees it and a malformed response would otherwise publish
+        on a high first number.
+        """
+        values = (self.entailment, self.neutral, self.contradiction)
+        if not all(math.isfinite(v) for v in values):
+            return False
+        if not all(0.0 <= v <= 1.0 for v in values):
+            return False
+        return abs(sum(values) - 1.0) <= _DISTRIBUTION_TOLERANCE
 
 
 @dataclass(frozen=True)
@@ -244,7 +266,24 @@ class RemoteNLIVerifier:
             except Exception as exc:
                 raise NLIUnavailable(f"remote scoring failed: {type(exc).__name__}") from exc
 
-            results = body.get("results") if isinstance(body, dict) else None
+            if not isinstance(body, dict):
+                raise NLIUnavailable(f"remote returned {type(body).__name__}, not an object")
+
+            # The endpoint has to say what served the request. Without
+            # this a silently redeployed remote could answer with a
+            # different checkpoint than the calibrated one and every
+            # published claim would cite a threshold it was never
+            # measured against.
+            for field in ("contract_version", "model_id", "model_revision"):
+                if not body.get(field):
+                    raise NLIUnavailable(f"remote response omits {field}")
+            if body["model_id"] != self.model_id or body["model_revision"] != self.revision:
+                raise NLIUnavailable(
+                    f"remote served {body['model_id']}@{body['model_revision']}, "
+                    f"configured for {self.model_id}@{self.revision}"
+                )
+
+            results = body.get("results")
             if not isinstance(results, list) or len(results) != len(batch):
                 raise NLIUnavailable(
                     f"remote returned {type(results).__name__} for {len(batch)} pairs"
@@ -259,18 +298,25 @@ class RemoteNLIVerifier:
                     )
                 except (KeyError, TypeError, ValueError) as exc:
                     raise NLIUnavailable(f"malformed remote score: {exc}") from exc
+                if not scores.is_distribution():
+                    raise NLIUnavailable(
+                        "remote scores are not a probability distribution: "
+                        f"{scores.entailment}, {scores.neutral}, {scores.contradiction}"
+                    )
+                # Truncation must be stated, not assumed. Defaulting a
+                # missing field to False would let an endpoint that
+                # silently cut a long premise report support for a claim
+                # the qualifying half contradicts.
+                if "truncated" not in item:
+                    raise NLIUnavailable("remote result omits truncated")
                 out.append(
                     NLIPrediction(
                         premise=premise,
                         hypothesis=hypothesis,
                         scores=scores,
-                        model_id=self.model_id,
-                        model_revision=self.revision,
-                        # A remote scorer must say so if it cut the
-                        # pair. Absent the field we assume it did not,
-                        # which is why a hosted endpoint has to be one
-                        # we control the contract of.
-                        truncated=bool(item.get("truncated", False)),
+                        model_id=body["model_id"],
+                        model_revision=body["model_revision"],
+                        truncated=bool(item["truncated"]),
                     )
                 )
         return out

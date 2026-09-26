@@ -549,3 +549,117 @@ class TestHedgeVocabularyDecisions:
     def test_keeping_a_hedge_of_any_kind_satisfies_the_rule(self) -> None:
         assert hedge_guard("X sometimes fails.", "X may fail.").passed
         assert hedge_guard("X may fail.", "X typically fails.").passed
+
+
+class TestQuoteSideIdentityUsesTokenBoundaries:
+    """An acronym must be the organisation, not a word containing it.
+
+    Normalised-substring matching made "WHO" match "people who use X",
+    "US" match "business", "AI" match "retail chain", and "NIST" match
+    "a NIST-like framework". All four established a publisher that had
+    said nothing, and none would be caught downstream -- the classifier
+    is scoring entailment, not identity.
+    """
+
+    @pytest.mark.parametrize(
+        ("claim", "quote", "why"),
+        [
+            (
+                "WHO reports that the treatment is effective.",
+                "People who use the treatment report gains.",
+                "the pronoun 'who' is not the World Health Organization",
+            ),
+            (
+                "According to US, exports rose.",
+                "The business sector saw growth.",
+                "'US' inside 'business' is not the United States",
+            ),
+            (
+                "According to AI, the trend continues.",
+                "The retail chain said sales rose.",
+                "'ai' inside 'chain' is not an organisation",
+            ),
+            (
+                "NIST requires organizations to comply.",
+                "A NIST-like framework requires compliance.",
+                "a framework described as NIST-like is explicitly not NIST",
+            ),
+        ],
+    )
+    def test_ordinary_words_do_not_establish_an_acronym(
+        self, claim: str, quote: str, why: str
+    ) -> None:
+        assert not attribution_guard(
+            claim, quote, SourceIdentity("vendor.example", "A Blog")
+        ).passed, why
+
+    @pytest.mark.parametrize(
+        ("claim", "quote"),
+        [
+            (
+                "WHO reports that the treatment is effective.",
+                "WHO reports that the treatment is effective.",
+            ),
+            (
+                "According to Microsoft, latency halved.",
+                "Microsoft's benchmark shows latency halved.",
+            ),
+            (
+                "According to OpenAI, the model improved.",
+                "OpenAI's report shows the model improved.",
+            ),
+            (
+                "According to the U.S. Department of Energy, output rose.",
+                "The U.S. Department of Energy reported higher output.",
+            ),
+        ],
+    )
+    def test_a_real_naming_still_establishes_it(self, claim: str, quote: str) -> None:
+        """Possessives and internal punctuation are tolerated; a
+        multi-word name must appear as a complete token sequence."""
+        assert attribution_guard(claim, quote, SourceIdentity("vendor.example", "A Blog")).passed
+
+
+class TestRegistrableDomainUsesThePublicSuffixList:
+    """Identity comes from a pinned, offline PSL, not a hand list.
+
+    The curated suffix set had co.uk and com.au and would have
+    mis-parsed pages.dev, S3 hosts and every ccTLD nobody thought of.
+    """
+
+    CLAIM = "According to Acme, uptime reached a record."
+    QUOTE = "Uptime reached a record."
+
+    @pytest.mark.parametrize(
+        "domain", ["acme.com", "www.acme.com", "acme.co.uk", "acme.com.au", "acme.pages.dev"]
+    )
+    def test_the_organisation_label_is_extracted(self, domain: str) -> None:
+        assert attribution_guard(self.CLAIM, self.QUOTE, SourceIdentity(domain, "Acme")).passed
+
+    @pytest.mark.parametrize(
+        "domain",
+        [
+            "acme.co.uk.evil.com",
+            "acme.com.example.net",
+            "notacme.com",
+            "acme-cdn.example.com",
+        ],
+    )
+    def test_lookalikes_are_refused(self, domain: str) -> None:
+        assert not attribution_guard(self.CLAIM, self.QUOTE, SourceIdentity(domain, "Acme")).passed
+
+    def test_an_unrecognised_suffix_fails_closed(self) -> None:
+        """No labels rather than a guess, so an attributed claim citing
+        an unparseable host is withheld."""
+        from agentic_research.citations.guards import _registrable_labels
+
+        assert _registrable_labels("localhost") == set()
+        assert _registrable_labels("") == set()
+
+    def test_the_parser_never_fetches_at_runtime(self) -> None:
+        """Deterministic offline behaviour: the snapshot ships with the
+        pinned dependency, so a network outage cannot change which
+        publishers are recognised."""
+        from agentic_research.citations.guards import _suffix_parser
+
+        assert _suffix_parser().suffix_list_urls == ()

@@ -271,14 +271,21 @@ class TestCompoundClaimFailureClass:
         "on recall and high precision on the held-out set."
     )
 
-    def test_the_fused_claim_is_the_one_the_gate_cannot_see_through(self) -> None:
-        """Given a confident score on the sentence as a whole, the gate
-        publishes it. This is the documented limitation, asserted so it
-        is a known property rather than a surprise."""
+    def test_the_fused_claim_is_refused_by_the_publication_path(self) -> None:
+        """The whole path, not the helper: verify_claim -> run_guards ->
+        atomicity_guard -> decision.
+
+        This test previously asserted the opposite. A fused one-sentence
+        claim published at 0.99, and that was recorded as a known
+        limitation -- which it was, until the clause check was written
+        and then not wired into the guard. Pinning the end-to-end
+        behaviour is the only thing that would have caught that.
+        """
         fused = "Pruning cut index memory by 60% while maintaining high recall."
-        scorer = FakeScorer({(self.QUOTE, fused): (0.99, 0.01, 0.0)})
+        scorer = FakeScorer(default=(1.0, 0.0, 0.0))
         verdict = verify_claim(fused, [("E1", self.QUOTE)], scorer, support_threshold=0.98)
-        assert verdict.publishable
+        assert not verdict.publishable
+        assert "atomicity" in verdict.per_evidence[0].failed_guard_names
 
     def test_the_unsupported_half_alone_is_refused(self) -> None:
         """Split out, the overreaching proposition is scored on its own
@@ -320,8 +327,10 @@ class TestOneClaimOneSupportContract:
     an oversight.
     """
 
-    CLAIM = "Latency fell and memory use fell."
-    LEFT = "Latency fell by half."
+    # An atomic claim. Compound ones are refused earlier by the
+    # atomicity guard, which would mask what this is testing.
+    CLAIM = "Latency fell by half."
+    LEFT = "Latency improved noticeably in the trial."
     RIGHT = "Memory use fell by a third."
 
     def test_two_partial_quotes_cannot_combine(self) -> None:
@@ -379,4 +388,4 @@ class TestOneClaimOneSupportContract:
             self.CLAIM, [("E1", self.LEFT), ("E2", self.RIGHT)], scorer, support_threshold=0.98
         )
         assert not verdict.publishable
-        assert "below the" in verdict.reason
+        assert "below the" in verdict.reason, verdict.reason

@@ -199,7 +199,9 @@ def verify_claim(
     for item, prediction in zip(cited, predictions, strict=True):
         evidence_id, quote = item.evidence_id, item.quote
         s = prediction.scores
-        if not all(0.0 <= v <= 1.0 for v in (s.entailment, s.neutral, s.contradiction)):
+        # Three probabilities over one decision, or the threshold
+        # comparison means nothing: (1, 1, 1) has "entailment 1.0".
+        if not s.is_distribution():
             return _withheld(
                 f"malformed scores for {evidence_id}",
                 support_threshold,
