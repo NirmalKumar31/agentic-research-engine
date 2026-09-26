@@ -211,19 +211,19 @@ all three — and only claims one quote carried on its own were published.
 
 | | RAG comparison | NIST framework | Fraud detection |
 |---|---|---|---|
-| Unique sources | 5 | 5 | 10 |
-| Evidence items | 20 | 30 | 34 |
-| Generated substantive claims | 21 | 14 | 30 |
-| Exact duplicates removed | 6 | 6 | 6 |
-| Unique candidates checked | 15/15 | 8/8 | 24/24 |
-| **Withheld** | 12 | 7 | 14 |
-| **Published** | **3** | **1** | **10** |
-| Quote fidelity (exact) | 100% | 83% | 94% |
+| Unique sources | 5 | 5 | 5 |
+| Evidence items | 10 | 26 | 30 |
+| Generated substantive claims | 11 | 19 | 16 |
+| Exact duplicates removed | 5 | 12 | 8 |
+| Unique candidates checked | 6/6 | 7/7 | 8/8 |
+| **Withheld** | 4 | 4 | 2 |
+| **Published** | **2** | **3** | **6** |
+| Quote fidelity (exact) | 70% | 92% | 90% |
 | Page-cited evidence | 0 | 6 | 0 |
-| Duration | 1231s | 1135s | 1180s |
+| Duration | 1478s | 1453s | 1067s |
 
-47 unique candidates across the three runs, all checked, **14 published
-and 33 withheld**.
+21 unique candidates across the three runs, all checked, **11 published
+and 10 withheld**.
 
 ### Release validation
 
@@ -237,34 +237,47 @@ the labels and the join are in
 
 | | published | withheld |
 |---|---|---|
-| **reviewer: supported** | 14 | 11 |
-| **reviewer: unsupported or uncertain** | **0** | 22 |
+| **reviewer: supported** | 11 | 8 |
+| **reviewer: unsupported or uncertain** | **0** | 2 |
 
-Precision 1.00, recall 0.56. **Zero unsupported published claims, and
-zero uncertain ones.** Every claim the reviewer judged unsupported was
-withheld by the system.
+Precision 1.00, recall 0.58. **Zero unsupported published claims, zero
+uncertain ones.**
 
-The 11 withheld-but-supportable claims are the cost of that: 6 scored
-below the entailment threshold and 5 were refused by a guard that was
-being conservative. The design accepts this trade deliberately —
-withholding a true claim costs a line in a report, publishing a false
-one costs the thing the project is for.
+Of the 10 withheld: 5 scored below the entailment threshold and 5 were
+refused by a deterministic guard before the score mattered (3 atomicity,
+1 hedge, 1 numeric). One of those — a claim dropping the source's
+*"often"* — is the frequency-deletion rule catching a real overclaim on
+live data.
 
-This is a **blinded release audit, not an independent benchmark**: the
-reviewer is the same party that built the system. It is evidence about
-these runs, and nothing stronger.
+This is a **blinded self-review, not an independent benchmark**: the
+reviewer built the system. A packet for a genuinely independent second
+reviewer is committed at
+[`examples/release-audit/reviewer-packet.json`](examples/release-audit/reviewer-packet.json),
+carrying only claims, quotes and sources — no verdict, score, guard
+result or prior label.
 
-Two consecutive manually reviewed canonical release audits have now
-found zero unsupported published substantive claims. Three earlier
-audits each found exactly one, and each produced a general rule:
+### How the audits went
+
+Six manually reviewed canonical audits. The first three each published
+exactly one claim that survived every automated check and failed a human
+read, and each produced a general rule rather than a patch:
 
 | Audit | What escaped | Fix |
 |---|---|---|
 | 1 | `"might lack"` published as `"lack"` | hedge-deletion guard |
 | 2 | `"We demonstrate that X"` published as `"X"` | research-voice guard |
-| 3 | `"our dataset"` → `"datasets"`, hidden in a two-sentence claim | proposition-level atomicity |
+| 3 | `"our dataset"` → `"datasets"`, inside a two-sentence claim | proposition-level atomicity |
 | 4 | — | clean |
-| 5 | — | clean, and blinded |
+| 5 | — | clean, blinded |
+| 6 | — | clean, blinded, and the first run with atomicity actually wired |
+
+Audit 6 exists because an independent code review found that audits 4
+and 5 were produced with the clause-level atomicity check **written and
+tested but never called** — the guard still counted sentences. The
+property had been reported as enforced and was not. Every guard now has
+an integration test that drives the real publication path with a scorer
+entailing everything, so a disconnected guard fails a test rather than a
+review.
 
 These are product artifacts, served by the demo. Live search is
 nondeterministic, so re-running these questions does not recover these

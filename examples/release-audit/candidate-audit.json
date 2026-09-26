@@ -4,100 +4,30 @@
   "runs": {
     "fraud-detection-imbalanced": {
       "question": "Compare modern approaches for detecting fraud in highly imbalanced transaction datasets, including how such models should be evaluated.",
-      "recorded_at": "2026-09-26T18:17:36.302930+00:00",
+      "recorded_at": "2026-09-26T21:19:45.168509+00:00",
       "commit": null,
       "counts": {
-        "raw_generated": 30,
-        "duplicates_removed": 6,
-        "candidates": 24,
-        "checkable": 24,
-        "checked": 24,
+        "raw_generated": 16,
+        "duplicates_removed": 8,
+        "candidates": 8,
+        "checkable": 8,
+        "checked": 8,
         "not_checked": 0,
-        "published": 10,
-        "withheld": 14,
+        "published": 6,
+        "withheld": 2,
         "evidence_only_excerpts": 0,
         "exhaustive": true,
-        "publication_rate": 0.4167
+        "publication_rate": 0.75
       },
       "gate_disagreements": [],
       "candidates": [
         {
-          "claim": "Random forest models achieve the highest accuracy of 99.95% in fraud detection for highly imbalanced transaction datasets.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.00077,
-              "neutral": 0.998535,
-              "contradiction": 0.00079,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e1",
-          "best_entailment": 0.00077,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S4-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Deep learning models provide the highest precision in fraud detection for highly imbalanced transaction datasets.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.000794,
-              "neutral": 0.998047,
-              "contradiction": 0.001068,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e1",
-          "best_entailment": 0.000794,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S4-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Random forest models achieve a recall score of 0.7653 when trained on SMOTE-enhanced datasets for fraud detection.",
+          "claim": "Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S5-e1",
-              "quote": "A RandomForestClassifier trained on the SMOTE-enhanced dataset correctly identified 75 fraudulent transactions. It achieved a recall score of 0.7653.",
+              "quote": "The results show that Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall, while LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
               "source_id": "S5",
               "page": null,
               "quote_match": "exact_normalized"
@@ -106,350 +36,49 @@
           "nli_scores": [
             {
               "evidence_id": "S5-e1",
-              "entailment": 0.947266,
-              "neutral": 0.051666,
-              "contradiction": 0.001052,
+              "entailment": 0.993164,
+              "neutral": 0.005718,
+              "contradiction": 0.000976,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S5-e1",
-          "best_entailment": 0.947266,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.947 from S5-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The key metrics for evaluating fraud detection models in imbalanced datasets include precision, recall, F1 score, accuracy, and ROC-AUC curve.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e2",
-              "quote": "performance is evaluated using standard metrics, including precision, recall, F1 score, accuracy, and the ROC-AUC curve",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e2",
-              "entailment": 0.001403,
-              "neutral": 0.99707,
-              "contradiction": 0.001442,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e2",
-          "best_entailment": 0.001403,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S4-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Precision measures the prediction accuracy for specific classes in fraud detection models.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e2",
-              "quote": "To overcome accuracy limitations, consider precision, recall, and F1-score. These classification metrics offer a more detailed view of model performance: Precision: Measures prediction accuracy for specific classes Recall: Assesses the model's ability to identify class instances F1-score: Balances precision and recall",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.000269,
-              "neutral": 0.999512,
-              "contradiction": 0.000292,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.000269,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.000 from S5-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Recall assesses the model's ability to identify class instances in fraud detection models.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e2",
-              "quote": "To overcome accuracy limitations, consider precision, recall, and F1-score. These classification metrics offer a more detailed view of model performance: Precision: Measures prediction accuracy for specific classes Recall: Assesses the model's ability to identify class instances F1-score: Balances precision and recall",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.000198,
-              "neutral": 0.999512,
-              "contradiction": 0.000163,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.000198,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.000 from S5-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Random forest models outperform deep learning models in accuracy but deep learning models excel in precision for fraud detection.",
-          "kind": "synthesis",
-          "evidence": [
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.001199,
-              "neutral": 0.998047,
-              "contradiction": 0.000541,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e1",
-          "best_entailment": 0.001199,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S4-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The most critical metrics for evaluating fraud detection models in imbalanced datasets are precision, recall, and F1 score.",
-          "kind": "synthesis",
-          "evidence": [
-            {
-              "evidence_id": "S4-e2",
-              "quote": "performance is evaluated using standard metrics, including precision, recall, F1 score, accuracy, and the ROC-AUC curve",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e2",
-              "quote": "To overcome accuracy limitations, consider precision, recall, and F1-score. These classification metrics offer a more detailed view of model performance: Precision: Measures prediction accuracy for specific classes Recall: Assesses the model's ability to identify class instances F1-score: Balances precision and recall",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e2",
-              "entailment": 0.000253,
-              "neutral": 0.998535,
-              "contradiction": 0.00101,
-              "guards_passed": false,
-              "failed_guards": [
-                "ranking"
-              ]
-            },
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.000222,
-              "neutral": 0.999512,
-              "contradiction": 0.000185,
-              "guards_passed": false,
-              "failed_guards": [
-                "ranking"
-              ]
-            }
-          ],
-          "best_evidence_id": "S4-e2",
-          "best_entailment": 0.000253,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: ranking",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "SMOTE is employed to enhance the performance of classification models on real-world credit card fraud datasets.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e3",
-              "quote": "In this study, SMOTE is employed to enhance the performance of three classification models\u2014Logistic Regression, Decision Tree, and Random Forest\u2014on a real-world credit card fraud dataset.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e3",
-              "entailment": 0.810059,
-              "neutral": 0.17395,
-              "contradiction": 0.016205,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e3",
-          "best_entailment": 0.810059,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.810 from S4-e3 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Resampling techniques are vital for balancing datasets in classification tasks to address class imbalance.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e3",
-              "quote": "Resampling techniques are vital for balancing datasets in classification tasks. They tackle the common problem of class imbalance, which can severely affect model performance.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e3",
-              "entailment": 0.994629,
-              "neutral": 0.005096,
-              "contradiction": 0.000341,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S5-e3",
-          "best_entailment": 0.994629,
+          "best_entailment": 0.993164,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S5-e3 at 0.995 >= 0.98",
+          "withhold_reason": "entailed by S5-e1 at 0.993 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "The longer it takes to detect fraud, the more money is lost due to fraudulent transactions completing.",
+          "claim": "LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S10-e1",
-              "quote": "The longer it takes to detect fraud, the more money you stand to lose. By intervening in real-time, you can prevent fraudulent transactions from completing, saving you direct financial damage. This also avoids the downstream costs of chargebacks and disputes.",
-              "source_id": "S10",
+              "evidence_id": "S5-e1",
+              "quote": "The results show that Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall, while LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
+              "source_id": "S5",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S10-e1",
-              "entailment": 0.998047,
-              "neutral": 0.001745,
-              "contradiction": 0.000323,
-              "guards_passed": false,
-              "failed_guards": [
-                "causal"
-              ]
-            }
-          ],
-          "best_evidence_id": "S10-e1",
-          "best_entailment": 0.998047,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: causal",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Direct financial losses occur when fraudulent transactions clear before detection.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S9-e1",
-              "quote": "The true cost of delayed fraud detection includes: Direct Financial Losses: Fraudulent transactions that clear before detection drain accounts and generate chargebacks",
-              "source_id": "S9",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S9-e1",
+              "evidence_id": "S5-e1",
               "entailment": 0.998535,
-              "neutral": 0.001367,
-              "contradiction": 0.000208,
+              "neutral": 0.001262,
+              "contradiction": 0.000414,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S9-e1",
+          "best_evidence_id": "S5-e1",
           "best_entailment": 0.998535,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
@@ -457,230 +86,193 @@
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S9-e1 at 0.999 >= 0.98",
+          "withhold_reason": "entailed by S5-e1 at 0.999 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Customer trust erosion affects 35% of leads due to delayed follow-up from system lag.",
+          "claim": "The random forest model achieved an accuracy of 99.95%.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S9-e2",
-              "quote": "Customer Trust Erosion: 35% of leads go cold due to delayed follow-up from system lag. Imagine the impact when fraud compromises customer accounts",
-              "source_id": "S9",
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S9-e2",
-              "entailment": 0.992676,
-              "neutral": 0.00642,
-              "contradiction": 0.000693,
+              "evidence_id": "S2-e1",
+              "entailment": 0.999023,
+              "neutral": 0.000652,
+              "contradiction": 0.000357,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S9-e2",
-          "best_entailment": 0.992676,
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.999023,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S9-e2 at 0.993 >= 0.98",
+          "withhold_reason": "entailed by S2-e1 at 0.999 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Regulatory penalties under PCI-DSS, GDPR, and financial regulations require timely fraud prevention measures.",
+          "claim": "The random forest model achieved an F1 score of 0.8256.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S9-e3",
-              "quote": "Regulatory Penalties: PCI-DSS, GDPR, and financial regulations mandate timely fraud prevention measures",
-              "source_id": "S9",
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S9-e3",
-              "entailment": 0.996094,
-              "neutral": 0.003578,
-              "contradiction": 0.000175,
+              "evidence_id": "S2-e1",
+              "entailment": 0.999023,
+              "neutral": 0.000442,
+              "contradiction": 0.000309,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S9-e3",
-          "best_entailment": 0.996094,
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.999023,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S9-e3 at 0.996 >= 0.98",
+          "withhold_reason": "entailed by S2-e1 at 0.999 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Operational overhead from manual review processes consumes analyst time and delays legitimate transactions.",
+          "claim": "The random forest model achieved an ROC-AUC of 0.9759.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S9-e4",
-              "quote": "Operational Overhead: Manual review processes for suspicious transactions consume analyst time and delay legitimate transactions",
-              "source_id": "S9",
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S9-e4",
-              "entailment": 0.99707,
-              "neutral": 0.002583,
-              "contradiction": 0.000206,
+              "evidence_id": "S2-e1",
+              "entailment": 0.999023,
+              "neutral": 0.000575,
+              "contradiction": 0.000566,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S9-e4",
-          "best_entailment": 0.99707,
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.999023,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S9-e4 at 0.997 >= 0.98",
+          "withhold_reason": "entailed by S2-e1 at 0.999 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Brand reputation damage occurs when security breaches spread rapidly on social media.",
+          "claim": "The deep learning model provided the highest precision.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S9-e5",
-              "quote": "Brand Reputation Damage: News of security breaches spreads rapidly on social media, affecting customer acquisition",
-              "source_id": "S9",
+              "evidence_id": "S2-e1",
+              "quote": "Experimental results show that the random forest model achieved the best overall performance, with an accuracy of 99.95%, F1 score of 0.8256, and ROC-AUC of 0.9759. The deep learning model provided the highest precision, demonstrating its potential in minimizing false positives.",
+              "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S9-e5",
-              "entailment": 0.995117,
-              "neutral": 0.004616,
-              "contradiction": 0.000394,
+              "evidence_id": "S2-e1",
+              "entailment": 0.997559,
+              "neutral": 0.001431,
+              "contradiction": 0.00094,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S9-e5",
-          "best_entailment": 0.995117,
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.997559,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S9-e5 at 0.995 >= 0.98",
+          "withhold_reason": "entailed by S2-e1 at 0.998 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Traditional batch analytics create a dangerous window where funds are lost before detection.",
+          "claim": "Synthetic Data Generation: Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S9-e6",
-              "quote": "The traditional approach of running batch analytics overnight creates a dangerous window. By the time your system identifies suspicious patterns, the funds are gone and the criminal has vanished.",
-              "source_id": "S9",
+              "evidence_id": "S4-e3",
+              "quote": "Synthetic Data Generation: Techniques like SMOTE (Synthetic Minority Over-sampling Technique) can be used to generate synthetic examples of the minority class, helping to balance the dataset.",
+              "source_id": "S4",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S9-e6",
-              "entailment": 0.998047,
-              "neutral": 0.001798,
-              "contradiction": 0.000101,
+              "evidence_id": "S4-e3",
+              "entailment": 0.958008,
+              "neutral": 0.040588,
+              "contradiction": 0.001597,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S9-e6",
-          "best_entailment": 0.998047,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S9-e6 at 0.998 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Fraudsters seek speed to slip through the cracks before detection.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S10-e2",
-              "quote": "Fraudsters are also looking for speed, often trying to slip through the cracks before anyone notices. This is where the \"real-time\" part becomes crucial.",
-              "source_id": "S10",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S10-e2",
-              "entailment": 0.998047,
-              "neutral": 0.001884,
-              "contradiction": 9.5e-05,
-              "guards_passed": false,
-              "failed_guards": [
-                "hedge"
-              ]
-            }
-          ],
-          "best_evidence_id": "S10-e2",
-          "best_entailment": 0.998047,
+          "best_evidence_id": "S4-e3",
+          "best_entailment": 0.958008,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: hedge",
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.958 from S4-e3 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Oversampling can lead to model overfitting in fraud detection.",
+          "claim": "This study offers insights into the trade-offs between model accuracy, computational efficiency, and real-time applicability in fraud detection systems.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S5-e6",
-              "quote": "Both methods have their benefits and drawbacks. Undersampling might lose information from the majority class, while oversampling could lead to overfitting. The choice depends on the dataset's complexity and size.",
+              "evidence_id": "S5-e4",
+              "quote": "This study offers insights into the trade-offs between model accuracy, computational efficiency, and real-time applicability in fraud detection systems.",
               "source_id": "S5",
               "page": null,
               "quote_match": "exact_normalized"
@@ -688,305 +280,55 @@
           ],
           "nli_scores": [
             {
-              "evidence_id": "S5-e6",
-              "entailment": 0.000127,
-              "neutral": 0.999512,
-              "contradiction": 0.000149,
-              "guards_passed": false,
-              "failed_guards": [
-                "hedge"
-              ]
+              "evidence_id": "S5-e4",
+              "entailment": 0.979492,
+              "neutral": 0.019394,
+              "contradiction": 0.001055,
+              "guards_passed": true,
+              "failed_guards": []
             }
           ],
-          "best_evidence_id": "S5-e6",
-          "best_entailment": 0.000127,
+          "best_evidence_id": "S5-e4",
+          "best_entailment": 0.979492,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: hedge",
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.979 from S5-e4 is below the 0.98 support threshold",
           "present_in_published_report": false,
           "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Instant payments via Zelle, RTP, and FedNow create unprecedented fraud exposure.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S6-e3",
-              "quote": "The explosive growth of instant payments\u2014growing sharply annually across Zelle, RTP, and FedNow\u2014has created unprecedented fraud exposure for financial institutions.",
-              "source_id": "S6",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S6-e3",
-              "entailment": 0.994141,
-              "neutral": 0.005283,
-              "contradiction": 0.000405,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S6-e3",
-          "best_entailment": 0.994141,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S6-e3 at 0.994 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Anomalous transactions include sudden large purchases from new devices and IP addresses in unfamiliar countries.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S10-e3",
-              "quote": "If a user who normally spends $50 suddenly makes a $500 purchase from a new device and IP address in a country they\u2019ve never transacted from before, that\u2019s an anomaly that raises a red flag.",
-              "source_id": "S10",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S10-e3",
-              "entailment": 0.994629,
-              "neutral": 0.005222,
-              "contradiction": 0.000268,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S10-e3",
-          "best_entailment": 0.994629,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S10-e3 at 0.995 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Mobile banking transactions with real-time session patterns, geolocation data, and device fingerprinting are vulnerable.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S7-e3",
-              "quote": "Mobile banking transactions with real-time session patterns, geolocation data, and device fingerprinting.",
-              "source_id": "S7",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S7-e3",
-              "entailment": 0.00362,
-              "neutral": 0.994629,
-              "contradiction": 0.001579,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S7-e3",
-          "best_entailment": 0.00362,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.004 from S7-e3 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Real-time fraud detection systems require multi-year, multi-million dollar investments for data science requirements.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S6-e4",
-              "quote": "The data science requirements alone\u2014including feature engineering for millisecond-latency models, continuous model retraining pipelines, and A/B testing frameworks for fraud rules\u2014represent a multi-year, multi-million dollar investment.",
-              "source_id": "S6",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S6-e4",
-              "entailment": 0.864746,
-              "neutral": 0.13501,
-              "contradiction": 0.000329,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
-            }
-          ],
-          "best_evidence_id": "S6-e4",
-          "best_entailment": 0.864746,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Financial institutions can reduce risk while maintaining operational agility and cost control.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S7-e4",
-              "quote": "Financial institutions can reduce risk while maintaining operational agility and cost control.",
-              "source_id": "S7",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S7-e4",
-              "entailment": 0.989258,
-              "neutral": 0.01001,
-              "contradiction": 0.000619,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S7-e4",
-          "best_entailment": 0.989258,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S7-e4 at 0.989 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [
-            "while maintaining"
-          ],
           "human_review": null
         }
       ]
     },
     "nist-ai-risk-framework": {
       "question": "Using the official NIST AI Risk Management Framework 1.0 publication as the primary source, explain how the framework structures AI risk management, including its core functions, governance role, and practical use. Support claims with page-level evidence from the NIST publication where available.",
-      "recorded_at": "2026-09-26T17:57:53.690143+00:00",
+      "recorded_at": "2026-09-26T21:01:54.345419+00:00",
       "commit": null,
       "counts": {
-        "raw_generated": 14,
-        "duplicates_removed": 6,
-        "candidates": 8,
-        "checkable": 8,
-        "checked": 8,
+        "raw_generated": 19,
+        "duplicates_removed": 12,
+        "candidates": 7,
+        "checkable": 7,
+        "checked": 7,
         "not_checked": 0,
-        "published": 1,
-        "withheld": 7,
+        "published": 3,
+        "withheld": 4,
         "evidence_only_excerpts": 0,
         "exhaustive": true,
-        "publication_rate": 0.125
+        "publication_rate": 0.4286
       },
       "gate_disagreements": [],
       "candidates": [
         {
-          "claim": "The NIST AI Risk Management Framework 1.0 defines four core functions: Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S2-e1",
-              "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S1-e1",
-              "quote": "Its core is four functions: Govern, Map, Measure, and Manage, aligned with trustworthy AI characteristics such as validity, safety, security, accountability, and fairness.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S5-e1",
-              "quote": "The NIST AI Risk Management Framework (NIST AI RMF) is a voluntary guideline designed to help organizations identify, assess, and manage risks associated with artificial intelligence (AI). The framework was designed with the principles of Map, Measure, Manage, and Govern to develop trustworthy, transparent, and ethical AI systems, ensuring responsible AI adoption across various industries.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S2-e1",
-              "entailment": 0.012146,
-              "neutral": 0.98584,
-              "contradiction": 0.001817,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S1-e1",
-              "entailment": 0.024612,
-              "neutral": 0.974609,
-              "contradiction": 0.000875,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            },
-            {
-              "evidence_id": "S5-e1",
-              "entailment": 0.097961,
-              "neutral": 0.901367,
-              "contradiction": 0.000509,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            }
-          ],
-          "best_evidence_id": "S2-e1",
-          "best_entailment": 0.012146,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.012 from S2-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 is voluntary guidance for identifying, measuring, and managing risk across the AI lifecycle, not a certification standard.",
+          "claim": "The NIST AI Risk Management Framework 1.0 is structured around four core functions: Govern, Map, Measure, and Manage.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S3-e1",
-              "quote": "The NIST AI Risk Management Framework (AI RMF 1.0) is voluntary guidance for identifying, measuring, and managing risk across the AI lifecycle, not a certification standard.",
+              "quote": "It is structured around four core functions: Govern, Map, Measure, and Manage.",
               "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
@@ -995,233 +337,17 @@
           "nli_scores": [
             {
               "evidence_id": "S3-e1",
-              "entailment": 0.995605,
-              "neutral": 0.003511,
-              "contradiction": 0.000983,
-              "guards_passed": true,
-              "failed_guards": []
+              "entailment": 0.017075,
+              "neutral": 0.981445,
+              "contradiction": 0.001365,
+              "guards_passed": false,
+              "failed_guards": [
+                "numeric"
+              ]
             }
           ],
           "best_evidence_id": "S3-e1",
-          "best_entailment": 0.995605,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S3-e1 at 0.996 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The framework is technology neutral and does not require specific tools, so most organizations pair it with technical controls for data discovery, classification, and monitoring.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e5",
-              "quote": "The framework is technology neutral. It does not require specific tools, so most organizations pair it with technical controls for data discovery, classification, and monitoring.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e5",
-              "entailment": 0.956543,
-              "neutral": 0.040771,
-              "contradiction": 0.002447,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e5",
-          "best_entailment": 0.956543,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.957 from S3-e5 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Adoption of the NIST AI Risk Management Framework 1.0 is iterative, starting with an AI inventory and governance structure before expanding into risk mapping, measurement, and ongoing monitoring.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e4",
-              "quote": "Adoption is iterative: organizations typically start with an AI inventory and governance structure, then expand into risk mapping, measurement, and ongoing monitoring.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e4",
-              "entailment": 0.008781,
-              "neutral": 0.990723,
-              "contradiction": 0.000577,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric",
-                "hedge"
-              ]
-            }
-          ],
-          "best_evidence_id": "S3-e4",
-          "best_entailment": 0.008781,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: hedge, numeric",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 specifies governance structures through the four core functions: Govern, Map, Measure, and Manage.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S2-e2",
-              "quote": "The four core functions of the NIST AI RMF \u200b\n\nNIST AI RMF 1.0 is organized around four core functions. Each function is broken down into categories and subcategories in the AI RMF Playbook, which provides suggested actions, documentation, and references for each outcome.",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S2-e2",
-              "entailment": 0.047241,
-              "neutral": 0.949219,
-              "contradiction": 0.003708,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S2-e2",
-          "best_entailment": 0.047241,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.047 from S2-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 includes an AI Center of Excellence committee and an executive board that validates responsible AI principles.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S5-e2",
-              "quote": "Having an AI Center of Excellence committee can help the organization develop AI principles to ensure responsible AI development is cascaded throughout the organization, just as a charter might do.",
-              "source_id": "S5",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S5-e2",
-              "entailment": 0.000383,
-              "neutral": 0.999023,
-              "contradiction": 0.000386,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric",
-                "hedge"
-              ]
-            }
-          ],
-          "best_evidence_id": "S5-e2",
-          "best_entailment": 0.000383,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: hedge, numeric",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases for implementing AI risk management through profiles and operationalization.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S2-e3",
-              "quote": "NIST AI RMF profiles \u200b\n\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\n\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
-              "source_id": "S2",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S2-e3",
-              "entailment": 0.955078,
-              "neutral": 0.043976,
-              "contradiction": 0.000902,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S2-e3",
-          "best_entailment": 0.955078,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.955 from S2-e3 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases for implementing AI risk management through companion artifacts such as the Playbook, Crosswalks, Roadmap, and Use Cases.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e3",
-              "quote": "The NIST AI RMF is supported by several companion artifacts that help organizations apply the framework in practice. These include the Playbook, which suggests actions mapped to RMF outcomes; Crosswalks, which connect AI RMF activities to other standards and frameworks; Roadmap documents, which outline future research and measurement needs; and Use Cases, which demonstrate how different sectors operationalize the RMF functions under varying constraints.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e3",
-              "entailment": 0.821777,
-              "neutral": 0.177124,
-              "contradiction": 0.000942,
-              "guards_passed": false,
-              "failed_guards": [
-                "numeric"
-              ]
-            }
-          ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.821777,
+          "best_entailment": 0.017075,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
@@ -1232,35 +358,189 @@
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
-        }
-      ]
-    },
-    "rag-vector-vs-search": {
-      "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
-      "recorded_at": "2026-09-26T17:38:53.735411+00:00",
-      "commit": null,
-      "counts": {
-        "raw_generated": 21,
-        "duplicates_removed": 6,
-        "candidates": 15,
-        "checkable": 15,
-        "checked": 15,
-        "not_checked": 0,
-        "published": 3,
-        "withheld": 12,
-        "evidence_only_excerpts": 0,
-        "exhaustive": true,
-        "publication_rate": 0.2
-      },
-      "gate_disagreements": [],
-      "candidates": [
+        },
         {
-          "claim": "Vector databases are optimized for AI-driven workloads like LLMs, recommendation systems, search engines, and generative AI applications, enabling fast nearest-neighbor search (ANN), similarity matching, and context retrieval from embeddings.",
+          "claim": "The Govern function addresses organizational risk culture, accountability, and AI-related policies across the AI lifecycle.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S3-e1",
-              "quote": "Vector Database Platforms are modern data storage systems designed to store, manage, and search high-dimensional vector embeddings generated by AI and machine learning models. These vectors represent unstructured data such as text, images, audio, and video in numerical form, enabling semantic search and similarity matching.",
+              "evidence_id": "S2-e2",
+              "quote": "The Govern function focuses on organizational risk culture, accountability, and AI-related policies across the lifecycle. It addresses issues such as who approves high-risk use cases, how third-party models are introduced into the environment, and how resources are allocated for safety testing.",
+              "source_id": "S2",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S2-e2",
+              "entailment": 0.599121,
+              "neutral": 0.396973,
+              "contradiction": 0.003979,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S2-e2",
+          "best_entailment": 0.599121,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.599 from S2-e2 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Map function focuses on contextual analysis, stakeholder identification, and impact assessment.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e2",
+              "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e2",
+              "entailment": 0.949219,
+              "neutral": 0.05011,
+              "contradiction": 0.000465,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.949219,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "partially_supported",
+          "withhold_reason": "best entailment 0.949 from S1-e2 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Measure function involves testing and monitoring signals to assess AI system performance.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e2",
+              "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e2",
+              "entailment": 0.004707,
+              "neutral": 0.995117,
+              "contradiction": 0.000389,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.004707,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "best entailment 0.005 from S1-e2 is below the 0.98 support threshold",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Manage function implements mitigations and addresses residual risks.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e2",
+              "quote": "Governance loop\nFour stations, one operating model.\nNIST AI RMF 1.0\n\nContinuous AI risk management\nGovern\nAccountability, policies, oversight\nMap\nContext, stakeholders, impacts\nMeasure\nTesting and monitoring signals\nManage\nMitigations and residual risk",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e2",
+              "entailment": 0.991699,
+              "neutral": 0.007881,
+              "contradiction": 0.000374,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e2",
+          "best_entailment": 0.991699,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e2 at 0.992 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases through profiles that apply the framework to specific AI systems or technology classes.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S1-e3",
+              "quote": "NIST AI RMF profiles \u200b\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
+              "source_id": "S1",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S1-e3",
+              "entailment": 0.994141,
+              "neutral": 0.005272,
+              "contradiction": 0.00056,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S1-e3",
+          "best_entailment": 0.994141,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S1-e3 at 0.994 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "The Govern function spans the entire organization.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S3-e2",
+              "quote": "GOVERN is the only function that spans the entire organization.",
               "source_id": "S3",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1268,34 +548,55 @@
           ],
           "nli_scores": [
             {
-              "evidence_id": "S3-e1",
-              "entailment": 0.000956,
-              "neutral": 0.998535,
-              "contradiction": 0.000352,
+              "evidence_id": "S3-e2",
+              "entailment": 0.995605,
+              "neutral": 0.003855,
+              "contradiction": 0.000644,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
-          "best_evidence_id": "S3-e1",
-          "best_entailment": 0.000956,
+          "best_evidence_id": "S3-e2",
+          "best_entailment": 0.995605,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S3-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S3-e2 at 0.996 >= 0.98",
+          "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
-        },
+        }
+      ]
+    },
+    "rag-vector-vs-search": {
+      "question": "What are the practical trade-offs between vector databases and traditional search engines for retrieval-augmented generation?",
+      "recorded_at": "2026-09-26T20:37:37.767105+00:00",
+      "commit": null,
+      "counts": {
+        "raw_generated": 11,
+        "duplicates_removed": 5,
+        "candidates": 6,
+        "checkable": 6,
+        "checked": 6,
+        "not_checked": 0,
+        "published": 2,
+        "withheld": 4,
+        "evidence_only_excerpts": 0,
+        "exhaustive": true,
+        "publication_rate": 0.3333
+      },
+      "gate_disagreements": [],
+      "candidates": [
         {
-          "claim": "Vector databases play a crucial role in various industries due to their ability to handle high-dimensional data effectively.",
+          "claim": "Vector databases provide approximate results based on semantic similarity and require a tradeoff between accuracy and speed.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S1-e1",
-              "quote": "Vector databases play a crucial role in various industries due to their ability to handle high-dimensional data effectively (opens new window).",
+              "quote": "The vector database provides approximate results based on semantic similarity and often requires a tradeoff between accuracy and speed; that is, if you want your results to be highly accurate, you\u2019ll have to compromise on the speed of your output.",
               "source_id": "S1",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1304,68 +605,107 @@
           "nli_scores": [
             {
               "evidence_id": "S1-e1",
-              "entailment": 0.987793,
-              "neutral": 0.011642,
-              "contradiction": 0.000566,
-              "guards_passed": true,
-              "failed_guards": []
+              "entailment": 0.984863,
+              "neutral": 0.013931,
+              "contradiction": 0.001116,
+              "guards_passed": false,
+              "failed_guards": [
+                "hedge"
+              ]
             }
           ],
           "best_evidence_id": "S1-e1",
-          "best_entailment": 0.987793,
+          "best_entailment": 0.984863,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e1 at 0.988 >= 0.98",
-          "present_in_published_report": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: hedge",
+          "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Vector search engines and databases have gained significant traction in recent years, thanks to their ability to handle high-dimensional data and perform similarity search efficiently.",
+          "claim": "Vector search excels at finding conceptually related content (recall) but is less effective at pinpointing exactly what is needed (precision).",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S5-e1",
-              "quote": "Vector search engines and databases have gained significant traction in recent years, thanks to their ability to handle high-dimensional data and perform similarity search efficiently.",
-              "source_id": "S5",
+              "evidence_id": "S4-e1",
+              "quote": "Vector search excels at finding conceptually related content (recall): documents that discuss similar topics, even if they use different terminology. However, it's less effective at pinpointing exactly what you need (precision).",
+              "source_id": "S4",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S5-e1",
-              "entailment": 0.952148,
-              "neutral": 0.046295,
-              "contradiction": 0.001613,
-              "guards_passed": true,
-              "failed_guards": []
+              "evidence_id": "S4-e1",
+              "entailment": 0.998535,
+              "neutral": 0.001013,
+              "contradiction": 0.000234,
+              "guards_passed": false,
+              "failed_guards": [
+                "atomicity"
+              ]
             }
           ],
-          "best_evidence_id": "S5-e1",
-          "best_entailment": 0.952148,
+          "best_evidence_id": "S4-e1",
+          "best_entailment": 0.998535,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.952 from S5-e1 is below the 0.98 support threshold",
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: atomicity",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Pinecone is optimized for high-dimensional vector indexing and similarity search, making it a powerful tool for applications that rely on finding similar items or recommendations in real-time.",
+          "claim": "Pure vector search creates two problems: raw user questions are converted directly to embeddings without query refinement and vector similarity favors recall over precision.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e2",
+              "quote": "Pure vector search creates two problems: raw user questions are converted straight to embeddings without query refinement, and vector similarity favors recall over precision, so results are conceptually related but not always exactly what you need.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e2",
+              "entailment": 0.99707,
+              "neutral": 0.002476,
+              "contradiction": 0.000416,
+              "guards_passed": true,
+              "failed_guards": []
+            }
+          ],
+          "best_evidence_id": "S4-e2",
+          "best_entailment": 0.99707,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": true,
+          "diagnostic_verdict": "supported",
+          "withhold_reason": "entailed by S4-e2 at 0.997 >= 0.98",
+          "present_in_published_report": true,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Vector databases are not strictly required for RAG implementations.",
           "kind": "factual",
           "evidence": [
             {
               "evidence_id": "S2-e1",
-              "quote": "Pinecone is optimized for high-dimensional vector indexing and similarity search, making it a powerful tool for applications that rely on finding similar items or recommendations in real-time.",
+              "quote": "In most RAG implementations, RAG systems rely on vector databases or vector indexing techniques to enable semantic search. However, vector search is not strictly required. RAG architectures can also incorporate keyword search, structured queries or hybrid approaches depending on the use case.",
               "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
@@ -1374,445 +714,116 @@
           "nli_scores": [
             {
               "evidence_id": "S2-e1",
-              "entailment": 0.973145,
-              "neutral": 0.025513,
-              "contradiction": 0.001358,
+              "entailment": 0.997559,
+              "neutral": 0.00171,
+              "contradiction": 0.000714,
               "guards_passed": true,
               "failed_guards": []
             }
           ],
           "best_evidence_id": "S2-e1",
-          "best_entailment": 0.973145,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.973 from S2-e1 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases can handle high-dimensional data more effectively than traditional search engines.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Vector search engines have LLMs that interpret and process linguistic nuances, ensuring accurate information retrieval even in complex multilingual settings.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.263672,
-              "neutral": 0.73584,
-              "contradiction": 0.000828,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
-            }
-          ],
-          "best_evidence_id": "S4-e1",
-          "best_entailment": 0.263672,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases can become costly at scale and require infrastructure expertise.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e2",
-              "quote": "Can become costly at scale",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e2",
-              "entailment": 0.000554,
-              "neutral": 0.999023,
-              "contradiction": 0.000183,
-              "guards_passed": false,
-              "failed_guards": [
-                "modality"
-              ]
-            }
-          ],
-          "best_evidence_id": "S3-e2",
-          "best_entailment": 0.000554,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: modality",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases excel in high-dimensional data processing for AI applications but introduce hidden costs and operational complexity.",
-          "kind": "synthesis",
-          "evidence": [
-            {
-              "evidence_id": "S3-e1",
-              "quote": "Vector Database Platforms are modern data storage systems designed to store, manage, and search high-dimensional vector embeddings generated by AI and machine learning models. These vectors represent unstructured data such as text, images, audio, and video in numerical form, enabling semantic search and similarity matching.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S3-e2",
-              "quote": "Can become costly at scale",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            },
-            {
-              "evidence_id": "S4-e1",
-              "quote": "Vector search engines have LLMs that interpret and process linguistic nuances, ensuring accurate information retrieval even in complex multilingual settings.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e1",
-              "entailment": 8.1e-05,
-              "neutral": 0.999512,
-              "contradiction": 0.000198,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S3-e2",
-              "entailment": 0.000958,
-              "neutral": 0.998535,
-              "contradiction": 0.000281,
-              "guards_passed": true,
-              "failed_guards": []
-            },
-            {
-              "evidence_id": "S4-e1",
-              "entailment": 0.000244,
-              "neutral": 0.998535,
-              "contradiction": 0.001432,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e2",
-          "best_entailment": 0.000958,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S3-e2 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases have operational complexity due to the need for specialized expertise and infrastructure.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e3",
-              "quote": "Operational complexity",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e3",
-              "entailment": 0.000654,
-              "neutral": 0.999023,
-              "contradiction": 0.000149,
-              "guards_passed": false,
-              "failed_guards": [
-                "causal"
-              ]
-            }
-          ],
-          "best_evidence_id": "S3-e3",
-          "best_entailment": 0.000654,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: causal",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vespa excels in horizontal scaling, allowing for effortless expansion as data volumes grow.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S1-e3",
-              "quote": "Vespa excels in horizontal scaling (opens new window), allowing for effortless expansion as data volumes grow.",
-              "source_id": "S1",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S1-e3",
-              "entailment": 0.98584,
-              "neutral": 0.013176,
-              "contradiction": 0.00089,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S1-e3",
-          "best_entailment": 0.98584,
+          "best_entailment": 0.997559,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": true,
           "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S1-e3 at 0.986 >= 0.98",
+          "withhold_reason": "entailed by S2-e1 at 0.998 >= 0.98",
           "present_in_published_report": true,
           "compound_markers": [],
           "human_review": null
         },
         {
-          "claim": "Vector databases have security implications including encryption at rest and in transit, role-based access control (RBAC), and encryption support.",
+          "claim": "RAG systems can incorporate keyword search, structured queries, or hybrid approaches depending on the use case.",
           "kind": "factual",
           "evidence": [
             {
-              "evidence_id": "S3-e4",
-              "quote": "Encryption at rest and in transit; Not publicly stated",
-              "source_id": "S3",
+              "evidence_id": "S2-e1",
+              "quote": "In most RAG implementations, RAG systems rely on vector databases or vector indexing techniques to enable semantic search. However, vector search is not strictly required. RAG architectures can also incorporate keyword search, structured queries or hybrid approaches depending on the use case.",
+              "source_id": "S2",
               "page": null,
               "quote_match": "exact_normalized"
             }
           ],
           "nli_scores": [
             {
-              "evidence_id": "S3-e4",
-              "entailment": 0.001473,
-              "neutral": 0.997559,
-              "contradiction": 0.000912,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e4",
-          "best_entailment": 0.001473,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S3-e4 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Handling sensitive or personal data with vector search engines may raise privacy concerns, potentially leading to data exposure and privacy violations.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e4",
-              "quote": "Handling sensitive or personal data with vector search engines, especially when using APIs to access and train LLM services, may raise privacy concerns. If not carefully managed, the training and utilization of such models could result in unintentional data exposure, leading to data breaches or privacy violations.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e4",
-              "entailment": 0.996094,
-              "neutral": 0.003586,
-              "contradiction": 0.000192,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e4",
-          "best_entailment": 0.996094,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": true,
-          "diagnostic_verdict": "supported",
-          "withhold_reason": "entailed by S4-e4 at 0.996 >= 0.98",
-          "present_in_published_report": true,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases are less suitable than traditional search engines for scenarios where traditional transactional systems or structured relational workloads are needed.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e5",
-              "quote": "Not ideal for: Traditional transactional systems or structured relational workloads.",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e5",
-              "entailment": 0.000843,
-              "neutral": 0.999023,
-              "contradiction": 0.00024,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e5",
-          "best_entailment": 0.000843,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.001 from S3-e5 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases are less suitable than traditional search engines in specialized fields where precise terminology is crucial.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e5",
-              "quote": "Vector search encounters difficulties with rare or niche items, struggles to capture nuanced semantic meanings, and may need more precision in highly specialized fields. This limitation can lead to suboptimal search results in industries where precise terminology is crucial, like legal, healthcare, or scientific research.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e5",
-              "entailment": 0.119019,
-              "neutral": 0.880371,
-              "contradiction": 0.000822,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S4-e5",
-          "best_entailment": 0.119019,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "partially_supported",
-          "withhold_reason": "best entailment 0.119 from S4-e5 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector databases have failure modes specific to their architecture, including memory-intensive operations and the need for manual integration.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S3-e6",
-              "quote": "Memory intensive",
-              "source_id": "S3",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S3-e6",
-              "entailment": 0.001947,
-              "neutral": 0.99707,
-              "contradiction": 0.000938,
-              "guards_passed": true,
-              "failed_guards": []
-            }
-          ],
-          "best_evidence_id": "S3-e6",
-          "best_entailment": 0.001947,
-          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
-          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-          "support_threshold": 0.98,
-          "checked": true,
-          "publishable": false,
-          "diagnostic_verdict": "unsupported",
-          "withhold_reason": "best entailment 0.002 from S3-e6 is below the 0.98 support threshold",
-          "present_in_published_report": false,
-          "compound_markers": [],
-          "human_review": null
-        },
-        {
-          "claim": "Vector search engines face performance vs. accuracy trade-offs due to high dimensionality, which can result in slower response times and reduced precision.",
-          "kind": "factual",
-          "evidence": [
-            {
-              "evidence_id": "S4-e6",
-              "quote": "Performance vs. Accuracy Trade-off: LLM-based content vectorization can provide vectors of varying dimensions. The higher the dimensionality, the more information can be kept in vectors, resulting in more exact search results. The high dimensionality, however, comes at a higher processing cost and slower response times. As a result, vector search engines use approximate closest neighbor (ANN) techniques to accelerate the process while sacrificing some search precision.",
-              "source_id": "S4",
-              "page": null,
-              "quote_match": "exact_normalized"
-            }
-          ],
-          "nli_scores": [
-            {
-              "evidence_id": "S4-e6",
-              "entailment": 0.999023,
-              "neutral": 0.000818,
-              "contradiction": 0.000202,
+              "evidence_id": "S2-e1",
+              "entailment": 0.998535,
+              "neutral": 0.001248,
+              "contradiction": 0.000418,
               "guards_passed": false,
               "failed_guards": [
-                "causal"
+                "atomicity"
               ]
             }
           ],
-          "best_evidence_id": "S4-e6",
-          "best_entailment": 0.999023,
+          "best_evidence_id": "S2-e1",
+          "best_entailment": 0.998535,
           "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
           "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
           "support_threshold": 0.98,
           "checked": true,
           "publishable": false,
           "diagnostic_verdict": "unsupported",
-          "withhold_reason": "every cited quote failed a deterministic guard: causal",
+          "withhold_reason": "every cited quote failed a deterministic guard: atomicity",
+          "present_in_published_report": false,
+          "compound_markers": [],
+          "human_review": null
+        },
+        {
+          "claim": "Vector search prioritizes recall over precision, leading to conceptually related but potentially inaccurate results.",
+          "kind": "factual",
+          "evidence": [
+            {
+              "evidence_id": "S4-e1",
+              "quote": "Vector search excels at finding conceptually related content (recall): documents that discuss similar topics, even if they use different terminology. However, it's less effective at pinpointing exactly what you need (precision).",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            },
+            {
+              "evidence_id": "S4-e2",
+              "quote": "Pure vector search creates two problems: raw user questions are converted straight to embeddings without query refinement, and vector similarity favors recall over precision, so results are conceptually related but not always exactly what you need.",
+              "source_id": "S4",
+              "page": null,
+              "quote_match": "exact_normalized"
+            }
+          ],
+          "nli_scores": [
+            {
+              "evidence_id": "S4-e1",
+              "entailment": 0.10614,
+              "neutral": 0.893066,
+              "contradiction": 0.000639,
+              "guards_passed": false,
+              "failed_guards": [
+                "atomicity",
+                "modality",
+                "ranking"
+              ]
+            },
+            {
+              "evidence_id": "S4-e2",
+              "entailment": 0.998535,
+              "neutral": 0.001189,
+              "contradiction": 0.000118,
+              "guards_passed": false,
+              "failed_guards": [
+                "atomicity",
+                "ranking"
+              ]
+            }
+          ],
+          "best_evidence_id": "S4-e2",
+          "best_entailment": 0.998535,
+          "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+          "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+          "support_threshold": 0.98,
+          "checked": true,
+          "publishable": false,
+          "diagnostic_verdict": "unsupported",
+          "withhold_reason": "every cited quote failed a deterministic guard: atomicity, modality, ranking",
           "present_in_published_report": false,
           "compound_markers": [],
           "human_review": null
@@ -1821,10 +832,10 @@
     }
   },
   "totals": {
-    "candidates": 47,
-    "checked": 47,
-    "published": 14,
-    "withheld": 33,
+    "candidates": 21,
+    "checked": 21,
+    "published": 11,
+    "withheld": 10,
     "excerpts": 0
   }
 }
