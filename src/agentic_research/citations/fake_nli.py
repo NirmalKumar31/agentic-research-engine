@@ -29,9 +29,16 @@ class FakeScorer:
         self._default = default
         self._fail_with = fail_with
         self.calls = 0
+        self.seen: list[tuple[str, str]] = []
+        """Every (premise, hypothesis) pair handed to the scorer.
+
+        Recorded so tests can assert what the classifier was actually
+        shown -- specifically that no source identity, quality score or
+        ranking reached the premise."""
 
     def score(self, pairs: list[tuple[str, str]]) -> list[NLIPrediction]:
         self.calls += 1
+        self.seen.extend(pairs)
         if self._fail_with is not None:
             raise NLIUnavailable(self._fail_with)
         out = []

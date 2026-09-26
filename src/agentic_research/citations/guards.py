@@ -65,6 +65,19 @@ _HEDGED = re.compile(
 # to" is causal, not comparative, and matching "leads" alone would read
 # a ranking into evidence that states none, which is the unsafe
 # direction for this guard.
+# Epistemic hedges: uncertainty about whether something is so. Deleting
+# one is an overclaim -- "might lack" becoming "lack" asserts as fact
+# what the source declined to.
+#
+# "can" and "could" are deliberately absent. They usually express
+# capability, not doubt: "vector databases can handle large datasets"
+# becoming "handle large datasets" is faithful. Treating every modal as
+# epistemic was measured against the release audit and rejected a true
+# claim for exactly that reason.
+_EPISTEMIC = ("may", "might", "possibly", "potentially", "perhaps", "maybe", "presumably")
+
+_SENTENCE = re.compile(r"(?<=[.!?;])\s+")
+
 _RANKING = (
     "highest",
     "lowest",
@@ -131,10 +144,65 @@ _EXCLUSIVE = ("only", "exclusively", "solely", "unless", "no other", "nothing el
 
 
 @dataclass(frozen=True)
+class SourceIdentity:
+    """Who published the quote, for the attribution guard only.
+
+    Deliberately just identity. Quality score, search rank and source
+    category are absent because they are not evidence of who said
+    something, and because none of them may influence entailment.
+    """
+
+    domain: str = ""
+    title: str = ""
+
+
+@dataclass(frozen=True)
 class GuardResult:
     name: str
     passed: bool
     detail: str = ""
+
+
+# Function words carry no topic signal, so they are excluded when
+# matching a claim to the sentence that supports it.
+_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "be",
+        "by",
+        "for",
+        "from",
+        "has",
+        "have",
+        "in",
+        "is",
+        "it",
+        "its",
+        "of",
+        "on",
+        "or",
+        "that",
+        "the",
+        "this",
+        "to",
+        "was",
+        "were",
+        "will",
+        "with",
+        "which",
+        "while",
+        "but",
+        "not",
+        "no",
+        "can",
+        "may",
+    }
+)
 
 
 def _words(text: str) -> set[str]:
@@ -198,6 +266,60 @@ def modality_guard(claim: str, evidence: str) -> GuardResult:
     )
 
 
+def _epistemic_terms(text: str) -> list[str]:
+    words = _words(text)
+    return [w for w in _EPISTEMIC if w in words]
+
+
+def _supporting_sentence(claim: str, evidence: str) -> str:
+    """The sentence in the evidence that actually carries the claim.
+
+    A quote can hold several unrelated sentences. "System A may fail
+    under load. System B uses AES-256." must not block the claim
+    "System B uses AES-256" because the word "may" appears somewhere
+    else in the passage.
+
+    Picked by content-word overlap -- the smallest thing that works.
+    No parsing, and on a single-sentence quote it is the identity.
+    """
+    sentences = [part for part in _SENTENCE.split(evidence or "") if part.strip()]
+    if len(sentences) <= 1:
+        return evidence or ""
+    claim_words = _words(claim) - _STOPWORDS
+    if not claim_words:
+        return evidence or ""
+    return max(sentences, key=lambda part: len(claim_words & (_words(part) - _STOPWORDS)))
+
+
+def hedge_guard(claim: str, evidence: str) -> GuardResult:
+    """A claim may not delete the uncertainty its evidence expressed.
+
+    The band-based modality guard catches strengthening -- "may" to
+    "must" -- but cannot catch deletion, because its rule is "claim band
+    must not exceed evidence band" and a claim with no modality sits in
+    band 0, the weakest. So "may" to "must" fails while "may" to nothing
+    passes, and deletion is the more common overclaim of the two. The
+    release audit published exactly one unsupported claim and this was
+    it, at 0.9946 entailment, so the classifier does not catch it
+    either.
+
+    Scoped to the sentence that supports the claim rather than the whole
+    quote, so an unrelated hedge elsewhere in the passage does not
+    withhold a faithful claim.
+    """
+    supporting = _supporting_sentence(claim, evidence)
+    hedges = _epistemic_terms(supporting)
+    if not hedges:
+        return GuardResult("hedge", True, "evidence states no epistemic hedge")
+    if _epistemic_terms(claim):
+        return GuardResult("hedge", True, f"claim keeps the hedge: {', '.join(hedges)}")
+    return GuardResult(
+        "hedge",
+        False,
+        f"evidence hedges with '{', '.join(hedges)}'; the claim states it as fact",
+    )
+
+
 def ranking_guard(claim: str, evidence: str) -> GuardResult:
     """A superlative needs the evidence to make some comparison.
 
@@ -254,13 +376,194 @@ def exclusivity_guard(claim: str, evidence: str) -> GuardResult:
     return GuardResult("exclusivity", True, f"evidence states '{', '.join(supported)}'")
 
 
-ALL_GUARDS = (numeric_guard, modality_guard, ranking_guard, causal_guard, exclusivity_guard)
-GUARD_NAMES = tuple(g(" ", " ").name for g in ALL_GUARDS)
+# Verbs that attribute a proposition to whoever precedes them.
+_ATTRIBUTION_VERBS = (
+    "states",
+    "stated",
+    "says",
+    "said",
+    "reports",
+    "reported",
+    "requires",
+    "require",
+    "required",
+    "mandates",
+    "mandated",
+    "recommends",
+    "recommended",
+    "found",
+    "finds",
+    "notes",
+    "noted",
+    "writes",
+    "wrote",
+    "concludes",
+    "concluded",
+    "warns",
+    "warned",
+    "defines",
+    "defined",
+    "specifies",
+    "specified",
+    "advises",
+    "advised",
+    "prohibits",
+    "prohibited",
+)
+
+# "the authors", "the study" and friends point at the cited source
+# itself, so citing it establishes them. Only named third parties need
+# checking.
+_SELF_REFERENCE = re.compile(
+    r"\bthe\s+(?:authors?|study|paper|report|research|guide|documentation|source|"
+    r"specification|standard|framework|article|survey|benchmark)\b",
+    re.IGNORECASE,
+)
+
+# An acronym (NIST, IEEE, WHO) or a capitalised multi-word name, taken
+# only where an attribution structure makes the role unambiguous.
+_NAME = r"(?:[A-Z][A-Za-z0-9.&-]*)(?:\s+[A-Z][A-Za-z0-9.&-]*){0,3}"
+_ACRONYM_ATTRIBUTION = re.compile(
+    rf"\b([A-Z]{{2,}}[A-Za-z0-9.&-]*)\s+(?:{'|'.join(_ATTRIBUTION_VERBS)})\b"
+)
+_EXPLICIT_ATTRIBUTION = re.compile(
+    rf"\b(?:according to|per|cited by|as stated by|as reported by)\s+({_NAME})", re.IGNORECASE
+)
+_MIDSENTENCE_ATTRIBUTION = re.compile(
+    rf"(?<!^)(?<![.!?]\s)\b({_NAME})\s+(?:{'|'.join(_ATTRIBUTION_VERBS)})\b"
+)
+
+_GENERIC_SUBJECTS = frozenset(
+    {
+        "it",
+        "they",
+        "this",
+        "that",
+        "these",
+        "those",
+        "he",
+        "she",
+        "we",
+        "you",
+        "the",
+        "a",
+        "an",
+        "organizations",
+        "organisations",
+        "users",
+        "developers",
+        "companies",
+        "teams",
+        "systems",
+    }
+)
 
 
-def run_guards(claim: str, evidence: str) -> list[GuardResult]:
-    """Every guard, always, so the audit record shows what each decided."""
-    return [guard(claim, evidence) for guard in ALL_GUARDS]
+def attributed_entities(claim: str) -> list[str]:
+    """Named third parties the claim credits a proposition to.
+
+    Deliberately narrow. It fires on "according to X", on an acronym
+    followed by an attribution verb, and on a capitalised name in the
+    middle of a sentence followed by one. It does not fire on a
+    sentence-initial capitalised common noun, because "Vector databases
+    require significant memory" is a claim about vector databases and
+    not an attribution to anyone.
+
+    Missing an attribution means the guard abstains and the classifier
+    decides, which is the same position the system was in before.
+    Inventing one would withhold ordinary claims, so the bias is toward
+    silence.
+    """
+    text = claim or ""
+    found: list[str] = []
+    for pattern in (_EXPLICIT_ATTRIBUTION, _ACRONYM_ATTRIBUTION, _MIDSENTENCE_ATTRIBUTION):
+        for match in pattern.finditer(text):
+            name = match.group(1).strip(" .,")
+            if not name or name.lower() in _GENERIC_SUBJECTS:
+                continue
+            if _SELF_REFERENCE.fullmatch(name) or name.lower().startswith("the "):
+                continue
+            if name not in found:
+                found.append(name)
+    return found
+
+
+def _establishes(name: str, quote: str, source: SourceIdentity | None) -> str:
+    """Where, if anywhere, this attribution is borne out."""
+    needle = name.lower()
+    if needle in (quote or "").lower():
+        return "the quoted text names it"
+    if source is not None:
+        # Domains drop punctuation: "nist.gov" must match "NIST",
+        # "ieee.org" must match "IEEE".
+        domain = re.sub(r"[^a-z0-9]", "", (source.domain or "").lower())
+        compact = re.sub(r"[^a-z0-9]", "", needle)
+        if compact and compact in domain:
+            return f"the source domain is {source.domain}"
+        if needle in (source.title or "").lower():
+            return "the source title names it"
+    return ""
+
+
+def attribution_guard(
+    claim: str, evidence: str, source: SourceIdentity | None = None
+) -> GuardResult:
+    """A claim crediting a named party must have that party established.
+
+    The old generative verifier was shown the publisher alongside the
+    quote, so it could tell "NIST requires X" backed by nist.gov from
+    the same sentence backed by a vendor blog paraphrasing NIST. The NLI
+    verifier sees only the quote, by design -- source reputation must
+    not influence entailment. That left attribution unchecked, so it is
+    checked here instead, from identity alone and never from quality
+    score, rank or source category.
+
+    An attribution is established when the quote itself names the party,
+    or when the cited source *is* that party by domain or title.
+    Otherwise the claim is withheld: a vendor page asserting what a
+    standards body requires is not that standards body saying it.
+    """
+    named = attributed_entities(claim)
+    if not named:
+        return GuardResult("attribution", True, "claim attributes nothing to a named party")
+
+    unestablished: list[str] = []
+    established: list[str] = []
+    for name in named:
+        where = _establishes(name, evidence, source)
+        (established if where else unestablished).append(f"{name} ({where})" if where else name)
+    if unestablished:
+        return GuardResult(
+            "attribution",
+            False,
+            f"claim attributes to {', '.join(unestablished)}, "
+            f"not established by the quote or the cited source",
+        )
+    return GuardResult("attribution", True, f"attribution established: {'; '.join(established)}")
+
+
+ALL_GUARDS = (
+    numeric_guard,
+    modality_guard,
+    hedge_guard,
+    ranking_guard,
+    causal_guard,
+    exclusivity_guard,
+)
+GUARD_NAMES = (*(g(" ", " ").name for g in ALL_GUARDS), "attribution")
+
+
+def run_guards(
+    claim: str, evidence: str, source: SourceIdentity | None = None
+) -> list[GuardResult]:
+    """Every guard, always, so the audit record shows what each decided.
+
+    ``source`` is identity only and reaches the attribution guard alone.
+    It never becomes part of the NLI premise.
+    """
+    results = [guard(claim, evidence) for guard in ALL_GUARDS]
+    results.append(attribution_guard(claim, evidence, source))
+    return results
 
 
 def guards_pass(results: list[GuardResult]) -> bool:

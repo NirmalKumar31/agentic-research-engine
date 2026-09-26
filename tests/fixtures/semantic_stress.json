@@ -275,6 +275,65 @@
       "hypothesis": "System A achieves the highest throughput.",
       "expected": "publish",
       "note": "same ranking, different words"
+    },
+    {
+      "id": "hedge-deleted-causal",
+      "category": "hedge",
+      "premise": "Increased batch size may cause memory pressure.",
+      "hypothesis": "Increased batch size causes memory pressure.",
+      "expected": "withhold"
+    },
+    {
+      "id": "hedge-deleted-lack",
+      "category": "hedge",
+      "premise": "Some engines might lack standardized encryption features.",
+      "hypothesis": "Some engines lack standardized encryption features.",
+      "expected": "withhold"
+    },
+    {
+      "id": "hedge-deleted-vulnerable",
+      "category": "hedge",
+      "premise": "The default configuration is potentially vulnerable.",
+      "hypothesis": "The default configuration is vulnerable.",
+      "expected": "withhold"
+    },
+    {
+      "id": "hedge-preserved",
+      "category": "hedge",
+      "premise": "Increased batch size may cause memory pressure.",
+      "hypothesis": "Increased batch size may cause memory pressure.",
+      "expected": "publish"
+    },
+    {
+      "id": "hedge-capability-not-uncertainty",
+      "category": "hedge",
+      "premise": "The engine can process large datasets.",
+      "hypothesis": "The engine processes large datasets.",
+      "expected": "publish",
+      "note": "'can' is capability, not doubt; treating it as epistemic rejected a true claim in the release audit"
+    },
+    {
+      "id": "hedge-unrelated-sentence",
+      "category": "hedge",
+      "premise": "System A may fail under load. System B uses AES-256 for encryption.",
+      "hypothesis": "System B uses AES-256 for encryption.",
+      "expected": "publish",
+      "note": "a hedge about something else must not withhold a faithful claim"
+    },
+    {
+      "id": "attribution-named-body-unestablished",
+      "category": "attribution",
+      "premise": "Organizations must manage operational risks across the lifecycle.",
+      "hypothesis": "IEEE requires organizations to manage operational risks across the lifecycle.",
+      "expected": "withhold",
+      "note": "the quote carries the proposition but not the attribution"
+    },
+    {
+      "id": "attribution-named-body-in-quote",
+      "category": "attribution",
+      "premise": "IEEE requires organizations to manage operational risks across the lifecycle.",
+      "hypothesis": "IEEE requires organizations to manage operational risks across the lifecycle.",
+      "expected": "publish"
     }
   ]
 }

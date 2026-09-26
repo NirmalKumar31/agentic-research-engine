@@ -146,7 +146,9 @@ export interface ExampleSummary {
   sources: number;
   evidence_items: number;
   citable_evidence: number;
-  has_pdf_evidence: boolean;
+  page_citation_count: number;
+  has_page_provenance: boolean;
+  published_claims: number;
   duration_s: number;
 }
 

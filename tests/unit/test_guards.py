@@ -197,9 +197,11 @@ class TestRunGuards:
         assert [r.name for r in results] == [
             "numeric",
             "modality",
+            "hedge",
             "ranking",
             "causal",
             "exclusivity",
+            "attribution",
         ]
 
     def test_one_failure_withholds(self) -> None:

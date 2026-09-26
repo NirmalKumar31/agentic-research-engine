@@ -21,3 +21,22 @@
   border-left: 2px solid var(--line, #334155);
   font-style: italic;
 }
+
+/* Capability chips on the example cards. Derived from the recording's
+   own contents, never asserted by id -- a badge that outlives the thing
+   it describes is a lie the reader cannot detect. */
+.card__caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0.15rem;
+}
+
+.cap {
+  font-size: 0.72rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--line, #334155);
+  color: var(--muted, #94a3b8);
+  white-space: nowrap;
+}

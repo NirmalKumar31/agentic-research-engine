@@ -23,10 +23,16 @@ both must stay out of the report.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Final, Literal, Protocol
 
-from agentic_research.citations.guards import GuardResult, guards_pass, run_guards
+from agentic_research.citations.guards import (
+    GuardResult,
+    SourceIdentity,
+    guards_pass,
+    run_guards,
+)
 from agentic_research.citations.nli import NLIPrediction, NLIUnavailable
 
 if TYPE_CHECKING:
@@ -59,6 +65,21 @@ class Scorer(Protocol):
     revision: str
 
     def score(self, pairs: list[tuple[str, str]]) -> list[NLIPrediction]: ...
+
+
+@dataclass(frozen=True)
+class CitedEvidence:
+    """One cited quote, plus who published it.
+
+    ``source`` reaches the deterministic attribution guard and stops
+    there. It is never part of the NLI premise: a classifier told that
+    a quote came from an authoritative domain would be scoring
+    reputation, and entailment is the only thing it is allowed to score.
+    """
+
+    evidence_id: str
+    quote: str
+    source: SourceIdentity | None = None
 
 
 @dataclass(frozen=True)
@@ -110,18 +131,26 @@ def _withheld(
 
 def verify_claim(
     claim_text: str,
-    evidence: list[tuple[str, str]],
+    evidence: Sequence[CitedEvidence | tuple[str, str]],
     scorer: Scorer,
     *,
     support_threshold: float,
 ) -> SemanticVerdict:
     """Decide whether one claim may publish.
 
-    ``evidence`` is (evidence_id, quote) for each cited, citable item.
-    An empty list withholds: a claim with nothing to check against has
-    not passed verification, whatever the reason it ended up that way.
+    ``evidence`` is the cited, citable items. An empty list withholds: a
+    claim with nothing to check against has not passed verification,
+    whatever the reason it ended up that way.
+
+    Plain ``(evidence_id, quote)`` pairs are accepted for callers with
+    no source identity to offer, such as the adversarial suite; those
+    simply leave the attribution guard nothing to check against.
     """
-    if not evidence:
+    cited: list[CitedEvidence] = [
+        item if isinstance(item, CitedEvidence) else CitedEvidence(item[0], item[1])
+        for item in evidence
+    ]
+    if not cited:
         return _withheld(
             "no citable evidence resolved for this claim",
             support_threshold,
@@ -131,7 +160,9 @@ def verify_claim(
         )
 
     try:
-        predictions = scorer.score([(quote, claim_text) for _, quote in evidence])
+        # The premise is the exact quote and nothing else -- no source
+        # title, domain, category, rank or quality score.
+        predictions = scorer.score([(item.quote, claim_text) for item in cited])
     except NLIUnavailable as exc:
         # Deliberately not a fallback to any other verifier. An
         # unavailable classifier means unverified, and unverified means
@@ -144,9 +175,9 @@ def verify_claim(
             checked=False,
         )
 
-    if len(predictions) != len(evidence):
+    if len(predictions) != len(cited):
         return _withheld(
-            f"scorer returned {len(predictions)} results for {len(evidence)} pairs",
+            f"scorer returned {len(predictions)} results for {len(cited)} pairs",
             support_threshold,
             scorer.model_id,
             scorer.revision,
@@ -154,7 +185,8 @@ def verify_claim(
         )
 
     scores: list[EvidenceScore] = []
-    for (evidence_id, quote), prediction in zip(evidence, predictions, strict=True):
+    for item, prediction in zip(cited, predictions, strict=True):
+        evidence_id, quote = item.evidence_id, item.quote
         s = prediction.scores
         if not all(0.0 <= v <= 1.0 for v in (s.entailment, s.neutral, s.contradiction)):
             return _withheld(
@@ -170,7 +202,7 @@ def verify_claim(
                 entailment=s.entailment,
                 neutral=s.neutral,
                 contradiction=s.contradiction,
-                guards=run_guards(claim_text, quote),
+                guards=run_guards(claim_text, quote, item.source),
             )
         )
 

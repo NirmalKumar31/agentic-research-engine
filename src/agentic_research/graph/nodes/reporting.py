@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
+from agentic_research.citations.guards import SourceIdentity
 from agentic_research.citations.nli import NLIUnavailable, build_verifier
 from agentic_research.citations.publication import (
     ClaimKey,
@@ -14,7 +15,11 @@ from agentic_research.citations.publication import (
     filter_report_by_verification,
     key_of,
 )
-from agentic_research.citations.semantic import SemanticVerdict, verify_claim
+from agentic_research.citations.semantic import (
+    CitedEvidence,
+    SemanticVerdict,
+    verify_claim,
+)
 from agentic_research.citations.verifier import (
     resolve_report,
     verify_structure,
@@ -603,21 +608,35 @@ async def _check_entailment(
     return errors, verdicts
 
 
-def _scoring_pairs(evidence_ids: list[str], store: EvidenceStore) -> list[tuple[str, str]]:
-    """(evidence_id, quote) for each cited item that may ground a claim.
+def _scoring_pairs(evidence_ids: list[str], store: EvidenceStore) -> list[CitedEvidence]:
+    """Each cited item that may ground a claim, with who published it.
 
     Unresolvable ids and non-citable quotes are dropped rather than
     scored. A quote that could not be matched to its source cannot
     support anything, and scoring it would let a claim publish on text
     the engine never verified came from the page.
+
+    The source's domain and title travel alongside the quote for the
+    attribution guard, which is the only thing that reads them. They do
+    not enter the NLI premise -- see verify_claim.
     """
-    pairs = []
+    cited: list[CitedEvidence] = []
     for evidence_id in evidence_ids:
         item = store.evidence_by_id(evidence_id)
         if item is None or not item.is_citable:
             continue
-        pairs.append((evidence_id, item.quote))
-    return pairs
+        source = store.source(item.source_id)
+        cited.append(
+            CitedEvidence(
+                evidence_id=evidence_id,
+                quote=item.quote,
+                source=SourceIdentity(
+                    domain=(source.domain if source else "") or "",
+                    title=(source.title if source else "") or "",
+                ),
+            )
+        )
+    return cited
 
 
 def _record(

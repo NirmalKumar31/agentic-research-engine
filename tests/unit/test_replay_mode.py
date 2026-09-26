@@ -282,7 +282,11 @@ class TestRecordedExamplesNeedNoCredentials:
         entry = body["examples"][0]
         assert entry["id"] == "example-run"
         assert entry["citable_evidence"] == 2
-        assert entry["has_pdf_evidence"] is True
+        # Page provenance is counted from citable evidence carrying a
+        # page, not asserted. A page on an unmatched quote grounds
+        # nothing, and a boolean hid which of the two this was.
+        assert entry["page_citation_count"] == 1
+        assert entry["has_page_provenance"] is True
 
     def test_replay_returns_the_full_provenance_payload(self, client: Any) -> None:
         body = client.get("/api/examples/example-run").json()

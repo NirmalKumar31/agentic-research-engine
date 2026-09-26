@@ -4,8 +4,8 @@
     "deberta-v3-large": {
       "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
       "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
-      "cases": 38,
-      "correct": 37,
+      "cases": 46,
+      "correct": 44,
       "unsafe_publishes": [],
       "over_withheld": [
         {
@@ -17,9 +17,19 @@
           "entailment": 0.7778,
           "failed_guards": [],
           "reason": "best entailment 0.778 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "hedge-capability-not-uncertainty",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.6665,
+          "failed_guards": [],
+          "reason": "best entailment 0.667 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 37.76,
+      "seconds": 90.81,
       "results": [
         {
           "id": "modality-faithful",
@@ -39,9 +49,10 @@
           "correct": true,
           "entailment": 0.0118,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-hedge-to-necessity",
@@ -51,9 +62,10 @@
           "correct": true,
           "entailment": 0.0316,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-hedge-to-universal",
@@ -63,9 +75,10 @@
           "correct": true,
           "entailment": 0.0042,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-weakening-allowed",
@@ -426,14 +439,103 @@
           "entailment": 0.9907,
           "failed_guards": [],
           "reason": "entailed by E1 at 0.991 >= 0.98"
+        },
+        {
+          "id": "hedge-deleted-causal",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0067,
+          "failed_guards": [
+            "hedge",
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal, hedge"
+        },
+        {
+          "id": "hedge-deleted-lack",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.8618,
+          "failed_guards": [
+            "hedge"
+          ],
+          "reason": "every cited quote failed a deterministic guard: hedge"
+        },
+        {
+          "id": "hedge-deleted-vulnerable",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0069,
+          "failed_guards": [
+            "hedge"
+          ],
+          "reason": "every cited quote failed a deterministic guard: hedge"
+        },
+        {
+          "id": "hedge-preserved",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9951,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.995 >= 0.98"
+        },
+        {
+          "id": "hedge-capability-not-uncertainty",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.6665,
+          "failed_guards": [],
+          "reason": "best entailment 0.667 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "hedge-unrelated-sentence",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.998,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "attribution-named-body-unestablished",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0053,
+          "failed_guards": [
+            "attribution"
+          ],
+          "reason": "every cited quote failed a deterministic guard: attribution"
+        },
+        {
+          "id": "attribution-named-body-in-quote",
+          "category": "attribution",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9956,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.996 >= 0.98"
         }
       ]
     },
     "deberta-v3-base": {
       "model_id": "cross-encoder/nli-deberta-v3-base",
       "model_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
-      "cases": 38,
-      "correct": 34,
+      "cases": 46,
+      "correct": 42,
       "unsafe_publishes": [
         {
           "id": "scope-one-study-to-general",
@@ -478,7 +580,7 @@
           "reason": "best entailment 0.025 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 4.17,
+      "seconds": 14.32,
       "results": [
         {
           "id": "modality-faithful",
@@ -498,9 +600,10 @@
           "correct": true,
           "entailment": 0.0035,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-hedge-to-necessity",
@@ -510,9 +613,10 @@
           "correct": true,
           "entailment": 0.9956,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-hedge-to-universal",
@@ -522,9 +626,10 @@
           "correct": true,
           "entailment": 0.0001,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-weakening-allowed",
@@ -885,14 +990,103 @@
           "entailment": 0.9943,
           "failed_guards": [],
           "reason": "entailed by E1 at 0.994 >= 0.98"
+        },
+        {
+          "id": "hedge-deleted-causal",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.536,
+          "failed_guards": [
+            "hedge",
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal, hedge"
+        },
+        {
+          "id": "hedge-deleted-lack",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9956,
+          "failed_guards": [
+            "hedge"
+          ],
+          "reason": "every cited quote failed a deterministic guard: hedge"
+        },
+        {
+          "id": "hedge-deleted-vulnerable",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9881,
+          "failed_guards": [
+            "hedge"
+          ],
+          "reason": "every cited quote failed a deterministic guard: hedge"
+        },
+        {
+          "id": "hedge-preserved",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9973,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.997 >= 0.98"
+        },
+        {
+          "id": "hedge-capability-not-uncertainty",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9976,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.998 >= 0.98"
+        },
+        {
+          "id": "hedge-unrelated-sentence",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9941,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.994 >= 0.98"
+        },
+        {
+          "id": "attribution-named-body-unestablished",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0002,
+          "failed_guards": [
+            "attribution"
+          ],
+          "reason": "every cited quote failed a deterministic guard: attribution"
+        },
+        {
+          "id": "attribution-named-body-in-quote",
+          "category": "attribution",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9923,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.992 >= 0.98"
         }
       ]
     },
     "minilm2-l6-h768": {
       "model_id": "cross-encoder/nli-MiniLM2-L6-H768",
       "model_revision": "b95119ce93d3e065de6214e38cd4a97b0f2f2c6d",
-      "cases": 38,
-      "correct": 32,
+      "cases": 46,
+      "correct": 39,
       "unsafe_publishes": [
         {
           "id": "scope-one-study-to-general",
@@ -955,9 +1149,19 @@
           "entailment": 0.0814,
           "failed_guards": [],
           "reason": "best entailment 0.081 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "hedge-unrelated-sentence",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.9631,
+          "failed_guards": [],
+          "reason": "best entailment 0.963 from E1 is below the 0.98 support threshold"
         }
       ],
-      "seconds": 1.57,
+      "seconds": 4.52,
       "results": [
         {
           "id": "modality-faithful",
@@ -977,9 +1181,10 @@
           "correct": true,
           "entailment": 0.3082,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-hedge-to-necessity",
@@ -989,9 +1194,10 @@
           "correct": true,
           "entailment": 0.5533,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-hedge-to-universal",
@@ -1001,9 +1207,10 @@
           "correct": true,
           "entailment": 0.0055,
           "failed_guards": [
-            "modality"
+            "modality",
+            "hedge"
           ],
-          "reason": "every cited quote failed a deterministic guard: modality"
+          "reason": "every cited quote failed a deterministic guard: hedge, modality"
         },
         {
           "id": "modality-weakening-allowed",
@@ -1364,6 +1571,95 @@
           "entailment": 0.0814,
           "failed_guards": [],
           "reason": "best entailment 0.081 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "hedge-deleted-causal",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9732,
+          "failed_guards": [
+            "hedge",
+            "causal"
+          ],
+          "reason": "every cited quote failed a deterministic guard: causal, hedge"
+        },
+        {
+          "id": "hedge-deleted-lack",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9861,
+          "failed_guards": [
+            "hedge"
+          ],
+          "reason": "every cited quote failed a deterministic guard: hedge"
+        },
+        {
+          "id": "hedge-deleted-vulnerable",
+          "category": "hedge",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.9862,
+          "failed_guards": [
+            "hedge"
+          ],
+          "reason": "every cited quote failed a deterministic guard: hedge"
+        },
+        {
+          "id": "hedge-preserved",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9903,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.990 >= 0.98"
+        },
+        {
+          "id": "hedge-capability-not-uncertainty",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9897,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.990 >= 0.98"
+        },
+        {
+          "id": "hedge-unrelated-sentence",
+          "category": "hedge",
+          "expected": "publish",
+          "actual": "withhold",
+          "correct": false,
+          "entailment": 0.9631,
+          "failed_guards": [],
+          "reason": "best entailment 0.963 from E1 is below the 0.98 support threshold"
+        },
+        {
+          "id": "attribution-named-body-unestablished",
+          "category": "attribution",
+          "expected": "withhold",
+          "actual": "withhold",
+          "correct": true,
+          "entailment": 0.0022,
+          "failed_guards": [
+            "attribution"
+          ],
+          "reason": "every cited quote failed a deterministic guard: attribution"
+        },
+        {
+          "id": "attribution-named-body-in-quote",
+          "category": "attribution",
+          "expected": "publish",
+          "actual": "publish",
+          "correct": true,
+          "entailment": 0.9901,
+          "failed_guards": [],
+          "reason": "entailed by E1 at 0.990 >= 0.98"
         }
       ]
     }
