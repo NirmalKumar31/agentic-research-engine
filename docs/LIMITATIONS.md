@@ -197,7 +197,15 @@ the support check — which means "every published claim passed this
 verifier", not "every published claim is true". The counts of what was
 generated and removed are kept in the verification record.
 
-**A report can publish nothing, and that is a supported outcome.** When
+**A report can publish nothing, and that is a supported outcome.** The
+current recordings all publish something, so they do not demonstrate
+it; whether a run publishes zero depends on what search returns that
+day, and re-recording until one does would be exactly the selection
+this project refuses. The path is instead driven end to end in tests —
+a real graph run whose verifier entails nothing, rendered through the
+real renderer — asserting that every excerpt is a stored quote, that no
+generated prose appears, and that the published count stays zero.
+ When
 every claim is withheld and citable evidence exists, the report renders
 verbatim source excerpts under a notice saying no synthesized claim
 passed verification. Those excerpts are quotations, not findings:
