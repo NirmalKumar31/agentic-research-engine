@@ -310,14 +310,34 @@ state which checkpoint served it, a checkpoint differing from the configured
 one, a missing truncation flag, and scores that are not a probability
 distribution — every one withholds the claim.
 
-**Remote verification is implemented and not yet proven against a live
-endpoint.** The client, the endpoint container and the wire contract all
-exist and are tested against mocked transports and a locally-run
-instance of the same container. What has not happened is a hosted
-acceptance run: no Hugging Face endpoint has been created, so no claim
-about latency, cold-start behaviour or hosted parity is available. The
-committed parity test refuses to run without an endpoint rather than
-reporting a substitute.
+**Remote verification has been exercised against a real endpoint, from
+the CLI only.** A private Hugging Face Inference Endpoint was created
+on 2026-09-27, pinned to the calibrated revision and running the stock
+text-classification handler. Against it, measured rather than assumed:
+
+- All 50 calibration pairs scored, with **no publish decision differing**
+  from the local checkpoint at the 0.98 threshold.
+- Scores **bit-identical** across repeat runs and across batch sizes 8
+  and 1, so batch padding does not move a verdict.
+- Raw scores differ from the committed local ones by up to 9.4e-3. The
+  cause is precision, not the endpoint: the committed scores are
+  float16 and the endpoint runs the same commit in float32. See
+  [the calibration results](../examples/verifier-calibration/NLI-RESULTS.md).
+- Cold start from `scaledToZero` to a verified-ready verifier: **49.2s**.
+
+What that does *not* establish: the endpoint's pinned revision is
+checked out of band against the Hugging Face control plane rather than
+echoed per response, because the stock handler reports neither the
+model nor a truncation flag. Truncation is measured client-side
+instead. This is a weaker arrangement than the project's own scoring
+service provides, and it is chosen because the managed handler offers
+nothing stronger.
+
+**No hosted acceptance run has happened.** Everything above was run
+from the CLI against local budgets. Nothing has been deployed, so
+there is no evidence about the HTTP/SSE path, client disconnect,
+application timeout, or behaviour under the public deployment's
+limits — which are roughly half the local ones.
 
 **Live research costs money at three independent providers.** OpenAI
 tokens, Tavily search credits and Hugging Face endpoint compute are
@@ -335,6 +355,14 @@ with nothing in it. The public daily cap is backed by an external
 atomic counter, because a process-local count resets whenever a free
 instance wakes; if that counter is required and unreachable, live
 research is refused rather than admitted unbounded.
+
+That counter was dead code until 2026-09-27: it existed, was tested,
+and nothing on the request path called it, so the effective cap was
+still the in-memory one. It is now reserved before the model router,
+the search provider or the verifier is touched. On Render's free Key
+Value plan the store itself has no persistence, so the cap is shared
+across web instances and is *not* durable across a restart of the
+store; the provider-side account limit is the backstop there.
 
 **Replay still needs no credentials at all.**
 

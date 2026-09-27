@@ -34,8 +34,17 @@ services:
     dockerfilePath: ./Dockerfile.web
     plan: free
     region: oregon
-    healthCheckPath: /api/health
-    autoDeploy: false
+    # Readiness, not liveness. /api/health answers 200 on an instance
+    # that is configured for live research and cannot serve it, because
+    # liveness only asks whether the process is up. /api/readiness
+    # answers 503 in that state, so a bad deploy fails here rather than
+    # going green and turning every visitor away.
+    healthCheckPath: /api/readiness
+    # autoDeploy: false is deprecated; autoDeployTrigger takes precedence
+    # when both are present. Quoted because YAML 1.1 parses a bare off
+    # as the boolean false, and the value Render expects here is the
+    # string "off".
+    autoDeployTrigger: "off"
 
     envVars:
       # --- credentials: prompted at Blueprint creation, never committed ---
@@ -46,9 +55,14 @@ services:
       # Hugging Face token for the PRIVATE inference endpoint.
       - key: NLI_API_KEY
         sync: false
-      # Redis / Render Key Value URL backing the durable run cap.
+      # Wired from the Key Value service defined below rather than
+      # pasted in, so the two cannot drift and the connection string is
+      # never handled by a person.
       - key: DEMO_QUOTA_URL
-        sync: false
+        fromService:
+          name: agentic-research-quota
+          type: keyvalue
+          property: connectionString
 
       # --- live switches ---
       - key: LIVE_RESEARCH_ENABLED
@@ -163,3 +177,30 @@ services:
         value: INFO
       - key: LOG_FORMAT
         value: json
+
+  # --- durable run counter -------------------------------------------
+  #
+  # The global daily cap lives here rather than in web-process memory.
+  # A free web instance sleeps when idle and wakes with a fresh counter,
+  # so an in-memory cap bounds a process rather than a day. One atomic
+  # INCR against this store is shared by every web replica and survives
+  # a web restart.
+  #
+  # WHAT THE FREE PLAN DOES NOT GIVE YOU. Render's documentation is
+  # explicit: "Data persistence is not available for free Key Value
+  # instances." The counter is therefore shared, and it is not durable
+  # across a restart of this store -- a Key Value restart returns the
+  # day's allowance to zero used.
+  #
+  # So on the free plan the financial backstop is the provider-side
+  # limit on the OpenAI project, not this counter. For a cap that
+  # survives its own store, use a paid plan with journal + snapshot
+  # persistence and only then describe it as durable.
+  - type: keyvalue
+    name: agentic-research-quota
+    plan: free
+    region: oregon
+    # Reachable only from services in this blueprint. The counter holds
+    # no secret, but an internet-reachable store is an invitation to
+    # have the day's allowance spent for you.
+    ipAllowList: []

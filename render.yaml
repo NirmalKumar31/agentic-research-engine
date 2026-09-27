@@ -22,9 +22,12 @@ services:
     autoDeploy: false
 
     envVars:
-      # Off because the daily run cap is process-local and a free instance
-      # resets it on every cold start, so it cannot bound an account-level
-      # quota. Per-run ceilings are unaffected.
+      # Off because this blueprint provisions no quota store and no
+      # provider credentials. The durable counter that bounds live
+      # spending is defined in deploy/render-live.yaml; without it a
+      # live deployment would be refused at startup anyway, since
+      # DEMO_QUOTA_REQUIRED defaults to true. Per-run ceilings are
+      # unaffected.
       - key: LIVE_RESEARCH_ENABLED
         value: "false"
 

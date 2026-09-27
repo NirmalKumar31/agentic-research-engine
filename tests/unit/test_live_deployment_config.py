@@ -102,7 +102,12 @@ class TestTheLiveBlueprintIsComplete:
         must outlive a cold start."""
         env = env_of(blueprint(self.SPEC))
         assert env["DEMO_QUOTA_REQUIRED"]["value"] == "true"
-        assert env["DEMO_QUOTA_URL"].get("sync") is False
+        # Wired from the Key Value service rather than prompted: a value
+        # nobody pastes is a value nobody pastes wrongly, and the two
+        # cannot drift apart.
+        source = env["DEMO_QUOTA_URL"]["fromService"]
+        assert source["property"] == "connectionString"
+        assert source["type"] == "keyvalue"
 
     def test_warm_up_waiting_is_off_until_acceptance(self) -> None:
         env = env_of(blueprint(self.SPEC))
@@ -114,7 +119,6 @@ class TestTheLiveBlueprintIsComplete:
             "OPENAI_API_KEY",
             "TAVILY_API_KEY",
             "NLI_API_KEY",
-            "DEMO_QUOTA_URL",
             "NLI_ENDPOINT",
             "OPENAI_MODEL",
         ],
@@ -170,3 +174,87 @@ class TestSettingsAndExampleAgree:
         app = (ROOT / "web" / "src" / "App.tsx").read_text()
         if "README.md#usage" in app:
             assert "\n## Usage\n" in (ROOT / "README.md").read_text()
+
+
+class TestTheQuotaStoreIsDeclared:
+    """The counter is only shared if something actually provisions it."""
+
+    SPEC = "deploy/render-live.yaml"
+
+    def _keyvalue(self) -> dict:
+        services = blueprint(self.SPEC)["services"]
+        stores = [s for s in services if s.get("type") == "keyvalue"]
+        assert len(stores) == 1, f"expected one Key Value service, found {len(stores)}"
+        return stores[0]
+
+    def test_the_blueprint_provisions_the_store(self) -> None:
+        assert self._keyvalue()["name"] == "agentic-research-quota"
+
+    def test_the_web_service_points_at_that_store(self) -> None:
+        env = env_of(blueprint(self.SPEC))
+        assert env["DEMO_QUOTA_URL"]["fromService"]["name"] == self._keyvalue()["name"]
+
+    def test_the_store_is_not_reachable_from_the_internet(self) -> None:
+        assert self._keyvalue().get("ipAllowList") == []
+
+    def test_a_free_store_is_not_described_as_durable(self) -> None:
+        """Render: "Data persistence is not available for free Key Value
+        instances." A free store shares the cap across replicas and
+        loses it when the store itself restarts, so the comment must not
+        promise otherwise."""
+        import re
+
+        # Comment wrapping splits sentences across lines, so the prose
+        # is normalised before being searched rather than the comment
+        # being reflowed to suit the test.
+        raw = (ROOT / self.SPEC).read_text().lower()
+        prose = re.sub(r"\s+", " ", raw.replace("#", " "))
+        if self._keyvalue().get("plan") == "free":
+            assert "persistence is not available" in prose
+            assert "not durable across a restart" in prose
+
+
+class TestDeployChecksUseReadiness:
+    SPEC = "deploy/render-live.yaml"
+
+    def test_the_health_check_path_is_readiness(self) -> None:
+        """Liveness answers 200 on an instance configured for live
+        research that cannot serve it. A deploy gated on that goes green
+        and then refuses every visitor."""
+        web = blueprint(self.SPEC)["services"][0]
+        assert web["healthCheckPath"] == "/api/readiness"
+
+    def test_auto_deploy_uses_the_current_key(self) -> None:
+        web = blueprint(self.SPEC)["services"][0]
+        assert web.get("autoDeployTrigger") == "off", (
+            "autoDeploy is deprecated and a bare off parses as boolean false"
+        )
+        assert "autoDeploy" not in web
+
+
+class TestTheReadmeMatchesTheBlueprint:
+    """Counts in prose go stale silently. This one already had.
+
+    The README said the live blueprint prompts for two keys while the
+    blueprint prompted for six values, three of which are credentials.
+    """
+
+    SPEC = "deploy/render-live.yaml"
+    SECRET_KEYS = {"OPENAI_API_KEY", "TAVILY_API_KEY", "NLI_API_KEY"}
+
+    def _prompted(self) -> set[str]:
+        env = env_of(blueprint(self.SPEC))
+        return {k for k, v in env.items() if v.get("sync") is False}
+
+    def test_the_credentials_are_exactly_the_three_named(self) -> None:
+        assert self._prompted() & self.SECRET_KEYS == self.SECRET_KEYS
+
+    def test_the_readme_states_the_right_number_of_credentials(self) -> None:
+        readme = (ROOT / "README.md").read_text()
+        assert "prompts for three\ncredentials" in readme or (
+            "three\ncredentials" in readme or "three credentials" in readme
+        ), "README no longer states three credentials"
+
+    def test_the_quota_url_is_not_among_the_prompted_values(self) -> None:
+        """Wired from the store, so a person never handles it."""
+        assert "DEMO_QUOTA_URL" not in self._prompted()
