@@ -22,6 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from agentic_research.citations.nli import NLIUnavailable, build_verifier
+from agentic_research.citations.nli_endpoint_meta import verify_endpoint_pin
 from agentic_research.observability import get_logger
 
 log = get_logger(__name__)
@@ -54,6 +55,10 @@ def check_nli_ready(settings: object) -> NLIReadiness:
     exception for the caller to interpret, and the message is written
     to be shown to a person.
     """
+    pin = _check_managed_pin(settings)
+    if pin is not None:
+        return pin
+
     try:
         scorer = build_verifier(settings)
     except NLIUnavailable as exc:
@@ -109,3 +114,48 @@ def check_nli_ready(settings: object) -> NLIReadiness:
         contradiction=round(contradicted.scores.contradiction, 3),
     )
     return NLIReadiness(True, "verifier ready", model_id, revision)
+
+
+def _check_managed_pin(settings: object) -> NLIReadiness | None:
+    """Refuse a managed endpoint that is not on the calibrated commit.
+
+    Only the ``hf`` dialect needs this. The project's own service proves
+    its identity in every response, so a mismatch is caught per call;
+    the stock Hugging Face handler proves nothing, and the only place
+    left to ask is the control plane.
+
+    Run before the probe rather than after. The probe wakes a replica,
+    and there is no reason to spend a cold start on an endpoint that is
+    already known to be serving the wrong weights.
+
+    Returns ``None`` when the check does not apply or passes, so the
+    caller continues; returns a failed readiness when it does not.
+    """
+    if getattr(settings, "nli_mode", "local") != "remote":
+        return None
+    if getattr(settings, "nli_dialect", "contract") != "hf":
+        return None
+
+    endpoint = getattr(settings, "nli_endpoint", None)
+    if not endpoint:
+        return NLIReadiness(False, "nli_mode is 'remote' but no nli_endpoint is configured")
+
+    key = getattr(settings, "nli_api_key", None)
+    api_key = key.get_secret_value() if key is not None else None
+    expected_id = getattr(settings, "nli_model_id", "")
+    expected_rev = getattr(settings, "nli_model_revision", "")
+
+    try:
+        pin = verify_endpoint_pin(
+            endpoint,
+            api_key,
+            expected_id,
+            expected_rev,
+            timeout=float(getattr(settings, "nli_timeout_seconds", 30.0)),
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        return NLIReadiness(False, f"endpoint pin could not be read: {type(exc).__name__}")
+
+    if not pin.verified:
+        return NLIReadiness(False, f"endpoint pin rejected: {pin.detail}")
+    return None

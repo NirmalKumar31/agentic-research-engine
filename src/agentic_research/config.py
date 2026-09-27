@@ -214,6 +214,17 @@ class Settings(BaseSettings):
     for hosts too small to hold the model."""
     nli_endpoint: str | None = None
     nli_api_key: SecretStr | None = None
+    nli_dialect: Literal["contract", "hf"] = "contract"
+    """Wire format the remote speaks.
+
+    ``contract`` is this project's own scoring service, which echoes the
+    model, revision, per-pair id and truncation flag, so each response
+    is checked against the request that produced it.
+
+    ``hf`` is a managed Hugging Face Inference Endpoint on the stock
+    text-classification handler, which echoes none of those. Choosing it
+    moves the revision check to preflight, against the Hugging Face
+    control plane, and moves truncation detection into this process."""
     nli_timeout_seconds: float = Field(default=30.0, gt=0)
     nli_scale_up_timeout_seconds: float = Field(default=0.0, ge=0)
     """Bounded wait for a scaled-to-zero endpoint to wake. 0 disables

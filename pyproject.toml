@@ -53,7 +53,23 @@ nli-local = [
     "sentencepiece>=0.2,<1",
 ]
 
-web = ["fastapi>=0.120,<1", "uvicorn[standard]>=0.40,<1"]
+nli-remote = [
+    # Truncation detection for the managed endpoint, which reports a
+    # label and a score and nothing else. Pure Rust, about 3MB, and no
+    # torch: the point of remote mode is a host that cannot hold the
+    # checkpoint, so pulling transformers back in to count tokens would
+    # defeat it. Measured identical to the transformers tokenizer on
+    # the >512 decision across 263 pairs.
+    "tokenizers>=0.20,<1",
+]
+
+web = [
+    "fastapi>=0.120,<1",
+    "uvicorn[standard]>=0.40,<1",
+    # The hosted web service runs NLI_MODE=remote, so it needs the
+    # tokenizer for the same reason nli-remote does.
+    "tokenizers>=0.20,<1",
+]
 dev = [
     "pytest>=9.1,<10",
     "pytest-asyncio>=1.4,<2",

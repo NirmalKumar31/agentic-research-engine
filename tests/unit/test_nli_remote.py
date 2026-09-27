@@ -28,8 +28,14 @@ def local_settings(**overrides: object) -> Settings:
     checkout supplies one through .env and CI does not, so a bare
     Settings() passes here and fails there -- which is exactly how this
     reached CI green locally and red remotely.
+
+    Pinning llm_mode alone was not enough. A developer running against
+    the live endpoint also has NLI_MODE and NLI_DIALECT in .env, and
+    those leaked into the assertions about what the defaults are: the
+    "local is the default" test read remote and failed, again only off
+    CI. _env_file=None is the fix that covers the whole class.
     """
-    return Settings(llm_mode=LLMMode.LOCAL, **overrides)  # type: ignore[arg-type]
+    return Settings(llm_mode=LLMMode.LOCAL, _env_file=None, **overrides)  # type: ignore[arg-type]
 
 
 def well_formed(results: list[dict]) -> dict:
