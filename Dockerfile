@@ -27,7 +27,6 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu 
     && pip install --no-cache-dir "/tmp/$(ls /tmp | grep -m1 '\.whl$')[nli-local]" \
     && rm /tmp/*.whl
 
-COPY pricing.toml ./
 USER researcher
 
 ENV PYTHONUNBUFFERED=1 \

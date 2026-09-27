@@ -403,11 +403,22 @@ jobs:
         id: model
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
-          import re, pathlib
-          text = pathlib.Path("src/agentic_research/config.py").read_text()
-          for key in ("nli_model_id", "nli_model_revision"):
-              value = re.search(rf'{key}: str = "([^"]+)"', text).group(1)
-              print(f"{key}={value}")
+          # The literals live in nli_pin, not config: config imports them
+          # so that config and the client cannot drift apart. Reading
+          # config found `nli_model_id: str = NLI_DEFAULT_MODEL_ID` and
+          # matched nothing, which surfaced as an AttributeError on None
+          # rather than as the configuration error it was.
+          import pathlib, re, sys
+
+          text = pathlib.Path("src/agentic_research/citations/nli_pin.py").read_text()
+          for out_key, const in (
+              ("nli_model_id", "NLI_DEFAULT_MODEL_ID"),
+              ("nli_model_revision", "NLI_DEFAULT_REVISION"),
+          ):
+              found = re.search(rf'^{const} = "([^"]+)"', text, re.M)
+              if found is None:
+                  sys.exit(f"{const} not found in nli_pin.py; the pin moved")
+              print(f"{out_key}={found.group(1)}")
           PY
 
       - uses: actions/cache@v4

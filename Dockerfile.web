@@ -48,7 +48,6 @@ COPY constraints.txt ./
 RUN pip install --no-cache-dir "$(ls /tmp/*.whl)[web]" -c constraints.txt \
     && rm /tmp/*.whl
 
-COPY pricing.toml ./
 COPY --from=frontend /build/dist ./web/dist
 
 USER researcher

@@ -173,7 +173,7 @@ check_untyped_defs = true
 
 # Third-party packages without bundled type information.
 [[tool.mypy.overrides]]
-module = ["trafilatura.*", "langchain_ollama.*", "psutil", "redis", "redis.*"]
+module = ["trafilatura.*", "langchain_ollama.*", "psutil", "redis", "redis.*", "tokenizers", "tokenizers.*"]
 ignore_missing_imports = true
 
 # torch ships type information, so mypy follows it into numpy, whose
