@@ -75,9 +75,24 @@ def fake_nli(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest) ->
     """
     if request.node.get_closest_marker("nli"):
         return
+    from agentic_research.citations import nli_preflight
     from agentic_research.citations.fake_nli import FakeScorer
     from agentic_research.graph.nodes import reporting
 
+    def fake(_settings: object) -> FakeScorer:
+        return FakeScorer(default=(0.99, 0.01, 0.0))
+
+    monkeypatch.setattr(reporting, "build_verifier", fake)
+
+    # The runner now probes the verifier before spending anything, so
+    # the preflight path needs the fake too -- otherwise every test that
+    # drives a run downloads and loads a 1.4GB checkpoint.
     monkeypatch.setattr(
-        reporting, "build_verifier", lambda _settings: FakeScorer(default=(0.99, 0.01, 0.0))
+        nli_preflight,
+        "check_nli_ready",
+        lambda _settings: nli_preflight.NLIReadiness(True, "fake verifier ready"),
+    )
+    monkeypatch.setattr(
+        "agentic_research.runner.check_nli_ready",
+        lambda _settings: nli_preflight.NLIReadiness(True, "fake verifier ready"),
     )

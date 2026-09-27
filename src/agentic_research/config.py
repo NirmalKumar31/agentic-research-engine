@@ -22,6 +22,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from agentic_research import __version__ as _VERSION
 
+# One source of truth for the pinned verifier. Duplicating the revision
+# here and in the NLI adapter let them drift, and the adapter's copy was
+# the unpinned string "main".
+from agentic_research.citations.nli_pin import (
+    NLI_DEFAULT_MODEL_ID,
+    NLI_DEFAULT_REVISION,
+)
+
 
 class LLMMode(StrEnum):
     """Where work runs by default."""
@@ -190,8 +198,8 @@ class Settings(BaseSettings):
     # All three of model, revision and threshold are pinned and recorded
     # in every judgment. Changing any one changes which claims publish,
     # so a verdict that does not say which it used cannot be audited.
-    nli_model_id: str = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
-    nli_model_revision: str = "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7"
+    nli_model_id: str = NLI_DEFAULT_MODEL_ID
+    nli_model_revision: str = NLI_DEFAULT_REVISION
     nli_support_threshold: float = Field(default=0.98, ge=0.0, le=1.0)
     """Entailment probability a cited quote must reach. Calibrated, not
     guessed -- see examples/verifier-calibration/nli-calibration.json."""

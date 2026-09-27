@@ -25,6 +25,7 @@ from typing import Any, cast
 
 from langchain_core.runnables import RunnableConfig
 
+from agentic_research.citations.nli_preflight import check_nli_ready
 from agentic_research.config import Settings
 from agentic_research.environment import capture as capture_environment
 from agentic_research.graph.state import RunContext, initial_state
@@ -126,6 +127,28 @@ async def stream_research(
     yield {"event": "started", "run_id": run_id, "query": query, "models": router.describe()}
 
     try:
+        # Semantic verification is checked first, before the generative
+        # preflight and before any provider is constructed. Verification
+        # used to run last, so a misconfigured verifier was discovered
+        # only after a full run had been paid for -- and that run then
+        # published nothing, because an unchecked claim is withheld.
+        #
+        # Off-thread because a local verifier loads a checkpoint here,
+        # which would otherwise block the event loop and the progress
+        # stream with it.
+        readiness = await asyncio.to_thread(check_nli_ready, settings)
+        if not readiness.ready:
+            log.warning("nli_preflight_failed", detail=readiness.detail)
+            yield {
+                "event": "error",
+                "error": (
+                    "Semantic verification is unavailable, so no claim could be checked. "
+                    "No research was run and nothing was spent."
+                ),
+                "verifier_unavailable": True,
+            }
+            return
+
         # Fail before spending anything if a configured model is unreachable.
         warnings = await router.preflight()
         for warning in warnings:

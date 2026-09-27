@@ -21,13 +21,27 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
 
+from agentic_research.citations.nli_pin import (
+    NLI_DEFAULT_MODEL_ID,
+    NLI_DEFAULT_REVISION,
+)
+
 log = logging.getLogger(__name__)
 
 # Pinned. A model id alone is a moving target, and a verifier whose
 # behaviour changes under us silently invalidates every calibration
 # number we publish.
-DEFAULT_MODEL_ID = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
-DEFAULT_REVISION = "main"
+DEFAULT_MODEL_ID = NLI_DEFAULT_MODEL_ID
+
+# The exact commit the 0.98 threshold was calibrated against. There is no
+# unpinned default: "main" moves, and a verifier whose weights change
+# under a fixed threshold is no longer the verifier that was measured.
+# Settings carries the same pair, and a test asserts they agree.
+DEFAULT_REVISION = NLI_DEFAULT_REVISION
+
+# Wire format this client speaks. A remote answering a different version
+# is not a compatible endpoint, whatever else it returns.
+CONTRACT_VERSION = 1
 
 # Compared against the primary during calibration; smaller and faster.
 ALTERNATIVE_MODEL_ID = "cross-encoder/nli-deberta-v3-base"
@@ -259,10 +273,19 @@ class RemoteNLIVerifier:
 
         for start in range(0, len(pairs), self.batch_size):
             batch = pairs[start : start + self.batch_size]
+            # Stable ids so results are matched by identity rather than
+            # by list position. A remote that reorders, drops or
+            # duplicates results would otherwise silently attach one
+            # claim's score to another claim.
+            pair_ids = [f"{start + i}" for i in range(len(batch))]
             payload = {
+                "contract_version": CONTRACT_VERSION,
                 "model": self.model_id,
                 "revision": self.revision,
-                "pairs": [{"premise": p, "hypothesis": h} for p, h in batch],
+                "pairs": [
+                    {"pair_id": pid, "premise": p, "hypothesis": h}
+                    for pid, (p, h) in zip(pair_ids, batch, strict=True)
+                ],
             }
             try:
                 response = httpx.post(
@@ -284,6 +307,11 @@ class RemoteNLIVerifier:
             for field in ("contract_version", "model_id", "model_revision"):
                 if not body.get(field):
                     raise NLIUnavailable(f"remote response omits {field}")
+            if body["contract_version"] != CONTRACT_VERSION:
+                raise NLIUnavailable(
+                    f"remote speaks contract {body['contract_version']}, "
+                    f"this client speaks {CONTRACT_VERSION}"
+                )
             if body["model_id"] != self.model_id or body["model_revision"] != self.revision:
                 raise NLIUnavailable(
                     f"remote served {body['model_id']}@{body['model_revision']}, "
@@ -296,7 +324,25 @@ class RemoteNLIVerifier:
                     f"remote returned {type(results).__name__} for {len(batch)} pairs"
                 )
 
-            for (premise, hypothesis), item in zip(batch, results, strict=True):
+            # Index by echoed id and reject anything that does not line
+            # up exactly: a missing, unknown or duplicated id means the
+            # mapping from claims to scores is unknown, and an unknown
+            # mapping is not a score.
+            by_id: dict[str, Any] = {}
+            for item in results:
+                if not isinstance(item, dict) or "pair_id" not in item:
+                    raise NLIUnavailable("remote result omits pair_id")
+                pid = str(item["pair_id"])
+                if pid in by_id:
+                    raise NLIUnavailable(f"remote returned duplicate pair_id {pid}")
+                by_id[pid] = item
+            if set(by_id) != set(pair_ids):
+                raise NLIUnavailable(
+                    f"remote pair_ids {sorted(by_id)} do not match requested {sorted(pair_ids)}"
+                )
+
+            for pid, (premise, hypothesis) in zip(pair_ids, batch, strict=True):
+                item = by_id[pid]
                 try:
                     scores = NLIScores(
                         entailment=float(item["entailment"]),
