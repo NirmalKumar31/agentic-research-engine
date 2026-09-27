@@ -2,10 +2,12 @@ name: CI
 
 on:
   push:
-    # Release branches build on push as well as in their PR. Without
-    # this, a branch pushed for review carries no remote CI status at
-    # all, and a green local run gets mistaken for a verified one.
-    branches: [main, "verifier-*", "release/*"]
+    # Work branches build on push as well as in their PR. Without this,
+    # a branch pushed for review carries no remote CI status at all, and
+    # a green local run gets mistaken for a verified one -- which is
+    # exactly what happened to feat/live-research, whose prefix was
+    # missing from this list while the comment above claimed otherwise.
+    branches: [main, "feat/*", "fix/*", "verifier-*", "release/*"]
   pull_request:
 
 # Cancel superseded runs on the same branch rather than paying for both.
