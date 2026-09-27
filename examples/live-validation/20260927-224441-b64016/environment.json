@@ -1,0 +1,74 @@
+{
+  "run_id": "20260927-224441-b64016",
+  "started_utc": "2026-09-27T22:44:41Z",
+  "finished_utc": "2026-09-27T22:48:38Z",
+  "wall_clock_seconds": 237.1,
+  "executed_by": "local CLI",
+  "not_a_hosted_acceptance": true,
+  "engine_commit": "f4f2ac1e281c4074f5694a744744f410ad4648f1",
+  "engine_commit_note": [
+    "The run started at 22:44:41Z, after f4f2ac1 (22:42:38Z) and before",
+    "96e2ac9 (22:45:45Z). It is deliberately not attributed to the branch",
+    "head. 96e2ac9 landed while the run was in flight and touched only",
+    ".github/workflows/ci.yml, so no engine code changed underneath it.",
+    "git diff f4f2ac1..7215489 touches no file under src/, so the engine",
+    "that produced this run is identical to the engine at 7215489."
+  ],
+  "working_tree": "clean for src/ at dispatch; a workflow file was edited during execution",
+  "question": "What is the measured evidence on whether AI coding assistants improve developer productivity?",
+  "models": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "task": "text-classification",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted",
+    "endpoint_state_at_dispatch": "running (warm)",
+    "scale_to_zero_recovery_exercised": false
+  },
+  "search_provider": "tavily",
+  "effective_budgets": {
+    "max_research_rounds": 2,
+    "max_search_queries": 12,
+    "max_sources": 12,
+    "max_sources_per_round": 5,
+    "max_llm_calls": 40,
+    "llm_timeout_seconds": 60,
+    "note": "Local .env values. These are NOT the public deployment limits."
+  },
+  "public_deployment_limits_for_comparison": {
+    "max_research_rounds": 1,
+    "max_search_queries": 6,
+    "max_sources": 6,
+    "max_llm_calls": 20,
+    "demo_max_runtime_seconds": 240,
+    "source": "deploy/render-live.yaml",
+    "note": [
+      "This run used roughly double the public budget on rounds, queries",
+      "and sources, so it does not demonstrate behaviour under public",
+      "limits. Its 237.1s duration also sits 2.9s inside the 240s public",
+      "wall-clock ceiling, at a larger budget than the public one."
+    ]
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.016532,
+    "openai_engine_calculated_basis": [
+      "Provider-reported usage of 40222 input and 25019 output tokens,",
+      "priced from src/agentic_research/pricing.toml at $0.10 and $0.50",
+      "per million tokens. This is the engine's arithmetic over the",
+      "provider's reported token counts."
+    ],
+    "openai_preflight_reserved_usd": "not recorded by this run",
+    "openai_dashboard_charge_usd": "not reconciled against the provider dashboard",
+    "tavily_usd": "not measured; 12 queries on a free-tier key",
+    "huggingface_endpoint_usd": "not separately measured; billed per hour of endpoint uptime, not per request",
+    "total": "not stated, because the Tavily and Hugging Face components were not measured"
+  }
+}

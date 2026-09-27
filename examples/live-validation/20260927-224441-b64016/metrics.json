@@ -1,0 +1,49 @@
+{
+  "citable_evidence": 53,
+  "claim_support_rate": 0.125,
+  "claims_reconciliation": {
+    "generated_and_checked": 40,
+    "not_checked": 0,
+    "note": "Only 'supported' publishes. 'partially_supported' is withheld, so withheld is 4 + 31 = 35, not 31.",
+    "published": 5,
+    "withheld": 35,
+    "withheld_partially_supported": 4,
+    "withheld_unsupported": 31
+  },
+  "cost_is_complete": true,
+  "cross_attributed_evidence": 46,
+  "evidence_integrity_rate": 1.0,
+  "evidence_items": 54,
+  "evidence_refs_total": 5,
+  "exact_quotes": 53,
+  "fuzzy_quotes": 0,
+  "input_tokens": 40222,
+  "known_cost_usd": 0.016532,
+  "model_assignments": {
+    "critic": "openai:gpt-6-luna",
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "output_tokens": 25019,
+  "partial_support_rate": 0.1,
+  "provider_requests_by_model": {
+    "openai:gpt-6-luna": 18
+  },
+  "quote_fidelity": {
+    "definition": "Exact normalised substring match of the extracted quote against the fetched source text. Fuzzy matches are counted separately and are not citable; there were none in this run.",
+    "denominator_extracted_quotes": 54,
+    "numerator_exact_quotes": 53,
+    "rate": 0.9815
+  },
+  "support_breakdown": {
+    "not_checked": 0,
+    "partially_supported": 4,
+    "supported": 5,
+    "unsupported": 31
+  },
+  "unique_sources": 10,
+  "unmatched_quotes": 1,
+  "unused_sources": 6,
+  "usable_sources": 9
+}

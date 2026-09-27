@@ -237,9 +237,21 @@ class RoleModel:
             attempts += 1
             kind = first_kind if attempts == 1 else AttemptKind.STRUCTURED_REPAIR
 
-            # Rough token estimate for the pre-dispatch spend check. A cheap
-            # approximation (~4 chars/token): exact counting needs a
-            # per-model tokeniser, and the check only has to be conservative.
+            # Token estimate for the pre-dispatch spend check, at roughly
+            # four characters per token.
+            #
+            # This is not a conservative bound and must not be described
+            # as one. Four characters per token holds for ordinary
+            # English prose and fails in the direction that matters:
+            # CJK, emoji, dense punctuation, minified code and JSON
+            # schemas all run well above a quarter token per character,
+            # so the estimate lands *under* the true count and the
+            # reservation is smaller than the real cost. Exact counting
+            # needs the provider's own tokeniser for the exact model.
+            #
+            # What keeps the reservation above actual in practice is the
+            # output-cap padding (see _release_unused_output), and what
+            # bounds real money is the provider-side account limit.
             # Re-estimated each attempt because a repair carries the failed
             # response and the correction back into the prompt, so the
             # second request is genuinely larger than the first.

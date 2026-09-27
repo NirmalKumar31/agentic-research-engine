@@ -270,6 +270,20 @@ class Settings(BaseSettings):
     max_cloud_input_tokens: int = Field(default=400_000, ge=0)
     max_cloud_output_tokens: int = Field(default=60_000, ge=0)
     max_cloud_cost_usd: float = Field(default=0.50, ge=0.0)
+    """Estimated application spend limit for one run. Not a billing cap.
+
+    The engine reserves against this before every provider request, but
+    the input side of the reservation is an estimate: token counts are
+    approximated from character length, which undershoots on code,
+    punctuation-dense text, non-Latin scripts and structured-output
+    schemas. The reservation also covers the messages this engine
+    assembles, not whatever the provider adds around them.
+
+    So it bounds what the engine believes it is about to spend, which is
+    enough to stop a runaway loop and not enough to be called a
+    guarantee. **The financial backstop is the hard limit set on the
+    provider account or project**, which is enforced by the provider
+    against real usage. Set one."""
     max_search_credits: float = Field(default=50.0, ge=0.0)
 
     # Per-role output ceilings. Synthesis legitimately needs room; a query
