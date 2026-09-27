@@ -65,9 +65,6 @@ class ModelRole(StrEnum):
     SYNTHESIZER = "synthesizer"
     """Final report generation. Quality here is what the user actually sees."""
 
-    VERIFIER = "verifier"
-    """Claim/evidence entailment checking during citation verification."""
-
 
 class ModelSpec(BaseModel):
     """A resolved provider + model pair."""
@@ -175,7 +172,12 @@ class Settings(BaseSettings):
     brave_api_key: SecretStr | None = None
 
     # --- Mode and models ---------------------------------------------------
-    llm_mode: LLMMode = LLMMode.HYBRID
+    llm_mode: LLMMode = LLMMode.LOCAL
+    """Local by default, matching .env.example and the quickstart.
+
+    The default was HYBRID while both of those said local, so a fresh
+    checkout failed to start with a message about a missing API key for
+    a mode the documentation never told anyone they were in."""
     openai_model: str = "gpt-6-sol"
     openai_fast_model: str = "gpt-6-luna"
     ollama_base_url: str = "http://localhost:11434"
@@ -188,7 +190,6 @@ class Settings(BaseSettings):
     researcher_model: str | None = None
     critic_model: str | None = None
     synthesizer_model: str | None = None
-    verifier_model: str | None = None
 
     allow_cloud_fallback: bool = False
 
@@ -214,6 +215,32 @@ class Settings(BaseSettings):
     nli_endpoint: str | None = None
     nli_api_key: SecretStr | None = None
     nli_timeout_seconds: float = Field(default=30.0, gt=0)
+    nli_scale_up_timeout_seconds: float = Field(default=0.0, ge=0)
+    """Bounded wait for a scaled-to-zero endpoint to wake. 0 disables
+    warm-up waiting entirely, which is the correct setting until an
+    always-warm deployment has passed acceptance."""
+
+    # --- durable public-demo quota ---------------------------------------
+    demo_quota_url: str | None = None
+    """Redis/Key-Value URL backing the global daily run cap.
+
+    The in-process counter bounds a process, not a day: a free instance
+    sleeps and wakes with the count at zero. Harmless for replay, where
+    a run costs nothing; not harmless for live research, which spends at
+    three providers per run."""
+
+    demo_quota_required: bool = True
+    """Refuse live research when durable counting is unavailable.
+
+    An unbounded fallback is precisely the failure the counter exists to
+    prevent, so the default is to fail closed. Replay never consults
+    it."""
+
+    trusted_proxy_hops: int = Field(default=0, ge=0, le=4)
+    """How many trailing X-Forwarded-For entries were added by proxies we
+    control. 0 means the header is not trusted at all: a client can send
+    any value, so only entries appended by our own boundary carry
+    meaning."""
 
     # --- cloud spend ceilings -------------------------------------------
     # Zero disables a dimension rather than meaning "no spend allowed";
@@ -248,7 +275,6 @@ class Settings(BaseSettings):
     )
     max_output_tokens_critic: int = Field(default=1_500, ge=64)
     max_output_tokens_synthesizer: int = Field(default=6_000, ge=64)
-    max_output_tokens_verifier: int = Field(default=400, ge=64)
 
     llm_temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     llm_timeout_seconds: float = Field(default=180.0, gt=0)
@@ -402,7 +428,6 @@ class Settings(BaseSettings):
             ModelRole.RESEARCHER: self.researcher_model,
             ModelRole.CRITIC: self.critic_model,
             ModelRole.SYNTHESIZER: self.synthesizer_model,
-            ModelRole.VERIFIER: self.verifier_model,
         }
 
     def _default_spec(self, role: ModelRole) -> ModelSpec:
@@ -444,7 +469,6 @@ class Settings(BaseSettings):
                 ModelRole.RESEARCHER.value: self.max_output_tokens_researcher,
                 ModelRole.CRITIC.value: self.max_output_tokens_critic,
                 ModelRole.SYNTHESIZER.value: self.max_output_tokens_synthesizer,
-                ModelRole.VERIFIER.value: self.max_output_tokens_verifier,
             },
         )
 
@@ -460,6 +484,43 @@ class Settings(BaseSettings):
             max_parallel_fetches=self.max_parallel_fetches,
             max_run_seconds=self.run_timeout_seconds,
         )
+
+    @model_validator(mode="after")
+    def _live_research_needs_a_complete_path(self) -> Settings:
+        """A hosted live deployment must not boot healthy half-configured.
+
+        Live research spends money at three providers and publishes
+        nothing without a verifier. Booting with local NLI on a 512MB
+        web host, or with no endpoint at all, produces exactly the
+        failure this check exists to stop: a paid run whose every claim
+        is withheld because verification was never possible.
+        """
+        if not self.live_research_enabled:
+            return self
+
+        problems: list[str] = []
+        if self.nli_mode != "remote":
+            problems.append("NLI_MODE must be 'remote' (the web image carries no torch)")
+        elif not self.nli_endpoint:
+            problems.append("NLI_ENDPOINT is required when NLI_MODE=remote")
+        if self.nli_mode == "remote" and not self.nli_api_key:
+            problems.append("NLI_API_KEY is required for a private endpoint")
+        if len(self.nli_model_revision or "") != 40:
+            problems.append("NLI_MODEL_REVISION must be a full 40-character commit")
+        if self.llm_mode is LLMMode.CLOUD and not self.openai_api_key:
+            problems.append("OPENAI_API_KEY is required for LLM_MODE=cloud")
+        if not self.tavily_api_key and not self.brave_api_key:
+            problems.append("a search provider key is required")
+        if self.demo_quota_required and not self.demo_quota_url:
+            problems.append(
+                "DEMO_QUOTA_URL is required, or set DEMO_QUOTA_REQUIRED=false "
+                "to accept a process-local cap"
+            )
+        if problems:
+            raise ValueError(
+                "LIVE_RESEARCH_ENABLED=true but the live path is incomplete: " + "; ".join(problems)
+            )
+        return self
 
     def uses_provider(self, provider: Provider) -> bool:
         return any(spec.provider is provider for spec in self.resolve_models().values())

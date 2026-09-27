@@ -38,12 +38,23 @@ def blueprint_env(name: str = LIVE_BLUEPRINT) -> dict[str, str]:
 
 
 def live_settings(**over: Any) -> Settings:
-    """The live posture, but on a local model so nothing can be billed."""
+    """The live posture, but on a local model so nothing can be billed.
+
+    Carries the full hosted live configuration, because a hosted
+    deployment that boots without a remote verifier or a durable quota
+    is refused at settings validation -- which is the point of that
+    check, and means a test of the live surface has to be a valid live
+    configuration.
+    """
     base: dict[str, Any] = {
         "llm_mode": "local",
         "demo_mode": True,
         "live_research_enabled": True,
         "tavily_api_key": "tvly-test-key",
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
         "_env_file": None,
     }
     base.update(over)
@@ -102,8 +113,12 @@ class TestStartupConfiguration:
 
     def test_only_luna_is_reachable_and_fallback_is_off(self) -> None:
         env = blueprint_env()
-        assert env["OPENAI_MODEL"] == "gpt-6-luna"
-        assert env["OPENAI_FAST_MODEL"] == "gpt-6-luna"
+        # The model is a deployment value now, prompted at Blueprint
+        # creation rather than committed. A model id baked into the
+        # repository outlives the provider's catalogue, and preflight
+        # refuses an unretrievable or unpriced one anyway.
+        assert env["OPENAI_MODEL"] == "<prompted>"
+        assert env["OPENAI_FAST_MODEL"] == "<prompted>"
         assert env["ALLOW_CLOUD_FALLBACK"] == "false"
         configured = {v.lower() for k, v in env.items() if k.startswith("OPENAI_")}
         assert not any("sol" in v or "astra" in v for v in configured)

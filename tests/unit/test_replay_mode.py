@@ -32,6 +32,14 @@ def _settings(**overrides: Any) -> Settings:
         "llm_mode": "local",
         "demo_mode": True,
         "live_research_enabled": False,
+        # Present so a test can flip live on without also having to
+        # restate the whole hosted configuration. Replay ignores them
+        # entirely and still needs no credentials.
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
+        "tavily_api_key": "tvly-test-key",
         "_env_file": None,
     }
     base.update(overrides)

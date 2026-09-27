@@ -191,7 +191,6 @@ async def run_arm(
             ModelRole.RESEARCHER: "researcher_model",
             ModelRole.CRITIC: "critic_model",
             ModelRole.SYNTHESIZER: "synthesizer_model",
-            ModelRole.VERIFIER: "verifier_model",
         }
         settings = settings.model_copy(
             update={field_names[role]: spec for role, spec in applied.items()}

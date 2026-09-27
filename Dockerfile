@@ -21,7 +21,11 @@ RUN useradd --create-home --uid 1000 researcher
 WORKDIR /home/researcher
 
 COPY --from=build /build/dist/*.whl /tmp/
-RUN pip install --no-cache-dir /tmp/*.whl && rm /tmp/*.whl
+# CPU torch from the dedicated index: the default wheel pulls CUDA
+# libraries this image has no use for and cannot run.
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch \
+    && pip install --no-cache-dir "/tmp/$(ls /tmp | grep -m1 '\.whl$')[nli-local]" \
+    && rm /tmp/*.whl
 
 COPY pricing.toml ./
 USER researcher

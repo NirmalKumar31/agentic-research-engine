@@ -191,7 +191,7 @@ class TestConcurrency:
             nonlocal granted, refused
             try:
                 await tracker.reserve_provider_request(
-                    Provider.OPENAI, role=ModelRole.VERIFIER, model="gpt-6-luna"
+                    Provider.OPENAI, role=ModelRole.CRITIC, model="gpt-6-luna"
                 )
                 granted += 1
             except BudgetExceededError:
@@ -202,8 +202,9 @@ class TestConcurrency:
         assert refused == 35
 
     async def test_parallel_workers_cannot_race_past_the_cost_ceiling(self) -> None:
-        # Room for exactly three worst-case verifier attempts.
-        per_attempt = 0.0002
+        # Room for exactly three worst-case critic attempts: the
+        # critic's 1500-token output cap at this model's output price.
+        per_attempt = 0.00075
         tracker = UsageTracker(100, cloud_budget(max_cloud_cost_usd=per_attempt * 3))
         granted = 0
 
@@ -211,7 +212,7 @@ class TestConcurrency:
             nonlocal granted
             try:
                 await tracker.reserve_provider_request(
-                    Provider.OPENAI, role=ModelRole.VERIFIER, model="gpt-6-luna"
+                    Provider.OPENAI, role=ModelRole.CRITIC, model="gpt-6-luna"
                 )
                 granted += 1
             except CloudBudgetExceededError:

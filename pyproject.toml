@@ -42,6 +42,17 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+nli-local = [
+    # The local semantic verifier. Not a core dependency: the hosted web
+    # image must stay small enough for a 512MB plan, and the measured
+    # peak for this checkpoint is about 1.3GB. Install this for local
+    # research, or point NLI_MODE=remote at an endpoint.
+    "torch>=2.4,<3",
+    "transformers>=5,<6",
+    "safetensors>=0.5,<1",
+    "sentencepiece>=0.2,<1",
+]
+
 web = ["fastapi>=0.120,<1", "uvicorn[standard]>=0.40,<1"]
 dev = [
     "pytest>=9.1,<10",
@@ -146,7 +157,7 @@ check_untyped_defs = true
 
 # Third-party packages without bundled type information.
 [[tool.mypy.overrides]]
-module = ["trafilatura.*", "langchain_ollama.*", "psutil"]
+module = ["trafilatura.*", "langchain_ollama.*", "psutil", "redis", "redis.*"]
 ignore_missing_imports = true
 
 # torch ships type information, so mypy follows it into numpy, whose

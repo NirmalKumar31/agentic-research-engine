@@ -1,24 +1,35 @@
-# Render blueprint for the LIVE demo: recorded runs and a real research box.
+# Render blueprint for the LIVE demo.
 #
-# Separate from render.yaml so one configuration stays safe by construction:
-# render.yaml needs no credentials, this one needs two and spends real money.
+# Separate from render.yaml so one configuration stays safe by
+# construction: render.yaml needs no credentials, this one needs four
+# and spends real money at three independent providers.
 #
-# What bounds the spend, in increasing order of trustworthiness:
-#   1. Per run: the MAX_CLOUD_* ceilings below are reserved before each
-#      provider request is sent, so one run cannot exceed them.
-#   2. Per day: DEMO_PROVIDER_REQUESTS_PER_DAY / MAX_CLOUD_CALLS. This
-#      counter is process-local, and Render Free resets it on every cold
-#      start, so it cannot bound an account-level quota.
-#   3. Your OpenAI account limit. The only one a restart cannot bypass.
+# THREE COST DOMAINS, THREE SEPARATE LIMITS. They do not bound each
+# other, and a limit on one will not stop the others:
 #
-# SET A HARD MONTHLY BUDGET IN THE OPENAI DASHBOARD BEFORE DEPLOYING.
+#   1. OpenAI tokens      -> project spend limit in the OpenAI dashboard
+#   2. Tavily credits     -> monthly credit limit on the Tavily key
+#   3. Hugging Face NLI   -> hourly endpoint billing, which accrues
+#                            whenever the endpoint is warm, whether or
+#                            not anybody runs research
 #
-# The server clamps every value here to its own DemoLimits maximum, so a
-# raised value has no effect; a lowered one does.
+# The OpenAI limit is the only one a restart cannot bypass, and even it
+# is not instantaneous -- treat it as a durable backstop, not an exact
+# per-cent guarantee.
+#
+# THE WEB IMAGE STAYS SMALL. Dockerfile.web installs the [web] extra
+# only: FastAPI and Uvicorn, no torch, no transformers. The verifier's
+# measured peak is about 1.3 GB, which does not fit a 512 MB plan, so
+# semantic verification runs on a private Hugging Face endpoint pinned
+# to one checkpoint revision. See deploy/nli-service/.
+#
+# ACCEPTANCE ORDER. Deploy the endpoint with min replicas 1 and prove
+# correctness warm. Only afterwards enable scale-to-zero and test the
+# bounded 502/503 warm-up path.
 
 services:
   - type: web
-    name: agentic-research-live
+    name: agentic-research-engine-live
     runtime: docker
     dockerfilePath: ./Dockerfile.web
     plan: free
@@ -27,48 +38,90 @@ services:
     autoDeploy: false
 
     envVars:
-      # Render prompts for these at Blueprint creation; never committed.
+      # --- credentials: prompted at Blueprint creation, never committed ---
       - key: OPENAI_API_KEY
         sync: false
       - key: TAVILY_API_KEY
         sync: false
+      # Hugging Face token for the PRIVATE inference endpoint.
+      - key: NLI_API_KEY
+        sync: false
+      # Redis / Render Key Value URL backing the durable run cap.
+      - key: DEMO_QUOTA_URL
+        sync: false
 
-      # Live research needs a reachable model, and Render has no Ollama.
+      # --- live switches ---
       - key: LIVE_RESEARCH_ENABLED
+        value: "true"
+      - key: DEMO_MODE
         value: "true"
       - key: LLM_MODE
         value: cloud
-      - key: DEMO_MODE
-        value: "true"
-
-      # Luna only. Fallback off so an unreachable model fails rather than
-      # escalating to a more expensive one.
-      - key: OPENAI_MODEL
-        value: gpt-6-luna
-      - key: OPENAI_FAST_MODEL
-        value: gpt-6-luna
       - key: ALLOW_CLOUD_FALLBACK
         value: "false"
+
+      # The model is a deployment decision, not a default baked into the
+      # code. Preflight retrieves it before the first paid call and
+      # refuses to start if the project cannot see it or if pricing.toml
+      # carries no verified price for it.
+      - key: OPENAI_MODEL
+        sync: false
+      - key: OPENAI_FAST_MODEL
+        sync: false
+
       - key: SEARCH_PROVIDER
         value: tavily
+      - key: SEARCH_DEPTH
+        value: basic
 
-      # Per-run ceilings, reserved before dispatch.
-      - key: MAX_CLOUD_CALLS
-        value: "20"
+      # --- remote verifier: pinned, private, fail-closed ---
+      - key: NLI_MODE
+        value: remote
+      # Full /score URL of the private endpoint.
+      - key: NLI_ENDPOINT
+        sync: false
+      - key: NLI_MODEL_ID
+        value: MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli
+      # The exact commit the 0.98 threshold was calibrated against. A
+      # different revision is a different verifier.
+      - key: NLI_MODEL_REVISION
+        value: b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7
+      - key: NLI_SUPPORT_THRESHOLD
+        value: "0.98"
+      - key: NLI_TIMEOUT_SECONDS
+        value: "45"
+      # 0 until scale-to-zero is enabled and its warm-up path tested.
+      - key: NLI_SCALE_UP_TIMEOUT_SECONDS
+        value: "0"
+
+      # --- durable quota ---
+      # Refuse live research rather than fall back to a process-local
+      # counter a cold start resets.
+      - key: DEMO_QUOTA_REQUIRED
+        value: "true"
+      # Render terminates TLS and appends one X-Forwarded-For entry.
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+
+      # --- per-run ceilings, reserved before dispatch ---
       - key: MAX_CLOUD_COST_USD
         value: "0.05"
+      - key: MAX_CLOUD_CALLS
+        value: "20"
       - key: MAX_CLOUD_INPUT_TOKENS
         value: "120000"
       - key: MAX_CLOUD_OUTPUT_TOKENS
         value: "20000"
       - key: MAX_SEARCH_CREDITS
         value: "8"
-      # Model-provider HTTP requests in one run. Search is metered
-      # separately, by MAX_SEARCH_CREDITS.
       - key: MAX_PROVIDER_REQUESTS
         value: "30"
+      # Conservative view of the provider account quota the per-day run
+      # cap is derived from. Raise only alongside the provider plan.
+      - key: DEMO_PROVIDER_REQUESTS_PER_DAY
+        value: "50"
 
-      # How much work one run may do.
+      # --- run shape ---
       - key: MAX_RESEARCH_ROUNDS
         value: "1"
       - key: MAX_SOURCES
@@ -79,24 +132,17 @@ services:
         value: "6"
       - key: MAX_LLM_CALLS
         value: "20"
-      - key: SEARCH_DEPTH
-        value: basic
 
-      # One run at a time: a free instance has little CPU.
+      # --- demo throttles (secondary to the durable cap) ---
       - key: DEMO_MAX_CONCURRENT_RUNS
         value: "1"
       - key: DEMO_RUNS_PER_HOUR
         value: "2"
-      # Account-level quota the daily run cap is derived from. Raise only
-      # when the OpenAI tier actually rises; above the real tier, visitors
-      # hit a provider 429 mid-run instead of an honest refusal up front.
-      - key: DEMO_PROVIDER_REQUESTS_PER_DAY
-        value: "50"
-      # Caps how long one run may hold the single slot.
+      # Hard wall-clock ceiling for one public run.
       - key: DEMO_MAX_RUNTIME_SECONDS
         value: "240"
 
-      # Ephemeral filesystem; persisting is pointless and slow here.
+      # --- runtime ---
       - key: PERSIST_RUNS
         value: "false"
       - key: CHECKPOINT_BACKEND

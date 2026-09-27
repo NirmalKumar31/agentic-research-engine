@@ -50,7 +50,7 @@ def cloud_attempt(
 
 async def reserve_cloud(
     tracker: UsageTracker,
-    role: ModelRole = ModelRole.VERIFIER,
+    role: ModelRole = ModelRole.CRITIC,
     model: str = "gpt-6-luna",
     tokens_in: int = 0,
 ) -> float:
@@ -63,16 +63,16 @@ class TestCloudCallCeiling:
     async def test_cloud_calls_are_capped(self) -> None:
         tracker = UsageTracker(100, budget(max_cloud_calls=2))
         for _ in range(2):
-            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
+            await reserve_cloud(tracker, ModelRole.CRITIC, "gpt-6-luna")
         with pytest.raises(CloudBudgetExceededError) as info:
-            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
+            await reserve_cloud(tracker, ModelRole.CRITIC, "gpt-6-luna")
         assert info.value.dimension == "calls"
 
     async def test_local_calls_are_not_charged_to_the_cloud_budget(self) -> None:
         """Local inference has no vendor cost, so a spent cloud budget must
         not stop a local-mode run."""
         tracker = UsageTracker(100, budget(max_cloud_calls=1))
-        await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
+        await reserve_cloud(tracker, ModelRole.CRITIC, "gpt-6-luna")
         for _ in range(5):
             await tracker.reserve_provider_request(
                 Provider.OLLAMA, role=ModelRole.RESEARCHER, model="qwen3:4b"
@@ -83,7 +83,7 @@ class TestCloudCallCeiling:
         from an unconfigured one."""
         tracker = UsageTracker(100, budget(max_cloud_calls=0, max_cloud_cost_usd=0.0))
         for _ in range(5):
-            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna")
+            await reserve_cloud(tracker, ModelRole.CRITIC, "gpt-6-luna")
 
 
 class TestSpendCeiling:
@@ -109,7 +109,7 @@ class TestSpendCeiling:
     async def test_input_token_ceiling(self) -> None:
         tracker = UsageTracker(100, budget(max_cloud_input_tokens=10_000))
         with pytest.raises(CloudBudgetExceededError) as info:
-            await reserve_cloud(tracker, ModelRole.VERIFIER, "gpt-6-luna", 20_000)
+            await reserve_cloud(tracker, ModelRole.CRITIC, "gpt-6-luna", 20_000)
         assert info.value.dimension == "input_tokens"
 
     async def test_output_token_ceiling(self) -> None:
@@ -143,7 +143,7 @@ class TestSpendCeiling:
 class TestPerRoleOutputCaps:
     def test_roles_have_distinct_output_ceilings(self) -> None:
         caps = budget().max_output_tokens_per_call  # type: ignore[attr-defined]
-        assert caps["verifier"] < caps["researcher"] < caps["synthesizer"]
+        assert caps["critic"] < caps["researcher"] < caps["synthesizer"]
 
     def test_cap_is_applied_to_the_built_client(self) -> None:
         """A runaway generation is billed in full before anything notices, so
@@ -153,10 +153,10 @@ class TestPerRoleOutputCaps:
         settings = Settings(
             llm_mode="cloud",
             openai_api_key="sk-test",
-            max_output_tokens_verifier=321,
+            max_output_tokens_critic=321,
             _env_file=None,
         )
-        client = ModelRouter(settings).get(ModelRole.VERIFIER)._model
+        client = ModelRouter(settings).get(ModelRole.CRITIC)._model
         # langchain-openai normalises max_completion_tokens onto max_tokens.
         assert getattr(client, "max_tokens", None) == 321
 
@@ -215,10 +215,10 @@ class TestLocalOutputCap:
 
         settings = Settings(
             llm_mode="local",
-            max_output_tokens_verifier=400,
+            max_output_tokens_critic=400,
             max_output_tokens_synthesizer=6_000,
             _env_file=None,
         )
         router = ModelRouter(settings)
-        assert router.get(ModelRole.VERIFIER)._model.num_predict == 400
+        assert router.get(ModelRole.CRITIC)._model.num_predict == 400
         assert router.get(ModelRole.SYNTHESIZER)._model.num_predict == 6_000

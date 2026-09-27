@@ -57,8 +57,12 @@ class TestTheLiveBlueprint:
         assert env["DEMO_MODE"] == "true", "client values must stay clamped"
 
     def test_only_the_cheap_model_is_reachable(self, env: dict[str, str]) -> None:
-        assert env["OPENAI_MODEL"] == "gpt-6-luna"
-        assert env["OPENAI_FAST_MODEL"] == "gpt-6-luna"
+        # A deployment value now, prompted rather than committed: a
+        # model id baked into the repository outlives the provider's
+        # catalogue, and preflight refuses an unretrievable or unpriced
+        # one before the first paid call.
+        assert env["OPENAI_MODEL"] == "<prompted>"
+        assert env["OPENAI_FAST_MODEL"] == "<prompted>"
         # Checked against the configured values, not the file text: a
         # comment saying "Sol and Astra are never used" would otherwise
         # fail its own assertion.
@@ -157,6 +161,10 @@ def _live_settings(**over: Any) -> Settings:
         "llm_mode": "local",
         "demo_mode": True,
         "live_research_enabled": True,
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
         "tavily_api_key": "tvly-test-key",
         "_env_file": None,
     }
@@ -261,6 +269,10 @@ class TestDemoLimitsCannotBeWidened:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_research_rounds=9,
             max_sources=99,
@@ -300,6 +312,11 @@ class TestDemoLimitsCannotBeWidened:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
+            tavily_api_key="tvly-test-key",
             max_sources=2,
             max_sources_per_round=2,
             max_llm_calls=5,
@@ -411,6 +428,10 @@ class TestEveryPaidDimensionIsClamped:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_cloud_calls=999_999,
             max_cloud_input_tokens=99_999_999,
@@ -470,6 +491,10 @@ class TestEveryPaidDimensionIsClamped:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_cloud_calls=5,
             max_cloud_input_tokens=1_000,
@@ -508,6 +533,10 @@ class TestEveryPaidDimensionIsClamped:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_cloud_calls=0,
             max_cloud_input_tokens=0,

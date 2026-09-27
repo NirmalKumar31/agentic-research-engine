@@ -202,6 +202,24 @@ Render's free tier sleeps when idle, so the first visit after a quiet period
 takes about a minute; replay makes that cheap, because waking the service
 spends nothing.
 
+## Usage
+
+The public demo replays recorded runs and needs no credentials. To run
+live research yourself:
+
+```bash
+pip install -e ".[nli-local]"     # includes the local semantic verifier
+cp .env.example .env              # add a search provider key
+agentic-research check            # verifies the whole path before spending
+agentic-research research "your question"
+```
+
+`check` exits non-zero if the selected path cannot complete a verified
+run — a missing search key, an unreachable model, a model with no
+verified price, or a verifier that cannot answer. Local mode runs the
+models on Ollama with no paid LLM usage; live web research still needs a
+search provider.
+
 ## Measured results
 
 Three recorded local `qwen3:4b` runs, one round each, verified by the

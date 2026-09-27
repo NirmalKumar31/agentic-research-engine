@@ -36,6 +36,10 @@ def demo_settings(**overrides: Any) -> Settings:
         # It ships off by default because the hosted demo serves recorded
         # runs; the gating itself is covered in test_replay_mode.py.
         "live_research_enabled": True,
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
         # Deliberately secret-shaped, and allowlisted in .gitleaks.toml.
         "tavily_api_key": "tvly-test-key",
         "max_research_rounds": 9,
