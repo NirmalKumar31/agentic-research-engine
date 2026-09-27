@@ -254,6 +254,11 @@ class TestPreflightAndFallback:
     @respx.mock
     async def test_fallback_when_enabled_swaps_provider_and_warns(self) -> None:
         respx.get(TAGS_URL).mock(side_effect=httpx.ConnectError("down"))
+        # Preflight now also asks OpenAI whether each configured model
+        # is retrievable, so a cloud fallback has to satisfy that too.
+        respx.get(url__regex=r"https://api\.openai\.com/v1/models/.*").mock(
+            return_value=httpx.Response(200, json={"id": "m", "object": "model"})
+        )
         settings = Settings(
             llm_mode="hybrid",
             openai_api_key="sk-x",
@@ -269,6 +274,9 @@ class TestPreflightAndFallback:
     @respx.mock
     async def test_cloud_only_mode_skips_the_ollama_check(self) -> None:
         route = respx.get(TAGS_URL).mock(return_value=httpx.Response(200, json={"models": []}))
+        respx.get(url__regex=r"https://api\.openai\.com/v1/models/.*").mock(
+            return_value=httpx.Response(200, json={"id": "m", "object": "model"})
+        )
         settings = Settings(llm_mode="cloud", openai_api_key="sk-x", _env_file=None)
         assert await ModelRouter(settings).preflight() == []
         assert route.call_count == 0

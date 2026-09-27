@@ -20,7 +20,22 @@ _configured = False
 
 # Keys whose values must never reach a log sink.
 _SECRET_KEYS = frozenset(
-    {"api_key", "openai_api_key", "tavily_api_key", "langsmith_api_key", "authorization", "token"}
+    {
+        "api_key",
+        "openai_api_key",
+        "tavily_api_key",
+        "brave_api_key",
+        "langsmith_api_key",
+        # The remote verifier's credential. Added after it was found
+        # missing: NLI arrived late and the redaction sets were written
+        # before it existed.
+        "nli_api_key",
+        "hf_token",
+        "huggingface_token",
+        "authorization",
+        "token",
+        "bearer",
+    }
 )
 
 

@@ -1,0 +1,8 @@
+# Pinned. The 0.98 threshold was calibrated against a specific
+# checkpoint under a specific runtime; leaving these floating would let
+# a silent upgrade change scores without changing the model.
+fastapi==0.120.4
+uvicorn[standard]==0.40.0
+transformers==5.17.0
+safetensors==0.8.0
+sentencepiece==0.2.1

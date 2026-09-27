@@ -464,6 +464,66 @@ class ModelRouter:
 
     # -- health -----------------------------------------------------------
 
+    async def _verify_openai_models(self, models: set[str]) -> None:
+        """Confirm the project can retrieve every configured model.
+
+        Uses the model-retrieval endpoint rather than a completion: it
+        answers "does this exist and can this key see it" without
+        generating a token or costing anything. A completion would prove
+        the same thing and bill for the privilege.
+
+        Pricing is checked in the same pass. A model with no verified
+        price cannot have its spend bounded, and a ceiling computed from
+        a missing price is not a ceiling.
+        """
+        from agentic_research.llm.pricing import PriceUnavailable, require_price
+
+        key = self.settings.openai_api_key
+        if key is None:
+            raise ModelUnavailableError(
+                ModelSpec(provider=Provider.OPENAI, model=sorted(models)[0]),
+                "no OPENAI_API_KEY is configured",
+                "Set it in .env, or use LLM_MODE=local",
+            )
+
+        for model in sorted(models):
+            spec = ModelSpec(provider=Provider.OPENAI, model=model)
+            try:
+                require_price(Provider.OPENAI, model)
+            except PriceUnavailable as exc:
+                raise ModelUnavailableError(
+                    spec,
+                    str(exc),
+                    "Add the model's verified input/output price to pricing.toml",
+                ) from exc
+
+            url = f"{self.settings.openai_base_url.rstrip('/')}/models/{model}"
+            try:
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(
+                        url, headers={"Authorization": f"Bearer {key.get_secret_value()}"}
+                    )
+            except httpx.HTTPError as exc:
+                raise ModelUnavailableError(
+                    spec, f"could not reach the OpenAI API ({type(exc).__name__})", ""
+                ) from exc
+
+            if response.status_code == 404:
+                raise ModelUnavailableError(
+                    spec,
+                    "the project cannot retrieve this model",
+                    "Check OPENAI_MODEL against the models your project has access to",
+                )
+            if response.status_code in (401, 403):
+                raise ModelUnavailableError(
+                    spec, "the API key was rejected", "Check OPENAI_API_KEY and its project"
+                )
+            if response.status_code >= 400:
+                raise ModelUnavailableError(
+                    spec, f"model lookup returned {response.status_code}", ""
+                )
+            log.info("openai_model_verified", model=model)
+
     async def preflight(self) -> list[str]:
         """Check every configured provider before the graph starts.
 
@@ -498,6 +558,15 @@ class ModelRouter:
                     )
                 else:
                     raise ModelUnavailableError(spec, reason, hint)
+
+        # Cloud models were never checked. Preflight proved Ollama was
+        # reachable and then assumed OpenAI would be, so a typo or a
+        # model the project cannot access surfaced as a failed request
+        # part-way through a paid run.
+        openai_roles = [r for r, s in self._assignments.items() if s.provider is Provider.OPENAI]
+        if openai_roles:
+            await self._verify_openai_models({self._assignments[r].model for r in openai_roles})
+
         self._preflighted = True
         return warnings
 

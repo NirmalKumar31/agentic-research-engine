@@ -39,8 +39,11 @@ def _read_pricing() -> str | None:
     prices by walking up from the current directory meant cost reporting
     silently returned nothing whenever the process ran outside a checkout.
 
-    A pricing.toml in the working directory still wins, so an operator can
-    correct a price without reinstalling.
+    A pricing.toml in the working directory still wins, so an operator
+    can correct a price without reinstalling. That override is the only
+    reason a second copy may exist: the repository root no longer ships
+    one, because two identical committed tables meant a price could be
+    edited in the copy the wheel does not carry.
     """
     local = Path.cwd() / _PRICING_FILENAME
     if local.is_file():
@@ -98,3 +101,30 @@ def get_price(provider: Provider, model: str) -> ModelPrice | None:
 
 def reset_cache() -> None:
     _load_table.cache_clear()
+
+
+class PriceUnavailable(RuntimeError):
+    """No verified price exists for a model the run is about to call.
+
+    Raised rather than defaulting to zero or to another model's price.
+    A spend ceiling computed from an invented price is not a ceiling,
+    and the failure it produces is an invoice.
+    """
+
+
+def require_price(provider: Provider, model: str) -> ModelPrice:
+    """The price for a model, or a refusal to proceed without one.
+
+    Callers that reserve budget must use this. ``get_price`` returning
+    None is appropriate for reporting -- a historical artifact may name
+    a model whose price is no longer listed -- but it must never become
+    "assume free" on the path that authorises spending.
+    """
+    price = get_price(provider, model)
+    if price is None:
+        raise PriceUnavailable(
+            f"no verified price for {provider.value}:{model}. "
+            "Add it to pricing.toml before running in a paid mode; "
+            "a budget ceiling cannot be enforced without one."
+        )
+    return price

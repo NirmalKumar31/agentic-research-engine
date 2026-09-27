@@ -179,6 +179,9 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-6-sol"
     openai_fast_model: str = "gpt-6-luna"
     ollama_base_url: str = "http://localhost:11434"
+    openai_base_url: str = "https://api.openai.com/v1"
+    """Overridable for a compatible gateway. Used by the model-retrieval
+    preflight as well as by the client."""
     ollama_model: str = "qwen3:4b"
 
     planner_model: str | None = None
