@@ -310,11 +310,33 @@ state which checkpoint served it, a checkpoint differing from the configured
 one, a missing truncation flag, and scores that are not a probability
 distribution — every one withholds the claim.
 
-**v1 ships replay-only, and remote mode is experimental.** No hosted
-provider has been selected, and remote mode is unit-tested against mocked
-transports only. It has never run against a live endpoint, so nothing here
-should be read as remote verification being production-tested. Presenting
-it as such would need a real endpoint and a live acceptance run.
+**Remote verification is implemented and not yet proven against a live
+endpoint.** The client, the endpoint container and the wire contract all
+exist and are tested against mocked transports and a locally-run
+instance of the same container. What has not happened is a hosted
+acceptance run: no Hugging Face endpoint has been created, so no claim
+about latency, cold-start behaviour or hosted parity is available. The
+committed parity test refuses to run without an endpoint rather than
+reporting a substitute.
+
+**Live research costs money at three independent providers.** OpenAI
+tokens, Tavily search credits and Hugging Face endpoint compute are
+billed separately and bound separately. An OpenAI project spend limit
+does not stop Tavily or Hugging Face, and a warm inference endpoint
+accrues cost whether or not anybody runs research. OpenAI's own limit
+is a durable backstop rather than an exact per-cent guarantee, because
+enforcement is not instantaneous.
+
+**Live research refuses to start unless the whole path is proven
+first.** The verifier is probed before any provider is called: if it
+cannot answer, no OpenAI request and no Tavily search is made, and the
+visitor is told the service is unavailable rather than shown a report
+with nothing in it. The public daily cap is backed by an external
+atomic counter, because a process-local count resets whenever a free
+instance wakes; if that counter is required and unreachable, live
+research is refused rather than admitted unbounded.
+
+**Replay still needs no credentials at all.**
 
 **Provider prices are estimates** from a local table. They do not account
 for cached input, long-context tiers, region or service tier.

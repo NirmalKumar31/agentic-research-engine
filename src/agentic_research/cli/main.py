@@ -150,6 +150,7 @@ def research(
 @app.command()
 def check() -> None:
     """Verify configuration and provider reachability without running research."""
+    from agentic_research.citations.nli_preflight import check_nli_ready
     from agentic_research.llm.router import ModelRouter
 
     try:
@@ -167,10 +168,17 @@ def check() -> None:
     for role, spec in sorted(ModelRouter(settings).describe().items()):
         table.add_row(f"  {role}", spec)
 
+    # Anything that would stop a verified run from completing is a
+    # failure, not a note. This used to print a missing search key in red
+    # and exit 0, so a scripted check passed on a configuration that
+    # could not run.
+    blockers: list[str] = []
+
     table.add_row("Search provider", settings.search_provider)
-    table.add_row(
-        "Tavily key", "[green]set[/green]" if settings.tavily_api_key else "[red]missing[/red]"
-    )
+    has_search = bool(settings.tavily_api_key or settings.brave_api_key)
+    table.add_row("Search key", "[green]set[/green]" if has_search else "[red]missing[/red]")
+    if not has_search:
+        blockers.append("no search provider key is configured")
     table.add_row(
         "OpenAI key", "[green]set[/green]" if settings.openai_api_key else "[dim]not set[/dim]"
     )
@@ -183,6 +191,22 @@ def check() -> None:
             table.add_row("  warning", f"[yellow]{warning}[/yellow]")
     except ModelUnavailableError as exc:
         table.add_row("Model preflight", f"[red]{exc}[/red]")
+        blockers.append(str(exc).splitlines()[0])
+
+    # Semantic verification decides what publishes. A run whose verifier
+    # cannot answer produces a report with nothing in it, so a check
+    # that ignored the verifier was not checking the path that matters.
+    table.add_row("Verifier mode", settings.nli_mode)
+    table.add_row("  model", settings.nli_model_id.split("/")[-1])
+    table.add_row("  revision", settings.nli_model_revision[:12])
+    table.add_row("  threshold", f"{settings.nli_support_threshold}")
+    readiness = check_nli_ready(settings)
+    table.add_row(
+        "  readiness",
+        "[green]ready[/green]" if readiness.ready else f"[red]{readiness.detail}[/red]",
+    )
+    if not readiness.ready:
+        blockers.append(f"verifier not ready: {readiness.detail}")
 
     table.add_row(
         "Budgets",
@@ -193,6 +217,13 @@ def check() -> None:
     )
     table.add_row("Checkpointing", settings.checkpoint_backend)
     console.print(table)
+
+    if blockers:
+        console.print()
+        console.print("[red]This configuration cannot complete a verified run:[/red]")
+        for blocker in blockers:
+            console.print(f"  - {blocker}")
+        raise typer.Exit(code=1)
 
 
 @app.command("show")

@@ -175,11 +175,12 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 # Default runs are hermetic and free: no network, no credentials, no local
 # server. Opt in with `pytest -m ollama` or `pytest -m integration`.
-addopts = "-q --strict-markers -m 'not integration and not ollama and not nli'"
+addopts = "-q --strict-markers -m 'not integration and not ollama and not nli and not hosted_nli'"
 markers = [
     "integration: requires live API credentials; excluded from default runs",
     "ollama: requires a running local Ollama server",
     "nli: downloads and runs the real NLI checkpoint; excluded from default runs",
+    "hosted_nli: calls a live private inference endpoint that bills hourly; needs NLI_TEST_ENDPOINT",
 ]
 
 [tool.coverage.run]
