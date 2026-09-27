@@ -154,7 +154,24 @@ jobs:
         run: |
           docker run --rm agentic-research:ci --help
           docker run --rm -e LLM_MODE=local agentic-research:ci graph | head -5
-          docker run --rm -e LLM_MODE=local agentic-research:ci check
+
+          # `check` exits non-zero on a configuration that could not
+          # complete a verified run. That is the point of it, and this
+          # container is exactly such a configuration: no Ollama to
+          # reach and no search key. Asserting exit 0 here would mean
+          # either weakening the command or pretending the image is
+          # configured, so assert the diagnosis instead.
+          set +e
+          out=$(docker run --rm -e LLM_MODE=local agentic-research:ci check 2>&1)
+          rc=$?
+          set -e
+          echo "$out"
+          if [ "$rc" -ne 1 ]; then
+            echo "::error::expected check to exit 1 on an unconfigured image, got $rc"
+            exit 1
+          fi
+          echo "$out" | grep -q "no search provider key is configured"
+          echo "$out" | grep -q "Verifier mode"
 
   secrets:
     name: Secret scan (full history)

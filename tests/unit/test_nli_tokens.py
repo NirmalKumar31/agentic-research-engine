@@ -8,6 +8,9 @@ count is taken here, and anything that stops it being taken withholds.
 
 from __future__ import annotations
 
+import sys
+import types
+
 import pytest
 
 from agentic_research.citations import nli_tokens
@@ -38,6 +41,27 @@ class _Tokenizer:
 @pytest.fixture(autouse=True)
 def _clear_cache() -> None:
     nli_tokens._reset_cache_for_tests()
+
+
+def fake_tokenizers(from_pretrained: object) -> types.ModuleType:
+    """A stand-in for the tokenizers package.
+
+    Injected into sys.modules rather than monkeypatched onto the real
+    package. tokenizers is a web and nli-remote dependency, not a dev
+    one, so a plain dev install does not have it -- while a machine that
+    also has transformers does, since transformers pulls it in. Patching
+    the real module therefore passed locally and failed in CI with
+    ModuleNotFoundError, which is the divergence these tests exist to
+    avoid rather than reproduce.
+    """
+    module = types.ModuleType("tokenizers")
+
+    class Tokenizer:
+        pass
+
+    Tokenizer.from_pretrained = staticmethod(from_pretrained)  # type: ignore[attr-defined]
+    module.Tokenizer = Tokenizer  # type: ignore[attr-defined]
+    return module
 
 
 def test_a_pair_at_the_limit_is_not_truncated() -> None:
@@ -81,20 +105,16 @@ def test_a_missing_tokenizers_package_withholds(monkeypatch: pytest.MonkeyPatch)
 
 
 def test_a_download_failure_withholds(monkeypatch: pytest.MonkeyPatch) -> None:
-    import tokenizers
-
     def boom(*a: object, **k: object) -> object:
         raise OSError("offline")
 
-    monkeypatch.setattr(tokenizers.Tokenizer, "from_pretrained", staticmethod(boom))
+    monkeypatch.setitem(sys.modules, "tokenizers", fake_tokenizers(boom))
     with pytest.raises(TokenizerUnavailable, match="could not load"):
         load_pair_tokenizer("some/model", "abcdef1234")
 
 
 def test_the_tokenizer_is_loaded_once(monkeypatch: pytest.MonkeyPatch) -> None:
     """8MB over the wire per claim would be its own outage."""
-    import tokenizers
-
     calls = {"n": 0}
 
     class Stub:
@@ -105,7 +125,7 @@ def test_the_tokenizer_is_loaded_once(monkeypatch: pytest.MonkeyPatch) -> None:
         calls["n"] += 1
         return Stub()
 
-    monkeypatch.setattr(tokenizers.Tokenizer, "from_pretrained", staticmethod(counting))
+    monkeypatch.setitem(sys.modules, "tokenizers", fake_tokenizers(counting))
     first = load_pair_tokenizer("some/model", "abcdef1234")
     second = load_pair_tokenizer("some/model", "abcdef1234")
     assert first is second
@@ -118,8 +138,6 @@ def test_truncation_is_disabled_on_the_loaded_tokenizer(
     """tokenizer.json carries a 512 truncation rule. Left on, every
     overlong pair measures exactly 512 and reads as fitting -- which is
     the one answer that must never be produced by guessing."""
-    import tokenizers
-
     seen = {"no_truncation": False, "no_padding": False}
 
     class Stub:
@@ -129,9 +147,64 @@ def test_truncation_is_disabled_on_the_loaded_tokenizer(
         def no_padding(self) -> None:
             seen["no_padding"] = True
 
-    monkeypatch.setattr(
-        tokenizers.Tokenizer, "from_pretrained", staticmethod(lambda *a, **k: Stub())
-    )
+    monkeypatch.setitem(sys.modules, "tokenizers", fake_tokenizers(lambda *a, **k: Stub()))
     load_pair_tokenizer("some/model", "abcdef1234")
     assert seen["no_truncation"]
     assert seen["no_padding"]
+
+
+@pytest.mark.nli
+class TestTheRealTokenizer:
+    """Exercises the actual pinned tokenizer, not a stand-in.
+
+    Everything above proves the failure paths and the caching. None of
+    it proves the number is right, because a fake returns whatever it
+    was told to. This runs in the job that installs the real
+    dependencies.
+    """
+
+    def test_it_agrees_with_transformers_on_the_truncation_decision(self) -> None:
+        """The remote path counts tokens with `tokenizers` while the
+        local path counts them with transformers. If the two disagree
+        about 512, the same pair is truncated on one and intact on the
+        other, and the verdicts stop being comparable."""
+        transformers = pytest.importorskip("transformers")
+        from agentic_research.citations.nli_pin import (
+            NLI_DEFAULT_MODEL_ID,
+            NLI_DEFAULT_REVISION,
+        )
+
+        reference = transformers.AutoTokenizer.from_pretrained(
+            NLI_DEFAULT_MODEL_ID, revision=NLI_DEFAULT_REVISION
+        )
+        ours = load_pair_tokenizer(NLI_DEFAULT_MODEL_ID, NLI_DEFAULT_REVISION)
+
+        cases = [
+            ("The build completed successfully.", "The build succeeded."),
+            ("Latency fell 12.5% and memory use rose.", "Latency decreased."),
+            ("Ünïcödé ünd émojis mixed with CJK test.", "Contains unicode."),
+        ]
+        # Straddle the boundary, which is the only place the decision
+        # can differ.
+        cases += [
+            (" ".join(f"token{i}" for i in range(n)), "A short hypothesis.")
+            for n in range(240, 280, 4)
+        ]
+
+        undercounts = []
+        disagreements = []
+        for premise, hypothesis in cases:
+            expected = len(
+                reference(premise, hypothesis, truncation=False, padding=False)["input_ids"]
+            )
+            got = count_pair_tokens(ours, premise, hypothesis)
+            if got < expected:
+                undercounts.append((expected, got, premise[:40]))
+            if (expected > MAX_PAIR_TOKENS) != (got > MAX_PAIR_TOKENS):
+                disagreements.append((expected, got, premise[:40]))
+
+        # Counting high withholds a publishable claim. Counting low
+        # publishes one checked against half its evidence, so only one
+        # direction of error is acceptable.
+        assert not undercounts, f"undercounted, which could hide truncation: {undercounts}"
+        assert not disagreements, f"disagreed about the 512 boundary: {disagreements}"
