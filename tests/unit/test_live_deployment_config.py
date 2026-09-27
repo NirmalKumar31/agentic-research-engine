@@ -55,6 +55,18 @@ class TestTheWebImageStaysSmall:
     def test_the_cli_image_can_verify_locally(self) -> None:
         assert "nli-local" in (ROOT / "Dockerfile").read_text()
 
+    def test_the_web_extra_can_still_measure_truncation(self) -> None:
+        """The web image runs NLI_MODE=remote against a handler that
+        reports no truncation flag, so the count is taken in-process.
+        Without tokenizers the verifier withholds every claim rather
+        than assume a premise survived intact -- correct, and a total
+        outage. It is a 3MB pure-Rust wheel, not part of the ML stack
+        the test above bans."""
+        extras = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"][
+            "optional-dependencies"
+        ]
+        assert any("tokenizers" in d for d in extras["web"])
+
 
 class TestTheLiveBlueprintIsComplete:
     SPEC = "deploy/render-live.yaml"
@@ -73,6 +85,14 @@ class TestTheLiveBlueprintIsComplete:
     def test_the_threshold_is_the_calibrated_one(self) -> None:
         env = env_of(blueprint(self.SPEC))
         assert env["NLI_SUPPORT_THRESHOLD"]["value"] == "0.98"
+
+    def test_the_dialect_matches_the_deployed_endpoint(self) -> None:
+        """The blueprint points at a managed Hugging Face endpoint. The
+        default dialect expects this project's own service, which
+        answers in a different shape entirely, so leaving it unset
+        withholds every claim on a correctly configured endpoint."""
+        env = env_of(blueprint(self.SPEC))
+        assert env["NLI_DIALECT"]["value"] == "hf"
 
     def test_it_builds_the_small_web_image(self) -> None:
         assert blueprint(self.SPEC)["services"][0]["dockerfilePath"] == "./Dockerfile.web"

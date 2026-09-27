@@ -77,9 +77,16 @@ services:
       # --- remote verifier: pinned, private, fail-closed ---
       - key: NLI_MODE
         value: remote
-      # Full /score URL of the private endpoint.
+      # Base URL of the private endpoint. No /score suffix: the managed
+      # handler is served from the root, unlike deploy/nli-service.
       - key: NLI_ENDPOINT
         sync: false
+      # The managed endpoint runs the stock text-classification handler,
+      # which echoes neither the model nor a truncation flag. Choosing
+      # this dialect moves the revision check to preflight, against the
+      # Hugging Face control plane, and measures truncation in-process.
+      - key: NLI_DIALECT
+        value: hf
       - key: NLI_MODEL_ID
         value: MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli
       # The exact commit the 0.98 threshold was calibrated against. A
@@ -90,7 +97,10 @@ services:
         value: "0.98"
       - key: NLI_TIMEOUT_SECONDS
         value: "45"
-      # 0 until scale-to-zero is enabled and its warm-up path tested.
+      # 0 until warm acceptance passes. Raise this only when enabling
+      # scale-to-zero: a cold endpoint answers 502 for roughly half a
+      # minute, and at 0 the first run after an idle period withholds
+      # every claim rather than waiting.
       - key: NLI_SCALE_UP_TIMEOUT_SECONDS
         value: "0"
 

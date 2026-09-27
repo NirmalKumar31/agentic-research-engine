@@ -127,6 +127,48 @@ entailment would have inverted the gate for two of the three models —
 publishing precisely the claims that should be withheld — while still
 producing plausible-looking numbers.
 
+## Numeric precision: the committed scores are float16
+
+Worth knowing before comparing these numbers against any other run of
+the same checkpoint.
+
+`MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli` ships fp16
+weights, and the local verifier loads them as they are. Every one of
+the 50 committed entailment scores therefore lies exactly on the fp16
+grid — `0.980469`, `0.985352`, `0.991211` are all multiples of 2⁻¹¹,
+the fp16 step near 1.0. Re-running the local verifier reproduces the
+committed file to 4.9e-7.
+
+The hosted endpoint runs the same pinned commit in fp32. Against the
+same 50 pairs:
+
+| comparison | max | mean | within 1e-3 |
+| --- | --- | --- | --- |
+| committed vs local re-run | 4.9e-7 | 2.3e-7 | 50/50 |
+| committed vs hosted (fp32) | 9.43e-3 | 4.27e-4 | 45/50 |
+
+The gap is fp16 error accumulated through 24 layers locally, not
+endpoint inaccuracy: of the two numbers the hosted one is the more
+faithful. **No publish decision differs** between them at the 0.98
+threshold.
+
+Two consequences are worth stating plainly rather than burying.
+
+One calibration pair sits at `0.980469`, which is a single fp16 step
+above the threshold — margin 0.0005 against a worst-case divergence of
+9.4e-3. That margin is real, and it is smaller than the precision
+difference between the two runtimes. In fp32 the same pair scores
+`0.982632`, so it clears by more than the fp16 number suggested, but
+the calibration set contains a decision this close and a future
+checkpoint or runtime change could land on the other side of it.
+
+What makes that survivable is that the endpoint does not wander.
+Measured across repeat runs and across batch sizes 8 and 1 — padding
+within a batch being the usual source of drift in sequence-pair
+scoring — results are **bit-identical, 50/50 both ways**. A pair that
+publishes today publishes tomorrow for the same reason. The hosted
+suite asserts this rather than assuming it.
+
 ## Reproducing
 
 ```bash
