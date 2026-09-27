@@ -25,6 +25,7 @@ from agentic_research.llm.base import ProviderRateLimited
 from agentic_research.web import recordings
 from agentic_research.web.api import create_app
 from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
+from fakes import FakeQuotaStore
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -172,6 +173,17 @@ def _live_settings(**over: Any) -> Settings:
     return Settings(**base)
 
 
+def live_app(settings: Settings, store: FakeQuotaStore | None = None) -> Any:
+    """Build the app with a quota store that can admit a run.
+
+    The durable daily quota fails closed, so without a reachable store
+    every live request is refused before it reaches the behaviour these
+    tests cover.
+    """
+    counter = store or FakeQuotaStore()
+    return create_app(settings, counter_factory=counter.factory)
+
+
 class TestLiveFailureDoesNotBreakTheRecordedDemos:
     """The whole point of keeping replay alongside live."""
 
@@ -183,7 +195,7 @@ class TestLiveFailureDoesNotBreakTheRecordedDemos:
             yield {}  # pragma: no cover - makes this an async generator
 
         monkeypatch.setattr(api_module, "stream_research", failing)
-        return TestClient(create_app(_live_settings()))
+        return TestClient(live_app(_live_settings()))
 
     def test_a_provider_429_is_reported_as_capacity_not_a_crash(
         self, monkeypatch: pytest.MonkeyPatch
@@ -239,7 +251,7 @@ class TestReplayNeedsNoProvider:
         settings = Settings(
             llm_mode="local", demo_mode=True, live_research_enabled=False, _env_file=None
         )
-        with TestClient(create_app(settings)) as client:
+        with TestClient(live_app(settings)) as client:
             assert client.get("/api/examples").json()["examples"]
             assert client.get("/api/examples/demo").status_code == 200
             assert client.get("/api/config").json()["service_mode"] == "replay"
@@ -362,7 +374,7 @@ class TestDemoLimitsCannotBeWidened:
                 yield {}
 
         monkeypatch.setattr(api_module, "stream_research", capture)
-        with TestClient(create_app(self._generous())) as client:
+        with TestClient(live_app(self._generous())) as client:
             client.post("/api/research", json=payload)
 
         assert seen, "the run never started"
@@ -394,7 +406,7 @@ class TestDemoLimitsCannotBeWidened:
         settings = self._generous().model_copy(update={"demo_provider_requests_per_day": 10})
         assert limits_from_settings(settings).global_runs_per_day == 0
 
-        with TestClient(create_app(settings)) as client:
+        with TestClient(live_app(settings)) as client:
             response = client.post("/api/research", json={"query": "a genuine research question"})
         assert response.status_code == 429
         assert "cannot cover" in response.json()["error"]

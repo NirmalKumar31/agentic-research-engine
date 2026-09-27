@@ -27,6 +27,7 @@ from agentic_research.web import api as api_module
 from agentic_research.web import recordings
 from agentic_research.web.api import create_app
 from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
+from fakes import FakeQuotaStore
 
 REPO = Path(__file__).resolve().parents[2]
 LIVE_BLUEPRINT = "deploy/render-live.yaml"
@@ -59,6 +60,16 @@ def live_settings(**over: Any) -> Settings:
     }
     base.update(over)
     return Settings(**base)
+
+
+def quota_app(settings: Any) -> Any:
+    """Build the app with a quota store that can admit a run.
+
+    The durable daily quota fails closed, so an app without a reachable
+    store refuses every live request before it reaches what these tests
+    are about. Refusal itself is covered in test_durable_quota_wiring.
+    """
+    return create_app(settings, counter_factory=FakeQuotaStore().factory)
 
 
 RECORDING = {
@@ -132,13 +143,13 @@ class TestStartupConfiguration:
         assert env["TAVILY_API_KEY"] == "<prompted>"
 
     def test_the_service_reports_itself_as_live(self) -> None:
-        with TestClient(create_app(live_settings())) as client:
+        with TestClient(quota_app(live_settings())) as client:
             body = client.get("/api/config").json()
         assert body["service_mode"] == "live"
         assert body["live_research_enabled"] is True
 
     def test_recordings_still_load_in_the_live_service(self) -> None:
-        with TestClient(create_app(live_settings())) as client:
+        with TestClient(quota_app(live_settings())) as client:
             assert client.get("/api/examples").json()["examples"]
 
     def test_the_frontend_is_found_from_an_installed_layout(self) -> None:
@@ -218,7 +229,7 @@ class TestEveryCeilingIsServerEnforced:
 class TestTheHttpSurface:
     @pytest.fixture
     def client(self) -> Any:
-        with TestClient(create_app(live_settings())) as c:
+        with TestClient(quota_app(live_settings())) as c:
             yield c
 
     def test_health(self, client: Any) -> None:
@@ -293,7 +304,7 @@ class TestTheHttpSurface:
 
     def test_capacity_is_refused_with_429_when_the_quota_cannot_pay(self) -> None:
         settings = live_settings(demo_provider_requests_per_day=10)
-        with TestClient(create_app(settings)) as client:
+        with TestClient(quota_app(settings)) as client:
             response = client.post("/api/research", json={"query": "a real question"})
         assert response.status_code == 429
 
@@ -306,7 +317,7 @@ class TestTheHttpSurface:
 
         monkeypatch.setattr(api_module, "stream_research", slow)
         with (
-            TestClient(create_app(live_settings(demo_max_runtime_seconds=0.05))) as client,
+            TestClient(quota_app(live_settings(demo_max_runtime_seconds=0.05))) as client,
             client.stream("POST", "/api/research", json={"query": "a real question"}) as r,
         ):
             body = "".join(r.iter_text())

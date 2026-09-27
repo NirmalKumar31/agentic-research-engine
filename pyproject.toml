@@ -69,6 +69,12 @@ web = [
     # The hosted web service runs NLI_MODE=remote, so it needs the
     # tokenizer for the same reason nli-remote does.
     "tokenizers>=0.20,<1",
+    # The durable daily quota. Not optional for a live deployment: the
+    # in-memory counter bounds a process, and a Render instance that
+    # sleeps when idle starts each morning with a fresh one. Present in
+    # the image so the store is reachable, and DEMO_QUOTA_REQUIRED
+    # decides whether its absence refuses runs.
+    "redis>=5,<7",
 ]
 dev = [
     "pytest>=9.1,<10",

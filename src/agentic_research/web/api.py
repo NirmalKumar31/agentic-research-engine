@@ -12,10 +12,11 @@ survives proxies and free-tier hosting without special configuration.
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import json
 import os
 import time
-from collections.abc import AsyncGenerator, AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator, Callable
 from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,6 +32,11 @@ from agentic_research.config import Settings, get_settings
 from agentic_research.llm.base import ProviderRateLimited
 from agentic_research.observability import configure_logging, get_logger
 from agentic_research.runner import new_run_id, stream_research
+from agentic_research.web.durable_quota import (
+    AtomicCounter,
+    DurableRunQuota,
+    build_counter,
+)
 from agentic_research.web.limits import (
     CapacityError,
     DemoLimits,
@@ -117,27 +123,91 @@ class AppState:
     limits: DemoLimits
     limiter: RateLimiter
     demo_mode: bool
+    # Built during startup, because connecting to the store is I/O and
+    # because a module imported at build time should not open sockets.
+    # None until then, which reads as "not ready" rather than "no limit".
+    quota: DurableRunQuota | None = None
+
+    def live_research_available(self) -> bool:
+        """Whether a live run could actually be admitted right now.
+
+        Distinct from ``live_research_enabled``, which is a statement of
+        intent. A deployment configured for live research whose quota
+        store is unreachable is enabled and unavailable at once, and
+        reporting only the intent is how a deploy looks healthy while
+        refusing every run.
+        """
+        if not self.settings.live_research_enabled:
+            return False
+        if self.quota is None:
+            return False
+        return self.quota.usable()
 
 
-def _client_key(request: Request) -> str:
+def _peer(request: Request) -> str:
+    return request.client.host if request.client else "unknown"
+
+
+def _client_key(request: Request, trusted_hops: int) -> str:
     """Identify the caller for rate limiting.
 
-    Behind Render's proxy the peer address is the proxy, so the first entry
-    of X-Forwarded-For is used when present. It is spoofable by a determined
-    caller; the global daily cap and the per-run spend ceiling are the
-    limits that actually bound cost, and this one bounds accidents.
+    X-Forwarded-For is *appended to* by each proxy it passes through, so
+    the leftmost entry is whatever the caller chose to send and the
+    rightmost entries were added by infrastructure closer to us. Reading
+    the first entry therefore lets a caller name itself: sending
+    ``X-Forwarded-For: 1.2.3.4`` bought a fresh per-client allowance on
+    every request, and the header cost nothing to change.
+
+    With ``trusted_hops`` proxies in front of this service, the last
+    ``trusted_hops`` entries are the ones those proxies contributed, and
+    the caller's real address is the one immediately before them --
+    index ``len(parts) - trusted_hops``. For Render's single proxy that
+    is the last entry, which a spoofed prefix cannot displace.
+
+    Anything unexpected falls back to the socket peer: zero configured
+    hops (trust nothing), fewer entries than hops (the header did not
+    come through the expected path), or a value that is not an IP
+    address. The peer address is the one thing a caller cannot forge.
+
+    This bounds accidents and casual abuse. It is not the financial
+    boundary -- the durable global quota is.
     """
+    if trusted_hops <= 0:
+        return _peer(request)
+
     forwarded = request.headers.get("x-forwarded-for", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    parts = [p.strip() for p in forwarded.split(",") if p.strip()]
+    if len(parts) < trusted_hops:
+        return _peer(request)
+
+    candidate = parts[len(parts) - trusted_hops]
+    try:
+        # Parsed, not merely trimmed: a hostname, a port suffix or junk
+        # is refused, and so is 192.000.002.044, because leading zeros
+        # are octal to some stacks and decimal to others. Returned in
+        # normalised form so one client cannot hold two allowances by
+        # varying the spelling of its own address.
+        return str(ipaddress.ip_address(candidate))
+    except ValueError:
+        return _peer(request)
 
 
 def _sse(event: str, payload: dict[str, Any]) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, default=str)}\n\n"
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    *,
+    counter_factory: Callable[[str | None], AtomicCounter | None] = build_counter,
+) -> FastAPI:
+    """Build the application.
+
+    ``counter_factory`` is injectable so tests can give two app
+    instances one shared store and assert that the cap is genuinely
+    shared. Testing the quota object directly would prove only that the
+    class works, not that the route calls it.
+    """
     resolved = settings or get_settings()
     configure_logging(resolved.log_level, resolved.log_format)
     limits = limits_from_settings(resolved)
@@ -150,11 +220,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        # Connecting here rather than at import: this opens a socket, and
+        # a failure has to be visible as "not ready" rather than as an
+        # import error with no HTTP surface to report it on.
+        counter = await asyncio.to_thread(counter_factory, resolved.demo_quota_url)
+        state.quota = DurableRunQuota(
+            counter,
+            limits.global_runs_per_day,
+            required=resolved.demo_quota_required,
+        )
         log.info(
             "web_started",
             demo_mode=state.demo_mode,
             mode=resolved.llm_mode.value,
             frontend_present=_FRONTEND_DIST.is_dir(),
+            durable_quota=counter is not None,
+            live_research_available=state.live_research_available(),
         )
         yield
 
@@ -203,6 +284,46 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "demo_mode": state.demo_mode,
             "capacity": await state.limiter.snapshot(),
         }
+
+    @api.get("/readiness")
+    async def readiness() -> JSONResponse:
+        """What this instance can actually do, not merely that it is up.
+
+        Liveness passes on a deployment that refuses every run, which is
+        why it is the wrong signal for acceptance. These four facts come
+        apart in practice and each has a different remedy:
+
+        ``replay_available``
+            Recordings are present. Replay costs nothing and must keep
+            working even when live research cannot.
+        ``live_research_enabled``
+            What the configuration asks for.
+        ``durable_quota_available``
+            Whether the shared counter can be reached. Without it a live
+            deployment has no cap that survives a restart.
+        ``live_research_available``
+            Whether a run could actually be admitted. A deployment can
+            be enabled and unavailable at the same time.
+
+        503 when the instance cannot do what it is configured to do, so
+        a deploy check fails rather than reporting a healthy service
+        that turns every visitor away.
+        """
+        quota = state.quota
+        replay_available = bool(available_recordings())
+        enabled = state.settings.live_research_enabled
+        live_available = state.live_research_available()
+        body: dict[str, Any] = {
+            "alive": True,
+            "replay_available": replay_available,
+            "live_research_enabled": enabled,
+            "live_research_available": live_available,
+            "durable_quota_available": quota is not None and quota.usable(),
+            "quota_initialised": quota is not None,
+        }
+        ready = replay_available and (live_available or not enabled)
+        body["ready"] = ready
+        return JSONResponse(body, status_code=200 if ready else 503)
 
     @api.get("/config")
     async def config() -> dict[str, Any]:
@@ -299,7 +420,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except ValueError as exc:
             return JSONResponse({"error": str(exc)}, status_code=400)
 
-        client = _client_key(request)
+        client = _client_key(request, state.settings.trusted_proxy_hops)
         try:
             await state.limiter.acquire(client)
         except CapacityError as exc:
@@ -310,6 +431,48 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 {"error": exc.reason, "capacity_reached": True},
                 status_code=429,
                 headers=headers,
+            )
+
+        # The financial boundary, and the only counter that outlives this
+        # process. Taken after the in-memory limiter so concurrency is
+        # already bounded, and before the router, the search provider and
+        # the verifier -- every one of which costs money.
+        #
+        # A refused reservation must hand back the concurrency slot it
+        # just took. The streaming path releases it on exit, and this
+        # path never reaches the streaming path.
+        quota = state.quota
+        if quota is None:
+            await state.limiter.release()
+            return JSONResponse(
+                {
+                    "error": "The service is still starting. Try again shortly.",
+                    "error_code": "not_ready",
+                },
+                status_code=503,
+            )
+        decision = await asyncio.to_thread(quota.reserve)
+        if not decision.allowed:
+            await state.limiter.release()
+            log.info(
+                "live_run_refused",
+                reason=decision.detail,
+                used=decision.used,
+                limit=decision.limit,
+            )
+            return JSONResponse(
+                {
+                    # decision.detail names the mechanism, not the store,
+                    # the URL or any credential.
+                    "error": (
+                        "The demo has reached its daily budget. It resets within 24 hours."
+                        if decision.used >= decision.limit > 0
+                        else "Live research is unavailable right now."
+                    ),
+                    "capacity_reached": True,
+                },
+                status_code=429,
+                headers={"Retry-After": "3600"},
             )
 
         run_settings = state.settings

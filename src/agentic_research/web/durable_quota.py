@@ -63,6 +63,18 @@ class DurableRunQuota:
         day = (now or datetime.now(UTC)).strftime("%Y-%m-%d")
         return f"{_KEY_PREFIX}:{day}"
 
+    def usable(self) -> bool:
+        """Whether a reservation could succeed, without making one.
+
+        Readiness needs to answer "could a live run start?" and must not
+        answer it by consuming a run from the day's allowance.
+        """
+        if self._limit <= 0:
+            return False
+        if self._counter is None:
+            return not self._required
+        return True
+
     def reserve(self) -> QuotaDecision:
         """Claim one run, atomically, before any provider is called.
 
@@ -82,7 +94,12 @@ class DurableRunQuota:
 
         key = self.key()
         try:
-            used = self._counter.incr(key)
+            # int() inside the try on purpose. A store that answers with
+            # something other than a number is as broken as one that
+            # cannot be reached, and comparing it outside would raise
+            # TypeError straight out of the reservation -- past every
+            # fail-closed branch below and into the request handler.
+            used = int(self._counter.incr(key))
             if used == 1:
                 self._counter.expire(key, _TTL_SECONDS)
         except Exception as exc:

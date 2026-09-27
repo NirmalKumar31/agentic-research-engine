@@ -340,3 +340,51 @@ class FakeFetcher:
         return FetchResult(
             url=url, final_url=url, status=FetchStatus.OK, text=f"{self.text} Source marker: {url}."
         )
+
+
+class FakeQuotaStore:
+    """An in-process stand-in for the shared quota counter.
+
+    Deliberately shares one plain dict between every counter handed out
+    by :meth:`factory`, because that is the property under test: two app
+    instances pointed at one store must enforce one cap between them,
+    not one each.
+
+    ``incr`` returns the post-increment value, matching Redis INCR --
+    the whole reason the production code increments before comparing is
+    that reading then writing lets two replicas both claim the last
+    free slot.
+    """
+
+    def __init__(self) -> None:
+        self.counts: dict[str, int] = {}
+        self.expiries: dict[str, int] = {}
+        self.incr_calls = 0
+
+    def incr(self, key: str) -> int:
+        self.incr_calls += 1
+        self.counts[key] = self.counts.get(key, 0) + 1
+        return self.counts[key]
+
+    def expire(self, key: str, seconds: int) -> None:
+        self.expiries[key] = seconds
+
+    def factory(self, _url: str | None = None) -> FakeQuotaStore:
+        """Usable as ``counter_factory``; always the same store."""
+        return self
+
+
+class BrokenQuotaStore:
+    """A store that is reachable and then fails, like a timeout would."""
+
+    def __init__(self, exc: Exception | None = None) -> None:
+        self.exc = exc or TimeoutError("quota store timed out")
+
+    def incr(self, key: str) -> int:
+        raise self.exc
+
+    def expire(self, key: str, seconds: int) -> None:
+        raise self.exc
+
+    def factory(self, _url: str | None = None) -> BrokenQuotaStore:
+        return self
