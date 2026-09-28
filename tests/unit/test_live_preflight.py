@@ -189,7 +189,7 @@ class TestEveryCeilingIsServerEnforced:
     def test_paid_dimensions(self, clamped: Settings) -> None:
         assert clamped.max_provider_requests == 30
         assert clamped.max_cloud_calls == 20
-        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_input_tokens == 240_000
         assert clamped.max_cloud_output_tokens == 20_000
         assert clamped.max_cloud_cost_usd == 0.05
         assert clamped.max_search_credits == 8.0

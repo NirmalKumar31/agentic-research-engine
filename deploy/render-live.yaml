@@ -144,8 +144,14 @@ services:
         value: "0.05"
       - key: MAX_CLOUD_CALLS
         value: "20"
+      # Denominated in the byte bound the reservation now uses, which
+      # over-reserves 2x to 6x. 120000 was sized when the reservation
+      # estimated real tokens, so the change of denominator made it
+      # about six times tighter: at the worst measured prose ratio a
+      # public run reserves roughly 110,600 of it. Raised for headroom,
+      # not to widen spending -- MAX_CLOUD_COST_USD is unchanged.
       - key: MAX_CLOUD_INPUT_TOKENS
-        value: "120000"
+        value: "240000"
       - key: MAX_CLOUD_OUTPUT_TOKENS
         value: "20000"
       - key: MAX_SEARCH_CREDITS

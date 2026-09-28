@@ -77,7 +77,10 @@ class TestTheLiveBlueprint:
     def test_per_run_ceilings_match_the_agreed_values(self, env: dict[str, str]) -> None:
         assert env["MAX_CLOUD_CALLS"] == "20"
         assert env["MAX_CLOUD_COST_USD"] == "0.05"
-        assert env["MAX_CLOUD_INPUT_TOKENS"] == "120000"
+        # Denominated in the byte bound, which over-reserves 2x to 6x.
+        # The dollar ceiling above is what actually limits spending and
+        # is unchanged.
+        assert env["MAX_CLOUD_INPUT_TOKENS"] == "240000"
         assert env["MAX_CLOUD_OUTPUT_TOKENS"] == "20000"
         assert env["MAX_SEARCH_CREDITS"] == "8"
         assert env["MAX_PROVIDER_REQUESTS"] == "30"
@@ -486,7 +489,7 @@ class TestEveryPaidDimensionIsClamped:
         clamped = apply_demo_limits(settings, limits)
 
         assert clamped.max_cloud_calls == 20
-        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_input_tokens == 240_000
         assert clamped.max_cloud_output_tokens == 20_000
         assert clamped.max_cloud_cost_usd == 0.05
         assert clamped.max_search_credits == 8.0
@@ -580,7 +583,7 @@ class TestEveryPaidDimensionIsClamped:
         clamped = apply_demo_limits(settings, limits_from_settings(settings))
 
         assert clamped.max_cloud_calls == 20
-        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_input_tokens == 240_000
         assert clamped.max_cloud_output_tokens == 20_000
         assert clamped.max_cloud_cost_usd == 0.05
         assert clamped.max_search_credits == 8.0

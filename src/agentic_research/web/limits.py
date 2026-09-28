@@ -54,7 +54,24 @@ class DemoLimits:
     # only by dollars can still exhaust a request or token quota, and the
     # engine refuses a run whose reservation exceeds any single ceiling.
     max_cloud_calls: int = 20
-    max_cloud_input_tokens: int = 120_000
+    max_cloud_input_tokens: int = 240_000
+    """Denominated in the byte bound, not in real tokens.
+
+    The reservation is an upper bound now (llm/token_bound.py), and it
+    over-reserves by 2x to 6x depending on content. The old 120,000 was
+    chosen when the reservation was an estimate of real tokens, so the
+    change of denominator quietly made it about six times tighter.
+
+    Sized from the recorded run: 40,222 real input tokens across 2
+    rounds and 12 sources, so roughly 20,100 for a public run at half
+    that budget. At the worst measured prose ratio of 5.5 bytes/token
+    the bound reserves about 110,600 -- 92% of the old ceiling, which
+    would have refused a public run only slightly larger than the
+    extrapolation. 240,000 restores roughly 2x headroom.
+
+    The dollar reservation is deliberately unchanged. This
+    re-denominates a token allowance; it does not widen what a run may
+    spend."""
     max_cloud_output_tokens: int = 20_000
     max_provider_requests: int = 30
     """HTTP requests to the *model* provider in one run.

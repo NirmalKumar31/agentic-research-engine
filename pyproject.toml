@@ -77,6 +77,13 @@ web = [
     "redis>=5,<7",
 ]
 dev = [
+    # Not a runtime dependency and deliberately not one: no encoding is
+    # published for this project's configured models, so the engine
+    # cannot use it to count. It is here so the tests can demonstrate,
+    # against a real byte-level BPE, that the byte bound is never below
+    # a true token count. Without it those tests skip and the one
+    # property that matters goes unverified in CI.
+    "tiktoken>=0.9,<1",
     "pytest>=9.1,<10",
     "pytest-asyncio>=1.4,<2",
     "pytest-cov>=7,<8",

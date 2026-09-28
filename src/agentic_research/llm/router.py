@@ -36,6 +36,7 @@ from agentic_research.llm.base import (
     StructuredOutputError,
     UsageTracker,
 )
+from agentic_research.llm.token_bound import conservative_input_tokens
 from agentic_research.observability import get_logger
 
 log = get_logger(__name__)
@@ -237,25 +238,23 @@ class RoleModel:
             attempts += 1
             kind = first_kind if attempts == 1 else AttemptKind.STRUCTURED_REPAIR
 
-            # Token estimate for the pre-dispatch spend check, at roughly
-            # four characters per token.
+            # An upper bound on the input, not an estimate of it. See
+            # llm/token_bound.py for why it is bytes: no exact tokeniser
+            # exists for this project's configured models -- tiktoken
+            # raises KeyError for them -- and the previous
+            # one-token-per-four-characters rule was not a bound at all.
+            # It under-counted CJK, emoji, punctuation, code and JSON
+            # schemas, which is most of what this engine sends, so the
+            # dollar reservation came out below the charge.
             #
-            # This is not a conservative bound and must not be described
-            # as one. Four characters per token holds for ordinary
-            # English prose and fails in the direction that matters:
-            # CJK, emoji, dense punctuation, minified code and JSON
-            # schemas all run well above a quarter token per character,
-            # so the estimate lands *under* the true count and the
-            # reservation is smaller than the real cost. Exact counting
-            # needs the provider's own tokeniser for the exact model.
+            # The schema is included because it is sent. Summing message
+            # content alone under-reserved every structured request by
+            # the whole schema.
             #
-            # What keeps the reservation above actual in practice is the
-            # output-cap padding (see _release_unused_output), and what
-            # bounds real money is the provider-side account limit.
-            # Re-estimated each attempt because a repair carries the failed
+            # Recomputed each attempt: a repair carries the failed
             # response and the correction back into the prompt, so the
-            # second request is genuinely larger than the first.
-            estimated_input = sum(len(str(getattr(m, "content", m))) for m in messages) // 4
+            # second request really is larger than the first.
+            estimated_input = conservative_input_tokens(messages, schema)
 
             # The hard gate. Every provider request passes through here
             # immediately before it is emitted, and reserves its own
