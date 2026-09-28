@@ -84,8 +84,16 @@ def _never_really_research(monkeypatch: pytest.MonkeyPatch) -> list[str]:
     return started
 
 
-def post(client: TestClient) -> Any:
-    return client.post("/api/research", json=QUESTION)
+def post(client: TestClient, ip: str | None = None) -> Any:
+    """One request, optionally as a distinct visitor.
+
+    The per-client hourly cap is clamped to the demo maximum, so a
+    single caller cannot exhaust a five-run daily allowance however it
+    is configured. Five shared runs means five visitors, which is what
+    the shared counter exists to bound.
+    """
+    headers = {"X-Forwarded-For": ip} if ip else {}
+    return client.post("/api/research", json=QUESTION, headers=headers)
 
 
 class TestTheRouteReservesQuota:
@@ -256,6 +264,8 @@ class TestReadinessDistinguishesStates:
             body = client.get("/api/readiness").json()
         assert body["ready"] is True
         assert body["live_research_available"] is True
+        assert body["shared_quota_available"] is True
+        # Compatibility alias, retained for one release.
         assert body["durable_quota_available"] is True
 
     def test_not_ready_when_configured_for_live_but_the_store_is_gone(self) -> None:
@@ -270,6 +280,7 @@ class TestReadinessDistinguishesStates:
         assert body["replay_available"] is True
         assert body["live_research_enabled"] is True
         assert body["live_research_available"] is False
+        assert body["shared_quota_available"] is False
         assert body["durable_quota_available"] is False
 
     def test_replay_only_is_ready(self) -> None:
@@ -309,6 +320,7 @@ class TestReadinessTracksTheStoreAtRuntime:
         body = response.json()
         assert body["alive"] is True
         assert body["live_research_available"] is False
+        assert body["shared_quota_available"] is False
         assert body["durable_quota_available"] is False
 
     def test_readiness_recovers_when_the_store_returns(self) -> None:
@@ -408,3 +420,141 @@ class TestTheDailyAllowanceMatchesTheQuota:
             live_settings(demo_provider_requests_per_day=per_day, max_provider_requests=requests)
         )
         assert limits.global_runs_per_day == expected
+
+
+class TestTheFiveRunAllowance:
+    """The deployed shape: 150 requests a day, 30 per run, five runs."""
+
+    DEPLOYED = {"demo_provider_requests_per_day": 150, "max_provider_requests": 30}
+
+    def settings(self, **over: Any) -> Settings:
+        # trusted_proxy_hops=1 so each forwarded address is a separate
+        # visitor, which is the only way five runs fit under a
+        # per-client hourly cap the demo clamps.
+        return live_settings(**{**self.DEPLOYED, "trusted_proxy_hops": 1, **over})
+
+    @staticmethod
+    def visitor(n: int) -> str:
+        return f"203.0.113.{n}"
+
+    def test_five_are_admitted_and_the_sixth_is_not(
+        self, _never_really_research: list[str]
+    ) -> None:
+        store = FakeQuotaStore()
+        settings = self.settings()
+        assert daily_cap(settings) == 5
+        with TestClient(create_app(settings, counter_factory=store.factory)) as client:
+            for i in range(5):
+                response = post(client, self.visitor(i + 1))
+                assert response.status_code == 200, f"run {i + 1} refused: {response.json()}"
+            assert post(client, self.visitor(6)).status_code == 429
+        assert len(_never_really_research) == 5
+
+    def test_the_sixth_never_reaches_a_provider(self, _never_really_research: list[str]) -> None:
+        store = FakeQuotaStore()
+        settings = self.settings()
+        with TestClient(create_app(settings, counter_factory=store.factory)) as client:
+            for i in range(5):
+                post(client, self.visitor(i + 1))
+            _never_really_research.clear()
+            post(client, self.visitor(6))
+        assert _never_really_research == []
+
+    def test_the_allowance_never_exceeds_the_budget(self) -> None:
+        from agentic_research.web.limits import limits_from_settings
+
+        limits = limits_from_settings(self.settings())
+        assert limits.global_runs_per_day * limits.max_provider_requests <= 150
+
+
+class TestARefusedRunCostsTheClientNothing:
+    def test_the_hourly_allowance_is_returned(self) -> None:
+        """The per-client gate is checked before the shared quota, so a
+        refusal that kept the stamp would charge a caller for a run they
+        never got. Two per hour means two chances to be charged wrongly
+        before being locked out for an hour."""
+        store = FakeQuotaStore()
+        # One shared run, two per client per hour.
+        settings = live_settings(
+            demo_provider_requests_per_day=30,
+            max_provider_requests=30,
+            demo_runs_per_hour=2,
+        )
+        assert daily_cap(settings) == 1
+        with TestClient(create_app(settings, counter_factory=store.factory)) as client:
+            assert post(client).status_code == 200  # spends the only shared run
+            first_refusal = post(client)
+            second_refusal = post(client)
+            third_refusal = post(client)
+
+        # Every refusal must be the daily cap, never "you used your two
+        # runs this hour" -- which is what a leaked stamp would produce.
+        for response in (first_refusal, second_refusal, third_refusal):
+            assert response.status_code == 429
+            assert "daily budget" in response.json()["error"]
+
+
+class TestTheProcessLocalCountIsNotPublished:
+    def test_health_does_not_report_a_runs_today_number(self) -> None:
+        """It was the process-local rolling-24h count, published where it
+        read as the shared one. They disagree after a web restart, which
+        empties this one, and at UTC midnight, which resets the other."""
+        store = FakeQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            capacity = client.get("/api/health").json()["capacity"]
+        assert "runs_today" not in capacity
+        assert "active_runs" in capacity
+        assert "global_runs_per_day" in capacity
+
+    def test_the_limiter_keeps_no_global_day_window(self) -> None:
+        from agentic_research.web.limits import DemoLimits, RateLimiter
+
+        limiter = RateLimiter(DemoLimits())
+        assert not hasattr(limiter, "_global"), (
+            "a second daily counter is back; there is no version of two authorities that beats one"
+        )
+
+
+class TestTheSharedKeyIsPerUtcDay:
+    def test_the_key_changes_at_the_utc_date_boundary(self) -> None:
+        from datetime import UTC, datetime
+
+        from agentic_research.web.durable_quota import DurableRunQuota
+
+        before = DurableRunQuota.key(datetime(2026, 9, 27, 23, 59, 59, tzinfo=UTC))
+        after = DurableRunQuota.key(datetime(2026, 9, 28, 0, 0, 1, tzinfo=UTC))
+        assert before != after
+        assert before.endswith("2026-09-27")
+        assert after.endswith("2026-09-28")
+
+    def test_a_new_day_starts_the_allowance_again(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """The cap is per UTC day, not a rolling window.
+
+        Driven through reserve() with the clock moved, rather than by
+        comparing key strings: what matters is that a caller refused at
+        23:59 is admitted at 00:01.
+        """
+        from datetime import UTC, datetime
+
+        from agentic_research.web import durable_quota as module
+        from agentic_research.web.durable_quota import DurableRunQuota
+
+        now = [datetime(2026, 9, 27, 23, 59, tzinfo=UTC)]
+
+        class FrozenClock:
+            @staticmethod
+            def now(tz: Any = None) -> datetime:
+                return now[0]
+
+        monkeypatch.setattr(module, "datetime", FrozenClock)
+
+        store = FakeQuotaStore()
+        quota = DurableRunQuota(store, limit=1, required=True)
+
+        assert quota.reserve().allowed is True, "the day's single run"
+        assert quota.reserve().allowed is False, "second run on the same day"
+
+        now[0] = datetime(2026, 9, 28, 0, 1, tzinfo=UTC)
+        assert quota.reserve().allowed is True, "a new UTC day is a new allowance"
+
+        assert len(store.counts) == 2, "the two days used one key each"

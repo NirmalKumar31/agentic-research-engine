@@ -17,7 +17,7 @@ from rich.table import Table
 from agentic_research.config import LLMMode, Settings, get_settings
 from agentic_research.environment import capture as capture_environment
 from agentic_research.llm.base import ModelUnavailableError
-from agentic_research.observability import configure_logging
+from agentic_research.observability import configure_logging, register_secret_values
 from agentic_research.runner import RunResult, new_run_id, stream_research
 from agentic_research.search.service import SearchProviderNotConfigured
 
@@ -90,6 +90,14 @@ def research(
         _fail(str(exc), "Check your .env against .env.example.")
         return
 
+    register_secret_values(
+        settings.openai_api_key,
+        settings.tavily_api_key,
+        settings.brave_api_key,
+        settings.nli_api_key,
+        settings.demo_quota_url,
+        settings.nli_endpoint,
+    )
     configure_logging(
         "WARNING" if quiet else ("DEBUG" if verbose else settings.log_level),
         settings.log_format,

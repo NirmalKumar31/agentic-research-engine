@@ -152,10 +152,19 @@ services:
         value: "8"
       - key: MAX_PROVIDER_REQUESTS
         value: "30"
-      # Conservative view of the provider account quota the per-day run
-      # cap is derived from. Raise only alongside the provider plan.
+      # The operator-configured daily provider-request budget. This is
+      # a number the operator chooses, not a quota read from OpenAI:
+      # nothing here queries the account, and OpenAI publishes no
+      # per-day request allowance this could be derived from. Naming it
+      # after the provider made it sound discovered.
+      #
+      # 150 with MAX_PROVIDER_REQUESTS=30 admits five runs a day
+      # (150 // 30). At the per-run estimated ceiling of $0.05 that is
+      # $0.25/day worst case, so a $5 project cap covers about 20
+      # worst-case days -- not a month. Tavily credits and Hugging Face
+      # endpoint uptime are billed separately and bounded separately.
       - key: DEMO_PROVIDER_REQUESTS_PER_DAY
-        value: "50"
+        value: "150"
 
       # --- run shape ---
       - key: MAX_RESEARCH_ROUNDS

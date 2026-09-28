@@ -1,10 +1,11 @@
 """Recorded research runs, served without touching a provider.
 
 The public site shows real executions rather than running new ones. That is
-a deliberate deployment decision, not a limitation of the engine: the demo's
-daily run cap lives in process memory, and a free host that spins down when
-idle resets it on every cold start, so it cannot bound an account-level
-quota. Replaying a recording bounds it at zero.
+a deliberate deployment decision, not a limitation of the engine: a
+recording costs nothing to serve, needs no credential, and cannot fail
+because a provider is down. Live research is available alongside it,
+bounded by a shared daily counter; replay bounds spending at zero and stays
+available when live research does not.
 
 What is recorded is the *derived* artifact the API already returns -- report,
 claims, evidence with its quotes, sources with their metadata, verification

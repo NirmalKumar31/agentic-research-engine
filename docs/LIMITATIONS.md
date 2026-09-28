@@ -358,11 +358,27 @@ instead. This is a weaker arrangement than the project's own scoring
 service provides, and it is chosen because the managed handler offers
 nothing stronger.
 
-**No hosted acceptance run has happened.** Everything above was run
-from the CLI against local budgets. Nothing has been deployed, so
-there is no evidence about the HTTP/SSE path, client disconnect,
-application timeout, or behaviour under the public deployment's
-limits — which are roughly half the local ones.
+**Hosted acceptance has happened, once, and proves deployment rather
+than research quality.** On 2026-09-28 the live service at commit
+`7e565492` served one anonymous run through the deployed HTTP/SSE path
+under the public limits (1 round, 6 sources):
+
+- verifier cold start from `scaledToZero`: **~57s**;
+- complete run: **142s** against the 240s wall-clock ceiling;
+- the shared daily cap refused the next request, and refused it again
+  for three forged `X-Forwarded-For` values;
+- replay kept working with the allowance spent;
+- no credential appeared in any response body.
+
+What that run does **not** establish: the final payload, exact provider
+usage and exact charge were not captured — the capture truncated the
+result event — and the public run checked only 2 claims and produced 0
+key findings. It is evidence that the deployment behaves correctly, not
+that the engine answers questions well. Those are separate claims and
+only the first is supported.
+
+Client disconnect and application-timeout cleanup have unit coverage
+but no hosted measurement.
 
 **Live research costs money at three independent providers.** OpenAI
 tokens, Tavily search credits and Hugging Face endpoint compute are

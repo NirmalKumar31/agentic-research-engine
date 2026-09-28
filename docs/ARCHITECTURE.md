@@ -85,19 +85,24 @@ server-side setting.
 |---|---|---|
 | `LIVE_RESEARCH_ENABLED` | `false` | `true` |
 | `/api/research` | 403 before any work | runs, under demo ceilings |
-| Credentials needed | none | OpenAI + Tavily |
+| Credentials needed | none | OpenAI + Tavily + Hugging Face (verifier) + a shared quota store |
 | What the UI offers | recorded runs | recorded runs plus a composer |
 | `/api/config` reports | `service_mode: replay` | `service_mode: live` |
 
 Replay serves recorded runs from JSON committed inside the package, so the
-public site needs no provider, no key and no network egress. That is not a
-presentation choice. The demo's daily run cap lives in process memory, and
-a free host that spins down when idle resets it on every cold start — so it
-cannot bound an account-level quota. Per-run request and spend ceilings are
-unaffected and still enforced before dispatch; the *daily* one does not
-survive a restart.
+public site needs no provider, no key and no network egress. It stays the
+default because it costs nothing and cannot fail on a provider outage.
 
-The alternative was a persistent atomic quota store whose only purpose
+The daily admission count is no longer process-local. It lives in a shared
+atomic counter (Render Key Value), so it is one count across web replicas
+and it survives a web cold start. On the free plan that store has no
+persistence of its own, so a restart *of the store* returns the day's
+allowance — which is why the provider account's spend limit, not this
+counter, is the financial backstop. Concurrency and per-client rate remain
+process-local and bound accidents rather than money.
+
+Superseded note, kept because the reasoning still explains the shape: the
+alternative considered at the time was a persistent atomic quota store whose only purpose
 would be letting anonymous visitors spend the API budget. At this scale
 that is infrastructure bought for nothing.
 

@@ -266,3 +266,21 @@ class TestTheReadmeMatchesTheBlueprint:
     def test_the_quota_url_is_not_among_the_prompted_values(self) -> None:
         """Wired from the store, so a person never handles it."""
         assert "DEMO_QUOTA_URL" not in self._prompted()
+
+
+class TestTheVersionMatchesTheRelease:
+    """v0.2.0 was the accepted replay release. A live service reporting
+    0.2.0 is claiming to be that build."""
+
+    def test_package_and_module_versions_agree(self) -> None:
+        import tomllib
+
+        from agentic_research import __version__
+
+        declared = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+        assert declared == __version__
+
+    def test_the_live_release_is_not_the_replay_release(self) -> None:
+        from agentic_research import __version__
+
+        assert __version__ != "0.2.0", "live research shipped under the replay release's version"

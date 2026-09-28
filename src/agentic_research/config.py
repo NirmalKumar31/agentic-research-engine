@@ -366,11 +366,12 @@ class Settings(BaseSettings):
         default=False,
         description=(
             "Whether an anonymous HTTP request may start a paid research run. "
-            "Off by default, and deliberately so: the daily run cap lives in "
-            "process memory, and a host that spins down when idle resets it on "
-            "every cold start, so it cannot bound an account-level quota. The "
-            "per-run request and spend ceilings remain real; the daily one does "
-            "not survive a restart. The public site serves recorded runs "
+            "Off by default: turning it on requires provider credentials, a "
+            "pinned remote verifier and a reachable shared quota store, and a "
+            "deployment missing any of them is refused at startup rather than "
+            "booting half-configured. When on, the daily admission count is "
+            "held in that shared store, so it is one count across replicas and "
+            "survives a web cold start. The public site serves recorded runs "
             "instead, and the CLI is unaffected."
         ),
     )

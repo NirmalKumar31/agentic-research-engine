@@ -73,7 +73,15 @@ def instrumented(monkeypatch: pytest.MonkeyPatch) -> CountingRouter:
 
 
 def settings() -> Settings:
-    return Settings(llm_mode=LLMMode.LOCAL, persist_runs=False, checkpoint_backend="none")
+    return Settings(
+        llm_mode=LLMMode.LOCAL,
+        persist_runs=False,
+        checkpoint_backend="none",
+        # A developer running the live endpoint has NLI_MODE=remote in
+        # .env; without this the probe tests would exercise their
+        # configuration instead of the one written here.
+        _env_file=None,
+    )
 
 
 async def drive(s: Settings) -> list[dict]:
@@ -161,7 +169,7 @@ class TestTheProbeItself:
     """What the probe accepts and rejects, without a real model."""
 
     def _settings(self) -> Settings:
-        return Settings(llm_mode=LLMMode.LOCAL)
+        return Settings(llm_mode=LLMMode.LOCAL, _env_file=None)
 
     def test_an_unavailable_verifier_is_not_ready(self, monkeypatch: pytest.MonkeyPatch) -> None:
         from agentic_research.citations import nli_preflight

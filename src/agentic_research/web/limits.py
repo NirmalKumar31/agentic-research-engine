@@ -215,18 +215,26 @@ class _Window:
 
 
 class RateLimiter:
-    """Per-client and global run limits, held in memory.
+    """Concurrency and per-client rate, held in memory.
 
-    In-memory is the right scope for a single free-tier instance, and is
-    stated as a limitation rather than dressed up: behind multiple replicas
-    these counters would diverge and the real ceiling would be the cloud
-    spend budget, which is enforced per run in the engine itself.
+    Deliberately *not* the daily admission count. That lives in the
+    shared Key Value counter, and keeping a second one here was a
+    latent inconsistency rather than a safety net: this one is a rolling
+    24-hour window, the shared one is keyed by UTC day, and the two
+    disagree in both directions. A web restart empties this one while
+    the shared count stands; UTC midnight resets the shared one while
+    this one still holds the last 24 hours. Whichever number was
+    reported was wrong half the time, and there is no version of "two
+    authorities" that is better than one.
+
+    What is left here is genuinely process-scoped and belongs that way:
+    how many runs are in flight on this instance, and how often one
+    caller may start them. Both bound accidents, not money.
     """
 
     def __init__(self, limits: DemoLimits) -> None:
         self._limits = limits
         self._per_client: dict[str, _Window] = {}
-        self._global = _Window()
         self._active = 0
         self._lock = asyncio.Lock()
 
@@ -250,13 +258,6 @@ class RateLimiter:
                     retry_after_seconds=None,
                 )
 
-            self._global.prune(86_400, now)
-            if len(self._global.stamps) >= self._limits.global_runs_per_day:
-                raise CapacityError(
-                    "The demo has reached its daily budget. It resets within 24 hours.",
-                    retry_after_seconds=3_600,
-                )
-
             window = self._per_client.setdefault(client_key, _Window())
             window.prune(3_600, now)
             if len(window.stamps) >= self._limits.runs_per_ip_per_hour:
@@ -269,21 +270,38 @@ class RateLimiter:
                 )
 
             window.stamps.append(now)
-            self._global.stamps.append(now)
             self._active += 1
 
-    async def release(self) -> None:
+    async def release(self, client_key: str | None = None) -> None:
+        """Give back what an admission took.
+
+        ``client_key`` is passed when the admission was subsequently
+        refused -- by the shared daily quota, which is checked after
+        this one. Releasing only the concurrency slot would leave the
+        caller charged an hourly allowance for a run that never
+        happened, so a refused request costs them nothing.
+        """
         async with self._lock:
             self._active = max(0, self._active - 1)
+            if client_key is None:
+                return
+            window = self._per_client.get(client_key)
+            if window and window.stamps:
+                window.stamps.pop()
 
     async def snapshot(self) -> dict[str, int]:
-        now = time.monotonic()
+        """What this process knows. Deliberately excludes the day count.
+
+        ``runs_today`` used to be reported here from the process-local
+        window and published through /api/health, where it read as the
+        shared count and was not. It is gone rather than renamed: a
+        truthful shared figure needs a non-mutating read of the Key
+        Value counter, and an approximate one is worse than none.
+        """
         async with self._lock:
-            self._global.prune(86_400, now)
             return {
                 "active_runs": self._active,
                 "max_concurrent_runs": self._limits.max_concurrent_runs,
-                "runs_today": len(self._global.stamps),
                 "global_runs_per_day": self._limits.global_runs_per_day,
             }
 
