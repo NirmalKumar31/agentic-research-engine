@@ -184,6 +184,16 @@ class ClaimOut(BaseModel):
             "brackets in this text; list the evidence ids in evidence_ids."
         )
     )
+    answer_slot: str = Field(
+        default="",
+        description=(
+            "Which part of the question this claim answers. Copy one name "
+            "exactly from the list of required answer slots given above. A "
+            "claim that answers none of them should not be written: it may "
+            "be true, well sourced, and still not an answer to what was "
+            "asked."
+        ),
+    )
     evidence_ids: list[str] = Field(
         default_factory=list,
         max_length=MAX_EVIDENCE_PER_CLAIM,

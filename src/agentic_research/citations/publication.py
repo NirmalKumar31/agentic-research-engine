@@ -31,7 +31,8 @@ from typing import Literal
 
 from agentic_research.models import Claim, ClaimKind, Contradiction, ResearchReport
 
-ClaimVerdict = Literal["supported", "partially_supported", "unsupported"]
+ClaimVerdict = Literal["supported", "partially_supported", "unsupported", "irrelevant"]
+"""``irrelevant`` is supported and answers nothing that was asked."""
 
 # Identity of a claim within one report. Exact, not fuzzy: the verifier
 # records a verdict under this key while holding the claim object, and the

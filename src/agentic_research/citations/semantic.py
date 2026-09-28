@@ -41,7 +41,11 @@ if TYPE_CHECKING:
 
 # Diagnostic verdicts. Only SUPPORTED publishes; the boundary between
 # the other two is informational and deliberately not release-critical.
-Verdict = Literal["supported", "partially_supported", "unsupported"]
+Verdict = Literal["supported", "partially_supported", "unsupported", "irrelevant"]
+"""``irrelevant`` is a supported claim that answers nothing the
+question asked. Reporting it as unsupported would misstate why it
+was withheld and hide the distinction the relevance gate exists to
+draw."""
 
 SUPPORTED: Final[Verdict] = "supported"
 PARTIALLY_SUPPORTED: Final[Verdict] = "partially_supported"

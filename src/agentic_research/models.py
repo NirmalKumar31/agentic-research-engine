@@ -507,6 +507,15 @@ class Claim(BaseModel):
         description="Source ids, derived from evidence_ids by the engine",
     )
     kind: ClaimKind = ClaimKind.FACTUAL
+    answer_slot: str = Field(
+        default="",
+        description="Which required part of the question this claim answers",
+    )
+    """Empty when the run had no usable answer contract.
+
+    Publication requires a slot the contract actually asked for: a
+    claim can be true, well sourced and no answer to the question, and
+    a live run published five such claims before this existed."""
 
     @property
     def requires_evidence(self) -> bool:
@@ -670,9 +679,13 @@ class ClaimJudgment(BaseModel):
     """Complete, never truncated. This is the point of the record."""
     kind: ClaimKind
     evidence_ids: list[str] = Field(default_factory=list)
-    verdict: Literal["supported", "partially_supported", "unsupported"] | None = None
+    verdict: Literal["supported", "partially_supported", "unsupported", "irrelevant"] | None = None
     """None when the claim was never checked -- an exhausted budget, or
-    more cited evidence than can be shown at once."""
+    more cited evidence than can be shown at once.
+
+    ``irrelevant`` means supported by its evidence and no answer to the
+    question. Recorded distinctly so a reader is not told that a true,
+    well-cited claim failed verification."""
     reason: str | None = None
     checked: bool = False
 

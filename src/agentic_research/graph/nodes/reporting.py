@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
 from typing import Any
 
+from agentic_research.answer_coverage import assess_coverage
 from agentic_research.citations.guards import SourceIdentity
 from agentic_research.citations.nli import NLIUnavailable, build_verifier
 from agentic_research.citations.publication import (
@@ -15,6 +17,7 @@ from agentic_research.citations.publication import (
     filter_report_by_verification,
     key_of,
 )
+from agentic_research.citations.relevance import assess_relevance
 from agentic_research.citations.semantic import (
     CitedEvidence,
     SemanticVerdict,
@@ -106,6 +109,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
     sources = state.get("sources", [])
     evidence = state.get("evidence", [])
     analysis = state.get("analysis")
+    contract = state.get("contract")
     question = analysis.normalized_query if analysis else state["original_query"]
     coverage = state.get("coverage")
 
@@ -154,6 +158,11 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                         package.text or "(no citable evidence was gathered)",
                         "\n".join(f"- {g}" for g in gaps),
                         claim_budget=claim_budget,
+                        answer_slots=(
+                            [(s.name, s.description) for s in contract.required_slots]
+                            if contract is not None and contract.usable
+                            else None
+                        ),
                     ),
                 )
             )
@@ -215,6 +224,7 @@ def _to_claim(out: object) -> Claim:
         evidence_ids=list(getattr(out, "evidence_ids", []) or []),
         citation_ids=[],
         kind=kind,
+        answer_slot=str(getattr(out, "answer_slot", "") or "").strip(),
     )
 
 
@@ -452,6 +462,31 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         if result.final_published_claims == 0:
             result.evidence_only_excerpts = min(len(store.citable_evidence()), MAX_EXCERPTS)
 
+        # What the published claims actually covered of what was asked.
+        #
+        # A report could finish with claims in it and answer nothing --
+        # a comparison whose survivors are two definitions is the case
+        # that prompted this. The limitations say which required part
+        # is missing, by name, rather than leaving a reader to infer it
+        # from the absence.
+        contract = state.get("contract")
+        if contract is not None:
+            coverage = assess_coverage(
+                contract,
+                [c.answer_slot for c in report.substantive_claims() if c.answer_slot],
+            )
+            gaps = coverage.limitations()
+            if gaps:
+                report = report.model_copy(
+                    update={"limitations": _dedupe_limitations([*report.limitations, *gaps])}
+                )
+            log.info(
+                "answer_coverage",
+                answered=coverage.answered,
+                satisfied=list(coverage.satisfied),
+                missing=list(coverage.missing_core),
+            )
+
         timing["citations"] = result.total_citations
 
     log.info(
@@ -556,6 +591,7 @@ async def _check_entailment(
     settings = ctx().settings
     threshold = settings.nli_support_threshold
     errors: list = []
+    contract = state.get("contract")
 
     try:
         scorer = ctx().nli_scorer or build_verifier(settings)
@@ -579,6 +615,34 @@ async def _check_entailment(
         verdict = await asyncio.to_thread(
             verify_claim, claim.text, pairs, scorer, support_threshold=threshold
         )
+
+        # Support and relevance are separate questions, and only ever
+        # one of them was being asked. A claim can be entailed by its
+        # quote and answer nothing that was put to the engine; a live
+        # run published five of those. Relevance is checked against
+        # the contract built before retrieval, and a supported but
+        # irrelevant claim is withheld with its own reason rather than
+        # being reported as unsupported, which it is not.
+        if verdict.publishable and contract is not None:
+            relevance = assess_relevance(
+                claim.text,
+                claim.answer_slot or None,
+                contract,
+                evidence_text=" ".join(item.quote for item in pairs),
+                # No separate judge is configured yet, so the
+                # deterministic checks stand alone. Passing True here
+                # says only that nothing *rejected* it, not that
+                # anything affirmed it.
+                model_says_relevant=True,
+            )
+            if not relevance.publishable:
+                verdict = replace(
+                    verdict,
+                    publishable=False,
+                    verdict="irrelevant",
+                    reason=f"does not answer the question: {relevance.reason}",
+                )
+
         _record(claim.text, claim.evidence_ids, verdict, result, judgment(claim))
         if verdict.checked:
             result.checked_claims += 1

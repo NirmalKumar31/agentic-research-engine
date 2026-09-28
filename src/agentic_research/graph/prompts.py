@@ -285,6 +285,7 @@ def synthesizer_user(
     evidence_block: str,
     gaps_note: str,
     claim_budget: int | None = None,
+    answer_slots: list[tuple[str, str]] | None = None,
 ) -> str:
     """Build the synthesis prompt, optionally bounded to a claim budget.
 
@@ -295,6 +296,21 @@ def synthesizer_user(
     surplus deleted afterwards. One run generated 25 claims, could afford
     to check 4, and published 2.
     """
+    # The required parts of an answer, named. Without this the model
+    # writes whatever the evidence supports, which is how a question
+    # asking how two things differ was answered with five definitions
+    # of one of them.
+    slots = ""
+    if answer_slots:
+        listed = "\n".join(f"- {name}: {description}" for name, description in answer_slots)
+        slots = (
+            "\n\nThis question is only answered if these parts are covered. "
+            "Give each claim the answer_slot it fills, copied exactly:\n"
+            f"{listed}\n"
+            "A claim filling none of them does not belong in the report, "
+            "however well the evidence supports it."
+        )
+
     gaps = f"\n\nKnown gaps in the evidence:\n{gaps_note}" if gaps_note else ""
     budget = ""
     if claim_budget is not None:
@@ -309,6 +325,6 @@ def synthesizer_user(
     return (
         f"Research question:\n{question}\n\n"
         f"Expected shape of answer: {output_format}\n\n"
-        f"Evidence:\n{evidence_block}{gaps}{budget}\n\n"
+        f"Evidence:\n{evidence_block}{slots}{gaps}{budget}\n\n"
         "Write the report."
     )

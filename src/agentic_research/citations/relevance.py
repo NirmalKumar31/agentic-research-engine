@@ -238,7 +238,16 @@ def assess_relevance(
     #
     # A heuristic, and deliberately a narrow one. The independent
     # judgement below is what catches the rest.
-    if contract.entities and not any(_mentions(claim_text, e) for e in contract.entities):
+    # The claim, or the quote it rests on. A report does not repeat its
+    # subject in every sentence -- "datasets are severely imbalanced"
+    # is about fraud detection because the evidence it cites is, and
+    # demanding the noun in every claim withheld ordinary prose.
+    #
+    # The evidence is the right place to look: a claim inherits its
+    # subject from the quote that grounds it, and a quote about
+    # something else is exactly the wrong-entity case this catches.
+    grounded_in = f"{claim_text}\n{evidence_text}"
+    if contract.entities and not any(_mentions(grounded_in, e) for e in contract.entities):
         intruder = _competing_subject(claim_text, contract)
         detail = f"it is about {intruder}" if intruder else "it names none of them, in any wording"
         return _no(

@@ -167,6 +167,12 @@ def _default_report(user: str) -> ReportOut:
 
     A fake that hard-coded ids would keep passing while real resolution broke,
     which is exactly the failure the evidence-first design exists to catch.
+
+    Each claim declares an answer_slot, as a real synthesiser now must.
+    Without one the relevance gate withholds it -- correctly, since a
+    claim that fills no required part of the answer is not an answer --
+    and a fake that omitted it would exercise a pipeline that publishes
+    nothing.
     """
     offered = re.findall(r"^- (S\d+-e\d+)", user, flags=re.MULTILINE)
     primary = offered[:1]
@@ -175,9 +181,16 @@ def _default_report(user: str) -> ReportOut:
         title="Fraud detection on imbalanced data",
         summary_claims=[
             ClaimOut(
-                text="Resampling and cost-sensitive learning are the main approaches",
+                # Contrastive, because the fake analysis asks for a
+                # comparison and a comparison's core slot is not filled
+                # by describing either side on its own.
+                text=(
+                    "SMOTE generates synthetic minority examples, whereas "
+                    "cost-sensitive learning assigns a higher penalty to missed fraud"
+                ),
                 evidence_ids=primary,
                 kind="factual",
+                answer_slot="direct_contrast",
             )
         ],
         sections=[
@@ -185,27 +198,39 @@ def _default_report(user: str) -> ReportOut:
                 heading="Approaches",
                 claims=[
                     ClaimOut(
-                        text="Datasets are severely imbalanced, under one percent positive",
+                        text=(
+                            "Fraud detection datasets are severely imbalanced, "
+                            "under one percent positive"
+                        ),
                         evidence_ids=primary,
                         kind="factual",
+                        answer_slot="dimension",
                     ),
                     # No framing here any more: the model-facing schema
                     # offers only factual and synthesis, so a synthesiser
                     # has no evidence-free channel to emit an assertion
                     # through.
                     ClaimOut(
-                        text="Resampling and cost-sensitive learning are the usual levers",
+                        text=(
+                            "SMOTE and cost-sensitive learning are the usual levers "
+                            "for class imbalance"
+                        ),
                         evidence_ids=primary,
                         kind="synthesis",
+                        answer_slot="relationship",
                     ),
                 ],
             )
         ],
         key_findings=[
             ClaimOut(
-                text="Precision-recall is more informative than ROC AUC",
+                text=(
+                    "Precision-recall curves are more informative than ROC AUC "
+                    "for SMOTE and cost-sensitive learning under heavy imbalance"
+                ),
                 evidence_ids=secondary,
                 kind="factual",
+                answer_slot="dimension",
             )
         ],
         contradictions=[],
