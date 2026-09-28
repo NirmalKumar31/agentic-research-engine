@@ -171,3 +171,54 @@ class TestCoverage:
         limits = cov.limitations()
         assert len(limits) == 1
         assert "could not be turned into" in limits[0]
+
+
+class TestRepairIsWiredCorrectly:
+    """The path exists and cannot become a way through.
+
+    The behaviour is asserted at the unit level above. These pin the
+    wiring, because a repair loop that skipped one of these steps
+    would still look like it worked.
+    """
+
+    def _source(self) -> str:
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        return inspect.getsource(reporting._repair_wording)
+
+    def test_the_rewrite_is_validated_before_it_is_re_verified(self) -> None:
+        """A rewrite that smuggled something in must never reach the
+        gates that would have to notice."""
+        source = self._source()
+        assert source.index("validate_rewrite") < source.index("verify_claim")
+
+    def test_every_gate_runs_again(self) -> None:
+        source = self._source()
+        assert "verify_claim" in source
+        assert "deterministic_relevance" in source
+
+    def test_there_is_no_second_attempt(self) -> None:
+        source = self._source()
+        assert "while" not in source
+        assert "retry" not in source.lower()
+
+    def test_a_failed_rewrite_is_discarded_not_partially_kept(self) -> None:
+        source = self._source()
+        assert source.count("continue") >= 3
+
+    def test_eligibility_requires_every_proposition_supported(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        caller = inspect.getsource(reporting._check_entailment)
+        assert "every_proposition_supported=_propositions_supported(" in caller
+
+    def test_an_empty_rewrite_is_a_valid_answer(self) -> None:
+        """ "It cannot be fixed by rewording" is correct and common."""
+        assert "if not text:" in self._source()
+
+    def test_the_repairer_is_not_the_synthesiser(self) -> None:
+        assert "ModelRole.CRITIC" in self._source()

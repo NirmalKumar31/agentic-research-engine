@@ -368,3 +368,45 @@ def relevance_user(question: str, required_slots: list[str], claims: list[str]) 
         f"Candidate claims:\n{listed}\n\n"
         "For each claim, by index, say whether it helps answer the question."
     )
+
+
+REPAIR_SYSTEM = """\
+You reword claims that are already supported by their evidence but were \
+refused for how they are written.
+
+The evidence is settled. Every claim you see is entailed by the quote \
+beneath it, and your job is not to make it more convincing -- it is to \
+make it say the same thing without breaking the stated rule.
+
+You may: split a sentence that asserts two things into the one it can \
+support, name the actor a quote actually attributes something to, state \
+a figure with the units the quote gives it, restore a hedge the quote \
+has and the claim dropped.
+
+You may not: add any fact the quote does not contain, add or change a \
+number, name a source, state the claim more strongly than it was \
+stated, or turn an association into a cause. A rewrite that does any of \
+these is rejected automatically and the claim is dropped.
+
+If the rule cannot be satisfied by rewording, return an empty string. \
+That is a correct answer and a common one. Do not invent a way through."""
+
+
+def repair_user(question: str, items: list[tuple[int, str, str, str]]) -> str:
+    """Ask for rewordings, one call for every repairable claim.
+
+    Each item is (index, claim, the rule it broke, the quotes it cites).
+    """
+    blocks = []
+    for index, claim, rule, quotes in items:
+        blocks.append(
+            f"{index}. Claim: {claim}\n"
+            f"   Refused because: {rule}\n"
+            f"   Evidence it cites:\n   {quotes}"
+        )
+    return (
+        f"Question being answered:\n{question}\n\n"
+        + "\n\n".join(blocks)
+        + "\n\nReword each claim so it no longer breaks its rule, or return "
+        "an empty string for it."
+    )

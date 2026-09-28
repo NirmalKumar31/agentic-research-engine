@@ -10,6 +10,7 @@ from agentic_research.answer_contract import AnswerContract
 from agentic_research.answer_coverage import assess_coverage
 from agentic_research.citations.guards import SourceIdentity
 from agentic_research.citations.nli import NLIUnavailable, build_verifier
+from agentic_research.citations.propositions import decompose
 from agentic_research.citations.publication import (
     ClaimKey,
     ClaimVerdict,
@@ -19,8 +20,10 @@ from agentic_research.citations.publication import (
     key_of,
 )
 from agentic_research.citations.relevance import deterministic_relevance
+from agentic_research.citations.repair import is_repairable, validate_rewrite
 from agentic_research.citations.semantic import (
     CitedEvidence,
+    Scorer,
     SemanticVerdict,
     verify_claim,
 )
@@ -33,8 +36,10 @@ from agentic_research.evidence.store import EvidenceStore
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import (
     RELEVANCE_SYSTEM,
+    REPAIR_SYSTEM,
     SYNTHESIZER_SYSTEM,
     relevance_user,
+    repair_user,
     synthesizer_user,
 )
 from agentic_research.graph.state import ResearchState
@@ -56,7 +61,12 @@ from agentic_research.models import (
 )
 from agentic_research.observability import get_logger
 from agentic_research.report import MAX_EXCERPTS
-from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, RelevanceOut, ReportOut
+from agentic_research.schemas import (
+    MAX_EVIDENCE_PER_CLAIM,
+    RelevanceOut,
+    RepairOut,
+    ReportOut,
+)
 
 log = get_logger(__name__)
 
@@ -596,6 +606,7 @@ async def _check_entailment(
     errors: list = []
     contract = state.get("contract")
     awaiting_judgement: list[tuple[Claim, SemanticVerdict]] = []
+    repairable: list[tuple[Claim, SemanticVerdict, list[CitedEvidence], str]] = []
 
     try:
         scorer = ctx().nli_scorer or build_verifier(settings)
@@ -645,6 +656,15 @@ async def _check_entailment(
                 )
             else:
                 awaiting_judgement.append((claim, verdict))
+        elif not verdict.publishable and verdict.checked:
+            eligible, why = is_repairable(
+                verdict.reason,
+                every_proposition_supported=_propositions_supported(
+                    claim.text, pairs, scorer, threshold
+                ),
+            )
+            if eligible:
+                repairable.append((claim, verdict, pairs, why))
 
         _record(claim.text, claim.evidence_ids, verdict, result, judgment(claim))
         if verdict.checked:
@@ -670,6 +690,22 @@ async def _check_entailment(
                     detail=verdict.reason[:200],
                 )
             )
+
+    # One repair pass, before the judgement, for claims refused on
+    # wording alone.
+    #
+    # Eligibility is narrow by design: every proposition must already
+    # be supported, and the refusal must name only wording guards.
+    # Repair is not a second chance at evidence, and the rewrite is
+    # checked deterministically before it is re-verified so nothing it
+    # smuggled in reaches the gates that would have to notice.
+    if contract is not None:
+        repaired = await _repair_wording(contract, repairable, store, scorer, threshold)
+        for claim, verdict in repaired:
+            verdicts[key_of(claim)] = "supported"
+            result.supported_claims += 1
+            result.unsupported_claims = max(0, result.unsupported_claims - 1)
+            awaiting_judgement.append((claim, verdict))
 
     # One judgement call for everything that survived structure.
     #
@@ -710,6 +746,101 @@ async def _check_entailment(
     result.not_checked_claims = max(0, result.checkable_claims - result.checked_claims)
     errors += await _check_contradictions(report, store, result, state, verdicts, scorer)
     return errors, verdicts
+
+
+def _propositions_supported(
+    claim_text: str,
+    pairs: list[CitedEvidence],
+    scorer: Scorer,
+    threshold: float,
+) -> bool:
+    """Whether every assertion in the claim already has its evidence.
+
+    The precondition for repair. A claim whose evidence does not carry
+    it is not eligible however its wording reads, because rewording
+    an unsupported claim into a supported-looking one is the
+    laundering the whole design refuses.
+    """
+    for part in decompose(claim_text):
+        verdict = verify_claim(
+            part.text, pairs, scorer, support_threshold=threshold, check_propositions=False
+        )
+        if not verdict.publishable and verdict.best_entailment < threshold:
+            return False
+    return True
+
+
+async def _repair_wording(
+    contract: AnswerContract,
+    candidates: list[tuple[Claim, SemanticVerdict, list[CitedEvidence], str]],
+    store: EvidenceStore,
+    scorer: Scorer,
+    threshold: float,
+) -> list[tuple[Claim, SemanticVerdict]]:
+    """One rewrite attempt each, then every gate again from the start.
+
+    Returns only claims that passed on the second attempt. A claim
+    that fails again keeps its original refusal and the rewrite is
+    discarded -- there is no third try, and no partial credit.
+    """
+    if not candidates:
+        return []
+
+    items = [
+        (
+            index,
+            claim.text,
+            reason,
+            "\n   ".join(f"- {item.quote}" for item in pairs),
+        )
+        for index, (claim, _verdict, pairs, reason) in enumerate(candidates)
+    ]
+    try:
+        out = (
+            await ctx()
+            .router.get(ModelRole.CRITIC)
+            .structured(RepairOut, REPAIR_SYSTEM, repair_user(contract.question, items))
+        )
+    except LLMError as exc:
+        log.warning("wording_repair_failed", error=str(exc)[:200])
+        return []
+
+    healed: list[tuple[Claim, SemanticVerdict]] = []
+    for rewrite in out.verdicts:
+        if not 0 <= rewrite.claim_index < len(candidates):
+            continue
+        claim, _original, pairs, reason = candidates[rewrite.claim_index]
+        text = (rewrite.rewritten or "").strip()
+        if not text:
+            continue
+
+        ok, why = validate_rewrite(claim.text, text)
+        if not ok:
+            log.info("wording_repair_rejected", reason=why[:120])
+            continue
+
+        # Every gate again, from the beginning, on the new wording.
+        verdict = await asyncio.to_thread(
+            verify_claim, text, pairs, scorer, support_threshold=threshold
+        )
+        if not verdict.publishable:
+            log.info("wording_repair_still_refused", reason=verdict.reason[:120])
+            continue
+        relevance = deterministic_relevance(
+            text,
+            claim.answer_slot or None,
+            contract,
+            evidence_text=" ".join(item.quote for item in pairs),
+        )
+        if not relevance.publishable:
+            continue
+
+        claim.text = text
+        healed.append((claim, verdict))
+        log.info("wording_repair_accepted", rule=reason[:60])
+
+    log.info("wording_repair", attempted=len(candidates), accepted=len(healed))
+    return healed
 
 
 async def _judge_relevance(

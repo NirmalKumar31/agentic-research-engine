@@ -30,6 +30,7 @@ from agentic_research.schemas import (
     QueryOut,
     RelevanceOut,
     RelevanceVerdictOut,
+    RepairOut,
     ReportOut,
     SectionOut,
     SubQuestionOut,
@@ -164,6 +165,17 @@ def _default_followups(_: str) -> FollowupsOut:
     return FollowupsOut(followups=[FollowupOut(text="What are the deployment costs?", gap="cost")])
 
 
+def _default_repair(_: str) -> RepairOut:
+    """Rewrite nothing by default.
+
+    Repair is opt-in: a fake that rewrote claims would make every test
+    exercise the repair path, and the interesting cases are the ones
+    where a rewrite is refused. Tests about repair supply their own
+    response.
+    """
+    return RepairOut(verdicts=[])
+
+
 def _default_relevance(user: str) -> RelevanceOut:
     """Judge every candidate claim relevant.
 
@@ -266,6 +278,7 @@ _DEFAULTS = {
     "FollowupsOut": _default_followups,
     "ReportOut": _default_report,
     "RelevanceOut": _default_relevance,
+    "RepairOut": _default_repair,
 }
 
 

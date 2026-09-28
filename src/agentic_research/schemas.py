@@ -308,3 +308,22 @@ class RelevanceOut(BaseModel):
     """Judgements for every candidate claim in one call."""
 
     verdicts: list[RelevanceVerdictOut] = Field(default_factory=list)
+
+
+class RewriteOut(BaseModel):
+    """One claim, reworded to satisfy a rule it broke."""
+
+    claim_index: int = Field(description="Index of the claim, copied from the list")
+    rewritten: str = Field(
+        default="",
+        description=(
+            "The same claim, reworded so it no longer breaks the stated rule. "
+            "Use only what the quote already says. Add no fact, no number, no "
+            "source, and do not state the claim more strongly than the "
+            "original did. Leave empty if it cannot be fixed by rewording."
+        ),
+    )
+
+
+class RepairOut(BaseModel):
+    verdicts: list[RewriteOut] = Field(default_factory=list)
