@@ -1,0 +1,243 @@
+# Render blueprint for the TEMPORARY v1.2.0 staging deployment.
+#
+# This exists to accept one release candidate and then be deleted. It
+# is a third blueprint rather than an edit to render-live.yaml because
+# production must keep deploying v1.1.1 from main, unchanged, while the
+# candidate is under test. Editing the live blueprint to point at a
+# feature branch is the same operation as deploying the candidate to
+# production, and would be indistinguishable in the deploy history.
+#
+# WHAT IS SHARED WITH PRODUCTION, AND WHY IT IS SAFE
+#
+#   Hugging Face NLI endpoint -- shared, deliberately. A second
+#   endpoint is a second paid resource, and inference is read-only:
+#   staging cannot corrupt anything production reads. The one real
+#   consequence is billing. The endpoint is billed per warm hour and
+#   scales to zero, so a staging run wakes it and starts an hour the
+#   same way a production run does. That is the cost of staging, and
+#   it is charged whether or not the run succeeds.
+#
+#   OpenAI project -- shared, so staging spends the same $5 cap. The
+#   caps compose by addition, not by maximum: production admits 5 runs
+#   a day, staging admits 1, so the worst case while staging exists is
+#   6 runs a day rather than 5. At the $0.05 per-run ceiling that is
+#   $0.30/day worst case instead of $0.25.
+#
+#   Tavily key -- shared. Staging adds at most MAX_SEARCH_CREDITS (8)
+#   credits a day.
+#
+# WHAT IS NOT SHARED
+#
+#   The run counter. Two deployments of this image compute the same
+#   daily key, so a staging run pointed at production's store would
+#   quietly spend a production run. Staging gets its own Key Value
+#   service *and* its own DEMO_QUOTA_NAMESPACE. Either alone would do;
+#   both, because the failure is silent and the second costs nothing.
+#
+# ACCEPTANCE ORDER. Create this blueprint with LIVE_RESEARCH_ENABLED
+# left at false. Run the credential-free checks against the deployed
+# service first -- health, readiness, limits, the replay path, the
+# absence of an interactive schema. Only when those pass, and only on
+# explicit authorisation, flip LIVE_RESEARCH_ENABLED to true in the
+# Render dashboard and spend the single admitted run.
+#
+# TEARDOWN. After the candidate is accepted or rejected, delete the
+# web service and the Key Value service. A staging deployment left
+# running is a second thing holding credentials and a second thing
+# that can wake the paid endpoint.
+
+services:
+  - type: web
+    name: agentic-research-engine-v12-staging
+    runtime: docker
+    # Pinned to the candidate. An omitted branch means "the branch the
+    # Blueprint instance was created from", which is invisible here and
+    # impossible to review -- the production deployment kept deploying
+    # from feat/live-research after the merge for exactly that reason.
+    branch: feat/v1.2.0-research-quality
+    dockerfilePath: ./Dockerfile.web
+    plan: free
+    region: oregon
+    # Free plan: the instance sleeps when idle and cold-starts on the
+    # next request. Kept, not worked around. Staging is idle almost all
+    # of the time, and the cold start is itself part of what acceptance
+    # has to measure -- production has the same behaviour.
+    #
+    # No custom domain. The onrender.com hostname is the whole surface,
+    # so nothing points a name anyone knows at a release candidate.
+    healthCheckPath: /api/readiness
+    # Quoted: YAML 1.1 reads a bare off as the boolean false, and the
+    # value Render expects is the string "off". Off matters more here
+    # than in production -- every push to the candidate branch would
+    # otherwise redeploy the thing under acceptance, mid-acceptance.
+    autoDeployTrigger: "off"
+
+    envVars:
+      # --- credentials: prompted at Blueprint creation, never committed ---
+      # Paste the same values production uses. They are entered in the
+      # Render dashboard; nothing here records or echoes them.
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: NLI_API_KEY
+        sync: false
+      # Wired from the staging Key Value service below. Never pasted:
+      # a hand-copied connection string is how staging ends up pointed
+      # at production's counter.
+      - key: DEMO_QUOTA_URL
+        fromService:
+          name: agentic-research-v12-staging-quota
+          type: keyvalue
+          property: connectionString
+
+      # --- live switches ---
+      # FALSE ON PURPOSE, AND THIS IS THE SAFETY INTERLOCK.
+      #
+      # The service boots, serves replay, and answers readiness without
+      # ever reaching a paid provider. Live research is enabled by one
+      # dashboard edit after the credential-free checks pass, on
+      # explicit authorisation. Committing "true" here would mean the
+      # first deploy of an unreviewed branch could spend money before
+      # anyone had looked at it.
+      - key: LIVE_RESEARCH_ENABLED
+        value: "false"
+      - key: DEMO_MODE
+        value: "true"
+      - key: LLM_MODE
+        value: cloud
+      - key: ALLOW_CLOUD_FALLBACK
+        value: "false"
+
+      # Retrieved by preflight before the first paid call, which refuses
+      # to start if the project cannot see the model or pricing.toml
+      # carries no verified price for it.
+      - key: OPENAI_MODEL
+        sync: false
+      - key: OPENAI_FAST_MODEL
+        sync: false
+
+      - key: SEARCH_PROVIDER
+        value: tavily
+      - key: SEARCH_DEPTH
+        value: basic
+
+      # --- remote verifier: the same endpoint, the same pin ---
+      # Identical to production. A staging run that verified against a
+      # different revision would be measuring a different verifier, and
+      # its acceptance would say nothing about what production will do.
+      - key: NLI_MODE
+        value: remote
+      - key: NLI_ENDPOINT
+        sync: false
+      - key: NLI_DIALECT
+        value: hf
+      - key: NLI_MODEL_ID
+        value: MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli
+      - key: NLI_MODEL_REVISION
+        value: b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7
+      - key: NLI_SUPPORT_THRESHOLD
+        value: "0.98"
+      - key: NLI_TIMEOUT_SECONDS
+        value: "45"
+      # The endpoint scales to zero and is shared with production, so a
+      # staging run may still arrive at a sleeping replica. 90s, the
+      # measured cold start plus margin, same as production.
+      - key: NLI_SCALE_UP_TIMEOUT_SECONDS
+        value: "90"
+
+      # --- durable quota: isolated from production ---
+      - key: DEMO_QUOTA_REQUIRED
+        value: "true"
+      # Non-secret. Inserted between the fixed prefix and the UTC date,
+      # so this deployment's counter is a different key from
+      # production's even if both ever addressed one store. The value
+      # is validated at startup: lowercase, no colon, so it cannot be
+      # made to spell production's key.
+      - key: DEMO_QUOTA_NAMESPACE
+        value: v12-staging
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+
+      # --- per-run ceilings, reserved before dispatch ---
+      # Identical to production. Acceptance has to measure the run
+      # production will perform, not a roomier one.
+      - key: MAX_CLOUD_COST_USD
+        value: "0.05"
+      - key: MAX_CLOUD_CALLS
+        value: "20"
+      - key: MAX_CLOUD_INPUT_TOKENS
+        value: "240000"
+      - key: MAX_CLOUD_OUTPUT_TOKENS
+        value: "20000"
+      - key: MAX_SEARCH_CREDITS
+        value: "8"
+      - key: MAX_PROVIDER_REQUESTS
+        value: "30"
+
+      # ONE ADMISSION PER DAY, DERIVED RATHER THAN DECLARED.
+      #
+      # The daily cap is not a setting. It is computed as
+      # DEMO_PROVIDER_REQUESTS_PER_DAY // MAX_PROVIDER_REQUESTS, so the
+      # allowance can never promise more runs than the request budget
+      # can pay for. 30 // 30 = 1: exactly one worst-case run, with
+      # nothing spare. Production's 150 admits five.
+      #
+      # This is the number that bounds the acceptance run. Raising it
+      # is how a one-run acceptance becomes an unbounded one.
+      - key: DEMO_PROVIDER_REQUESTS_PER_DAY
+        value: "30"
+
+      # --- run shape: identical to production ---
+      - key: MAX_RESEARCH_ROUNDS
+        value: "1"
+      - key: MAX_SOURCES
+        value: "6"
+      - key: MAX_SOURCES_PER_ROUND
+        value: "6"
+      - key: MAX_SEARCH_QUERIES
+        value: "6"
+      - key: MAX_LLM_CALLS
+        value: "20"
+
+      # --- demo throttles (secondary to the durable cap) ---
+      - key: DEMO_MAX_CONCURRENT_RUNS
+        value: "1"
+      # Lower than production's 2. With a daily cap of one there is no
+      # second run to allow, and a per-client limit of 1 makes an
+      # accidental double-submit a 429 rather than a race against the
+      # counter.
+      - key: DEMO_RUNS_PER_HOUR
+        value: "1"
+      - key: DEMO_MAX_RUNTIME_SECONDS
+        value: "240"
+
+      # --- runtime ---
+      # Runs are not persisted, here as in production. The acceptance
+      # transcript is captured client-side from the SSE stream instead,
+      # which is the only copy -- see docs/v1.2.0-acceptance.md.
+      - key: PERSIST_RUNS
+        value: "false"
+      - key: CHECKPOINT_BACKEND
+        value: memory
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_FORMAT
+        value: json
+
+  # --- staging's own run counter ---------------------------------------
+  #
+  # Separate from production's, so a staging run cannot consume a
+  # production run for the day. Free plan, with the same caveat as
+  # production: Render states data persistence is unavailable on free
+  # Key Value instances, so a restart of the store returns the day's
+  # allowance to zero used. For a deployment admitting one run a day
+  # that is the difference between one run and two; the OpenAI project
+  # cap remains the financial backstop.
+  #
+  # Delete this with the web service at teardown.
+  - type: keyvalue
+    name: agentic-research-v12-staging-quota
+    plan: free
+    region: oregon
+    ipAllowList: []

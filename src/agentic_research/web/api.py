@@ -372,6 +372,7 @@ def create_app(
             counter,
             limits.global_runs_per_day,
             required=resolved.demo_quota_required,
+            namespace=resolved.demo_quota_namespace,
         )
         log.info(
             "web_started",

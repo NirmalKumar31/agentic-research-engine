@@ -29,6 +29,13 @@ without consuming a run.
 The in-process limiter stays as a second control for concurrency and
 per-client rate. Those remain process-local, deliberately: they bound
 accidents and abuse, and the money is bounded here.
+
+The key is namespaced. Two deployments built from this image compute
+the same key, so a staging service sharing a store with production
+would spend production's day -- quietly, since nothing errors. The
+namespace comes from ``DEMO_QUOTA_NAMESPACE``, defaults to empty so an
+existing deployment's key is unchanged, and cannot contain the key
+separator, so no namespace can address another's counter.
 """
 
 from __future__ import annotations
@@ -71,14 +78,38 @@ class QuotaDecision:
 class DurableRunQuota:
     """Global daily run cap backed by an external atomic counter."""
 
-    def __init__(self, counter: AtomicCounter | None, limit: int, *, required: bool) -> None:
+    def __init__(
+        self,
+        counter: AtomicCounter | None,
+        limit: int,
+        *,
+        required: bool,
+        namespace: str = "",
+    ) -> None:
         self._counter = counter
         self._limit = limit
         self._required = required
+        self._namespace = namespace
 
     @staticmethod
-    def key(now: datetime | None = None) -> str:
+    def key(now: datetime | None = None, namespace: str = "") -> str:
+        """The counter key for one UTC day in one namespace.
+
+        The date goes last, always. Two deployments sharing a store
+        must not be able to address each other's counter, and putting
+        the namespace in the middle makes that structural: a namespace
+        cannot contain a colon (Settings enforces it), and no date
+        contains one either, so no namespaced key can ever spell an
+        un-namespaced key or another namespace's key.
+
+        An empty namespace yields the un-namespaced key deliberately.
+        It is what a deployment that predates this setting is already
+        counting against, so adding the setting does not reset a live
+        counter halfway through a day.
+        """
         day = (now or datetime.now(UTC)).strftime("%Y-%m-%d")
+        if namespace:
+            return f"{_KEY_PREFIX}:{namespace}:{day}"
         return f"{_KEY_PREFIX}:{day}"
 
     def usable(self) -> bool:
@@ -132,7 +163,7 @@ class DurableRunQuota:
                 return QuotaDecision(False, 0, self._limit, "durable quota storage is unavailable")
             return QuotaDecision(True, 0, self._limit, "durable quota not configured")
 
-        key = self.key()
+        key = self.key(namespace=self._namespace)
         try:
             # int() inside the try on purpose. A store that answers with
             # something other than a number is as broken as one that

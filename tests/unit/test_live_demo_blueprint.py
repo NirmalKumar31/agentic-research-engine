@@ -36,6 +36,15 @@ def _blueprint(name: str) -> dict[str, str]:
     return {e["key"]: e.get("value", "<prompted>") for e in service["envVars"]}
 
 
+def _services(name: str) -> list[dict[str, Any]]:
+    doc = yaml.safe_load((REPO / name).read_text(encoding="utf-8"))
+    return list(doc["services"])
+
+
+STAGING_BLUEPRINT = "deploy/render-v12-staging.yaml"
+LIVE_BLUEPRINT = "deploy/render-live.yaml"
+
+
 class TestTheLiveBlueprint:
     """Values, not prose. Every one of these bounds real spend."""
 
@@ -150,6 +159,164 @@ class TestTheReplayBlueprintStaysSafe:
 
     def test_live_research_is_off(self) -> None:
         assert _blueprint("render.yaml")["LIVE_RESEARCH_ENABLED"] == "false"
+
+
+class TestTheStagingBlueprintCannotBecomeProduction:
+    """A release candidate deployed beside production, not over it.
+
+    Staging exists to spend exactly one run against an unreviewed
+    branch. Every assertion here is about a way that could quietly turn
+    into something else: deploying the candidate from main, redeploying
+    it mid-acceptance, spending more than one run, or spending
+    production's allowance to do it.
+    """
+
+    @pytest.fixture
+    def env(self) -> dict[str, str]:
+        return _blueprint(STAGING_BLUEPRINT)
+
+    @pytest.fixture
+    def web(self) -> dict[str, Any]:
+        return _services(STAGING_BLUEPRINT)[0]
+
+    def test_secrets_are_prompted_never_committed(self, env: dict[str, str]) -> None:
+        for key in ("OPENAI_API_KEY", "TAVILY_API_KEY", "NLI_API_KEY", "NLI_ENDPOINT"):
+            assert env[key] == "<prompted>"
+        raw = (REPO / STAGING_BLUEPRINT).read_text(encoding="utf-8")
+        for marker in ("sk-", "tvly-", "hf_"):
+            assert marker not in raw, f"{marker} literal in a committed blueprint"
+
+    def test_live_research_ships_disabled(self, env: dict[str, str]) -> None:
+        """The interlock. A first deploy of an unreviewed branch must
+        not be able to reach a paid provider before anyone has looked
+        at it; enabling is a deliberate dashboard edit afterwards."""
+        assert env["LIVE_RESEARCH_ENABLED"] == "false"
+
+    def test_it_deploys_the_candidate_branch_and_not_main(self, web: dict[str, Any]) -> None:
+        """An omitted branch resolves to whichever branch the Blueprint
+        instance was created from -- invisible in review. This
+        deployment must name the candidate explicitly, and must never
+        name the branch production serves."""
+        assert web["branch"] == "feat/v1.2.0-research-quality"
+        assert web["branch"] != _services(LIVE_BLUEPRINT)[0]["branch"]
+
+    def test_pushing_to_the_candidate_branch_does_not_redeploy_it(
+        self, web: dict[str, Any]
+    ) -> None:
+        """Acceptance measures one build. Auto-deploy would let a push
+        replace it halfway through, and the transcript would describe a
+        service that no longer exists."""
+        assert web["autoDeployTrigger"] == "off"
+
+    def test_it_publishes_no_custom_domain(self, web: dict[str, Any]) -> None:
+        """The onrender.com hostname is the whole surface. A custom
+        domain would point a name people know at a candidate."""
+        assert "domains" not in web
+        assert "customDomains" not in web
+
+    def test_it_admits_exactly_one_live_run_a_day(self, env: dict[str, str]) -> None:
+        """Derived, not declared: the cap is
+        DEMO_PROVIDER_REQUESTS_PER_DAY // MAX_PROVIDER_REQUESTS, so it
+        can never promise a run the request budget cannot pay for.
+        """
+        from agentic_research.web.limits import runs_affordable
+
+        budget = int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"])
+        per_run = int(env["MAX_PROVIDER_REQUESTS"])
+        assert runs_affordable(budget, per_run) == 1
+        assert runs_affordable(budget, per_run) * per_run <= budget
+
+    def test_one_admission_is_fewer_than_production_allows(self, env: dict[str, str]) -> None:
+        """Non-vacuity for the test above: production's own numbers
+        would afford five, so 1 is a property of these values rather
+        than of the derivation."""
+        from agentic_research.web.limits import runs_affordable
+
+        live = _blueprint(LIVE_BLUEPRINT)
+        assert runs_affordable(
+            int(live["DEMO_PROVIDER_REQUESTS_PER_DAY"]), int(live["MAX_PROVIDER_REQUESTS"])
+        ) > runs_affordable(
+            int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"]), int(env["MAX_PROVIDER_REQUESTS"])
+        )
+
+    def test_the_run_it_measures_is_the_run_production_performs(self, env: dict[str, str]) -> None:
+        """Acceptance is worthless if staging researches differently.
+        Shape and per-run ceilings are asserted equal to production's
+        rather than restated, so a change to either side fails here."""
+        live = _blueprint(LIVE_BLUEPRINT)
+        shared = [
+            "MAX_RESEARCH_ROUNDS",
+            "MAX_SOURCES",
+            "MAX_SOURCES_PER_ROUND",
+            "MAX_SEARCH_QUERIES",
+            "MAX_LLM_CALLS",
+            "MAX_CLOUD_COST_USD",
+            "MAX_CLOUD_CALLS",
+            "MAX_CLOUD_INPUT_TOKENS",
+            "MAX_CLOUD_OUTPUT_TOKENS",
+            "MAX_SEARCH_CREDITS",
+            "MAX_PROVIDER_REQUESTS",
+            "DEMO_MAX_RUNTIME_SECONDS",
+            "DEMO_MAX_CONCURRENT_RUNS",
+        ]
+        assert {k: env[k] for k in shared} == {k: live[k] for k in shared}
+
+    def test_the_verifier_is_the_same_pinned_checkpoint(self, env: dict[str, str]) -> None:
+        """A different revision is a different verifier, and the 0.98
+        threshold was calibrated against exactly one."""
+        live = _blueprint(LIVE_BLUEPRINT)
+        pinned = [
+            "NLI_MODE",
+            "NLI_DIALECT",
+            "NLI_MODEL_ID",
+            "NLI_MODEL_REVISION",
+            "NLI_SUPPORT_THRESHOLD",
+        ]
+        assert {k: env[k] for k in pinned} == {k: live[k] for k in pinned}
+        assert len(env["NLI_MODEL_REVISION"]) == 40
+
+    def test_its_counter_is_isolated_from_production(self, env: dict[str, str]) -> None:
+        """Both mechanisms, because the failure is silent: its own Key
+        Value service, and a namespace that would still separate the
+        keys if the connection strings were ever the same."""
+        namespace = env["DEMO_QUOTA_NAMESPACE"]
+        assert namespace, "staging would share production's daily key"
+        assert namespace != _blueprint(LIVE_BLUEPRINT).get("DEMO_QUOTA_NAMESPACE", "")
+
+        staging_kv = [s["name"] for s in _services(STAGING_BLUEPRINT) if s["type"] == "keyvalue"]
+        live_kv = [s["name"] for s in _services(LIVE_BLUEPRINT) if s["type"] == "keyvalue"]
+        assert staging_kv and live_kv
+        assert not set(staging_kv) & set(live_kv), "staging points at production's store"
+
+    def test_the_namespace_survives_the_real_validator(self, env: dict[str, str]) -> None:
+        """A value the blueprint declares and Settings rejects would
+        crash the deploy instead of isolating anything."""
+        settings = Settings(  # type: ignore[call-arg]
+            demo_quota_namespace=env["DEMO_QUOTA_NAMESPACE"], _env_file=None
+        )
+        assert settings.demo_quota_namespace == env["DEMO_QUOTA_NAMESPACE"]
+
+    def test_the_namespace_actually_changes_the_key(self, env: dict[str, str]) -> None:
+        from agentic_research.web.durable_quota import DurableRunQuota
+
+        assert DurableRunQuota.key(namespace=env["DEMO_QUOTA_NAMESPACE"]) != DurableRunQuota.key()
+
+    def test_it_is_a_different_service_from_production(self, web: dict[str, Any]) -> None:
+        assert web["name"] != _services(LIVE_BLUEPRINT)[0]["name"]
+
+    def test_every_key_maps_to_a_real_setting(self, env: dict[str, str]) -> None:
+        known = {f.upper() for f in Settings.model_fields}
+        unknown = [k for k in env if k not in known]
+        assert unknown == [], f"these set nothing: {unknown}"
+
+    def test_production_is_untouched_by_all_of_this(self) -> None:
+        """The one assertion that is about the other file. Staging is
+        only safe while production keeps serving main with live
+        research on."""
+        live = _services(LIVE_BLUEPRINT)[0]
+        assert live["branch"] == "main"
+        assert live["autoDeployTrigger"] == "off"
+        assert _blueprint(LIVE_BLUEPRINT)["LIVE_RESEARCH_ENABLED"] == "true"
 
 
 RECORDING = {

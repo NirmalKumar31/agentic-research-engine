@@ -12,6 +12,7 @@ All runtime knobs live here so that the graph, providers and CLI never read
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
@@ -247,6 +248,21 @@ class Settings(BaseSettings):
     prevent, so the default is to fail closed. Replay never consults
     it."""
 
+    demo_quota_namespace: str = ""
+    """Separates one deployment's daily counter from another's.
+
+    Two deployments pointed at one Key Value store share a key, so a
+    staging run would spend production's allowance for the day. The
+    namespace is inserted between the fixed prefix and the UTC date,
+    and the *default is empty*: an unset namespace produces exactly the
+    key production already uses, so adopting this setting does not
+    silently reset a live counter mid-day.
+
+    A colon is the key separator, so a namespace may not contain one --
+    otherwise a staging value could be written to address production's
+    key. The validator enforces that rather than trusting the operator,
+    because the whole point of the setting is isolation."""
+
     trusted_proxy_hops: int = Field(default=0, ge=0, le=4)
     """How many trailing X-Forwarded-For entries were added by proxies we
     control. 0 means the header is not trusted at all: a client can send
@@ -421,6 +437,27 @@ class Settings(BaseSettings):
         value = v.strip().upper()
         if value not in allowed:
             raise ValueError(f"log_level must be one of {sorted(allowed)}, got {v!r}")
+        return value
+
+    @field_validator("demo_quota_namespace")
+    @classmethod
+    def _check_quota_namespace(cls, v: str) -> str:
+        """Reject anything that could address another deployment's key.
+
+        Empty means "no namespace" and is the production default. A
+        non-empty value is restricted to lowercase alphanumerics and
+        hyphens: no colon (the key separator), no whitespace, nothing
+        that varies with locale or case folding. Length is bounded so
+        the key stays a key rather than a payload.
+        """
+        value = v.strip()
+        if not value:
+            return ""
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,31}", value):
+            raise ValueError(
+                "demo_quota_namespace must be 1-32 characters of lowercase "
+                f"letters, digits or hyphens and start with a letter or digit, got {v!r}"
+            )
         return value
 
     @field_validator("checkpoint_backend")
