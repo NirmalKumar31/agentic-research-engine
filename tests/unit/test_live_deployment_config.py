@@ -338,3 +338,38 @@ class TestTheDeploymentEvidenceStaysTrue:
         rather than let a reader infer otherwise from a green table."""
         text = self._text().lower()
         assert "not a research-quality evaluation" in text
+
+
+class TestBlueprintsDeployFromMain:
+    """A branch nobody can see in review is a branch that goes stale.
+
+    Render's rule for an omitted `branch` is "use the Blueprint's
+    branch" when the service is in the same repository as the Blueprint
+    file -- meaning whichever branch the Blueprint instance happened to
+    be created from. This deployment was created from
+    feat/live-research and would have kept deploying from it after the
+    merge, with nothing in the repository showing that.
+    """
+
+    SPECS = ("render.yaml", "deploy/render-live.yaml")
+
+    @pytest.mark.parametrize("spec", SPECS)
+    def test_every_git_service_pins_main(self, spec: str) -> None:
+        for service in blueprint(spec)["services"]:
+            if service.get("type") == "keyvalue":
+                # Not built from a repository; a branch is meaningless.
+                assert "branch" not in service
+                continue
+            assert service.get("branch") == "main", (
+                f"{spec}: {service.get('name')} deploys from "
+                f"{service.get('branch', '(the Blueprint instance branch)')}"
+            )
+
+    @pytest.mark.parametrize("spec", SPECS)
+    def test_no_feature_branch_is_referenced(self, spec: str) -> None:
+        text = (ROOT / spec).read_text()
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("#"):
+                continue  # explanations may name the branch that caused this
+            assert "feat/" not in stripped, f"{spec}: {stripped[:70]}"

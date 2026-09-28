@@ -358,24 +358,36 @@ instead. This is a weaker arrangement than the project's own scoring
 service provides, and it is chosen because the managed handler offers
 nothing stronger.
 
-**Hosted acceptance has happened, once, and proves deployment rather
-than research quality.** On 2026-09-28 the live service at commit
-`7e565492` served one anonymous run through the deployed HTTP/SSE path
-under the public limits (1 round, 6 sources):
+**Hosted acceptance has happened and proves deployment, not research
+quality.** Two runs through the deployed HTTP/SSE path under the public
+limits (1 round, 6 sources), both on 2026-09-28.
 
-- verifier cold start from `scaledToZero`: **~57s**;
-- complete run: **142s** against the 240s wall-clock ceiling;
-- the shared daily cap refused the next request, and refused it again
-  for three forged `X-Forwarded-For` values;
-- replay kept working with the allowance spent;
-- no credential appeared in any response body.
+The v1.1.0 acceptance run, at commit `6e34f908`, captured byte-for-byte
+and committed under
+[examples/live-validation/hosted-20260928-045059/](../examples/live-validation/hosted-20260928-045059/):
 
-What that run does **not** establish: the final payload, exact provider
-usage and exact charge were not captured — the capture truncated the
-result event — and the public run checked only 2 claims and produced 0
-key findings. It is evidence that the deployment behaves correctly, not
-that the engine answers questions well. Those are separate claims and
-only the first is supported.
+- verifier cold start from `scaledToZero`, complete run **144.4s**
+  against the 240s ceiling;
+- 6 sources retrieved, 34 evidence items, **34/34 quotes exact**;
+- 6 claims generated, 6 checked, **0 published**, 6 withheld;
+- measured OpenAI cost **$0.009472**, against a reserved upper bound of
+  $0.03107 which held;
+- the run reported its own cost as *incomplete*, because a response
+  carried a token category with no recorded rate.
+
+An earlier run at `7e565492` additionally showed the shared daily cap
+refusing the next request, and refusing it again for three forged
+`X-Forwarded-For` values, with replay still working once the allowance
+was spent. Its result payload was lost to a truncating capture, which
+is why the later one was captured raw.
+
+**Neither run says anything about answer quality, and the later one
+published nothing at all.** Three of its six claims fell below the 0.98
+entailment threshold — one at 0.976 — and three were refused by
+deterministic guards for attribution, atomicity and numeric phrasing:
+rejected for wording, not for lacking support. The recorded replay runs
+remain the better demonstration of what this engine produces. Improving
+published usefulness is deliberately not part of this release.
 
 Client disconnect and application-timeout cleanup have unit coverage
 but no hosted measurement.

@@ -15,6 +15,13 @@ services:
   - type: web
     name: agentic-research-engine
     runtime: docker
+    # Pinned explicitly. Render's rule for an omitted branch is "use the
+    # Blueprint's branch" when the service lives in the same repository,
+    # which means the branch the Blueprint instance happened to be
+    # created from -- invisible in this file and impossible to review.
+    # This deployment was created from feat/live-research and would have
+    # kept deploying from it after the merge.
+    branch: main
     dockerfilePath: ./Dockerfile.web
     plan: free
     region: oregon
