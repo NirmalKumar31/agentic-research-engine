@@ -237,6 +237,45 @@ class TestTheDeploymentActuallyUsesIt:
             )
 
 
+class TestReadinessSaysWhichCounterItUses:
+    """Otherwise the only isolation mechanism is unverifiable.
+
+    Once two deployments share one Key Value store, the namespace is
+    the whole of what keeps their daily counters apart -- and it was
+    observable only by opening the Render dashboard and reading an
+    environment variable. A setting that important has to be
+    checkable against the running process, because the dashboard says
+    what was configured and readiness says what the process did with
+    it.
+    """
+
+    def test_it_reports_the_namespace_it_is_using(self) -> None:
+        settings = live_settings(demo_quota_namespace=STAGING)
+        with TestClient(create_app(settings, counter_factory=FakeQuotaStore().factory)) as client:
+            body = client.get("/api/readiness").json()
+        assert body["quota_namespace"] == STAGING
+
+    def test_an_unset_namespace_reports_empty_rather_than_absent(self) -> None:
+        """Empty is a real configuration -- it is what the public demo
+        runs -- so the field has to distinguish "no namespace" from
+        "this build does not report one"."""
+        with TestClient(
+            create_app(live_settings(), counter_factory=FakeQuotaStore().factory)
+        ) as client:
+            body = client.get("/api/readiness").json()
+        assert "quota_namespace" in body
+        assert body["quota_namespace"] == ""
+
+    def test_it_carries_nothing_but_the_label(self) -> None:
+        """The connection string is a secret and lives in the same
+        setting group. Only the namespace is published."""
+        settings = live_settings(demo_quota_namespace=STAGING)
+        with TestClient(create_app(settings, counter_factory=FakeQuotaStore().factory)) as client:
+            raw = client.get("/api/readiness").text
+        assert "redis://" not in raw
+        assert "quota.test.invalid" not in raw
+
+
 class TestTheDeployedValuesKeepThemApart:
     """The same property, but with the numbers that will actually ship.
 

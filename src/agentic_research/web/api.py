@@ -470,6 +470,10 @@ def create_app(
         ``durable_quota_available``
             Whether the shared counter can be reached. Without it a live
             deployment has no cap that survives a restart.
+        ``quota_namespace``
+            Which counter it reaches. Two deployments sharing a store
+            and a namespace share one daily allowance, silently, and
+            nothing else reports which one this instance is using.
         ``live_research_available``
             Whether a run could actually be admitted. A deployment can
             be enabled and unavailable at the same time.
@@ -500,6 +504,13 @@ def create_app(
             # break on the rename.
             "durable_quota_available": quota_available,
             "quota_initialised": quota is not None,
+            # Published because it is the only thing separating this
+            # deployment's daily counter from another's when both share
+            # a store, and it was otherwise checkable only by reading
+            # the dashboard. Non-secret by construction: Settings
+            # restricts it to lowercase letters, digits and hyphens, so
+            # it cannot carry a value out.
+            "quota_namespace": state.settings.demo_quota_namespace,
         }
         ready = replay_available and (live_available or not enabled)
         body["ready"] = ready

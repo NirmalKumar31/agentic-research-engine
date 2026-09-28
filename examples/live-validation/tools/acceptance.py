@@ -87,7 +87,7 @@ def verdict(ok: bool) -> str:
     return PASS if ok else FAIL
 
 
-def run_checks(base: str) -> int:
+def run_checks(base: str, expect_namespace: str | None) -> int:
     """Everything that can be established without spending a run.
 
     Deliberately includes a POST to the research route, but only after
@@ -138,6 +138,31 @@ def run_checks(base: str) -> int:
                     "replay works independently of live research",
                     verdict(readiness.get("replay_available") is True),
                     str(readiness.get("replay_available")),
+                )
+            )
+
+        # The namespace is the only thing keeping two deployments that
+        # share a Key Value store from sharing one daily allowance, so
+        # it is asserted against the running process rather than read
+        # off a dashboard. Checked only when the caller says what to
+        # expect: the tool cannot know which deployment it is pointed
+        # at, and guessing would either pass vacuously or fail the
+        # public demo, whose namespace is correctly empty.
+        if expect_namespace is not None and isinstance(readiness, dict):
+            actual = readiness.get("quota_namespace")
+            findings.append(
+                (
+                    f"quota namespace is {expect_namespace!r}",
+                    verdict(actual == expect_namespace),
+                    f"reported {actual!r}",
+                )
+            )
+        elif isinstance(readiness, dict):
+            findings.append(
+                (
+                    "quota namespace reported",
+                    SKIP,
+                    f"{readiness.get('quota_namespace')!r} (pass --expect-namespace to assert)",
                 )
             )
 
@@ -589,6 +614,14 @@ def main() -> int:
 
     checks = sub.add_parser("checks", help="credential-free probes; spends nothing")
     checks.add_argument("--base", required=True, help="https://<service>.onrender.com")
+    checks.add_argument(
+        "--expect-namespace",
+        default=None,
+        help=(
+            "assert the deployment reports this DEMO_QUOTA_NAMESPACE "
+            "(use '' for the public demo, 'rc' for a release candidate)"
+        ),
+    )
 
     capture = sub.add_parser("capture", help="one live run, streamed to disk")
     capture.add_argument("--base", required=True)
@@ -600,7 +633,7 @@ def main() -> int:
 
     args = parser.parse_args()
     if args.command == "checks":
-        return run_checks(args.base.rstrip("/"))
+        return run_checks(args.base.rstrip("/"), args.expect_namespace)
     if args.command == "capture":
         return run_capture(args.base.rstrip("/"), args.question, args.out)
     return run_build(args.run_dir)
