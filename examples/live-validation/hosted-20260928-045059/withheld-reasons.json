@@ -1,0 +1,82 @@
+[
+  {
+    "type": "unused_source",
+    "severity": "info",
+    "claim_text": "",
+    "citation_id": "S4",
+    "evidence_id": "",
+    "detail": "retrieved but never cited"
+  },
+  {
+    "type": "unused_source",
+    "severity": "info",
+    "claim_text": "",
+    "citation_id": "S6",
+    "evidence_id": "",
+    "detail": "retrieved but never cited"
+  },
+  {
+    "type": "partially_supported_claim",
+    "severity": "warning",
+    "claim_text": "Reported productivity effects vary across studies, ranging from a 20% slowdown to a 100% speedup.",
+    "citation_id": "",
+    "evidence_id": "S2-e1",
+    "detail": "best entailment 0.976 from S2-e1 is below the 0.98 support threshold"
+  },
+  {
+    "type": "unsupported_claim",
+    "severity": "warning",
+    "claim_text": "In two field experiments, estimates of changes in pull requests completed per week ranged from 12.92% to 21.83% at Microsoft and from 7.51% to 8.69% at Accenture, depending on specification.",
+    "citation_id": "",
+    "evidence_id": "S5-e1",
+    "detail": "every cited quote failed a deterministic guard: attribution"
+  },
+  {
+    "type": "unsupported_claim",
+    "severity": "warning",
+    "claim_text": "In one controlled experiment, developers with Copilot completed the task 55.8% faster than developers without it, with a reported 95% confidence interval of 21% to 89%.",
+    "citation_id": "",
+    "evidence_id": "S1-e1",
+    "detail": "every cited quote failed a deterministic guard: atomicity, numeric"
+  },
+  {
+    "type": "unsupported_claim",
+    "severity": "warning",
+    "claim_text": "Reported gains were lower for brownfield than greenfield work at both low and high complexity.",
+    "citation_id": "",
+    "evidence_id": "S2-e3,S2-e4",
+    "detail": "best entailment 0.007 from S2-e3 is below the 0.98 support threshold"
+  },
+  {
+    "type": "partially_supported_claim",
+    "severity": "warning",
+    "claim_text": "One source reports that developers with less programming experience benefited more from Copilot than developers with extensive experience.",
+    "citation_id": "",
+    "evidence_id": "S3-e4",
+    "detail": "best entailment 0.948 from S3-e4 is below the 0.98 support threshold"
+  },
+  {
+    "type": "unsupported_claim",
+    "severity": "warning",
+    "claim_text": "In one study, the estimated task-success rate was 7 percentage points higher with Copilot, but the estimate was not statistically significant.",
+    "citation_id": "",
+    "evidence_id": "S1-e5",
+    "detail": "every cited quote failed a deterministic guard: atomicity"
+  },
+  {
+    "type": "unsupported_claim",
+    "severity": "warning",
+    "claim_text": "A cited controlled study found no statistically significant difference in completion time.",
+    "citation_id": "",
+    "evidence_id": "S5-e3",
+    "detail": "contradiction 0 left side: every cited quote failed a deterministic guard: framing"
+  },
+  {
+    "type": "unsupported_claim",
+    "severity": "warning",
+    "claim_text": "A different controlled experiment found that developers with Copilot completed the task 55.8% faster.",
+    "citation_id": "",
+    "evidence_id": "S3-e1",
+    "detail": "contradiction 0 right side: best entailment 0.001 from S3-e1 is below the 0.98 support threshold"
+  }
+]

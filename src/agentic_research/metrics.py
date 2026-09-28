@@ -97,6 +97,18 @@ class RunMetrics(BaseModel):
     known_cost_usd: float = 0.0
     cost_is_complete: bool = True
     unpriced_calls: int = 0
+    unpriced_categories: int = 0
+    """Responses reporting a token category with no recorded rate.
+
+    Separate from unpriced_calls, which counts models with no price at
+    all. The first hosted run had unpriced_calls=0 and still reported an
+    incomplete cost, and the artifact could not say why because these
+    were tracked in UsageTotals and never surfaced here."""
+    cached_input_tokens: int = 0
+    cache_write_tokens: int = 0
+    reasoning_tokens: int = 0
+    """Reported inside output_tokens by providers that emit them.
+    Recorded for reporting, never charged a second time."""
 
     # Citations and claim support. Names are literal: integrity means the
     # reference resolved, not that the source supports the claim.
@@ -145,7 +157,14 @@ class RunMetrics(BaseModel):
     @property
     def cost_display(self) -> str:
         if not self.cost_is_complete:
-            return f"${self.known_cost_usd:.4f} (+{self.unpriced_calls} calls of unknown price)"
+            if self.unpriced_calls:
+                return f"${self.known_cost_usd:.4f} (+{self.unpriced_calls} calls of unknown price)"
+            # Every model was priced; a reported token category was not.
+            return (
+                f"${self.known_cost_usd:.4f} "
+                f"({self.unpriced_categories} responses used a token "
+                "category with no recorded rate)"
+            )
         return f"${self.known_cost_usd:.4f}"
 
 
@@ -234,6 +253,10 @@ def build_metrics(
         known_cost_usd=totals.known_cost_usd,
         cost_is_complete=totals.cost_is_complete,
         unpriced_calls=totals.unpriced_calls,
+        unpriced_categories=totals.unpriced_categories,
+        cached_input_tokens=totals.cached_input_tokens,
+        cache_write_tokens=totals.cache_write_tokens,
+        reasoning_tokens=totals.reasoning_tokens,
         stage_seconds=stage_seconds,
         errors=len(state.get("errors", []) or []),
         error_kinds=error_kinds,

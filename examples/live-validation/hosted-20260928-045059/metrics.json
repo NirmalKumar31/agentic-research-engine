@@ -1,0 +1,99 @@
+{
+  "billable_provider_requests": 11,
+  "citable_evidence": 34,
+  "claims_reconciliation": {
+    "checked": 6,
+    "generated": 6,
+    "not_checked": 0,
+    "note": "Only 'supported' publishes. 0 supported, so 0 published and all 6 withheld.",
+    "published": 0,
+    "withheld": 6,
+    "withheld_partially_supported": 2,
+    "withheld_unsupported": 4
+  },
+  "compatibility_retries": 1,
+  "cost_field_definitions": {
+    "cost_is_complete": "False. unpriced_calls is 0, so every model had a price; the flag fired because a response reported a token category (cached input or cache write) for which this project records no rate. The charge uses the full input rate, which cannot understate it.",
+    "known_cost_usd": "OpenAI token cost only, the engine's arithmetic over provider-reported counts, priced from src/agentic_research/pricing.toml.",
+    "reserved_worst_case_usd": "Sum of the pre-dispatch upper bounds. Bytes, not tokens - see llm/token_bound.py. 3.3x actual here.",
+    "total_cross_provider_cost_complete": false
+  },
+  "cost_is_complete": false,
+  "distinct_domains": 6,
+  "duration_s": 144.39,
+  "entailment_exhaustive": true,
+  "evidence_items": 34,
+  "exact_quotes": 34,
+  "failed_provider_requests": 1,
+  "fuzzy_quotes": 0,
+  "input_tokens": 27266,
+  "known_cost_usd": 0.009472,
+  "llm_calls": 12,
+  "model_assignments": {
+    "critic": "openai:gpt-6-luna",
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "output_tokens": 13491,
+  "provider_requests": 12,
+  "provider_requests_by_model": {
+    "openai:gpt-6-luna": 12
+  },
+  "quote_fidelity": {
+    "definition": "Exact normalised substring match against the fetched source text. Fuzzy matches are counted separately and are not citable; there were none.",
+    "denominator_extracted_quotes": 34,
+    "numerator_exact_quotes": 34,
+    "rate": 1.0
+  },
+  "research_rounds": 1,
+  "reservation_was_sufficient": true,
+  "reserved_worst_case_usd": 0.03107,
+  "search_credits": 6.0,
+  "search_queries": 6,
+  "search_results": 48,
+  "stage_seconds": {
+    "analyze_query": 13.488,
+    "assess_coverage": 10.882,
+    "dedupe_sources": 0.09,
+    "generate_queries": 4.457,
+    "plan_research": 4.924,
+    "register_sources": 0.002,
+    "synthesize": 18.203,
+    "verify_citations": 18.629
+  },
+  "stop_reason": "stopped after round 1",
+  "structured_repairs": 0,
+  "support_breakdown": {
+    "not_checked": 0,
+    "partially_supported": 2,
+    "supported": 0,
+    "unsupported": 4
+  },
+  "unique_sources": 6,
+  "unmatched_quotes": 0,
+  "unpriced_calls": 0,
+  "unused_sources": 6,
+  "usable_sources": 6,
+  "verification": {
+    "checkable_claims": 6,
+    "checked_claims": 6,
+    "evidence_only_excerpts": 12,
+    "final_published_claims": 0,
+    "generated_substantive_claims": 6,
+    "not_checked_claims": 0,
+    "partially_supported_claims": 2,
+    "removed_after_verification": 6,
+    "supported_claims": 0,
+    "total_evidence_refs": 0,
+    "unsupported_claims": 4,
+    "unused_source_ids": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5",
+      "S6"
+    ]
+  }
+}

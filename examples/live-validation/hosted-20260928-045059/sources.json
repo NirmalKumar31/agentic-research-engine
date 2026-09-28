@@ -1,0 +1,50 @@
+[
+  {
+    "id": "S1",
+    "url": "https://arxiv.org/html/2302.06590v1",
+    "title": "The Impact of AI on Developer Productivity: Evidence from GitHub Copilot",
+    "domain": "arxiv.org",
+    "kind": null,
+    "quality": null
+  },
+  {
+    "id": "S2",
+    "url": "https://ingoeichhorst.medium.com/state-of-ai-coding-efficiency-2026-1abfa0ab7434",
+    "title": "Medium",
+    "domain": "ingoeichhorst.medium.com",
+    "kind": null,
+    "quality": null
+  },
+  {
+    "id": "S3",
+    "url": "https://www.alphaxiv.org/abs/2302.06590",
+    "title": "The Impact of AI on Developer Productivity: Evidence from GitHub Copilot | alphaXiv",
+    "domain": "alphaxiv.org",
+    "kind": null,
+    "quality": null
+  },
+  {
+    "id": "S4",
+    "url": "https://github.blog/news-insights/research/research-quantifying-github-copilots-impact-on-developer-productivity-and-happiness",
+    "title": "Research: quantifying GitHub Copilot\u2019s impact on developer productivity and happiness - The GitHub Blog",
+    "domain": "github.blog",
+    "kind": null,
+    "quality": null
+  },
+  {
+    "id": "S5",
+    "url": "https://mit-genai.pubpub.org/pub/v5iixksv",
+    "title": "The Productivity Effects of Generative AI: Evidence from a Field Experiment with GitHub Copilot \u00b7 From Novel Chemicals to Opera",
+    "domain": "mit-genai.pubpub.org",
+    "kind": null,
+    "quality": null
+  },
+  {
+    "id": "S6",
+    "url": "https://trigidigital.com/blog/ai-coding-impact-2026",
+    "title": "The Impact of AI Coding in 2026: Developer Productivity ...",
+    "domain": "trigidigital.com",
+    "kind": null,
+    "quality": null
+  }
+]
