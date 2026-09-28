@@ -94,29 +94,43 @@ never changes. Directional tests require that irrelevant
 publications, wrong selections and newly withheld correct claims
 never increase, and that cited source quality never falls.
 
-| Metric | v1.1.1 baseline | after relevance gate |
+| Metric | v1.1.1 baseline | v1.2.0 |
 | --- | --- | --- |
+| Claims evaluated | 17 | 17 |
 | Published | 14 | 6 |
 | **Irrelevant published** | **6** | **0** |
-| Correct claims wrongly withheld | 0 | **1** |
-| Evidence selected wrongly | 1 | 0 |
-| Primary-source publications | 11 of 14 | 6 of 6 |
-| Mean selected source quality | 0.855 | 0.935 |
-| Min selected source quality | 0.55 | 0.88 |
+| Correct claims wrongly withheld | 0 | 1 |
+| Evidence selected wrongly | 1 | **0** |
+| Primary-source publications | 11 of 14 | **6 of 6** |
+| Mean selected source quality | 0.855 | **0.935** |
+| Min selected source quality | 0.55 | **0.88** |
 
-### The one claim now wrongly withheld
+Published fell from 14 to 6 because eight of the fourteen should
+never have published. Of the seven claims that should, six do.
+
+### The one claim wrongly withheld
 
 `zero-publication-productivity/c2`: *"Developers using AI tools took
 19% longer to complete tasks in a randomised trial."* The question
-asks about "AI coding assistants" and "developer productivity". The
-claim says "AI tools" and "Developers", and never uses either phrase.
+asks about "AI coding assistants" and "developer productivity"; the
+claim says "AI tools" and "Developers" and never uses either phrase.
 
 Recognising it as an answer requires knowing that taking longer means
-lower productivity. That is semantic, and no lexical matcher will get
-there. It is what the independent model judgement is for, and the
+lower productivity. That is semantic, and no lexical matcher reaches
+it. It is what the independent model judgement is for, and the
 offline set runs with a permissive stand-in so that anything rejected
 here was rejected on structure rather than on an opinion.
 
-Kept as a deliberate trade: zero irrelevant publications at the cost
-of one over-withheld claim is the direction the release requires, and
-a safe zero-finding result is better than an irrelevant answer.
+A deliberate trade: zero irrelevant publications at the cost of one
+over-withheld claim. The allowance is pinned to exactly one and the
+claim is named in a test, so a second regression fails rather than
+being absorbed.
+
+### What is measured here, and what is not
+
+These are the verification, selection, relevance and coverage stages
+running against fixed evidence and pinned entailment scores. They are
+not a hosted run, and the components are **not yet wired into the
+research graph** -- contract construction, claim drafting and
+coverage reporting still need to be threaded through the nodes before
+any live question exercises them.
