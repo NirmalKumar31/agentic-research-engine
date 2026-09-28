@@ -39,7 +39,7 @@ from agentic_research.web.durable_quota import DurableRunQuota
 from fakes import FakeQuotaStore
 
 REPO = Path(__file__).resolve().parents[2]
-STAGING = "v12-staging"
+STAGING = "rc"
 QUESTION = {"query": "What did the study measure about developer productivity?"}
 
 
@@ -257,7 +257,7 @@ class TestTheDeployedValuesKeepThemApart:
             env = {e["key"]: e.get("value", "") for e in doc["services"][0]["envVars"]}
             return env.get("DEMO_QUOTA_NAMESPACE", "")
 
-        return read("deploy/render-live.yaml"), read("deploy/render-v12-staging.yaml")
+        return read("deploy/render-live.yaml"), read("deploy/render-rc.yaml")
 
     def test_one_store_two_blueprints_two_allowances(self) -> None:
         production_ns, staging_ns = self.namespaces()

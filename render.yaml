@@ -13,7 +13,7 @@
 
 services:
   - type: web
-    name: agentic-research-engine
+    name: agentic-research-engine-replay
     runtime: docker
     # Pinned explicitly. Render's rule for an omitted branch is "use the
     # Blueprint's branch" when the service lives in the same repository,

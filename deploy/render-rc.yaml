@@ -1,41 +1,49 @@
-# Render blueprint for the TEMPORARY v1.2.0 staging deployment.
+# Render blueprint for a TEMPORARY release-candidate deployment.
 #
 # This exists to accept one release candidate and then be deleted. It
 # is a third blueprint rather than an edit to render-live.yaml because
-# production must keep deploying v1.1.1 from main, unchanged, while the
-# candidate is under test. Editing the live blueprint to point at a
-# feature branch is the same operation as deploying the candidate to
+# the public demo must keep serving the last release, unchanged, while
+# the candidate is under test. Editing the live blueprint to point at
+# a feature branch is the same operation as deploying the candidate to
 # production, and would be indistinguishable in the deploy history.
+#
+# REUSABLE ACROSS RELEASES. One line changes per acceptance: `branch`.
+# That is deliberately a reviewable diff rather than a dashboard
+# setting, because the branch under test is the single most important
+# fact about this deployment and the easiest one to get wrong -- an
+# unset branch resolves to whichever branch the Blueprint instance
+# happened to be created from, which is invisible here.
 #
 # WHAT IS SHARED WITH PRODUCTION, AND WHY IT IS SAFE
 #
 #   Hugging Face NLI endpoint -- shared, deliberately. A second
 #   endpoint is a second paid resource, and inference is read-only:
-#   staging cannot corrupt anything production reads. The one real
+#   a candidate run cannot corrupt anything the demo reads. The one real
 #   consequence is billing. The endpoint is billed per warm hour and
-#   scales to zero, so a staging run wakes it and starts an hour the
-#   same way a production run does. That is the cost of staging, and
-#   it is charged whether or not the run succeeds.
+#   scales to zero, so a candidate run wakes it and starts an hour
+#   the same way a demo run does. That is the cost of accepting a
+#   release, and it is charged whether or not the run succeeds.
 #
-#   OpenAI project -- shared, so staging spends the same $5 cap. The
-#   caps compose by addition, not by maximum: production admits 5 runs
-#   a day, staging admits 1, so the worst case while staging exists is
-#   6 runs a day rather than 5. At the $0.05 per-run ceiling that is
+#   OpenAI project -- shared, so this spends the same $5 cap. The
+#   caps compose by addition, not by maximum: the demo admits 5 runs
+#   a day, this admits 1, so the worst case while it exists is 6 runs
+#   a day rather than 5. At the $0.05 per-run ceiling that is
 #   $0.30/day worst case instead of $0.25.
 #
-#   Tavily key -- shared. Staging adds at most MAX_SEARCH_CREDITS (8)
+#   Tavily key -- shared. This adds at most MAX_SEARCH_CREDITS (8)
 #   credits a day.
 #
 #   Render Key Value store -- shared, because Render permits exactly
-#   one free Key Value instance per workspace and production has it.
-#   A second instance is a paid resource for a deployment that exists
-#   to be deleted, so staging connects to production's.
+#   one free Key Value instance per workspace and the public demo
+#   has it. A second instance is a paid resource for a deployment
+#   that exists to be deleted, so this one connects to the same
+#   store.
 #
 #   That makes DEMO_QUOTA_NAMESPACE load-bearing rather than defence
 #   in depth. Two deployments of this image compute the same daily
-#   key, so without a namespace a staging run would silently spend one
-#   of production's five runs for the day -- nothing errors, the
-#   allowance is just short. The namespace goes between the fixed
+#   key, so without a namespace a candidate run would silently spend
+#   one of the public demo's five runs for the day -- nothing errors,
+#   the allowance is just short. The namespace goes between the fixed
 #   prefix and the UTC date, and since the date is always last and a
 #   namespace may not contain the key separator, no namespace can
 #   spell production's key. The blueprint test asserts the value is
@@ -49,14 +57,17 @@
 # explicit authorisation, flip LIVE_RESEARCH_ENABLED to true in the
 # Render dashboard and spend the single admitted run.
 #
-# TEARDOWN. After the candidate is accepted or rejected, delete the
-# web service and the Key Value service. A staging deployment left
-# running is a second thing holding credentials and a second thing
-# that can wake the paid endpoint.
+# See docs/v1.2.0-acceptance.md for the procedure this supports.
+#
+# TEARDOWN. After the candidate is accepted or rejected, delete this
+# web service -- and only this one. The Key Value instance belongs to
+# the public demo. A candidate deployment left running is a second
+# thing holding credentials and a second thing that can wake the paid
+# endpoint.
 
 services:
   - type: web
-    name: agentic-research-engine-v12-staging
+    name: agentic-research-engine-rc
     runtime: docker
     # Pinned to the candidate. An omitted branch means "the branch the
     # Blueprint instance was created from", which is invisible here and
@@ -67,9 +78,9 @@ services:
     plan: free
     region: oregon
     # Free plan: the instance sleeps when idle and cold-starts on the
-    # next request. Kept, not worked around. Staging is idle almost all
-    # of the time, and the cold start is itself part of what acceptance
-    # has to measure -- production has the same behaviour.
+    # next request. Kept, not worked around. This service is idle
+    # almost all of the time, and the cold start is itself part of
+    # what acceptance has to measure -- the demo behaves the same way.
     #
     # No custom domain. The onrender.com hostname is the whole surface,
     # so nothing points a name anyone knows at a release candidate.
@@ -82,7 +93,7 @@ services:
 
     envVars:
       # --- credentials: prompted at Blueprint creation, never committed ---
-      # Paste the same values production uses. They are entered in the
+      # Paste the same values the public demo uses. They are entered in the
       # Render dashboard; nothing here records or echoes them.
       - key: OPENAI_API_KEY
         sync: false
@@ -90,17 +101,17 @@ services:
         sync: false
       - key: NLI_API_KEY
         sync: false
-      # The production Key Value instance's INTERNAL connection string,
+      # The public demo's Key Value instance INTERNAL connection string,
       # copied from its dashboard page. Prompted rather than wired,
-      # because fromService resolves within a Blueprint and this store
+      # because fromService resolves within a Blueprint and that store
       # is defined in another one.
       #
       # Hand-copying a connection string is exactly what the live
       # blueprint avoids, and the reason it avoids it was that a
-      # mistyped store is a staging service silently spending
-      # production's allowance. That specific danger is now handled by
-      # DEMO_QUOTA_NAMESPACE instead: pointing at production's store is
-      # the intent here, not the accident. Use the internal URL, not
+      # mistyped store is a candidate service silently spending the
+      # demo's allowance. That specific danger is now handled by
+      # DEMO_QUOTA_NAMESPACE instead: sharing the store is the intent
+      # here, not the accident. Use the internal URL, not
       # the external one -- the instance has ipAllowList: [], so the
       # external URL will not connect and readiness will fail closed.
       - key: DEMO_QUOTA_URL
@@ -138,9 +149,10 @@ services:
         value: basic
 
       # --- remote verifier: the same endpoint, the same pin ---
-      # Identical to production. A staging run that verified against a
-      # different revision would be measuring a different verifier, and
-      # its acceptance would say nothing about what production will do.
+      # Identical to the demo's. A candidate run that verified against
+      # a different revision would be measuring a different verifier,
+      # and its acceptance would say nothing about what the demo will
+      # do once this branch is merged.
       - key: NLI_MODE
         value: remote
       - key: NLI_ENDPOINT
@@ -155,27 +167,27 @@ services:
         value: "0.98"
       - key: NLI_TIMEOUT_SECONDS
         value: "45"
-      # The endpoint scales to zero and is shared with production, so a
-      # staging run may still arrive at a sleeping replica. 90s, the
-      # measured cold start plus margin, same as production.
+      # The endpoint scales to zero and is shared, so a candidate run
+      # may still arrive at a sleeping replica. 90s, the measured cold
+      # start plus margin, same as the demo.
       - key: NLI_SCALE_UP_TIMEOUT_SECONDS
         value: "90"
 
-      # --- durable quota: isolated from production ---
+      # --- durable quota: isolated by namespace ---
       - key: DEMO_QUOTA_REQUIRED
         value: "true"
       # Non-secret. Inserted between the fixed prefix and the UTC date,
       # so this deployment's counter is a different key from
       # production's even if both ever addressed one store. The value
       # is validated at startup: lowercase, no colon, so it cannot be
-      # made to spell production's key.
+      # made to spell the demo's key.
       - key: DEMO_QUOTA_NAMESPACE
-        value: v12-staging
+        value: rc
       - key: TRUSTED_PROXY_HOPS
         value: "1"
 
       # --- per-run ceilings, reserved before dispatch ---
-      # Identical to production. Acceptance has to measure the run
+      # Identical to the demo's. Acceptance has to measure the run
       # production will perform, not a roomier one.
       - key: MAX_CLOUD_COST_USD
         value: "0.05"
@@ -196,14 +208,14 @@ services:
       # DEMO_PROVIDER_REQUESTS_PER_DAY // MAX_PROVIDER_REQUESTS, so the
       # allowance can never promise more runs than the request budget
       # can pay for. 30 // 30 = 1: exactly one worst-case run, with
-      # nothing spare. Production's 150 admits five.
+      # nothing spare. The demo's 150 admits five.
       #
       # This is the number that bounds the acceptance run. Raising it
       # is how a one-run acceptance becomes an unbounded one.
       - key: DEMO_PROVIDER_REQUESTS_PER_DAY
         value: "30"
 
-      # --- run shape: identical to production ---
+      # --- run shape: identical to the public demo ---
       - key: MAX_RESEARCH_ROUNDS
         value: "1"
       - key: MAX_SOURCES
@@ -218,7 +230,7 @@ services:
       # --- demo throttles (secondary to the durable cap) ---
       - key: DEMO_MAX_CONCURRENT_RUNS
         value: "1"
-      # Lower than production's 2. With a daily cap of one there is no
+      # Lower than the demo's 2. With a daily cap of one there is no
       # second run to allow, and a per-client limit of 1 makes an
       # accidental double-submit a 429 rather than a race against the
       # counter.
@@ -228,7 +240,7 @@ services:
         value: "240"
 
       # --- runtime ---
-      # Runs are not persisted, here as in production. The acceptance
+      # Runs are not persisted, here as in the demo. The acceptance
       # transcript is captured client-side from the SSE stream instead,
       # which is the only copy -- see docs/v1.2.0-acceptance.md.
       - key: PERSIST_RUNS

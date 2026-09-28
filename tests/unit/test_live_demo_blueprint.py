@@ -41,7 +41,7 @@ def _services(name: str) -> list[dict[str, Any]]:
     return list(doc["services"])
 
 
-STAGING_BLUEPRINT = "deploy/render-v12-staging.yaml"
+RC_BLUEPRINT = "deploy/render-rc.yaml"
 LIVE_BLUEPRINT = "deploy/render-live.yaml"
 
 
@@ -161,28 +161,76 @@ class TestTheReplayBlueprintStaysSafe:
         assert _blueprint("render.yaml")["LIVE_RESEARCH_ENABLED"] == "false"
 
 
-class TestTheStagingBlueprintCannotBecomeProduction:
-    """A release candidate deployed beside production, not over it.
+class TestTheBlueprintsDoNotCollide:
+    """Three blueprints, one Render workspace, one namespace of names.
 
-    Staging exists to spend exactly one run against an unreviewed
-    branch. Every assertion here is about a way that could quietly turn
-    into something else: deploying the candidate from main, redeploying
-    it mid-acceptance, spending more than one run, or spending
-    production's allowance to do it.
+    A service name is global to the workspace and becomes the public
+    hostname, so two blueprints declaring the same name are not two
+    services -- they are one, whichever synced last, silently. The
+    replay blueprint was called `agentic-research-engine` and so was
+    the public demo after it was renamed; this test is what the rename
+    had to satisfy.
+    """
+
+    ALL = ("render.yaml", LIVE_BLUEPRINT, RC_BLUEPRINT)
+
+    def test_every_declared_service_name_is_unique(self) -> None:
+        seen: dict[str, str] = {}
+        for blueprint in self.ALL:
+            for service in _services(blueprint):
+                name = service["name"]
+                assert name not in seen, (
+                    f"{name} is declared by both {seen.get(name)} and {blueprint}"
+                )
+                seen[name] = blueprint
+        assert len(seen) >= 4, "expected replay, demo, candidate and the store"
+
+    def test_only_one_blueprint_declares_the_key_value_store(self) -> None:
+        """Render permits one free Key Value instance per workspace.
+        Two declarations is a failed sync, which is how this was
+        found."""
+        owners = [
+            blueprint
+            for blueprint in self.ALL
+            if any(s["type"] == "keyvalue" for s in _services(blueprint))
+        ]
+        assert owners == [LIVE_BLUEPRINT], f"the store is declared by {owners}"
+
+    def test_the_replay_blueprint_still_needs_no_credentials(self) -> None:
+        """Renaming it must not have changed what it is: the safe
+        configuration, deployable by anyone, spending nothing."""
+        env = _blueprint("render.yaml")
+        assert "OPENAI_API_KEY" not in env
+        assert env["LIVE_RESEARCH_ENABLED"] == "false"
+
+
+class TestTheCandidateBlueprintCannotBecomeProduction:
+    """A release candidate deployed beside the public demo, not over it.
+
+    This deployment exists to spend exactly one run against an
+    unreviewed branch. Every assertion here is about a way that could
+    quietly turn into something else: deploying the candidate from
+    main, redeploying it mid-acceptance, spending more than one run,
+    or spending the demo's allowance to do it.
+
+    The blueprint is reused across releases, so the assertions are
+    about shape rather than about v1.2.0 -- except the branch, which
+    is the one line that changes per acceptance and is therefore the
+    one most worth pinning.
     """
 
     @pytest.fixture
     def env(self) -> dict[str, str]:
-        return _blueprint(STAGING_BLUEPRINT)
+        return _blueprint(RC_BLUEPRINT)
 
     @pytest.fixture
     def web(self) -> dict[str, Any]:
-        return _services(STAGING_BLUEPRINT)[0]
+        return _services(RC_BLUEPRINT)[0]
 
     def test_secrets_are_prompted_never_committed(self, env: dict[str, str]) -> None:
         for key in ("OPENAI_API_KEY", "TAVILY_API_KEY", "NLI_API_KEY", "NLI_ENDPOINT"):
             assert env[key] == "<prompted>"
-        raw = (REPO / STAGING_BLUEPRINT).read_text(encoding="utf-8")
+        raw = (REPO / RC_BLUEPRINT).read_text(encoding="utf-8")
         for marker in ("sk-", "tvly-", "hf_"):
             assert marker not in raw, f"{marker} literal in a committed blueprint"
 
@@ -281,7 +329,7 @@ class TestTheStagingBlueprintCannotBecomeProduction:
         second would either fail the sync -- it did -- or, on a paid
         plan, create a billable resource for a deployment that exists
         to be deleted."""
-        assert [s for s in _services(STAGING_BLUEPRINT) if s["type"] == "keyvalue"] == []
+        assert [s for s in _services(RC_BLUEPRINT) if s["type"] == "keyvalue"] == []
         assert [s for s in _services(LIVE_BLUEPRINT) if s["type"] == "keyvalue"], (
             "production's store is the one being shared; it has to exist"
         )
@@ -319,7 +367,7 @@ class TestTheStagingBlueprintCannotBecomeProduction:
 
     def test_the_connection_string_is_prompted_never_committed(self, env: dict[str, str]) -> None:
         assert env["DEMO_QUOTA_URL"] == "<prompted>"
-        raw = (REPO / STAGING_BLUEPRINT).read_text(encoding="utf-8")
+        raw = (REPO / RC_BLUEPRINT).read_text(encoding="utf-8")
         assert "redis://" not in raw.replace("redis://...", ""), (
             "a connection string literal is in a committed blueprint"
         )
