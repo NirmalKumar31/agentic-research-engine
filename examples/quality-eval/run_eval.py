@@ -18,8 +18,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+from agentic_research.answer_contract import build_contract
 from agentic_research.citations.fake_nli import FakeScorer
 from agentic_research.citations.guards import SourceAuthority
+from agentic_research.citations.relevance import assess_relevance
 from agentic_research.citations.semantic import CitedEvidence, SourceIdentity, verify_claim
 
 HERE = Path(__file__).resolve().parent
@@ -60,6 +62,52 @@ def _cited(case: dict[str, Any], claim: dict[str, Any]) -> list[CitedEvidence]:
     return out
 
 
+# The fixtures were written before the contract existed and use their
+# own slot vocabulary. The contract is the authority on slot names, so
+# the mapping lives here rather than in the fixtures -- editing a
+# frozen case to match an implementation is how a baseline stops
+# meaning anything.
+SLOT_ALIASES: dict[str, str] = {
+    "measured_effect": "measured_value",
+    "measured_rate": "measured_value",
+    "reported_figure": "measured_value",
+    "conditions": "measurement_conditions",
+    "study_design": "measurement_conditions",
+    "source_authority": "limitations",
+    "mechanism": "definition",
+    "architecture_or_scope": "architecture_or_scope",
+    "definition": "part_1",
+    "failure_modes": "part_2",
+}
+
+
+def _canonical(slot: str | None, contract: Any) -> str | None:
+    if slot is None or contract.has_slot(slot):
+        return slot
+    mapped = SLOT_ALIASES.get(slot)
+    return mapped if mapped and contract.has_slot(mapped) else slot
+
+
+def _contract(case: dict[str, Any]) -> Any:
+    """Rebuild the case's contract through the real constructor."""
+    declared = case["contract"]
+    qtype = declared["question_type"]
+    # Two fixture labels describe the evidence rather than the
+    # question, so they are mapped to the question shape they carry.
+    qtype = {"insufficient_evidence": "numeric", "terminology_mismatch": "definition"}.get(
+        qtype, qtype
+    )
+    slots = declared["required_slots"]
+    dims = [s for s in slots if s not in {"direct_contrast", "relationship", "dimension"}]
+    return build_contract(
+        case["question"],
+        qtype,
+        entities=declared.get("entities", []),
+        dimensions=dims if qtype == "comparison" else [],
+        parts=declared.get("parts", slots if qtype == "synthesis" else []),
+    )
+
+
 def evaluate() -> dict[str, Any]:
     spec = json.loads((HERE / "cases.json").read_text())
     sources_by_id = {}
@@ -75,6 +123,28 @@ def evaluate() -> dict[str, Any]:
                 _scorer(case, claim),
                 support_threshold=THRESHOLD,
             )
+
+            # What a generator would declare. An irrelevant claim does
+            # not know it is irrelevant, so it optimistically claims
+            # the core slot -- which is precisely the case the gate has
+            # to refuse.
+            contract = _contract(case)
+            core = contract.core_slots[0].name if contract.core_slots else None
+            declared_slot = _canonical(
+                claim.get("declared_slot", claim.get("expected_slot") or core), contract
+            )
+            quotes = {e["id"]: e["quote"] for e in case["evidence"]}
+            relevance = assess_relevance(
+                claim["text"],
+                declared_slot,
+                contract,
+                evidence_text=" ".join(quotes[e] for e in claim["cites"]),
+                # The offline set measures the deterministic layer. A
+                # permissive model is assumed so that anything rejected
+                # here was rejected on structure, not on an opinion.
+                model_says_relevant=True,
+            )
+            is_published = verdict.publishable and relevance.publishable
             chosen = verdict.best_evidence_id
             chosen_source = sources_by_id.get(evidence_source.get(chosen or "", ""), {})
             results.append(
@@ -82,7 +152,11 @@ def evaluate() -> dict[str, Any]:
                     "case": case["id"],
                     "question_type": case["contract"]["question_type"],
                     "claim": claim["id"],
-                    "published": verdict.publishable,
+                    "published": is_published,
+                    "supported": verdict.publishable,
+                    "relevant": relevance.publishable,
+                    "relevance_reason": relevance.reason,
+                    "declared_slot": declared_slot,
                     "expected_publish": claim["expected_publish"],
                     "expected_relevant": claim["expected_relevant"],
                     "expected_slot": claim.get("expected_slot"),
