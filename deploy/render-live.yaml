@@ -111,14 +111,24 @@ services:
         value: "0.98"
       - key: NLI_TIMEOUT_SECONDS
         value: "45"
-      # 0 because this deployment keeps the endpoint warm, per the
-      # sequencing that scale-to-zero waits for acceptance. Raise it
-      # only when enabling scale-to-zero, and not by guesswork: a real
-      # cold start on the 4GB CPU endpoint was measured at 49.2s on
-      # 2026-09-27, so 0 would withhold every claim in the first run
-      # after an idle period.
+      # Scale-to-zero is enabled on the endpoint (min replicas 0, max 1),
+      # so the first run after a quiet period arrives at nothing and has
+      # to wait for a replica. At 0 that run withholds every claim.
+      #
+      # 90s, chosen from measurement rather than taste: a real cold start
+      # on this 4GB CPU endpoint took 49.2s on 2026-09-27, and 90 leaves
+      # roughly 80% margin for a slower one. It is deliberately well
+      # under half of DEMO_MAX_RUNTIME_SECONDS, because the wake happens
+      # *inside* the run's wall-clock ceiling -- a 90s wake leaves 150s
+      # for planning, search, extraction, verification and synthesis.
+      #
+      # That 150s remainder is not yet proven sufficient under the
+      # public budgets. The one local run took 237s at roughly double
+      # this budget, with a warm endpoint. Measuring it is the first
+      # job of hosted acceptance; if 240 turns out to be too tight, the
+      # number to change is DEMO_MAX_RUNTIME_SECONDS, with evidence.
       - key: NLI_SCALE_UP_TIMEOUT_SECONDS
-        value: "0"
+        value: "90"
 
       # --- durable quota ---
       # Refuse live research rather than fall back to a process-local

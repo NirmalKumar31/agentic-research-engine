@@ -282,3 +282,129 @@ class TestReadinessDistinguishesStates:
         assert response.status_code == 200
         assert response.json()["ready"] is True
         assert response.json()["live_research_available"] is False
+
+
+class TestReadinessTracksTheStoreAtRuntime:
+    """Reachable at startup proves nothing about reachable now.
+
+    The first version of `usable()` returned true whenever a counter
+    object existed, so an instance whose Key Value service died an hour
+    ago kept answering 200 on /api/readiness while every live request
+    failed closed. A load balancer has no way to notice that.
+    """
+
+    def test_ready_while_the_store_answers(self) -> None:
+        store = FakeQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            assert client.get("/api/readiness").status_code == 200
+        assert store.health_calls > 0, "readiness never asked the store anything"
+
+    def test_not_ready_once_the_store_stops_answering(self) -> None:
+        store = FakeQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            assert client.get("/api/readiness").status_code == 200
+            store.health_response = False  # the Key Value service dies
+            response = client.get("/api/readiness")
+        assert response.status_code == 503
+        body = response.json()
+        assert body["alive"] is True
+        assert body["live_research_available"] is False
+        assert body["durable_quota_available"] is False
+
+    def test_readiness_recovers_when_the_store_returns(self) -> None:
+        """A transient outage must not require a redeploy to clear."""
+        store = FakeQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            store.health_response = False
+            assert client.get("/api/readiness").status_code == 503
+            store.health_response = True
+            assert client.get("/api/readiness").status_code == 200
+
+    @pytest.mark.parametrize("response", ["PONG", 1, "OK", None, object()])
+    def test_a_malformed_health_answer_is_not_health(self, response: object) -> None:
+        """Only a literal True counts. A truthy string is how a broken
+        adapter passes for a working one."""
+        store = FakeQuotaStore()
+        store.health_response = response
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            assert client.get("/api/readiness").status_code == 503
+
+    def test_a_store_that_raises_on_ping_is_not_ready(self) -> None:
+        broken = BrokenQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=broken.factory)) as client:
+            assert client.get("/api/readiness").status_code == 503
+
+    def test_readiness_never_consumes_a_run(self) -> None:
+        """The probe must not answer "can a run start?" by starting one."""
+        store = FakeQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            for _ in range(5):
+                client.get("/api/readiness")
+        assert store.incr_calls == 0, "readiness incremented the daily counter"
+        assert store.counts == {}
+
+    def test_replay_stays_available_through_a_store_outage(self) -> None:
+        store = FakeQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            store.health_response = False
+            body = client.get("/api/readiness").json()
+            assert body["replay_available"] is True
+            assert client.get("/api/examples").status_code == 200
+
+    def test_a_recent_healthy_probe_does_not_admit_a_run(self) -> None:
+        """Readiness is advisory. Admission re-checks, because the store
+        can die between the probe and the request."""
+        store = FakeQuotaStore()
+        with TestClient(create_app(live_settings(), counter_factory=store.factory)) as client:
+            assert client.get("/api/readiness").status_code == 200
+            store.health_response = False
+            # incr still works; the point is that reserve() does not
+            # consult a cached readiness verdict.
+            assert post(client).status_code == 200
+
+
+class TestTheDailyAllowanceMatchesTheQuota:
+    """The deployed numbers, asserted as a set rather than described."""
+
+    DEPLOYED = {
+        "demo_provider_requests_per_day": 50,
+        "max_cloud_calls": 20,
+        "max_provider_requests": 30,
+    }
+
+    def _limits(self):
+        from agentic_research.web.limits import limits_from_settings
+
+        return limits_from_settings(live_settings(**self.DEPLOYED))
+
+    def test_the_deployed_configuration_allows_one_run_per_day(self) -> None:
+        """50 // 30, not 50 // 20. Two runs at 30 provider requests each
+        would need 60 against a 50-request quota, and the second would
+        have died mid-run on a 429 after spending OpenAI tokens."""
+        assert self._limits().global_runs_per_day == 1
+
+    def test_the_allowance_never_exceeds_the_provider_quota(self) -> None:
+        limits = self._limits()
+        assert (
+            limits.global_runs_per_day * limits.max_provider_requests
+            <= self.DEPLOYED["demo_provider_requests_per_day"]
+        )
+
+    @pytest.mark.parametrize(
+        ("per_day", "requests", "expected"),
+        [
+            (50, 30, 1),
+            (60, 30, 2),
+            (29, 30, 0),
+            (300, 30, 10),
+        ],
+    )
+    def test_the_allowance_is_the_quota_divided_by_the_request_ceiling(
+        self, per_day: int, requests: int, expected: int
+    ) -> None:
+        from agentic_research.web.limits import limits_from_settings
+
+        limits = limits_from_settings(
+            live_settings(demo_provider_requests_per_day=per_day, max_provider_requests=requests)
+        )
+        assert limits.global_runs_per_day == expected

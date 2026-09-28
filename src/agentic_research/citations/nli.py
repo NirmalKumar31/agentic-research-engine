@@ -75,7 +75,23 @@ DIALECTS = ("contract", "hf")
 _HF_LABELS = frozenset({"entailment", "neutral", "contradiction"})
 
 # What a scaled-to-zero endpoint answers while a replica boots.
-_WARMING_STATUSES = frozenset({502, 503, 504})
+#
+# Hugging Face documents exactly one status for this: "the HTTP server
+# responds with a 502 Bad Gateway" while a new replica initialises, and
+# requests are rejected rather than queued. 503 is kept alongside it
+# because HF's serverless layer uses 503 for a loading model and the
+# two products share infrastructure; it costs a bounded wait to be
+# wrong about, and failing a real cold start costs the whole run.
+#
+# 504 is deliberately *not* here. A gateway timeout means the request
+# was accepted and took too long, which is a slow or wedged replica
+# rather than a starting one, and retrying it would spend the warm-up
+# window on something that is already failing.
+#
+# Everything else -- 401, 403, 404, 422, any other 4xx, a body that is
+# not JSON -- answers the same after another thirty seconds, and is
+# failed immediately.
+_WARMING_STATUSES = frozenset({502, 503})
 
 
 # Softmax outputs sum to one. A scorer whose three values do not are
@@ -354,8 +370,10 @@ class RemoteNLIVerifier:
         by ``scale_up_timeout``, and the default of zero means a single
         attempt.
         """
-        deadline = time.monotonic() + self.scale_up_timeout
+        started = time.monotonic()
+        deadline = started + self.scale_up_timeout
         delay = 2.0
+        attempt = 1
 
         while True:
             try:
@@ -375,8 +393,26 @@ class RemoteNLIVerifier:
             if response.status_code in _WARMING_STATUSES:
                 remaining = deadline - time.monotonic()
                 if remaining > 0:
+                    # Logged so a hosted acceptance run records which
+                    # status a real cold start actually produced. The
+                    # 49.2s cold start measured from the CLI did not
+                    # capture it, and a documented 502 is not the same
+                    # as an observed one.
+                    # Plain %-style: this module uses the standard
+                    # library logger, not structlog, and keyword fields
+                    # raise TypeError on it -- inside the retry loop,
+                    # which is the one path that only runs during a
+                    # real cold start.
+                    log.info(
+                        "nli_endpoint_warming status=%s attempt=%s waited=%.1fs budget=%.0fs",
+                        response.status_code,
+                        attempt,
+                        time.monotonic() - started,
+                        self.scale_up_timeout,
+                    )
                     time.sleep(min(delay, remaining))
                     delay = min(delay * 2, 15.0)
+                    attempt += 1
                     continue
 
             try:

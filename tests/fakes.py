@@ -360,6 +360,8 @@ class FakeQuotaStore:
         self.counts: dict[str, int] = {}
         self.expiries: dict[str, int] = {}
         self.incr_calls = 0
+        self.health_calls = 0
+        self.health_response: object = True
 
     def incr(self, key: str) -> int:
         self.incr_calls += 1
@@ -368,6 +370,16 @@ class FakeQuotaStore:
 
     def expire(self, key: str, seconds: int) -> None:
         self.expiries[key] = seconds
+
+    def healthy(self) -> bool:
+        """Reachability, settable so an outage can be simulated mid-test.
+
+        ``health_response`` is deliberately typed loosely: a store that
+        answers PING with something other than True is a real failure
+        mode, and only a literal True may count as healthy.
+        """
+        self.health_calls += 1
+        return self.health_response  # type: ignore[return-value]
 
     def factory(self, _url: str | None = None) -> FakeQuotaStore:
         """Usable as ``counter_factory``; always the same store."""
@@ -384,6 +396,9 @@ class BrokenQuotaStore:
         raise self.exc
 
     def expire(self, key: str, seconds: int) -> None:
+        raise self.exc
+
+    def healthy(self) -> bool:
         raise self.exc
 
     def factory(self, _url: str | None = None) -> BrokenQuotaStore:

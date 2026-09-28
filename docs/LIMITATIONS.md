@@ -241,19 +241,44 @@ dimensions differ in what they can promise:
 - *Pre-dispatch cost ceiling* — derived from the two above against a
   local price table, so it bounds expected spend rather than the invoice.
 
-The *daily* run cap lives in memory, so a host that sleeps resets it on
-every cold start. The provider account's own spend limit is the only
-monetary control that survives a restart, and is the documented backstop
-for any public live deployment.
+**The throttles and the admission counter have different scopes.**
+Concurrency and the per-client hourly rate are process-local: they live
+in the web process and reset when it does. They bound accidents and
+casual abuse, not money.
 
-**There is no durable or distributed quota**, which is why anonymous live
-research is off by default on the public deployment. Enabling it safely
-would need a persistent atomic quota store.
+The *global daily admission counter* is shared, through an external
+atomic INCR against Render Key Value. It is the same count for every
+web replica and it survives a web-service cold start, which the
+in-memory version did not — a sleeping free instance used to wake with
+the whole day's allowance back.
 
-**Rate limiting keys on `X-Forwarded-For`**, which is spoofable.
+**A free Key Value instance is not persistent storage.** Render states
+that data persistence is unavailable on the free plan, so a restart of
+the Key Value service itself returns the count to zero used. Call this
+counter shared, or distributed. Do not call it durable across datastore
+restarts unless it is running on a paid plan with persistence enabled.
 
-**Input token estimation is `len // 4`** — conservative for prose, wrong
-for code-heavy or non-Latin content.
+**The provider account's hard spend limit is the financial backstop.**
+Not this counter, and not the per-run ceiling. Set one before enabling
+anonymous live research.
+
+**Admission fails closed.** If the counter is required and the store is
+unreachable, the run is refused rather than admitted unbounded, and
+readiness reports the instance as not ready rather than quietly turning
+every visitor away.
+
+**Client identification uses the trusted-hop rule.** `X-Forwarded-For`
+is appended to by each proxy, so the address is read relative to the
+configured number of trusted proxies rather than from the first entry,
+which the caller supplies. Non-addresses and headers that did not
+arrive through the expected path fall back to the socket peer. This
+raises the cost of minting fresh per-client allowances; it is abuse
+mitigation and not the financial boundary.
+
+**Input token estimation is `len // 4`** — adequate for prose and *not*
+a conservative bound. Code, dense punctuation, non-Latin scripts and
+JSON schemas all exceed a quarter token per character, so the
+pre-dispatch reservation can land under the true cost.
 
 **No separate retry budget.** Retries, structured repairs and
 compatibility retries are each a distinct provider request and reserve

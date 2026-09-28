@@ -73,6 +73,18 @@ over provider-reported token counts, priced from `pricing.toml`. Tavily
 usage and Hugging Face endpoint compute were not measured, and no
 provider dashboard was reconciled, so no total run cost is stated.
 
+`metrics.json` states this in two fields rather than one ambiguous one:
+`openai_model_pricing_complete: true` means no OpenAI call is missing a
+price, and `total_cross_provider_cost_complete: false` means this is not
+the total cost of the run.
+
+## Verifying this artifact
+
+```bash
+cd examples/live-validation/20260927-224441-b64016
+shasum -a 256 -c checksums.sha256
+```
+
 ## Reproducing
 
 ```bash

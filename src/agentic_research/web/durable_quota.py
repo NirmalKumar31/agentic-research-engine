@@ -1,24 +1,34 @@
-"""A run counter that survives a restart.
+"""The run counter that admits or refuses a public live run.
 
-The public demo's daily cap lives in process memory. A Render free
-instance sleeps when idle and starts with a fresh counter, so the cap
-bounds a *process*, not a day -- which is fine for replay, where a run
-costs nothing, and not fine for live research, where each run spends
-money at three providers.
+The global daily cap is held in an external atomic counter rather than
+in process memory. In memory it bounded a *process* rather than a day:
+a Render instance that sleeps when idle wakes with a fresh count, so
+the cap reset itself every time the service went quiet.
 
-This is the durable version: one atomic INCR against a shared store,
-with an expiry so the key disappears on its own. INCR is atomic across
-processes and replicas, so two instances cannot both read "3 used" and
-both proceed.
+One atomic INCR against a shared store is the whole mechanism. INCR is
+atomic across processes and replicas, so two web instances cannot both
+read "the last slot is free" and both take it. Increment first, compare
+afterwards -- read-then-write is the race this exists to avoid.
 
-It fails closed. If live research requires a durable counter and the
-store is unreachable, the run is refused rather than admitted on an
-in-memory guess -- an unbounded fallback is exactly the failure this
-exists to prevent.
+What the free Render Key Value plan gives, precisely: a counter that is
+atomic, shared across every web replica, and unaffected by a web-service
+cold start. What it does not give is persistence. Render states that
+data persistence is unavailable on free Key Value instances, so a
+restart of the *store itself* returns the day's allowance to zero used.
+Call this counter shared or distributed; do not call it durable across
+datastore restarts unless it is running on a paid plan with persistence
+enabled. The hard-enforced spend limit on the provider account is the
+financial backstop, not this.
+
+It fails closed. If a durable counter is required and the store is
+unreachable, the run is refused rather than admitted on an in-memory
+guess -- an unbounded fallback is exactly the failure this exists to
+prevent. Readiness asks the same store whether it is still reachable,
+without consuming a run.
 
 The in-process limiter stays as a second control for concurrency and
-per-client rate. This replaces only the global daily cap, which is the
-one that must outlive the process.
+per-client rate. Those remain process-local, deliberately: they bound
+accidents and abuse, and the money is bounded here.
 """
 
 from __future__ import annotations
@@ -36,10 +46,18 @@ _TTL_SECONDS = 60 * 60 * 36  # comfortably past a UTC day boundary
 
 
 class AtomicCounter(Protocol):
-    """The two operations a durable counter needs."""
+    """What a shared counter has to be able to do.
+
+    ``healthy`` exists so readiness can ask whether the store is still
+    there without spending a run to find out. Reachability at startup
+    proves nothing about reachability now, and a readiness probe that
+    incremented the counter would answer the question by consuming the
+    thing it was asked about.
+    """
 
     def incr(self, key: str) -> int: ...
     def expire(self, key: str, seconds: int) -> None: ...
+    def healthy(self) -> bool: ...
 
 
 @dataclass(frozen=True)
@@ -67,13 +85,35 @@ class DurableRunQuota:
         """Whether a reservation could succeed, without making one.
 
         Readiness needs to answer "could a live run start?" and must not
-        answer it by consuming a run from the day's allowance.
+        answer it by consuming a run from the day's allowance, so this
+        pings rather than increments.
+
+        It asks the store every time. Holding on to the fact that the
+        store answered at startup is how an instance keeps reporting
+        itself ready while every live request fails closed against a
+        Key Value service that died an hour ago.
+
+        Only a literal ``True`` counts as reachable. A store that
+        answers with something else is as unusable as one that does not
+        answer, and treating a truthy string as health is how a broken
+        adapter passes for a working one.
         """
         if self._limit <= 0:
             return False
         if self._counter is None:
             return not self._required
-        return True
+
+        try:
+            reachable = self._counter.healthy() is True
+        except Exception as exc:
+            log.warning("quota_store_health_failed", error=type(exc).__name__)
+            reachable = False
+
+        if reachable:
+            return True
+        # Unreachable and not required means reserve() would admit the
+        # run anyway, so reporting unavailable here would contradict it.
+        return not self._required
 
     def reserve(self) -> QuotaDecision:
         """Claim one run, atomically, before any provider is called.
@@ -113,6 +153,43 @@ class DurableRunQuota:
         return QuotaDecision(True, used, self._limit)
 
 
+# Short on purpose. Readiness is answered on a request path, and a
+# readiness probe that hangs for the client timeout is its own outage.
+_HEALTH_TIMEOUT_SECONDS = 2.0
+
+
+class RedisCounter:
+    """Adapts a Redis client to :class:`AtomicCounter`.
+
+    The adapter exists so nothing outside this module has to know the
+    store is Redis. The API layer asks a counter whether it is healthy;
+    it does not reach into a client object and call PING itself.
+    """
+
+    def __init__(self, client: Any) -> None:
+        self._client = client
+
+    def incr(self, key: str) -> int:
+        return int(self._client.incr(key))
+
+    def expire(self, key: str, seconds: int) -> None:
+        self._client.expire(key, seconds)
+
+    def healthy(self) -> bool:
+        """Bounded, non-mutating reachability check.
+
+        PING changes nothing and costs nothing, so readiness can ask it
+        as often as it likes without touching the day's allowance.
+        """
+        try:
+            response = self._client.ping()
+        except Exception as exc:
+            # The URL is never included: it carries the password.
+            log.warning("quota_store_ping_failed", error=type(exc).__name__)
+            return False
+        return response is True or response in (b"PONG", "PONG")
+
+
 def build_counter(url: str | None) -> AtomicCounter | None:
     """Connect to the configured store, or return None.
 
@@ -127,9 +204,15 @@ def build_counter(url: str | None) -> AtomicCounter | None:
         log.warning("redis_client_missing")
         return None
     try:
-        client: Any = redis.Redis.from_url(url, socket_timeout=3, socket_connect_timeout=3)
+        client: Any = redis.Redis.from_url(
+            url,
+            socket_timeout=_HEALTH_TIMEOUT_SECONDS,
+            socket_connect_timeout=_HEALTH_TIMEOUT_SECONDS,
+        )
         client.ping()
     except Exception as exc:
-        log.error("redis_unreachable", error=type(exc).__name__)
+        # Deliberately only the exception type. The connection string
+        # contains the password and must never reach a log line.
+        log.error("quota_store_unreachable", error=type(exc).__name__)
         return None
-    return client
+    return RedisCounter(client)

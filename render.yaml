@@ -19,7 +19,10 @@ services:
     plan: free
     region: oregon
     healthCheckPath: /api/health
-    autoDeploy: false
+    # autoDeploy is deprecated; autoDeployTrigger takes precedence when
+    # both are present. Quoted because YAML 1.1 reads a bare off as the
+    # boolean false.
+    autoDeployTrigger: "off"
 
     envVars:
       # Off because this blueprint provisions no quota store and no

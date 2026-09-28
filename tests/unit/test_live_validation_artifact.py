@@ -161,6 +161,28 @@ class TestTheClaimsAreHonest:
         assert "not separately measured" in str(cost["huggingface_endpoint_usd"]).lower()
         assert "not stated" in str(cost["total"]).lower()
 
+    def test_completeness_is_stated_per_provider_not_overall(self, run_dir: Path) -> None:
+        """The engine's cost_is_complete means "every model used had a
+        known price". Carried into a standalone artifact under that name
+        it reads as "this is the total cost of the run", which it is
+        not -- two providers were never measured."""
+        metrics = json.loads((run_dir / "metrics.json").read_text())
+        assert "cost_is_complete" not in metrics, "ambiguous field copied from engine metrics"
+        assert metrics["openai_model_pricing_complete"] is True
+        assert metrics["total_cross_provider_cost_complete"] is False
+        definitions = metrics["cost_field_definitions"]
+        assert set(definitions) >= {
+            "known_cost_usd",
+            "openai_model_pricing_complete",
+            "total_cross_provider_cost_complete",
+        }
+
+    def test_the_readme_gives_the_verification_command(self, run_dir: Path) -> None:
+        """A checksum nobody can be told how to check is decoration."""
+        readme = (run_dir / "README.md").read_text()
+        assert "shasum -a 256 -c checksums.sha256" in readme
+        assert run_dir.name in readme
+
     def test_the_engine_commit_is_recorded_and_not_assumed(self, run_dir: Path) -> None:
         env = json.loads((run_dir / "environment.json").read_text())
         assert re.fullmatch(r"[0-9a-f]{40}", env["engine_commit"])

@@ -109,9 +109,17 @@ class TestTheLiveBlueprintIsComplete:
         assert source["property"] == "connectionString"
         assert source["type"] == "keyvalue"
 
-    def test_warm_up_waiting_is_off_until_acceptance(self) -> None:
+    def test_warm_up_waiting_covers_the_measured_cold_start(self) -> None:
+        """The endpoint runs at minimum replicas 0, so every run after a
+        quiet period pays a cold start. At 0 that run withholds every
+        claim. The budget must clear the 49.2s measured on 2026-09-27
+        with real margin, and stay well inside the run deadline it is
+        spent from."""
         env = env_of(blueprint(self.SPEC))
-        assert env["NLI_SCALE_UP_TIMEOUT_SECONDS"]["value"] == "0"
+        budget = float(env["NLI_SCALE_UP_TIMEOUT_SECONDS"]["value"])
+        deadline = float(env["DEMO_MAX_RUNTIME_SECONDS"]["value"])
+        assert budget >= 49.2 * 1.5
+        assert budget < deadline / 2
 
     @pytest.mark.parametrize(
         "key",

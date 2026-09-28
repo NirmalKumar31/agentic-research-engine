@@ -10,7 +10,11 @@
     "withheld_partially_supported": 4,
     "withheld_unsupported": 31
   },
-  "cost_is_complete": true,
+  "cost_field_definitions": {
+    "known_cost_usd": "OpenAI token cost only. The engine's arithmetic over provider-reported token counts, priced from src/agentic_research/pricing.toml.",
+    "openai_model_pricing_complete": "Every OpenAI model used in this run had a known price, so no OpenAI call is missing from known_cost_usd. This is the engine's internal cost_is_complete metric, renamed here because in a standalone artifact 'cost is complete' reads as 'this is the total run cost', which it is not.",
+    "total_cross_provider_cost_complete": "False. Tavily search credits and Hugging Face endpoint compute were not measured, and no provider dashboard was reconciled, so no total run cost is stated anywhere in this artifact."
+  },
   "cross_attributed_evidence": 46,
   "evidence_integrity_rate": 1.0,
   "evidence_items": 54,
@@ -25,6 +29,7 @@
     "researcher": "openai:gpt-6-luna",
     "synthesizer": "openai:gpt-6-luna"
   },
+  "openai_model_pricing_complete": true,
   "output_tokens": 25019,
   "partial_support_rate": 0.1,
   "provider_requests_by_model": {
@@ -42,6 +47,7 @@
     "supported": 5,
     "unsupported": 31
   },
+  "total_cross_provider_cost_complete": false,
   "unique_sources": 10,
   "unmatched_quotes": 1,
   "unused_sources": 6,

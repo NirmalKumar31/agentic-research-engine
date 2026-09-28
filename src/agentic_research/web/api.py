@@ -136,6 +136,10 @@ class AppState:
         store is unreachable is enabled and unavailable at once, and
         reporting only the intent is how a deploy looks healthy while
         refusing every run.
+
+        Performs a bounded network round trip to the quota store, so
+        callers on the event loop must hand it to a thread. It never
+        increments the counter.
         """
         if not self.settings.live_research_enabled:
             return False
@@ -235,7 +239,6 @@ def create_app(
             mode=resolved.llm_mode.value,
             frontend_present=_FRONTEND_DIST.is_dir(),
             durable_quota=counter is not None,
-            live_research_available=state.live_research_available(),
         )
         yield
 
@@ -312,13 +315,17 @@ def create_app(
         quota = state.quota
         replay_available = bool(available_recordings())
         enabled = state.settings.live_research_enabled
-        live_available = state.live_research_available()
+        # Off the event loop: this pings the quota store, which is a
+        # network round trip, and a readiness probe must not block every
+        # other request while it waits.
+        live_available = await asyncio.to_thread(state.live_research_available)
+        quota_available = await asyncio.to_thread(quota.usable) if quota is not None else False
         body: dict[str, Any] = {
             "alive": True,
             "replay_available": replay_available,
             "live_research_enabled": enabled,
             "live_research_available": live_available,
-            "durable_quota_available": quota is not None and quota.usable(),
+            "durable_quota_available": quota_available,
             "quota_initialised": quota is not None,
         }
         ready = replay_available and (live_available or not enabled)

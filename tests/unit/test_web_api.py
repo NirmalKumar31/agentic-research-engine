@@ -386,11 +386,14 @@ class TestCapacityMatchesProviderQuota:
                 _env_file=None,
             )
         )
-        # 400 / 20, not 400 / 40: the account quota flows through unclamped,
-        # but max_cloud_calls is clamped to the demo ceiling, so a run's
-        # real worst case is 20 provider requests rather than the
-        # configured 40.
-        assert limits.global_runs_per_day == 20
+        # 400 / 30, not 400 / 20 and not 400 / 40. The account quota
+        # flows through unclamped. The divisor is the clamped
+        # *provider request* ceiling, because that is what a run can
+        # actually spend: one logical call becomes two requests when a
+        # structured-output repair fires, so deriving capacity from
+        # max_cloud_calls promised runs the quota could not pay for.
+        assert limits.global_runs_per_day == 13
+        assert limits.global_runs_per_day * limits.max_provider_requests <= 400
 
     def test_default_cap_does_not_exceed_the_measured_quota(self) -> None:
         from agentic_research.web.limits import DemoLimits
