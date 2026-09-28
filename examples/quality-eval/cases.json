@@ -13,25 +13,65 @@
       "question": "difference between llm and neural networks?",
       "contract": {
         "question_type": "comparison",
-        "entities": ["large language model", "neural network"],
-        "required_slots": ["relationship", "architecture_or_scope", "training_objective", "capabilities", "direct_contrast"]
+        "entities": [
+          "large language model",
+          "neural network"
+        ],
+        "required_slots": [
+          "relationship",
+          "architecture_or_scope",
+          "training_objective",
+          "capabilities",
+          "direct_contrast"
+        ]
       },
       "sources": [
-        {"id": "S1", "domain": "arxiv.org", "quality": 0.96, "kind": "primary"},
-        {"id": "S2", "domain": "en.wikipedia.org", "quality": 0.61, "kind": "secondary"},
-        {"id": "S3", "domain": "x.com", "quality": 0.55, "kind": "aggregator"}
+        {
+          "id": "S1",
+          "domain": "arxiv.org",
+          "quality": 0.96,
+          "kind": "primary"
+        },
+        {
+          "id": "S2",
+          "domain": "en.wikipedia.org",
+          "quality": 0.61,
+          "kind": "secondary"
+        },
+        {
+          "id": "S3",
+          "domain": "x.com",
+          "quality": 0.55,
+          "kind": "aggregator"
+        }
       ],
       "evidence": [
-        {"id": "S1-e1", "source_id": "S1", "quote": "Large language models are neural networks that differ from earlier architectures chiefly in scale, in the use of a decoder-only transformer, and in a self-supervised next-token training objective rather than task-specific supervision."},
-        {"id": "S2-e1", "source_id": "S2", "quote": "A large language model is a type of machine learning model designed for natural language processing tasks such as language generation."},
-        {"id": "S3-e1", "source_id": "S3", "quote": "LLMs use decoder-only transformers whose representation for each token depends only on preceding tokens."}
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "Large language models are neural networks that differ from earlier architectures chiefly in scale, in the use of a decoder-only transformer, and in a self-supervised next-token training objective rather than task-specific supervision."
+        },
+        {
+          "id": "S2-e1",
+          "source_id": "S2",
+          "quote": "A large language model is a type of machine learning model designed for natural language processing tasks such as language generation."
+        },
+        {
+          "id": "S3-e1",
+          "source_id": "S3",
+          "quote": "LLMs use decoder-only transformers whose representation for each token depends only on preceding tokens."
+        }
       ],
       "claims": [
         {
           "id": "c1",
           "text": "Large language models differ from earlier neural networks in scale, decoder-only architecture, and a self-supervised next-token objective.",
-          "cites": ["S1-e1"],
-          "entailment": {"S1-e1": 0.991},
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.991
+          },
           "expected_slot": "direct_contrast",
           "expected_relevant": true,
           "expected_publish": true,
@@ -40,8 +80,12 @@
         {
           "id": "c2",
           "text": "A large language model is a machine learning model designed for natural language processing tasks.",
-          "cites": ["S2-e1"],
-          "entailment": {"S2-e1": 0.995},
+          "cites": [
+            "S2-e1"
+          ],
+          "entailment": {
+            "S2-e1": 0.995
+          },
           "expected_slot": null,
           "expected_relevant": false,
           "expected_publish": false,
@@ -50,14 +94,25 @@
         {
           "id": "c3",
           "text": "LLMs use decoder-only transformers whose representation for each token depends only on preceding tokens.",
-          "cites": ["S3-e1", "S1-e1"],
-          "entailment": {"S3-e1": 0.994, "S1-e1": 0.985},
+          "cites": [
+            "S3-e1",
+            "S1-e1"
+          ],
+          "entailment": {
+            "S3-e1": 0.994,
+            "S1-e1": 0.985
+          },
           "expected_slot": "architecture_or_scope",
           "expected_relevant": true,
           "expected_publish": true,
           "expected_selected_evidence": "S1-e1",
           "note": "Both support it. A primary arXiv source must be preferred over a tweet. v1.1.1 cited the tweet."
         }
+      ],
+      "regressions": [
+        "llm_vs_neural_network",
+        "arxiv_vs_tweet_or_wikipedia",
+        "supported_but_irrelevant"
       ]
     },
     {
@@ -66,21 +121,41 @@
       "question": "What is the measured evidence on whether AI coding assistants improve developer productivity?",
       "contract": {
         "question_type": "numeric",
-        "entities": ["AI coding assistants", "developer productivity"],
-        "required_slots": ["measured_effect", "study_design", "limitations"]
+        "entities": [
+          "AI coding assistants",
+          "developer productivity"
+        ],
+        "required_slots": [
+          "measured_effect",
+          "study_design",
+          "limitations"
+        ]
       },
       "sources": [
-        {"id": "S1", "domain": "arxiv.org", "quality": 0.95, "kind": "primary"}
+        {
+          "id": "S1",
+          "domain": "arxiv.org",
+          "quality": 0.95,
+          "kind": "primary"
+        }
       ],
       "evidence": [
-        {"id": "S1-e1", "source_id": "S1", "quote": "In a randomised controlled trial, developers allowed to use AI tools took 19% longer to complete tasks than the control group."}
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "In a randomised controlled trial, developers allowed to use AI tools took 19% longer to complete tasks than the control group."
+        }
       ],
       "claims": [
         {
           "id": "c1",
           "text": "In a randomised trial developers using AI tools took 19% longer to complete tasks, and the authors note the result contradicts participant self-reports.",
-          "cites": ["S1-e1"],
-          "entailment": {"S1-e1": 0.983},
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.983
+          },
           "expected_slot": "measured_effect",
           "expected_relevant": true,
           "expected_publish": false,
@@ -91,13 +166,21 @@
         {
           "id": "c2",
           "text": "Developers using AI tools took 19% longer to complete tasks in a randomised trial.",
-          "cites": ["S1-e1"],
-          "entailment": {"S1-e1": 0.991},
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.991
+          },
           "expected_slot": "measured_effect",
           "expected_relevant": true,
           "expected_publish": true,
           "note": "The atomic form of the same finding. This is what repair should converge on."
         }
+      ],
+      "regressions": [
+        "bundled_partial_support",
+        "repairable_wording"
       ]
     },
     {
@@ -106,25 +189,49 @@
       "question": "Does code review reduce production defects?",
       "contract": {
         "question_type": "causal",
-        "entities": ["code review", "production defects"],
-        "required_slots": ["causal_evidence", "limitations"]
+        "entities": [
+          "code review",
+          "production defects"
+        ],
+        "required_slots": [
+          "causal_evidence",
+          "limitations"
+        ]
       },
-      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.7, "kind": "secondary"}],
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "example.org",
+          "quality": 0.7,
+          "kind": "secondary"
+        }
+      ],
       "evidence": [
-        {"id": "S1-e1", "source_id": "S1", "quote": "Teams that reviewed more code reported fewer production defects over the period studied."}
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "Teams that reviewed more code reported fewer production defects over the period studied."
+        }
       ],
       "claims": [
         {
           "id": "c1",
           "text": "Code review causes a reduction in production defects.",
-          "cites": ["S1-e1"],
-          "entailment": {"S1-e1": 0.42},
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.42
+          },
           "expected_slot": "causal_evidence",
           "expected_relevant": true,
           "expected_publish": false,
           "expected_after_repair": false,
           "note": "An association stated as causation. It must stay withheld after repair; turning correlation into cause is exactly what repair may not do."
         }
+      ],
+      "regressions": [
+        "unsupported_wording_repair_must_not_rescue"
       ]
     },
     {
@@ -133,24 +240,47 @@
       "question": "How fast is PostgreSQL at bulk inserts?",
       "contract": {
         "question_type": "numeric",
-        "entities": ["PostgreSQL"],
-        "required_slots": ["measured_rate", "conditions"]
+        "entities": [
+          "PostgreSQL"
+        ],
+        "required_slots": [
+          "measured_rate",
+          "conditions"
+        ]
       },
-      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.8, "kind": "primary"}],
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "example.org",
+          "quality": 0.8,
+          "kind": "primary"
+        }
+      ],
       "evidence": [
-        {"id": "S1-e1", "source_id": "S1", "quote": "MySQL sustained 42,000 bulk inserts per second on the benchmark hardware."}
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "MySQL sustained 42,000 bulk inserts per second on the benchmark hardware."
+        }
       ],
       "claims": [
         {
           "id": "c1",
           "text": "MySQL sustained 42,000 bulk inserts per second on the benchmark hardware.",
-          "cites": ["S1-e1"],
-          "entailment": {"S1-e1": 0.999},
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.999
+          },
           "expected_slot": null,
           "expected_relevant": false,
           "expected_publish": false,
           "note": "Perfectly supported and about a different database. Entailment cannot catch this; only an entity check can."
         }
+      ],
+      "regressions": [
+        "wrong_entity"
       ]
     },
     {
@@ -159,20 +289,46 @@
       "question": "How does REST differ from GraphQL?",
       "contract": {
         "question_type": "comparison",
-        "entities": ["REST", "GraphQL"],
-        "required_slots": ["direct_contrast", "data_fetching", "versioning"]
+        "entities": [
+          "REST",
+          "GraphQL"
+        ],
+        "required_slots": [
+          "direct_contrast",
+          "data_fetching",
+          "versioning"
+        ]
       },
-      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.75, "kind": "secondary"}],
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "example.org",
+          "quality": 0.75,
+          "kind": "secondary"
+        }
+      ],
       "evidence": [
-        {"id": "S1-e1", "source_id": "S1", "quote": "REST is an architectural style that exposes resources at URLs and uses HTTP verbs."},
-        {"id": "S1-e2", "source_id": "S1", "quote": "GraphQL is a query language that lets a client request exactly the fields it needs from a single endpoint."}
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "REST is an architectural style that exposes resources at URLs and uses HTTP verbs."
+        },
+        {
+          "id": "S1-e2",
+          "source_id": "S1",
+          "quote": "GraphQL is a query language that lets a client request exactly the fields it needs from a single endpoint."
+        }
       ],
       "claims": [
         {
           "id": "c1",
           "text": "REST is an architectural style that exposes resources at URLs and uses HTTP verbs.",
-          "cites": ["S1-e1"],
-          "entailment": {"S1-e1": 0.997},
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.997
+          },
           "expected_slot": null,
           "expected_relevant": false,
           "expected_publish": false,
@@ -181,40 +337,372 @@
         {
           "id": "c2",
           "text": "GraphQL lets a client request exactly the fields it needs from a single endpoint.",
-          "cites": ["S1-e2"],
-          "entailment": {"S1-e2": 0.996},
+          "cites": [
+            "S1-e2"
+          ],
+          "entailment": {
+            "S1-e2": 0.996
+          },
           "expected_slot": null,
           "expected_relevant": false,
           "expected_publish": false,
           "note": "The other definition. The report must report no contrast rather than present these as the answer."
         }
       ],
-      "expected_coverage": {"satisfied_slots": [], "report_must_state_no_contrast": true}
+      "expected_coverage": {
+        "satisfied_slots": [],
+        "report_must_state_no_contrast": true
+      },
+      "regressions": [
+        "definition_only_comparison_answer"
+      ]
     },
     {
       "id": "insufficient-evidence",
       "origin": "Constructed. A safe refusal is a correct outcome.",
       "question": "What was the exact revenue of a private company in Q3 2026?",
       "contract": {
-        "question_type": "numeric",
-        "entities": ["private company"],
-        "required_slots": ["reported_figure", "source_authority"]
+        "question_type": "insufficient_evidence",
+        "entities": [
+          "private company"
+        ],
+        "required_slots": [
+          "reported_figure",
+          "source_authority"
+        ]
       },
-      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.5, "kind": "aggregator"}],
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "example.org",
+          "quality": 0.5,
+          "kind": "aggregator"
+        }
+      ],
       "evidence": [
-        {"id": "S1-e1", "source_id": "S1", "quote": "Analysts speculated that revenue may have grown, though the company does not disclose figures."}
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "Analysts speculated that revenue may have grown, though the company does not disclose figures."
+        }
       ],
       "claims": [
         {
           "id": "c1",
           "text": "The company's Q3 2026 revenue grew.",
-          "cites": ["S1-e1"],
-          "entailment": {"S1-e1": 0.31},
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.31
+          },
           "expected_slot": "reported_figure",
           "expected_relevant": true,
           "expected_publish": false,
           "note": "Speculation reported as fact. Zero findings is the right answer here."
         }
+      ],
+      "regressions": [
+        "responsible_no_answer"
+      ]
+    },
+    {
+      "id": "definition-vector-database",
+      "origin": "Constructed. A definition question, where a definition is the correct answer.",
+      "question": "What is a vector database?",
+      "contract": {
+        "question_type": "definition",
+        "entities": [
+          "vector database"
+        ],
+        "required_slots": [
+          "definition",
+          "distinguishing_property"
+        ]
+      },
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "docs.example.org",
+          "quality": 0.88,
+          "kind": "primary"
+        },
+        {
+          "id": "S2",
+          "domain": "arxiv.org",
+          "quality": 0.96,
+          "kind": "primary"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "A vector database stores high-dimensional embeddings and retrieves them by approximate nearest-neighbour search rather than by exact key lookup."
+        },
+        {
+          "id": "S2-e1",
+          "source_id": "S2",
+          "quote": "Transformer attention computes a weighted sum over value vectors using scaled dot products of queries and keys."
+        }
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "A vector database stores high-dimensional embeddings and retrieves them by approximate nearest-neighbour search.",
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.993
+          },
+          "expected_slot": "definition",
+          "expected_relevant": true,
+          "expected_publish": true,
+          "note": "A definition answering a definition question. It must publish -- the relevance gate must not reject definitions as such."
+        },
+        {
+          "id": "c2",
+          "text": "Transformer attention computes a weighted sum over value vectors using scaled dot products.",
+          "cites": [
+            "S2-e1"
+          ],
+          "entailment": {
+            "S2-e1": 0.998
+          },
+          "expected_slot": null,
+          "expected_relevant": false,
+          "expected_publish": false,
+          "note": "Impeccable source, quality 0.96, entailment 0.998, and nothing to do with the question. Authority must not substitute for relevance."
+        }
+      ],
+      "regressions": [
+        "authoritative_but_irrelevant"
+      ]
+    },
+    {
+      "id": "temporal-wrong-period",
+      "origin": "Constructed. Evidence about the right subject in the wrong period.",
+      "question": "How many security advisories did the project publish in 2025?",
+      "contract": {
+        "question_type": "temporal",
+        "entities": [
+          "the project",
+          "2025"
+        ],
+        "required_slots": [
+          "figure_for_period",
+          "period_confirmation"
+        ]
+      },
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "example.org",
+          "quality": 0.85,
+          "kind": "primary"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "In 2023 the project published 14 security advisories."
+        }
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "The project published 14 security advisories in 2023.",
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.997
+          },
+          "expected_slot": null,
+          "expected_relevant": false,
+          "expected_publish": false,
+          "note": "Fully supported, right subject, wrong year. Only a period check catches this."
+        }
+      ],
+      "regressions": [
+        "wrong_period_or_scope"
+      ]
+    },
+    {
+      "id": "procedural-key-rotation",
+      "origin": "Constructed. A procedure question needs ordered steps, not a description of the feature.",
+      "question": "How do you rotate an API key in the service?",
+      "contract": {
+        "question_type": "procedural",
+        "entities": [
+          "API key rotation"
+        ],
+        "required_slots": [
+          "steps",
+          "preconditions"
+        ]
+      },
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "docs.example.org",
+          "quality": 0.9,
+          "kind": "primary"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "To rotate a key, create a second key, update your clients to use it, then revoke the first key."
+        },
+        {
+          "id": "S1-e2",
+          "source_id": "S1",
+          "quote": "API keys authenticate requests to the service."
+        }
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "Rotating a key means creating a second key, updating clients to use it, then revoking the first.",
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.991
+          },
+          "expected_slot": "steps",
+          "expected_relevant": true,
+          "expected_publish": true,
+          "note": "An ordered procedure. One assertion about one process, so atomicity must not split it into three."
+        },
+        {
+          "id": "c2",
+          "text": "API keys authenticate requests to the service.",
+          "cites": [
+            "S1-e2"
+          ],
+          "entailment": {
+            "S1-e2": 0.999
+          },
+          "expected_slot": null,
+          "expected_relevant": false,
+          "expected_publish": false,
+          "note": "Background, not a step. Supported and does not answer how."
+        }
+      ],
+      "regressions": [
+        "supported_but_irrelevant"
+      ]
+    },
+    {
+      "id": "synthesis-multipart",
+      "origin": "Constructed. A two-part question where only one part has evidence.",
+      "question": "What is retrieval-augmented generation, and what are its main failure modes?",
+      "contract": {
+        "question_type": "synthesis",
+        "entities": [
+          "retrieval-augmented generation"
+        ],
+        "required_slots": [
+          "definition",
+          "failure_modes"
+        ]
+      },
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "arxiv.org",
+          "quality": 0.95,
+          "kind": "primary"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "Retrieval-augmented generation conditions a language model on passages fetched from an external corpus at inference time."
+        }
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "Retrieval-augmented generation conditions a language model on passages fetched from an external corpus at inference time.",
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.996
+          },
+          "expected_slot": "definition",
+          "expected_relevant": true,
+          "expected_publish": true,
+          "note": "Answers the first part."
+        }
+      ],
+      "regressions": [
+        "multi_part_partial_coverage"
+      ],
+      "expected_coverage": {
+        "satisfied_slots": [
+          "definition"
+        ],
+        "missing_slots": [
+          "failure_modes"
+        ],
+        "report_must_state_missing_part": true
+      }
+    },
+    {
+      "id": "terminology-mismatch",
+      "origin": "Constructed. The question's word never appears in the source.",
+      "question": "How does self-attention work in transformers?",
+      "contract": {
+        "question_type": "terminology_mismatch",
+        "entities": [
+          "self-attention",
+          "transformers"
+        ],
+        "required_slots": [
+          "mechanism"
+        ]
+      },
+      "sources": [
+        {
+          "id": "S1",
+          "domain": "arxiv.org",
+          "quality": 0.96,
+          "kind": "primary"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "S1-e1",
+          "source_id": "S1",
+          "quote": "Scaled dot-product attention computes, for each position, a weighted sum of value vectors where the weights come from the softmax of query-key dot products."
+        }
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "Scaled dot-product attention computes a weighted sum of value vectors weighted by the softmax of query-key dot products.",
+          "cites": [
+            "S1-e1"
+          ],
+          "entailment": {
+            "S1-e1": 0.994
+          },
+          "expected_slot": "mechanism",
+          "expected_relevant": true,
+          "expected_publish": true,
+          "note": "The source never says 'self-attention'. A relevance check keyed on literal term overlap would wrongly reject this; it answers the question."
+        }
+      ],
+      "regressions": [
+        "terminology_differs_from_source"
       ]
     }
   ]

@@ -30,7 +30,7 @@ class TestTheBaselineRecordsTheDefect:
     the problem and the comparison is worthless."""
 
     def test_it_publishes_irrelevant_claims(self, baseline: dict) -> None:
-        assert baseline["summary"]["irrelevant_published"] == 3
+        assert baseline["summary"]["irrelevant_published"] == 6
 
     def test_it_selects_evidence_by_entailment_alone(self, baseline: dict) -> None:
         """A tweet at 0.994 beats an arXiv paper at 0.985."""
@@ -84,9 +84,23 @@ class TestTheCasesAreWellFormed:
                 if not claim["expected_relevant"]:
                     assert claim["expected_publish"] is False
 
-    def test_the_set_covers_several_question_types(self, spec: dict) -> None:
-        types = {c["contract"]["question_type"] for c in spec["cases"]}
-        assert len(types) >= 3, f"only {types}"
+    def test_the_set_covers_every_required_category_and_regression(self) -> None:
+        """Derived from the cases, not asserted in prose. A set that
+        quietly stops covering a requirement must fail here rather
+        than keep looking complete."""
+        import sys
+
+        sys.path.insert(0, str(EVAL))
+        from coverage import coverage
+
+        c = coverage()
+        assert not c.missing_categories, c.missing_categories
+        assert not c.missing_regressions, c.missing_regressions
+        assert not c.unknown_regressions, c.unknown_regressions
+
+    def test_every_case_declares_its_regressions(self, spec: dict) -> None:
+        for case in spec["cases"]:
+            assert "regressions" in case, case["id"]
 
 
 class TestTheHarnessStillRuns:

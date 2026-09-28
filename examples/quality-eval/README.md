@@ -31,14 +31,27 @@ v1.1.0 was verifier-wake reporting. Research behaviour is v1.1.0's.
 
 | Metric | v1.1.1 |
 | --- | --- |
-| Claims evaluated | 10 |
-| Published | **7** (3 expected) |
-| **Irrelevant published** | **3** — must be 0 |
+| Cases / claims | 11 / 17 |
+| Published | **14** (7 expected) |
+| **Irrelevant published** | **6** — must be 0 |
 | Correct claims wrongly withheld | 0 |
 | Evidence selected wrongly | 1 |
-| Primary-source publications | 4 of 7 |
-| Mean selected source quality | 0.796 |
-| Zero-finding cases | 2 of 6 |
+| Primary-source publications | 11 of 14 |
+| Mean selected source quality | 0.855 |
+| Min selected source quality | 0.55 |
+| Zero-finding cases | 2 of 11 |
+
+## Coverage
+
+`coverage.py` derives coverage from the cases rather than asserting it,
+and exits non-zero when a required category or regression is missing.
+
+```bash
+python examples/quality-eval/coverage.py
+```
+
+All nine question categories and all eleven required regressions are
+covered, plus two additional ones. A case may carry more than one tag.
 
 ### What the baseline publishes that it should not
 
