@@ -34,6 +34,7 @@ from agentic_research.citations.guards import (
     run_guards,
 )
 from agentic_research.citations.nli import NLIPrediction, NLIUnavailable
+from agentic_research.citations.propositions import decompose
 
 if TYPE_CHECKING:
     from agentic_research.models import ClaimJudgment, ClaimKind
@@ -149,6 +150,7 @@ def verify_claim(
     scorer: Scorer,
     *,
     support_threshold: float,
+    check_propositions: bool = True,
 ) -> SemanticVerdict:
     """Decide whether one claim may publish.
 
@@ -160,6 +162,46 @@ def verify_claim(
     no source identity to offer, such as the adversarial suite; those
     simply leave the attribution guard nothing to check against.
     """
+    # Support is checked per assertion, not per sentence.
+    #
+    # A claim bundling a measured figure with an assertion its quote
+    # never contained published at 0.983, because the sentence as a
+    # whole was close enough to the quote as a whole. Verifying the
+    # sentence verified the average of its parts, and the unsupported
+    # half rode in on the supported one.
+    #
+    # Every proposition must stand on its own evidence. One that does
+    # not withholds the entire claim -- the supported half reaches
+    # print only if something upstream proposes it as its own claim.
+    if check_propositions:
+        parts = decompose(claim_text)
+        if len(parts) > 1:
+            for part in parts:
+                verdict = verify_claim(
+                    part.text,
+                    evidence,
+                    scorer,
+                    support_threshold=support_threshold,
+                    check_propositions=False,
+                )
+                if not verdict.publishable:
+                    return _withheld(
+                        f"the claim asserts {len(parts)} things and "
+                        f"{part.text.strip()!r} is not supported: {verdict.reason}",
+                        support_threshold,
+                        scorer.model_id,
+                        scorer.revision,
+                        checked=verdict.checked,
+                    )
+            # Every part stands. Report the whole claim's own numbers.
+            return verify_claim(
+                claim_text,
+                evidence,
+                scorer,
+                support_threshold=support_threshold,
+                check_propositions=False,
+            )
+
     cited: list[CitedEvidence] = [
         item if isinstance(item, CitedEvidence) else CitedEvidence(item[0], item[1])
         for item in evidence
