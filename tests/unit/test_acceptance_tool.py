@@ -277,6 +277,33 @@ class TestItRefusesToCommitASecret:
         assert not (run_dir / "report.md").exists()
 
 
+class TestASkipIsNotAFailure:
+    """Run against production, the research probe is skipped because
+    live research is enabled there. Counting that as a failure made a
+    clean run report 15/16 and exit non-zero, which trains a reader to
+    ignore the exit code -- the one thing it is for."""
+
+    def test_the_three_states_are_distinct(self, tool: Any) -> None:
+        assert len({tool.PASS, tool.FAIL, tool.SKIP}) == 3
+
+    def test_verdict_never_returns_skip(self, tool: Any) -> None:
+        """Skip is a decision the caller makes, not something a
+        boolean check can produce by accident."""
+        assert tool.verdict(True) == tool.PASS
+        assert tool.verdict(False) == tool.FAIL
+
+    def test_the_probe_is_skipped_when_a_run_would_be_spent(self, tool: Any) -> None:
+        """Read from the source: the branch depends on a live service,
+        and the property worth pinning is that the enabled case never
+        reaches the POST."""
+        import inspect
+
+        source = inspect.getsource(tool.run_checks)
+        enabled_branch = source.split("if live_enabled:")[1].split("else:")[0]
+        assert "SKIP" in enabled_branch
+        assert "client.post" not in enabled_branch
+
+
 class TestTheToolItselfCarriesNoCredential:
     def test_it_reads_no_key_from_the_environment(self) -> None:
         """The public demo route needs none, which is what makes an

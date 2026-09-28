@@ -76,6 +76,17 @@ def scan(name: str, text: str) -> list[str]:
 # --------------------------------------------------------------------
 
 
+# Three states, not two. The research probe is skipped when live
+# research is enabled, and calling that a failure made a clean run
+# against production report 15/16 and exit non-zero -- which trains a
+# reader to ignore the exit code, the one thing it is for.
+PASS, FAIL, SKIP = "PASS", "FAIL", "SKIP"
+
+
+def verdict(ok: bool) -> str:
+    return PASS if ok else FAIL
+
+
 def run_checks(base: str) -> int:
     """Everything that can be established without spending a run.
 
@@ -85,7 +96,7 @@ def run_checks(base: str) -> int:
     asserting it from the blueprint proves what was configured, not
     what the process did with it.
     """
-    findings: list[tuple[str, bool, str]] = []
+    findings: list[tuple[str, str, str]] = []
     with httpx.Client(base_url=base, timeout=httpx.Timeout(60.0, connect=30.0)) as client:
 
         def get(path: str) -> tuple[int, Any]:
@@ -96,67 +107,75 @@ def run_checks(base: str) -> int:
                 return response.status_code, response.text
 
         code, health = get("/api/health")
-        findings.append(("GET /api/health is 200", code == 200, str(code)))
+        findings.append(("GET /api/health is 200", verdict(code == 200), str(code)))
         if isinstance(health, dict):
             findings.append(
                 (
                     "health reports a version and commit",
-                    bool(health.get("version")) and health.get("commit") != "unavailable",
+                    verdict(bool(health.get("version")) and health.get("commit") != "unavailable"),
                     f"{health.get('version')} / {health.get('commit')}",
                 )
             )
             findings.append(
-                ("demo_mode is on", health.get("demo_mode") is True, str(health.get("demo_mode")))
+                (
+                    "demo_mode is on",
+                    verdict(health.get("demo_mode") is True),
+                    str(health.get("demo_mode")),
+                )
             )
 
         code, readiness = get("/api/readiness")
         live_enabled = (
             bool(readiness.get("live_research_enabled")) if isinstance(readiness, dict) else True
         )
-        findings.append(("GET /api/readiness answers", code in (200, 503), str(code)))
+        findings.append(("GET /api/readiness answers", verdict(code in (200, 503)), str(code)))
         if isinstance(readiness, dict):
-            findings.append(("ready", readiness.get("ready") is True, json.dumps(readiness)))
+            findings.append(
+                ("ready", verdict(readiness.get("ready") is True), json.dumps(readiness))
+            )
             findings.append(
                 (
                     "replay works independently of live research",
-                    readiness.get("replay_available") is True,
+                    verdict(readiness.get("replay_available") is True),
                     str(readiness.get("replay_available")),
                 )
             )
 
         code, config = get("/api/config")
-        findings.append(("GET /api/config is 200", code == 200, str(code)))
+        findings.append(("GET /api/config is 200", verdict(code == 200), str(code)))
         if isinstance(config, dict):
             findings.append(
                 (
                     "config exposes no secret-shaped value",
-                    not scan("config", json.dumps(config)),
+                    verdict(not scan("config", json.dumps(config))),
                     "clean" if not scan("config", json.dumps(config)) else "LEAK",
                 )
             )
 
         code, examples = get("/api/examples")
         listed = examples.get("examples", []) if isinstance(examples, dict) else []
-        findings.append(("recorded examples are served", bool(listed), f"{len(listed)} listed"))
+        findings.append(
+            ("recorded examples are served", verdict(bool(listed)), f"{len(listed)} listed")
+        )
         for summary in listed:
             example_id = summary["id"]
             code, body = get(f"/api/examples/{example_id}")
             ok = code == 200 and isinstance(body, dict) and "result" in body
-            findings.append((f"example {example_id} replays", ok, str(code)))
+            findings.append((f"example {example_id} replays", verdict(ok), str(code)))
 
         # The interactive schema is removed in demo mode on purpose: it
         # is a machine-readable description of an endpoint that spends
         # money.
         for path in ("/openapi.json", "/docs", "/redoc"):
             code, _ = get(path)
-            findings.append((f"{path} is not served", code == 404, str(code)))
+            findings.append((f"{path} is not served", verdict(code == 404), str(code)))
 
         if live_enabled:
             findings.append(
                 (
                     "research route probed",
-                    False,
-                    "SKIPPED: live research is enabled, and a probe would spend a run",
+                    SKIP,
+                    "live research is enabled here, and a probe would spend a run",
                 )
             )
         else:
@@ -167,18 +186,18 @@ def run_checks(base: str) -> int:
             findings.append(
                 (
                     "research is refused while live research is disabled",
-                    response.status_code in (403, 503),
+                    verdict(response.status_code in (403, 503)),
                     f"{response.status_code} {response.text[:200]}",
                 )
             )
 
     width = max(len(name) for name, _, _ in findings)
-    failed = 0
-    for name, ok, detail in findings:
-        if not ok:
-            failed += 1
-        print(f"{'PASS' if ok else 'FAIL'}  {name:<{width}}  {detail}")
-    print(f"\n{len(findings) - failed}/{len(findings)} passed")
+    failed = sum(1 for _, state, _ in findings if state == FAIL)
+    skipped = sum(1 for _, state, _ in findings if state == SKIP)
+    for name, state, detail in findings:
+        print(f"{state}  {name:<{width}}  {detail}")
+    checked = len(findings) - skipped
+    print(f"\n{checked - failed}/{checked} passed, {skipped} skipped")
     return 1 if failed else 0
 
 
