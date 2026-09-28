@@ -18,7 +18,7 @@ from typing import Any
 
 import httpx
 
-from agentic_research.config import Settings
+from agentic_research.config import Provider, Settings
 
 _TRACKED_PACKAGES = (
     "agentic-research-engine",
@@ -92,7 +92,17 @@ def capture(settings: Settings | None = None) -> dict[str, Any]:
         "provenance": capture_provenance(settings),
     }
     if settings is not None:
-        snapshot["ollama"] = _ollama_info(settings.ollama_base_url)
+        # Only when the run actually uses Ollama. This was unconditional,
+        # so a cloud run on Render spent up to the 3s timeout on every
+        # request probing a host that is not there, to record a digest
+        # for a model it never loads -- inside the run's own wall-clock
+        # budget. A local run still records it, because there the digest
+        # is what makes a measurement reproducible.
+        snapshot["ollama"] = (
+            _ollama_info(settings.ollama_base_url)
+            if settings.uses_provider(Provider.OLLAMA)
+            else {"version": "not used by this run"}
+        )
         snapshot["settings"] = {
             "llm_mode": settings.llm_mode.value,
             "max_research_rounds": settings.max_research_rounds,

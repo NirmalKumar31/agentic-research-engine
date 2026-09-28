@@ -140,8 +140,19 @@ class TestBodySizeLimit:
             )
         assert response.status_code in (400, 413)
 
-    def test_an_ordinary_question_is_unaffected(self) -> None:
-        """The limit must not be the thing that breaks normal use."""
+    def test_an_ordinary_question_is_unaffected(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """The limit must not be the thing that breaks normal use.
+
+        The engine is stubbed: this is about the body limit, and letting
+        the request reach a real run made the test depend on whether a
+        model provider happened to be reachable.
+        """
+        from agentic_research.web import api as api_module
+
+        async def fake_stream(query: str, settings: Any, run_id: str = "") -> Any:
+            yield {"event": "error", "error": "stubbed"}
+
+        monkeypatch.setattr(api_module, "stream_research", fake_stream)
         with client() as c:
             response = c.post(
                 "/api/research",
