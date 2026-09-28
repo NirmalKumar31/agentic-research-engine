@@ -91,17 +91,34 @@ class TestNothingClaimsABillingCeiling:
         r"(hard|absolute|guaranteed|billing)\s+(cost\s+)?(ceiling|cap|limit)", re.I
     )
 
+    # A sentence is allowed to name the thing it is denying. "not a
+    # billing cap" is the correct wording and the pattern above cannot
+    # tell it apart from a claim, so the words immediately before a
+    # match decide. Found by this test flagging the document written to
+    # satisfy it.
+    NEGATED = re.compile(r"(not|never|rather than|isn't|is not|are not|no)\s+(a|an|the)?\s*$", re.I)
+
     def _tracked_text_files(self) -> list[Path]:
+        """Every text file git would carry, staged or not.
+
+        `git ls-files` alone lists only what is already in the index, so
+        a new document passes locally until the moment it is added and
+        then fails in CI. Untracked-but-not-ignored files are included
+        so the answer does not depend on whether `git add` has run yet.
+        """
         import subprocess
 
-        out = subprocess.run(
-            ["git", "ls-files", "*.md", "*.yaml", "*.yml", "*.toml"],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.split()
-        return [ROOT / f for f in out]
+        def run(*args: str) -> list[str]:
+            return subprocess.run(
+                ["git", *args, "*.md", "*.yaml", "*.yml", "*.toml"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.split()
+
+        seen = dict.fromkeys(run("ls-files") + run("ls-files", "--others", "--exclude-standard"))
+        return [ROOT / f for f in seen]
 
     def test_no_document_calls_the_spend_limit_a_hard_ceiling(self) -> None:
         offenders: list[str] = []
@@ -113,7 +130,8 @@ class TestNothingClaimsABillingCeiling:
             for line in text.splitlines():
                 if "cost" not in line.lower() and "spend" not in line.lower():
                     continue
-                if self.FORBIDDEN.search(line):
+                match = self.FORBIDDEN.search(line)
+                if match and not self.NEGATED.search(line[: match.start()]):
                     offenders.append(f"{path.relative_to(ROOT)}: {line.strip()[:90]}")
         assert not offenders, "spend limit described as a guarantee:\n" + "\n".join(offenders)
 
@@ -122,3 +140,18 @@ class TestNothingClaimsABillingCeiling:
         block = config[config.index("max_cloud_cost_usd: float = Field(default=0.50") :][:1400]
         assert "Not a billing cap" in block
         assert "provider" in block.lower()
+
+    def test_a_real_claim_would_still_be_caught(self, tmp_path: Path) -> None:
+        """The negation exemption must not become a hole. Asserted
+        directly against the pattern, since the file walk is scoped to
+        the repository."""
+        claim = "MAX_CLOUD_COST_USD is a hard billing cap for every run."
+        match = self.FORBIDDEN.search(claim)
+        assert match is not None
+        assert not self.NEGATED.search(claim[: match.start()])
+
+    def test_the_denial_is_allowed(self) -> None:
+        denial = "The per-run limit is an estimate, not a billing cap."
+        match = self.FORBIDDEN.search(denial)
+        assert match is not None
+        assert self.NEGATED.search(denial[: match.start()])
