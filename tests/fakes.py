@@ -28,6 +28,8 @@ from agentic_research.schemas import (
     PlanOut,
     QueriesOut,
     QueryOut,
+    RelevanceOut,
+    RelevanceVerdictOut,
     ReportOut,
     SectionOut,
     SubQuestionOut,
@@ -162,6 +164,23 @@ def _default_followups(_: str) -> FollowupsOut:
     return FollowupsOut(followups=[FollowupOut(text="What are the deployment costs?", gap="cost")])
 
 
+def _default_relevance(user: str) -> RelevanceOut:
+    """Judge every candidate claim relevant.
+
+    The fake report's claims are written to answer the fake analysis's
+    question, so a "no" here would mean the fixture contradicts
+    itself. Tests that care about the judgement rejecting a claim set
+    their own response rather than relying on this.
+    """
+    indices = [int(m) for m in re.findall(r"^(\d+)\. ", user, flags=re.MULTILINE)]
+    return RelevanceOut(
+        verdicts=[
+            RelevanceVerdictOut(claim_index=i, answers_question=True, reason="answers the question")
+            for i in indices
+        ]
+    )
+
+
 def _default_report(user: str) -> ReportOut:
     """Reference whatever evidence ids the package actually offered.
 
@@ -246,6 +265,7 @@ _DEFAULTS = {
     "CoverageOut": _default_coverage,
     "FollowupsOut": _default_followups,
     "ReportOut": _default_report,
+    "RelevanceOut": _default_relevance,
 }
 
 

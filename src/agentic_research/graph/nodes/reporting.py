@@ -6,6 +6,7 @@ import asyncio
 from dataclasses import replace
 from typing import Any
 
+from agentic_research.answer_contract import AnswerContract
 from agentic_research.answer_coverage import assess_coverage
 from agentic_research.citations.guards import SourceIdentity
 from agentic_research.citations.nli import NLIUnavailable, build_verifier
@@ -17,7 +18,7 @@ from agentic_research.citations.publication import (
     filter_report_by_verification,
     key_of,
 )
-from agentic_research.citations.relevance import assess_relevance
+from agentic_research.citations.relevance import deterministic_relevance
 from agentic_research.citations.semantic import (
     CitedEvidence,
     SemanticVerdict,
@@ -31,7 +32,9 @@ from agentic_research.config import ModelRole
 from agentic_research.evidence.store import EvidenceStore
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import (
+    RELEVANCE_SYSTEM,
     SYNTHESIZER_SYSTEM,
+    relevance_user,
     synthesizer_user,
 )
 from agentic_research.graph.state import ResearchState
@@ -53,7 +56,7 @@ from agentic_research.models import (
 )
 from agentic_research.observability import get_logger
 from agentic_research.report import MAX_EXCERPTS
-from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, ReportOut
+from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, RelevanceOut, ReportOut
 
 log = get_logger(__name__)
 
@@ -592,6 +595,7 @@ async def _check_entailment(
     threshold = settings.nli_support_threshold
     errors: list = []
     contract = state.get("contract")
+    awaiting_judgement: list[tuple[Claim, SemanticVerdict]] = []
 
     try:
         scorer = ctx().nli_scorer or build_verifier(settings)
@@ -624,16 +628,13 @@ async def _check_entailment(
         # irrelevant claim is withheld with its own reason rather than
         # being reported as unsupported, which it is not.
         if verdict.publishable and contract is not None:
-            relevance = assess_relevance(
+            # Structure only, and free. The judgement is asked once for
+            # everything that survives, below.
+            relevance = deterministic_relevance(
                 claim.text,
                 claim.answer_slot or None,
                 contract,
                 evidence_text=" ".join(item.quote for item in pairs),
-                # No separate judge is configured yet, so the
-                # deterministic checks stand alone. Passing True here
-                # says only that nothing *rejected* it, not that
-                # anything affirmed it.
-                model_says_relevant=True,
             )
             if not relevance.publishable:
                 verdict = replace(
@@ -642,6 +643,8 @@ async def _check_entailment(
                     verdict="irrelevant",
                     reason=f"does not answer the question: {relevance.reason}",
                 )
+            else:
+                awaiting_judgement.append((claim, verdict))
 
         _record(claim.text, claim.evidence_ids, verdict, result, judgment(claim))
         if verdict.checked:
@@ -668,10 +671,79 @@ async def _check_entailment(
                 )
             )
 
+    # One judgement call for everything that survived structure.
+    #
+    # Asked of the critic rather than the synthesiser: a model marking
+    # its own homework finds it relevant. Batched into a single request
+    # because a public run has twenty in total, and a gate that costs
+    # one per claim would be the most expensive thing in the report.
+    #
+    # Fails closed. If the judgement cannot be obtained, the claims it
+    # would have covered are withheld -- an unanswered relevance
+    # question is not a yes.
+    if awaiting_judgement and contract is not None:
+        judged = await _judge_relevance(contract, [claim for claim, _ in awaiting_judgement])
+        for index, (claim, verdict) in enumerate(awaiting_judgement):
+            answers, why = judged.get(index, (None, "no judgement was returned"))
+            if answers is True:
+                continue
+            reason = (
+                f"does not answer the question: {why}"
+                if answers is False
+                else f"relevance could not be judged: {why}"
+            )
+            demoted = replace(verdict, publishable=False, verdict="irrelevant", reason=reason)
+            verdicts[key_of(claim)] = "irrelevant"
+            result.supported_claims = max(0, result.supported_claims - 1)
+            result.unsupported_claims += 1
+            result.issues.append(
+                CitationIssue(
+                    type=CitationIssueType.UNSUPPORTED_CLAIM,
+                    severity="warning",
+                    claim_text=claim.text[:200],
+                    evidence_id=",".join(claim.evidence_ids),
+                    detail=demoted.reason[:200],
+                )
+            )
+
     result.entailment_exhaustive = result.checked_claims == result.checkable_claims
     result.not_checked_claims = max(0, result.checkable_claims - result.checked_claims)
     errors += await _check_contradictions(report, store, result, state, verdicts, scorer)
     return errors, verdicts
+
+
+async def _judge_relevance(
+    contract: AnswerContract, claims: list[Claim]
+) -> dict[int, tuple[bool | None, str]]:
+    """Ask, once, which of these claims answer the question.
+
+    Returns nothing rather than guessing when the call fails, and the
+    caller withholds what it cannot get a verdict for.
+    """
+    try:
+        out = (
+            await ctx()
+            .router.get(ModelRole.CRITIC)
+            .structured(
+                RelevanceOut,
+                RELEVANCE_SYSTEM,
+                relevance_user(
+                    contract.question,
+                    [s.name for s in contract.required_slots],
+                    [claim.text for claim in claims],
+                ),
+            )
+        )
+    except LLMError as exc:
+        log.warning("relevance_judgement_failed", error=str(exc)[:200])
+        return {}
+
+    judged: dict[int, tuple[bool | None, str]] = {}
+    for verdict in out.verdicts:
+        if 0 <= verdict.claim_index < len(claims):
+            judged[verdict.claim_index] = (verdict.answers_question, verdict.reason)
+    log.info("relevance_judged", asked=len(claims), answered=len(judged))
+    return judged
 
 
 def _scoring_pairs(evidence_ids: list[str], store: EvidenceStore) -> list[CitedEvidence]:

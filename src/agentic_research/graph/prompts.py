@@ -328,3 +328,43 @@ def synthesizer_user(
         f"Evidence:\n{evidence_block}{slots}{gaps}{budget}\n\n"
         "Write the report."
     )
+
+
+RELEVANCE_SYSTEM = """\
+You judge whether a claim answers a question. You do not judge whether it \
+is true, and you are not being asked to check its evidence -- that has \
+already been done and every claim you see is supported by the quote it \
+cites.
+
+The only question is whether the claim helps answer what was asked.
+
+A claim can be entirely true, carefully sourced, and no answer at all. A \
+definition of one system does not answer how two systems differ. A \
+benchmark for one database does not answer a question about another. \
+Background about a topic does not answer a question about how to do \
+something.
+
+Be strict about what the question asked and generous about wording. A \
+source may answer correctly without using the question's vocabulary: a \
+paper describing "scaled dot-product attention" does answer a question \
+about self-attention. Judge the substance, not the phrasing.
+
+When a claim only partly bears on the question, say no. Something that \
+nearly answers is what the limitations section is for."""
+
+
+def relevance_user(question: str, required_slots: list[str], claims: list[str]) -> str:
+    """Ask for a verdict on every candidate claim in one call.
+
+    Batched deliberately: one provider request for a whole report
+    rather than one per claim, because a public run has twenty calls
+    in total and relevance must not eat them.
+    """
+    slots = "\n".join(f"- {name}" for name in required_slots) or "- (none stated)"
+    listed = "\n".join(f"{i}. {text}" for i, text in enumerate(claims))
+    return (
+        f"Question:\n{question}\n\n"
+        f"An answer to it must cover:\n{slots}\n\n"
+        f"Candidate claims:\n{listed}\n\n"
+        "For each claim, by index, say whether it helps answer the question."
+    )

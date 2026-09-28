@@ -282,3 +282,29 @@ __all__ = [
     "SectionOut",
     "SubQuestionOut",
 ]
+
+
+class RelevanceVerdictOut(BaseModel):
+    """One claim, judged against the question it is meant to answer."""
+
+    claim_index: int = Field(
+        description="The index of the claim being judged, copied from the list"
+    )
+    answers_question: bool = Field(
+        description=(
+            "True only if this claim helps answer the question that was asked. "
+            "A claim can be entirely true, well sourced, and still not an "
+            "answer: a definition of one subject does not answer how two "
+            "subjects differ."
+        )
+    )
+    reason: str = Field(
+        default="",
+        description="One short sentence. What it answers, or what it is about instead.",
+    )
+
+
+class RelevanceOut(BaseModel):
+    """Judgements for every candidate claim in one call."""
+
+    verdicts: list[RelevanceVerdictOut] = Field(default_factory=list)

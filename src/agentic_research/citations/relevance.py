@@ -189,19 +189,22 @@ def _competing_subject(claim_text: str, contract: AnswerContract) -> str | None:
     return None
 
 
-def assess_relevance(
+def deterministic_relevance(
     claim_text: str,
     declared_slot: str | None,
     contract: AnswerContract,
     *,
     evidence_text: str = "",
-    model_says_relevant: bool | None = None,
 ) -> RelevanceVerdict:
-    """Whether this claim answers the question the contract describes.
+    """The structural half, with no model involved.
 
-    ``model_says_relevant`` is the separate judgement. ``None`` means
-    it was not obtained; that withholds, because an unanswered
-    relevance question is not a "yes".
+    Separated so the judgement can be asked once for a whole report
+    rather than once per claim: a public run has twenty provider
+    requests in total, and relevance must not eat them. These checks
+    are free, so they run first and the judge only sees survivors.
+
+    A pass here means nothing rejected the claim. It does not mean
+    anything affirmed it -- that is what the judge is for.
     """
     if not contract.usable:
         return _no(
@@ -283,6 +286,35 @@ def assess_relevance(
             declared_slot,
         )
 
+    return RelevanceVerdict(
+        answers_question=True,
+        answer_slot=declared_slot,
+        slot_satisfied=True,
+        reason=f"fills the {declared_slot} slot",
+    )
+
+
+def assess_relevance(
+    claim_text: str,
+    declared_slot: str | None,
+    contract: AnswerContract,
+    *,
+    evidence_text: str = "",
+    model_says_relevant: bool | None = None,
+) -> RelevanceVerdict:
+    """Structure and judgement together.
+
+    ``model_says_relevant`` is the independent judgement. ``None``
+    means it was not obtained, and that withholds: an unanswered
+    relevance question is not a "yes", and defaulting it to one would
+    make the parameter a decoration rather than a gate.
+    """
+    structural = deterministic_relevance(
+        claim_text, declared_slot, contract, evidence_text=evidence_text
+    )
+    if not structural.publishable:
+        return structural
+
     if model_says_relevant is None:
         return _no(
             "no independent relevance judgement was available",
@@ -292,9 +324,4 @@ def assess_relevance(
     if model_says_relevant is False:
         return _no("the independent relevance judgement rejected it", declared_slot)
 
-    return RelevanceVerdict(
-        answers_question=True,
-        answer_slot=declared_slot,
-        slot_satisfied=True,
-        reason=f"fills the {declared_slot} slot",
-    )
+    return structural

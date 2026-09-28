@@ -152,3 +152,78 @@ class TestCoverageReachesTheReader:
         )
         limits = assess_coverage(contract, []).limitations()
         assert "could not be turned into" in limits[0]
+
+
+class TestTheJudgementIsAskedAndFailsClosed:
+    """The gate the deterministic checks cannot be.
+
+    Structure catches a claim about the wrong subject, a definition
+    filling a contrast slot, a figure from the wrong year. It cannot
+    catch a claim that is on topic, correctly shaped, and still not an
+    answer. That judgement is asked of a model, and until it was, the
+    call site passed True unconditionally -- a parameter that looked
+    like a gate and was a decoration.
+    """
+
+    def test_no_judgement_withholds(self) -> None:
+        from agentic_research.answer_contract import build_contract
+        from agentic_research.citations.relevance import assess_relevance
+
+        contract = build_contract(
+            "What is a vector database?", "definition", entities=["vector database"]
+        )
+        claim = "A vector database stores embeddings and retrieves them by search."
+        assert assess_relevance(claim, "definition", contract).publishable is False
+
+    def test_a_rejection_withholds(self) -> None:
+        from agentic_research.answer_contract import build_contract
+        from agentic_research.citations.relevance import assess_relevance
+
+        contract = build_contract(
+            "What is a vector database?", "definition", entities=["vector database"]
+        )
+        claim = "A vector database stores embeddings and retrieves them by search."
+        assert (
+            assess_relevance(claim, "definition", contract, model_says_relevant=False).publishable
+            is False
+        )
+
+    def test_structure_is_checked_before_the_judge_is_asked(self) -> None:
+        """Structure is free and the judgement costs a provider
+        request. A claim that fails structure must not buy one."""
+        from agentic_research.answer_contract import build_contract
+        from agentic_research.citations.relevance import deterministic_relevance
+
+        contract = build_contract("How fast is PostgreSQL?", "numeric", entities=["PostgreSQL"])
+        v = deterministic_relevance(
+            "MySQL sustained 42,000 inserts per second.", "measured_value", contract
+        )
+        assert v.publishable is False
+
+    def test_the_judge_is_not_the_model_that_wrote_the_claim(self) -> None:
+        """A model marking its own homework finds it relevant."""
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        source = inspect.getsource(reporting._judge_relevance)
+        assert "ModelRole.CRITIC" in source
+        assert "SYNTHESIZER" not in source
+
+    def test_it_is_one_call_for_the_whole_report(self) -> None:
+        """A public run has twenty provider requests in total; a gate
+        costing one per claim would be the most expensive thing in it."""
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        source = inspect.getsource(reporting._judge_relevance)
+        assert "[claim.text for claim in claims]" in source
+
+    def test_a_failed_call_returns_nothing_rather_than_guessing(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        source = inspect.getsource(reporting._judge_relevance)
+        assert "return {}" in source
