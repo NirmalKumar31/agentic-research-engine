@@ -284,3 +284,57 @@ class TestTheVersionMatchesTheRelease:
         from agentic_research import __version__
 
         assert __version__ != "0.2.0", "live research shipped under the replay release's version"
+
+
+class TestTheDeploymentEvidenceStaysTrue:
+    """Prose describing a deployment goes stale the moment the
+    deployment changes. These pin the numbers to the blueprint."""
+
+    DOC = "examples/live-validation/DEPLOYMENT-EVIDENCE.md"
+    SPEC = "deploy/render-live.yaml"
+
+    def _text(self) -> str:
+        import re
+
+        raw = (ROOT / self.DOC).read_text()
+        return re.sub(r"\s+", " ", raw)
+
+    def test_it_exists(self) -> None:
+        assert (ROOT / self.DOC).is_file()
+
+    def test_the_daily_admission_count_matches_the_blueprint(self) -> None:
+        from agentic_research.web.limits import runs_affordable
+
+        env = env_of(blueprint(self.SPEC))
+        expected = runs_affordable(
+            int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"]["value"]),
+            int(env["MAX_PROVIDER_REQUESTS"]["value"]),
+        )
+        assert f"**{expected}** = " in self._text() or f"Daily admissions | **{expected}**" in (
+            (ROOT / self.DOC).read_text()
+        )
+
+    def test_the_warm_up_budget_matches_the_blueprint(self) -> None:
+        env = env_of(blueprint(self.SPEC))
+        budget = env["NLI_SCALE_UP_TIMEOUT_SECONDS"]["value"]
+        assert f"{budget}s" in self._text()
+
+    def test_the_pinned_revision_matches(self) -> None:
+        env = env_of(blueprint(self.SPEC))
+        assert env["NLI_MODEL_REVISION"]["value"] in self._text()
+
+    def test_the_free_store_is_not_called_durable(self) -> None:
+        text = self._text().lower()
+        assert "does **not** survive a restart" in text or "not survive a restart" in text
+        assert "atomic and shared" in text
+
+    def test_the_spend_limit_is_called_an_estimate(self) -> None:
+        text = self._text().lower()
+        assert "estimate" in text
+        assert "not a billing cap" in text
+
+    def test_it_does_not_claim_research_quality(self) -> None:
+        """One run is not an evaluation, and the document has to say so
+        rather than let a reader infer otherwise from a green table."""
+        text = self._text().lower()
+        assert "not a research-quality evaluation" in text
