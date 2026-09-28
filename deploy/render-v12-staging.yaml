@@ -26,13 +26,21 @@
 #   Tavily key -- shared. Staging adds at most MAX_SEARCH_CREDITS (8)
 #   credits a day.
 #
-# WHAT IS NOT SHARED
+#   Render Key Value store -- shared, because Render permits exactly
+#   one free Key Value instance per workspace and production has it.
+#   A second instance is a paid resource for a deployment that exists
+#   to be deleted, so staging connects to production's.
 #
-#   The run counter. Two deployments of this image compute the same
-#   daily key, so a staging run pointed at production's store would
-#   quietly spend a production run. Staging gets its own Key Value
-#   service *and* its own DEMO_QUOTA_NAMESPACE. Either alone would do;
-#   both, because the failure is silent and the second costs nothing.
+#   That makes DEMO_QUOTA_NAMESPACE load-bearing rather than defence
+#   in depth. Two deployments of this image compute the same daily
+#   key, so without a namespace a staging run would silently spend one
+#   of production's five runs for the day -- nothing errors, the
+#   allowance is just short. The namespace goes between the fixed
+#   prefix and the UTC date, and since the date is always last and a
+#   namespace may not contain the key separator, no namespace can
+#   spell production's key. The blueprint test asserts the value is
+#   present and different, because it is now the only thing keeping
+#   the two counters apart.
 #
 # ACCEPTANCE ORDER. Create this blueprint with LIVE_RESEARCH_ENABLED
 # left at false. Run the credential-free checks against the deployed
@@ -82,14 +90,21 @@ services:
         sync: false
       - key: NLI_API_KEY
         sync: false
-      # Wired from the staging Key Value service below. Never pasted:
-      # a hand-copied connection string is how staging ends up pointed
-      # at production's counter.
+      # The production Key Value instance's INTERNAL connection string,
+      # copied from its dashboard page. Prompted rather than wired,
+      # because fromService resolves within a Blueprint and this store
+      # is defined in another one.
+      #
+      # Hand-copying a connection string is exactly what the live
+      # blueprint avoids, and the reason it avoids it was that a
+      # mistyped store is a staging service silently spending
+      # production's allowance. That specific danger is now handled by
+      # DEMO_QUOTA_NAMESPACE instead: pointing at production's store is
+      # the intent here, not the accident. Use the internal URL, not
+      # the external one -- the instance has ipAllowList: [], so the
+      # external URL will not connect and readiness will fail closed.
       - key: DEMO_QUOTA_URL
-        fromService:
-          name: agentic-research-v12-staging-quota
-          type: keyvalue
-          property: connectionString
+        sync: false
 
       # --- live switches ---
       # FALSE ON PURPOSE, AND THIS IS THE SAFETY INTERLOCK.
@@ -224,20 +239,3 @@ services:
         value: INFO
       - key: LOG_FORMAT
         value: json
-
-  # --- staging's own run counter ---------------------------------------
-  #
-  # Separate from production's, so a staging run cannot consume a
-  # production run for the day. Free plan, with the same caveat as
-  # production: Render states data persistence is unavailable on free
-  # Key Value instances, so a restart of the store returns the day's
-  # allowance to zero used. For a deployment admitting one run a day
-  # that is the difference between one run and two; the OpenAI project
-  # cap remains the financial backstop.
-  #
-  # Delete this with the web service at teardown.
-  - type: keyvalue
-    name: agentic-research-v12-staging-quota
-    plan: free
-    region: oregon
-    ipAllowList: []

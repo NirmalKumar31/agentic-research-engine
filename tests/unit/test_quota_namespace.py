@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import re
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -37,6 +38,7 @@ from agentic_research.web.api import create_app
 from agentic_research.web.durable_quota import DurableRunQuota
 from fakes import FakeQuotaStore
 
+REPO = Path(__file__).resolve().parents[2]
 STAGING = "v12-staging"
 QUESTION = {"query": "What did the study measure about developer productivity?"}
 
@@ -233,6 +235,49 @@ class TestTheDeploymentActuallyUsesIt:
             assert cp.post("/api/research", json=QUESTION).status_code == 200, (
                 "production was refused because staging had exhausted the shared key"
             )
+
+
+class TestTheDeployedValuesKeepThemApart:
+    """The same property, but with the numbers that will actually ship.
+
+    Render permits one free Key Value instance per workspace, so
+    staging connects to production's store rather than getting its
+    own. The test above proves the mechanism works; this one proves
+    the two committed blueprints are configured to use it. A namespace
+    that was correct in a test fixture and absent from the blueprint
+    would protect nothing.
+    """
+
+    @staticmethod
+    def namespaces() -> tuple[str, str]:
+        import yaml
+
+        def read(path: str) -> str:
+            doc = yaml.safe_load((REPO / path).read_text(encoding="utf-8"))
+            env = {e["key"]: e.get("value", "") for e in doc["services"][0]["envVars"]}
+            return env.get("DEMO_QUOTA_NAMESPACE", "")
+
+        return read("deploy/render-live.yaml"), read("deploy/render-v12-staging.yaml")
+
+    def test_one_store_two_blueprints_two_allowances(self) -> None:
+        production_ns, staging_ns = self.namespaces()
+        store = SharedStore()
+        production = DurableRunQuota(store, limit=5, required=True, namespace=production_ns)
+        staging = DurableRunQuota(store, limit=1, required=True, namespace=staging_ns)
+
+        assert staging.reserve().allowed
+        assert not staging.reserve().allowed, "staging's cap of one stopped applying"
+        for _ in range(5):
+            assert production.reserve().allowed, (
+                "a staging run consumed part of production's daily allowance"
+            )
+        assert not production.reserve().allowed
+
+    def test_the_two_keys_are_actually_different(self) -> None:
+        production_ns, staging_ns = self.namespaces()
+        assert DurableRunQuota.key(namespace=production_ns) != DurableRunQuota.key(
+            namespace=staging_ns
+        )
 
 
 def _cap(settings: Settings) -> int:

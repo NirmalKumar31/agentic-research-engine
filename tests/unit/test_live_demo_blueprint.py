@@ -275,18 +275,54 @@ class TestTheStagingBlueprintCannotBecomeProduction:
         assert {k: env[k] for k in pinned} == {k: live[k] for k in pinned}
         assert len(env["NLI_MODEL_REVISION"]) == 40
 
-    def test_its_counter_is_isolated_from_production(self, env: dict[str, str]) -> None:
-        """Both mechanisms, because the failure is silent: its own Key
-        Value service, and a namespace that would still separate the
-        keys if the connection strings were ever the same."""
-        namespace = env["DEMO_QUOTA_NAMESPACE"]
-        assert namespace, "staging would share production's daily key"
-        assert namespace != _blueprint(LIVE_BLUEPRINT).get("DEMO_QUOTA_NAMESPACE", "")
+    def test_it_declares_no_key_value_service_of_its_own(self) -> None:
+        """Render permits one free Key Value instance per workspace and
+        production has it, so staging shares that store. Declaring a
+        second would either fail the sync -- it did -- or, on a paid
+        plan, create a billable resource for a deployment that exists
+        to be deleted."""
+        assert [s for s in _services(STAGING_BLUEPRINT) if s["type"] == "keyvalue"] == []
+        assert [s for s in _services(LIVE_BLUEPRINT) if s["type"] == "keyvalue"], (
+            "production's store is the one being shared; it has to exist"
+        )
 
-        staging_kv = [s["name"] for s in _services(STAGING_BLUEPRINT) if s["type"] == "keyvalue"]
-        live_kv = [s["name"] for s in _services(LIVE_BLUEPRINT) if s["type"] == "keyvalue"]
-        assert staging_kv and live_kv
-        assert not set(staging_kv) & set(live_kv), "staging points at production's store"
+    def test_the_namespace_is_the_only_thing_separating_the_counters(
+        self, env: dict[str, str]
+    ) -> None:
+        """So it is asserted harder than it would be as a second line
+        of defence.
+
+        Both deployments now INCR against one store. Without a
+        namespace they compute the same daily key and a staging run
+        spends one of production's five, silently -- nothing errors,
+        the allowance is just short.
+        """
+        namespace = env["DEMO_QUOTA_NAMESPACE"]
+        live = _blueprint(LIVE_BLUEPRINT)
+        assert namespace, "staging and production would share one daily key"
+        assert namespace != live.get("DEMO_QUOTA_NAMESPACE", "")
+
+        # Checked against the real engine, with the values the two
+        # blueprints actually declare, rather than against a namespace
+        # invented for the test.
+        from agentic_research.web.durable_quota import DurableRunQuota
+
+        staging_key = DurableRunQuota.key(namespace=namespace)
+        production_key = DurableRunQuota.key(namespace=live.get("DEMO_QUOTA_NAMESPACE", ""))
+        assert staging_key != production_key
+
+    def test_the_shared_store_is_still_required_not_optional(self, env: dict[str, str]) -> None:
+        """Sharing the store must not become an excuse to stop counting.
+        DEMO_QUOTA_REQUIRED=false would fall back to a process-local
+        cap that a free instance resets every time it wakes."""
+        assert env["DEMO_QUOTA_REQUIRED"] == "true"
+
+    def test_the_connection_string_is_prompted_never_committed(self, env: dict[str, str]) -> None:
+        assert env["DEMO_QUOTA_URL"] == "<prompted>"
+        raw = (REPO / STAGING_BLUEPRINT).read_text(encoding="utf-8")
+        assert "redis://" not in raw.replace("redis://...", ""), (
+            "a connection string literal is in a committed blueprint"
+        )
 
     def test_the_namespace_survives_the_real_validator(self, env: dict[str, str]) -> None:
         """A value the blueprint declares and Settings rejects would
