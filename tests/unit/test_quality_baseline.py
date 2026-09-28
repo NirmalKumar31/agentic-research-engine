@@ -104,9 +104,15 @@ class TestTheCasesAreWellFormed:
 
 
 class TestTheHarnessStillRuns:
-    def test_it_reproduces_the_recorded_baseline(self, baseline: dict) -> None:
-        """Run live rather than trusting the file: a harness that has
-        drifted from its own recorded output is measuring nothing."""
+    def test_it_reproduces_the_current_recorded_result(self) -> None:
+        """Run live rather than trusting the file.
+
+        This used to compare against the frozen baseline, which was
+        right until the pipeline started improving and then asserted
+        that nothing had. The baseline stays immutable as the
+        comparison point; what must be reproducible is where the
+        pipeline is *now*.
+        """
         proc = subprocess.run(
             [sys.executable, str(EVAL / "run_eval.py"), "--json", "/dev/stdout"],
             capture_output=True,
@@ -116,9 +122,53 @@ class TestTheHarnessStillRuns:
         )
         payload = proc.stdout[proc.stdout.index("{") :]
         fresh = json.loads(payload[: payload.rindex("}") + 1])
-        assert fresh["summary"] == baseline["summary"], (
-            "the harness no longer reproduces the frozen baseline"
+        recorded = json.loads((EVAL / "current.json").read_text())
+        assert fresh["summary"] == recorded["summary"], (
+            "current.json is stale; regenerate it with run_eval.py --json"
         )
+
+
+class TestNothingRegressedAgainstTheBaseline:
+    """Improvement is measured, not asserted.
+
+    Every metric here may only move in one direction. A change that
+    publishes more by publishing worse fails these.
+    """
+
+    @pytest.fixture(scope="class")
+    @classmethod
+    def pair(cls) -> tuple[dict, dict]:
+        base = json.loads(BASELINE.read_text())["summary"]
+        now = json.loads((EVAL / "current.json").read_text())["summary"]
+        return base, now
+
+    def test_irrelevant_publications_never_increase(self, pair: tuple[dict, dict]) -> None:
+        base, now = pair
+        assert now["irrelevant_published"] <= base["irrelevant_published"]
+
+    def test_wrong_evidence_selections_never_increase(self, pair: tuple[dict, dict]) -> None:
+        base, now = pair
+        assert now["evidence_selection_wrong"] <= base["evidence_selection_wrong"]
+
+    def test_correct_claims_are_not_newly_withheld(self, pair: tuple[dict, dict]) -> None:
+        """A gate that fixes relevance by withholding everything is not
+        a fix."""
+        base, now = pair
+        assert now["correct_claims_wrongly_withheld"] <= base["correct_claims_wrongly_withheld"]
+
+    def test_cited_sources_never_get_weaker(self, pair: tuple[dict, dict]) -> None:
+        base, now = pair
+        assert now["min_selected_source_quality"] >= base["min_selected_source_quality"]
+        assert now["mean_selected_source_quality"] >= base["mean_selected_source_quality"]
+
+    def test_the_baseline_itself_is_unchanged(self) -> None:
+        """cc4e12c froze these numbers. They are the comparison point
+        and may not be edited to make a later result look better."""
+        base = json.loads(BASELINE.read_text())["summary"]
+        assert base["published"] == 14
+        assert base["irrelevant_published"] == 6
+        assert base["evidence_selection_wrong"] == 1
+        assert base["min_selected_source_quality"] == 0.55
 
 
 class TestRepairCannotRescueAnUnsupportedProposition:

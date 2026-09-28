@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from enum import StrEnum
 from functools import lru_cache
 from typing import Any
 
@@ -189,17 +190,57 @@ _ASSOCIATIVE = (
 _EXCLUSIVE = ("only", "exclusively", "solely", "unless", "no other", "nothing else")
 
 
+class SourceAuthority(StrEnum):
+    """How close a source is to what it reports.
+
+    Not a truth score and not a quality score. A primary source can be
+    wrong and an aggregator can be right; this says only who is doing
+    the reporting, which is what decides *which* of several supporting
+    quotes should carry a claim.
+    """
+
+    PRIMARY = "primary"
+    """The study, the specification, the official documentation."""
+    SECONDARY = "secondary"
+    """An account of a primary source: an article, an encyclopaedia."""
+    AGGREGATOR = "aggregator"
+    """An index, a social post, a listing. Useful for discovery."""
+    UNKNOWN = "unknown"
+
+
+# Ranked worst to best, so a larger number is a stronger source. Used
+# only to order evidence that has *already* passed entailment and the
+# guards; it never contributes to whether a claim is supported.
+_AUTHORITY_RANK: dict[SourceAuthority, int] = {
+    SourceAuthority.UNKNOWN: 0,
+    SourceAuthority.AGGREGATOR: 1,
+    SourceAuthority.SECONDARY: 2,
+    SourceAuthority.PRIMARY: 3,
+}
+
+
 @dataclass(frozen=True)
 class SourceIdentity:
-    """Who published the quote, for the attribution guard only.
+    """Who published the quote.
 
-    Deliberately just identity. Quality score, search rank and source
-    category are absent because they are not evidence of who said
-    something, and because none of them may influence entailment.
+    ``domain`` and ``title`` are what the attribution guard reads.
+
+    ``authority`` and ``quality`` are read only when choosing between
+    quotes that have already been accepted, and they are deliberately
+    never part of the premise. A classifier told that a quote came
+    from an authoritative domain would be scoring reputation, and
+    entailment is the only thing it is allowed to score. A test asserts
+    the scorer never sees either field.
     """
 
     domain: str = ""
     title: str = ""
+    authority: SourceAuthority = SourceAuthority.UNKNOWN
+    quality: float = 0.0
+
+    @property
+    def authority_rank(self) -> int:
+        return _AUTHORITY_RANK[self.authority]
 
 
 @dataclass(frozen=True)

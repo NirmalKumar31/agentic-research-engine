@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from agentic_research.citations.fake_nli import FakeScorer
+from agentic_research.citations.guards import SourceAuthority
 from agentic_research.citations.semantic import CitedEvidence, SourceIdentity, verify_claim
 
 HERE = Path(__file__).resolve().parent
@@ -46,7 +47,14 @@ def _cited(case: dict[str, Any], claim: dict[str, Any]) -> list[CitedEvidence]:
             CitedEvidence(
                 evidence_id,
                 item["quote"],
-                SourceIdentity(domain=src["domain"], title=""),
+                SourceIdentity(
+                    domain=src["domain"],
+                    title="",
+                    # The fixture's kind and quality reach selection,
+                    # never the premise.
+                    authority=SourceAuthority(src.get("kind", "unknown")),
+                    quality=float(src.get("quality", 0.0)),
+                ),
             )
         )
     return out
