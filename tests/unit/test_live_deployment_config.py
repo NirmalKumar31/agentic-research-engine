@@ -373,3 +373,50 @@ class TestBlueprintsDeployFromMain:
             if stripped.startswith("#"):
                 continue  # explanations may name the branch that caused this
             assert "feat/" not in stripped, f"{spec}: {stripped[:70]}"
+
+
+class TestTheVersionIsConsistentEverywhere:
+    """Four places state the version and they drift silently.
+
+    The dependency pins inside recorded runs and archived artifacts
+    also read "1.1.0" for langchain-ollama, so a find-and-replace bump
+    would rewrite historical evidence. They are deliberately excluded.
+    """
+
+    def test_python_package_and_module_agree(self) -> None:
+        import tomllib
+
+        from agentic_research import __version__
+
+        declared = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+        assert declared == __version__
+
+    def test_the_frontend_agrees(self) -> None:
+        import json
+
+        from agentic_research import __version__
+
+        pkg = json.loads((ROOT / "web" / "package.json").read_text())
+        lock = json.loads((ROOT / "web" / "package-lock.json").read_text())
+        assert pkg["version"] == __version__
+        assert lock["version"] == __version__
+        assert lock["packages"][""]["version"] == __version__
+
+    def test_the_changelog_names_the_current_version(self) -> None:
+        from agentic_research import __version__
+
+        changelog = (ROOT / "CHANGELOG.md").read_text()
+        assert f"## v{__version__}" in changelog, f"CHANGELOG has no entry for v{__version__}"
+
+    def test_recorded_runs_were_not_rewritten_by_a_version_bump(self) -> None:
+        """langchain-ollama 1.1.0 inside a recording is a dependency
+        version from the day that run happened, not this project's."""
+        import json
+
+        for path in (ROOT / "src/agentic_research/web/recorded_runs").glob("*.json"):
+            text = path.read_text()
+            if "langchain-ollama" in text:
+                blob = json.loads(text)
+                assert "1.1.0" in json.dumps(blob), (
+                    f"{path.name}: a recorded dependency version was rewritten"
+                )
