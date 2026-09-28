@@ -215,3 +215,62 @@ class TestTheProbeItself:
         scorer.revision = NLI_DEFAULT_REVISION  # type: ignore[attr-defined]
         monkeypatch.setattr(nli_preflight, "build_verifier", lambda _s: scorer)
         assert check_nli_ready(self._settings()).ready
+
+
+class TestTheVerifierWakeIsNarrated:
+    """A minute of invisible work reads as a hung page.
+
+    A remote verifier at minimum replicas 0 takes roughly a minute to
+    wake, and it happens after "started" and before the first graph
+    stage. The stream carried heartbeats through that window and
+    nothing else, so the UI sat on step 1 with no explanation for over
+    a third of the run. The work was always real; it was never
+    announced.
+    """
+
+    async def _events(self, monkeypatch: pytest.MonkeyPatch) -> list[dict]:
+        from agentic_research.citations import nli_preflight
+
+        seen: list[dict] = []
+        monkeypatch.setattr(
+            "agentic_research.runner.check_nli_ready",
+            lambda _s: nli_preflight.NLIReadiness(True, "ready"),
+        )
+        # The run fails later, at provider construction, because these
+        # settings carry no search key. That is fine and deliberate:
+        # everything under test here is emitted before then, and
+        # letting the failure escape would discard it.
+        with contextlib.suppress(Exception):
+            async for event in stream_research("q", settings()):
+                seen.append(event)
+                if len(seen) > 8:
+                    break
+        return seen
+
+    async def test_the_wake_is_announced_before_it_starts(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        events = await self._events(monkeypatch)
+        names = [e.get("data", {}).get("event") or e.get("event") for e in events]
+        assert "verifier_waking" in names, f"wake never announced; got {names}"
+
+    async def test_it_comes_before_any_pipeline_stage(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Announcing it afterwards would describe a wait that is over."""
+        events = await self._events(monkeypatch)
+        names = [e.get("data", {}).get("event") or e.get("event") for e in events]
+        wake = names.index("verifier_waking")
+        for stage in ("analyzing_query", "planning", "plan_generated"):
+            if stage in names:
+                assert wake < names.index(stage)
+
+    async def test_it_carries_the_configured_budget(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """So the UI can say how long the wait may be rather than
+        leaving the reader to guess whether it has stalled."""
+        events = await self._events(monkeypatch)
+        wake = next(
+            e["data"] for e in events if e.get("data", {}).get("event") == "verifier_waking"
+        )
+        assert "expected_seconds" in wake
+        assert "detail" in wake

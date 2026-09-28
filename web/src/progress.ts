@@ -16,6 +16,17 @@ export function describe(event: ProgressEvent): string | null {
       return `Starting research`;
     case "warning":
       return `Warning: ${s("message")}`;
+    case "verifier_waking": {
+      // Narrated because it is slow and invisible. A remote verifier at
+      // minimum replicas 0 takes about a minute to wake, and it happens
+      // before the first pipeline stage, so without this the UI sits on
+      // step 1 with no explanation and reads as hung.
+      const budget = Number(event["expected_seconds"] ?? 0);
+      const suffix = budget > 0 ? ` (up to ~${budget}s)` : "";
+      return `${String(event["detail"] ?? "Waking the verifier")}${suffix}`;
+    }
+    case "verifier_ready":
+      return "Verifier ready";
     case "analyzing_query":
       return "Analysing the question";
     case "query_analyzed":

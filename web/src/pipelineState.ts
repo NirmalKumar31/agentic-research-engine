@@ -231,6 +231,17 @@ export function humanise(event: ProgressEvent): string | null {
   switch (event.event) {
     case "started":
       return "Starting research";
+    case "verifier_waking": {
+      // Narrated because it is slow and invisible. A remote verifier at
+      // minimum replicas 0 takes about a minute to wake, and it happens
+      // before the first pipeline stage, so without this the UI sits on
+      // step 1 with no explanation and reads as hung.
+      const budget = Number(event["expected_seconds"] ?? 0);
+      const suffix = budget > 0 ? ` (up to ~${budget}s)` : "";
+      return `${String(event["detail"] ?? "Waking the verifier")}${suffix}`;
+    }
+    case "verifier_ready":
+      return "Verifier ready";
     case "query_analyzed":
       return `Read the question as: ${s("intent")}`;
     case "plan_generated":

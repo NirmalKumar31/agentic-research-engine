@@ -136,6 +136,28 @@ async def stream_research(
         # Off-thread because a local verifier loads a checkpoint here,
         # which would otherwise block the event loop and the progress
         # stream with it.
+        # Announced before it starts, not after it finishes.
+        #
+        # A remote verifier at minimum replicas 0 takes roughly a minute
+        # to wake, and that happens here -- after "started" and before
+        # the first graph stage. The stream carried heartbeats through
+        # it and nothing else, so the UI sat on step 1 with no
+        # explanation for over a third of the run and looked hung. The
+        # work was real; it was simply never narrated.
+        yield {
+            "event": "progress",
+            "data": {
+                "event": "verifier_waking",
+                "mode": getattr(settings, "nli_mode", "local"),
+                "detail": (
+                    "Waking the verifier"
+                    if getattr(settings, "nli_mode", "local") == "remote"
+                    else "Loading the verifier"
+                ),
+                "expected_seconds": int(getattr(settings, "nli_scale_up_timeout_seconds", 0) or 0),
+            },
+        }
+
         readiness = await asyncio.to_thread(check_nli_ready, settings)
         if not readiness.ready:
             log.warning("nli_preflight_failed", detail=readiness.detail)
@@ -148,6 +170,11 @@ async def stream_research(
                 "verifier_unavailable": True,
             }
             return
+
+        yield {
+            "event": "progress",
+            "data": {"event": "verifier_ready", "detail": "Verifier ready"},
+        }
 
         # Fail before spending anything if a configured model is unreachable.
         warnings = await router.preflight()
