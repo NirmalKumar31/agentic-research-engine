@@ -43,11 +43,11 @@ v1.1.0 was verifier-wake reporting. Research behaviour is v1.1.0's.
 
 ## Coverage
 
-`coverage.py` derives coverage from the cases rather than asserting it,
+`eval_coverage.py` derives coverage from the cases rather than asserting it,
 and exits non-zero when a required category or regression is missing.
 
 ```bash
-python examples/quality-eval/coverage.py
+python examples/quality-eval/eval_coverage.py
 ```
 
 All nine question categories and all eleven required regressions are

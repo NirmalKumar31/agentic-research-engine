@@ -88,12 +88,20 @@ class TestTheCasesAreWellFormed:
         """Derived from the cases, not asserted in prose. A set that
         quietly stops covering a requirement must fail here rather
         than keep looking complete."""
-        import sys
+        # Imported by path, not by name. A module called "coverage"
+        # collides with the installed coverage package that pytest-cov
+        # imports first, and the collision only appeared in CI --
+        # locally the import order happened to favour this file.
+        import importlib.util
 
-        sys.path.insert(0, str(EVAL))
-        from coverage import coverage
+        spec = importlib.util.spec_from_file_location(
+            "quality_eval_coverage", EVAL / "eval_coverage.py"
+        )
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
 
-        c = coverage()
+        c = module.coverage()
         assert not c.missing_categories, c.missing_categories
         assert not c.missing_regressions, c.missing_regressions
         assert not c.unknown_regressions, c.unknown_regressions
