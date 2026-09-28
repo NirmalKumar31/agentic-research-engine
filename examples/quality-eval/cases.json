@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "purpose": "Adversarial cases for the v1.2.0 research-quality work, frozen before any change so the baseline is honest.",
+  "how_to_read": {
+    "entailment": "Pinned per (claim, evidence) pair. The NLI threshold is frozen at 0.98 and is not under test; these cases measure selection, guards, relevance and coverage.",
+    "expected_publish": "What a correct pipeline should do. The v1.1.1 baseline is expected to disagree on several, which is the defect being measured.",
+    "source kind": "primary = the original study or official documentation; secondary = an account of it; aggregator = an index or social post."
+  },
+  "cases": [
+    {
+      "id": "comparison-llm-vs-nn",
+      "origin": "Live user question on the deployed service, 2026-09-28. Published 5 claims, none stating a difference.",
+      "question": "difference between llm and neural networks?",
+      "contract": {
+        "question_type": "comparison",
+        "entities": ["large language model", "neural network"],
+        "required_slots": ["relationship", "architecture_or_scope", "training_objective", "capabilities", "direct_contrast"]
+      },
+      "sources": [
+        {"id": "S1", "domain": "arxiv.org", "quality": 0.96, "kind": "primary"},
+        {"id": "S2", "domain": "en.wikipedia.org", "quality": 0.61, "kind": "secondary"},
+        {"id": "S3", "domain": "x.com", "quality": 0.55, "kind": "aggregator"}
+      ],
+      "evidence": [
+        {"id": "S1-e1", "source_id": "S1", "quote": "Large language models are neural networks that differ from earlier architectures chiefly in scale, in the use of a decoder-only transformer, and in a self-supervised next-token training objective rather than task-specific supervision."},
+        {"id": "S2-e1", "source_id": "S2", "quote": "A large language model is a type of machine learning model designed for natural language processing tasks such as language generation."},
+        {"id": "S3-e1", "source_id": "S3", "quote": "LLMs use decoder-only transformers whose representation for each token depends only on preceding tokens."}
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "Large language models differ from earlier neural networks in scale, decoder-only architecture, and a self-supervised next-token objective.",
+          "cites": ["S1-e1"],
+          "entailment": {"S1-e1": 0.991},
+          "expected_slot": "direct_contrast",
+          "expected_relevant": true,
+          "expected_publish": true,
+          "note": "The claim the question actually asks for, from the primary source."
+        },
+        {
+          "id": "c2",
+          "text": "A large language model is a machine learning model designed for natural language processing tasks.",
+          "cites": ["S2-e1"],
+          "entailment": {"S2-e1": 0.995},
+          "expected_slot": null,
+          "expected_relevant": false,
+          "expected_publish": false,
+          "note": "Supported and true, and a definition. It fills no comparison slot, so it must not publish for this question. The v1.1.1 pipeline publishes it."
+        },
+        {
+          "id": "c3",
+          "text": "LLMs use decoder-only transformers whose representation for each token depends only on preceding tokens.",
+          "cites": ["S3-e1", "S1-e1"],
+          "entailment": {"S3-e1": 0.994, "S1-e1": 0.985},
+          "expected_slot": "architecture_or_scope",
+          "expected_relevant": true,
+          "expected_publish": true,
+          "expected_selected_evidence": "S1-e1",
+          "note": "Both support it. A primary arXiv source must be preferred over a tweet. v1.1.1 cited the tweet."
+        }
+      ]
+    },
+    {
+      "id": "zero-publication-productivity",
+      "origin": "The v1.1.0 hosted acceptance run, which published 0 of 6.",
+      "question": "What is the measured evidence on whether AI coding assistants improve developer productivity?",
+      "contract": {
+        "question_type": "numeric",
+        "entities": ["AI coding assistants", "developer productivity"],
+        "required_slots": ["measured_effect", "study_design", "limitations"]
+      },
+      "sources": [
+        {"id": "S1", "domain": "arxiv.org", "quality": 0.95, "kind": "primary"}
+      ],
+      "evidence": [
+        {"id": "S1-e1", "source_id": "S1", "quote": "In a randomised controlled trial, developers allowed to use AI tools took 19% longer to complete tasks than the control group."}
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "In a randomised trial developers using AI tools took 19% longer to complete tasks, and the authors note the result contradicts participant self-reports.",
+          "cites": ["S1-e1"],
+          "entailment": {"S1-e1": 0.983},
+          "expected_slot": "measured_effect",
+          "expected_relevant": true,
+          "expected_publish": false,
+          "expected_after_repair": true,
+          "repairable_reason": "atomicity",
+          "note": "Two assertions in one sentence, and the second is not in the quote. Atomicity must reject it; a bounded repair may drop the unsupported half and republish the first."
+        },
+        {
+          "id": "c2",
+          "text": "Developers using AI tools took 19% longer to complete tasks in a randomised trial.",
+          "cites": ["S1-e1"],
+          "entailment": {"S1-e1": 0.991},
+          "expected_slot": "measured_effect",
+          "expected_relevant": true,
+          "expected_publish": true,
+          "note": "The atomic form of the same finding. This is what repair should converge on."
+        }
+      ]
+    },
+    {
+      "id": "unrepairable-overclaim",
+      "origin": "Constructed. Guards must not be talked out of a refusal.",
+      "question": "Does code review reduce production defects?",
+      "contract": {
+        "question_type": "causal",
+        "entities": ["code review", "production defects"],
+        "required_slots": ["causal_evidence", "limitations"]
+      },
+      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.7, "kind": "secondary"}],
+      "evidence": [
+        {"id": "S1-e1", "source_id": "S1", "quote": "Teams that reviewed more code reported fewer production defects over the period studied."}
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "Code review causes a reduction in production defects.",
+          "cites": ["S1-e1"],
+          "entailment": {"S1-e1": 0.42},
+          "expected_slot": "causal_evidence",
+          "expected_relevant": true,
+          "expected_publish": false,
+          "expected_after_repair": false,
+          "note": "An association stated as causation. It must stay withheld after repair; turning correlation into cause is exactly what repair may not do."
+        }
+      ]
+    },
+    {
+      "id": "wrong-entity-evidence",
+      "origin": "Constructed. Supported, relevant-sounding, about the wrong subject.",
+      "question": "How fast is PostgreSQL at bulk inserts?",
+      "contract": {
+        "question_type": "numeric",
+        "entities": ["PostgreSQL"],
+        "required_slots": ["measured_rate", "conditions"]
+      },
+      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.8, "kind": "primary"}],
+      "evidence": [
+        {"id": "S1-e1", "source_id": "S1", "quote": "MySQL sustained 42,000 bulk inserts per second on the benchmark hardware."}
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "MySQL sustained 42,000 bulk inserts per second on the benchmark hardware.",
+          "cites": ["S1-e1"],
+          "entailment": {"S1-e1": 0.999},
+          "expected_slot": null,
+          "expected_relevant": false,
+          "expected_publish": false,
+          "note": "Perfectly supported and about a different database. Entailment cannot catch this; only an entity check can."
+        }
+      ]
+    },
+    {
+      "id": "comparison-answered-with-definitions",
+      "origin": "The failure mode of the live LLM question, isolated.",
+      "question": "How does REST differ from GraphQL?",
+      "contract": {
+        "question_type": "comparison",
+        "entities": ["REST", "GraphQL"],
+        "required_slots": ["direct_contrast", "data_fetching", "versioning"]
+      },
+      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.75, "kind": "secondary"}],
+      "evidence": [
+        {"id": "S1-e1", "source_id": "S1", "quote": "REST is an architectural style that exposes resources at URLs and uses HTTP verbs."},
+        {"id": "S1-e2", "source_id": "S1", "quote": "GraphQL is a query language that lets a client request exactly the fields it needs from a single endpoint."}
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "REST is an architectural style that exposes resources at URLs and uses HTTP verbs.",
+          "cites": ["S1-e1"],
+          "entailment": {"S1-e1": 0.997},
+          "expected_slot": null,
+          "expected_relevant": false,
+          "expected_publish": false,
+          "note": "A definition of one side. Two such claims are not a comparison."
+        },
+        {
+          "id": "c2",
+          "text": "GraphQL lets a client request exactly the fields it needs from a single endpoint.",
+          "cites": ["S1-e2"],
+          "entailment": {"S1-e2": 0.996},
+          "expected_slot": null,
+          "expected_relevant": false,
+          "expected_publish": false,
+          "note": "The other definition. The report must report no contrast rather than present these as the answer."
+        }
+      ],
+      "expected_coverage": {"satisfied_slots": [], "report_must_state_no_contrast": true}
+    },
+    {
+      "id": "insufficient-evidence",
+      "origin": "Constructed. A safe refusal is a correct outcome.",
+      "question": "What was the exact revenue of a private company in Q3 2026?",
+      "contract": {
+        "question_type": "numeric",
+        "entities": ["private company"],
+        "required_slots": ["reported_figure", "source_authority"]
+      },
+      "sources": [{"id": "S1", "domain": "example.org", "quality": 0.5, "kind": "aggregator"}],
+      "evidence": [
+        {"id": "S1-e1", "source_id": "S1", "quote": "Analysts speculated that revenue may have grown, though the company does not disclose figures."}
+      ],
+      "claims": [
+        {
+          "id": "c1",
+          "text": "The company's Q3 2026 revenue grew.",
+          "cites": ["S1-e1"],
+          "entailment": {"S1-e1": 0.31},
+          "expected_slot": "reported_figure",
+          "expected_relevant": true,
+          "expected_publish": false,
+          "note": "Speculation reported as fact. Zero findings is the right answer here."
+        }
+      ]
+    }
+  ]
+}
