@@ -660,6 +660,61 @@ class EvidenceScoreRecord(BaseModel):
     """Guard names, empty when all passed."""
 
 
+class PropositionRecord(BaseModel):
+    """One assertion inside a claim, with the score it earned alone."""
+
+    text: str
+    supported: bool
+    best_entailment: float
+    best_evidence_id: str | None = None
+
+
+class RelevanceRecord(BaseModel):
+    """Why a supported claim was, or was not, allowed to answer.
+
+    Support and relevance are separate gates, and a claim can pass the
+    first and fail the second. Recorded structurally because the two
+    failures used to be distinguishable only by reading prose: both
+    arrived as a ``reason`` string beginning "does not answer the
+    question", whether the structural check refused it for free or a
+    critic call was paid for to refuse it.
+    """
+
+    stage: Literal["structural", "judged"]
+    """``structural`` is the free check against the contract's slots and
+    entities. ``judged`` is the batched critic call, asked only of what
+    survived structure."""
+    relevant: bool | None
+    """None means no judgement was obtained. Withheld, not rejected --
+    an unanswered relevance question is not a yes, and the distinction
+    matters when reading why a run published little."""
+    reason: str
+
+
+class RepairRecord(BaseModel):
+    """One bounded rewrite attempt, whatever became of it.
+
+    Rejected attempts are recorded too. A repair that was refused
+    because it added a number is the gate working, and it was
+    previously visible only in a log line that no acceptance capture
+    reads.
+
+    ``original_text`` is duplicated from the judgment rather than
+    inferred: :meth:`Claim.text` is mutated in place when a repair is
+    accepted, so without an explicit copy the pre-repair wording of a
+    published claim exists nowhere.
+    """
+
+    original_text: str
+    repaired_text: str | None = None
+    """None when the model returned nothing to check."""
+    guard: str
+    """The refusal the repair was attempting to address."""
+    accepted: bool = False
+    reason: str = ""
+    """Why it was rejected, or empty when it was accepted."""
+
+
 class ClaimJudgment(BaseModel):
     """The full record of one claim's semantic verdict.
 
@@ -708,6 +763,15 @@ class ClaimJudgment(BaseModel):
     publishable: bool = False
     """The only field the publication gate reads. Deliberately separate
     from ``verdict``, which is a derived diagnostic label."""
+
+    # --- what the claim was decomposed into, and the gates after support ---
+    propositions: list[PropositionRecord] = Field(default_factory=list)
+    """Empty when the claim asserted one thing and was never split."""
+    relevance: RelevanceRecord | None = None
+    """None when the claim never reached the relevance gate, which is
+    the normal case for a claim its evidence did not support."""
+    repair: RepairRecord | None = None
+    """None when no rewrite was attempted."""
 
 
 class CitationVerification(BaseModel):

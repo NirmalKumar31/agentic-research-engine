@@ -48,7 +48,11 @@ RECORDINGS_DIR = Path(__file__).resolve().parent / "recorded_runs"
 # renders as a subtly broken demo rather than an obvious error.
 # 2: planner free prose (plan.strategy, sub_question.rationale) removed
 #    from the public payload -- both carried model self-talk.
-RECORDING_SCHEMA_VERSION = 2
+# 3: result.contract added. The three committed recordings predate the
+#    answer contract entirely, so theirs is null -- a truthful record of
+#    runs that were never held to one, not a contract back-filled to make
+#    the shape match.
+RECORDING_SCHEMA_VERSION = 3
 
 # Progress events are copied into a committed, publicly served file, so the
 # fields that survive are listed rather than filtered. An allowlist cannot
@@ -479,6 +483,7 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
     evidence = state.get("evidence", []) or []
     sources = state.get("sources", []) or []
     plan = state.get("plan")
+    contract = state.get("contract")
 
     def claim(c: Any) -> dict[str, Any]:
         return {
@@ -563,6 +568,12 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
             }
             for s in sources
         ],
+        # The contract the run was held to. Without it the relevance
+        # decisions in ``verification`` cannot be read: "does not
+        # answer the question" is only checkable against the slots the
+        # question was decomposed into, and those were built before
+        # retrieval and then discarded.
+        "contract": None if contract is None else contract.to_dict(),
         "verification": state.get("verification"),
         "metrics": result.metrics.model_dump(mode="json"),
         "markdown": result.markdown,

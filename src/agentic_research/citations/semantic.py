@@ -24,7 +24,7 @@ both must stay out of the report.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final, Literal, Protocol
 
 from agentic_research.citations.guards import (
@@ -119,6 +119,23 @@ class EvidenceScore:
 
 
 @dataclass(frozen=True)
+class PropositionScore:
+    """One assertion inside a claim, and whether its own evidence carried it.
+
+    Kept because the decomposition is the interesting part of the
+    verdict and the only part that used to vanish. A claim withheld for
+    asserting two things is reported as one refusal string; which part
+    failed, and by how far, was reconstructable only by rerunning the
+    classifier against a guess at how the sentence was split.
+    """
+
+    text: str
+    supported: bool
+    best_entailment: float
+    best_evidence_id: str | None = None
+
+
+@dataclass(frozen=True)
 class SemanticVerdict:
     """The complete, untruncated record of why a claim did or did not publish."""
 
@@ -132,6 +149,8 @@ class SemanticVerdict:
     best_evidence_id: str | None = None
     best_entailment: float = 0.0
     per_evidence: list[EvidenceScore] = field(default_factory=list)
+    propositions: list[PropositionScore] = field(default_factory=list)
+    """Empty when the claim asserted one thing and was not decomposed."""
 
 
 def _withheld(
@@ -180,6 +199,13 @@ def verify_claim(
     if check_propositions:
         parts = decompose(claim_text)
         if len(parts) > 1:
+            # Scored parts accumulate as they are checked, and travel
+            # out on whichever verdict is returned. The loop still stops
+            # at the first failure -- one unsupported proposition
+            # withholds the claim, and scoring the rest would spend
+            # classifier calls to learn nothing that changes the answer.
+            # So this list ends at the part that failed, deliberately.
+            scored: list[PropositionScore] = []
             for part in parts:
                 verdict = verify_claim(
                     part.text,
@@ -188,22 +214,36 @@ def verify_claim(
                     support_threshold=support_threshold,
                     check_propositions=False,
                 )
+                scored.append(
+                    PropositionScore(
+                        text=part.text,
+                        supported=verdict.publishable,
+                        best_entailment=verdict.best_entailment,
+                        best_evidence_id=verdict.best_evidence_id,
+                    )
+                )
                 if not verdict.publishable:
-                    return _withheld(
-                        f"the claim asserts {len(parts)} things and "
-                        f"{part.text.strip()!r} is not supported: {verdict.reason}",
-                        support_threshold,
-                        scorer.model_id,
-                        scorer.revision,
-                        checked=verdict.checked,
+                    return replace(
+                        _withheld(
+                            f"the claim asserts {len(parts)} things and "
+                            f"{part.text.strip()!r} is not supported: {verdict.reason}",
+                            support_threshold,
+                            scorer.model_id,
+                            scorer.revision,
+                            checked=verdict.checked,
+                        ),
+                        propositions=scored,
                     )
             # Every part stands. Report the whole claim's own numbers.
-            return verify_claim(
-                claim_text,
-                evidence,
-                scorer,
-                support_threshold=support_threshold,
-                check_propositions=False,
+            return replace(
+                verify_claim(
+                    claim_text,
+                    evidence,
+                    scorer,
+                    support_threshold=support_threshold,
+                    check_propositions=False,
+                ),
+                propositions=scored,
             )
 
     cited: list[CitedEvidence] = [
