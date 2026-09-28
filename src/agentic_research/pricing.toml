@@ -17,3 +17,16 @@
 # cost only: it excludes electricity, hardware amortisation and your time.
 [ollama]
 "*" = { input = 0.0, output = 0.0 }
+
+# Dated snapshots mapped to a reviewed entry above, one line per review.
+#
+# require_price() refuses anything not named here or in a provider table.
+# It used to match by prefix, so "gpt-6-sol-2027-01-01" would have been
+# billed at today's gpt-6-sol rate with nobody having checked whether
+# that is what the provider charges. Reporting still resolves prefixes;
+# spending does not.
+[aliases.openai]
+# (none reviewed yet)
+
+[aliases.ollama]
+# (none needed: local models are priced by the wildcard above)

@@ -84,7 +84,7 @@ async def test_a_model_without_a_verified_price_is_refused() -> None:
     settings = cloud_settings(openai_model="totally-unpriced-model")
     with pytest.raises(ModelUnavailableError) as caught:
         await ModelRouter(settings).preflight()
-    assert "no verified price" in str(caught.value)
+    assert "no reviewed price" in str(caught.value)
 
 
 @respx.mock

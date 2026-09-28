@@ -303,6 +303,15 @@ class RoleModel:
             usage = getattr(raw, "usage_metadata", None) or {}
             attempt_in = int(usage.get("input_tokens", 0) or 0)
             attempt_out = int(usage.get("output_tokens", 0) or 0)
+            # Detailed categories, when the provider reports them. These
+            # were read and discarded, so a response billed partly at a
+            # cached-input rate was reconciled as if every token were
+            # charged at the full one.
+            in_detail = usage.get("input_token_details") or {}
+            out_detail = usage.get("output_token_details") or {}
+            attempt_cached = int(in_detail.get("cache_read", 0) or 0)
+            attempt_cache_write = int(in_detail.get("cache_creation", 0) or 0)
+            attempt_reasoning = int(out_detail.get("reasoning", 0) or 0)
             input_tokens += attempt_in
             output_tokens += attempt_out
 
@@ -315,6 +324,9 @@ class RoleModel:
                 attempt_in,
                 attempt_out,
                 ok=parsed is not None and parse_error is None,
+                cached_input_tokens=attempt_cached,
+                cache_write_tokens=attempt_cache_write,
+                reasoning_tokens=attempt_reasoning,
             )
 
             if parsed is not None and parse_error is None:
@@ -360,6 +372,9 @@ class RoleModel:
         error: str | None = None,
         billable: bool = True,
         rate_limited: bool = False,
+        cached_input_tokens: int = 0,
+        cache_write_tokens: int = 0,
+        reasoning_tokens: int = 0,
     ) -> None:
         self._tracker.record_attempt(
             ProviderAttempt(
@@ -375,6 +390,9 @@ class RoleModel:
                 error=error,
                 billable=billable,
                 rate_limited=rate_limited,
+                cached_input_tokens=cached_input_tokens,
+                cache_write_tokens=cache_write_tokens,
+                reasoning_tokens=reasoning_tokens,
             )
         )
 
