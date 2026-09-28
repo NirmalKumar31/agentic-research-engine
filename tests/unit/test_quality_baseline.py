@@ -119,3 +119,47 @@ class TestTheHarnessStillRuns:
         assert fresh["summary"] == baseline["summary"], (
             "the harness no longer reproduces the frozen baseline"
         )
+
+
+class TestRepairCannotRescueAnUnsupportedProposition:
+    """A specification property, asserted in the fixture itself.
+
+    A claim bundling a supported number with an unsupported assertion
+    must be withheld permanently. Repair exists for wording, after
+    every proposition is already supported; deleting the unsupported
+    half and publishing the remainder would be laundering, not repair.
+    The supported half reaches print only if generation emits it
+    upstream as its own draft and it passes every gate independently.
+    """
+
+    @pytest.fixture(scope="class")
+    @classmethod
+    def bundled(cls) -> dict:
+        spec = json.loads((EVAL / "cases.json").read_text())
+        case = next(c for c in spec["cases"] if c["id"] == "zero-publication-productivity")
+        return {c["id"]: c for c in case["claims"]}
+
+    def test_the_bundled_claim_is_never_publishable(self, bundled: dict) -> None:
+        c1 = bundled["c1"]
+        assert c1["expected_publish"] is False
+        assert c1["expected_after_repair"] is False
+
+    def test_the_supported_half_stands_on_its_own(self, bundled: dict) -> None:
+        c2 = bundled["c2"]
+        assert c2["expected_publish"] is True
+        assert c2["cites"] == c1_cites(bundled), (
+            "the independent draft must rest on the same evidence, not new evidence"
+        )
+
+    def test_no_case_expects_repair_to_rescue_an_unsupported_claim(self) -> None:
+        spec = json.loads((EVAL / "cases.json").read_text())
+        for case in spec["cases"]:
+            for claim in case["claims"]:
+                if claim.get("expected_after_repair") is True:
+                    assert claim["expected_relevant"] is True, (
+                        f"{case['id']}/{claim['id']}: repair may not rescue irrelevance"
+                    )
+
+
+def c1_cites(bundled: dict) -> list[str]:
+    return bundled["c1"]["cites"]

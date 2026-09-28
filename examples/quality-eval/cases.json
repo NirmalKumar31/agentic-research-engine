@@ -159,9 +159,9 @@
           "expected_slot": "measured_effect",
           "expected_relevant": true,
           "expected_publish": false,
-          "expected_after_repair": true,
+          "expected_after_repair": false,
           "repairable_reason": "atomicity",
-          "note": "Two assertions in one sentence, and the second is not in the quote. Atomicity must reject it; a bounded repair may drop the unsupported half and republish the first."
+          "note": "Two assertions in one sentence, and the second -- that the authors note the result contradicts participant self-reports -- is not in the quote. It must be withheld permanently. Repair may not delete an unsupported proposition and publish what remains; the supported half reaches print only if generation emits it upstream as its own ClaimDraft, which is c2."
         },
         {
           "id": "c2",
