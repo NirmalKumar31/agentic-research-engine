@@ -968,3 +968,29 @@ class TestUrlSlugsAreNotMistakenForKeys:
 
         for path in sorted(RECORDINGS_DIR.glob("*.json")):
             assert_no_secrets(path.stem, json.loads(path.read_text(encoding="utf-8")))
+
+
+class TestTheApiSchemaIsNotPublished:
+    """Hiding the docs page while serving the schema hides nothing.
+
+    The deployed demo returned the SPA for /docs -- correctly -- and the
+    complete OpenAPI document for /openapi.json, describing
+    /api/research and its request body. docs_url=None does not disable
+    openapi_url, and only a deployed check noticed.
+    """
+
+    def test_demo_mode_serves_no_schema(self) -> None:
+        app = quota_app(_settings(demo_mode=True))
+        assert app.openapi_url is None
+        assert app.docs_url is None
+
+    def test_a_non_demo_deployment_keeps_its_schema(self) -> None:
+        """A private or local deployment has nobody to hide it from."""
+        app = quota_app(_settings(demo_mode=False))
+        assert app.openapi_url == "/openapi.json"
+        assert app.docs_url == "/docs"
+
+    def test_the_schema_route_is_absent_in_demo_mode(self) -> None:
+        app = quota_app(_settings(demo_mode=True))
+        paths = {getattr(r, "path", None) for r in app.routes}
+        assert "/openapi.json" not in paths

@@ -253,7 +253,16 @@ def create_app(
         lifespan=lifespan,
         # No interactive docs in demo mode: they invite poking at an endpoint
         # that spends money, and add nothing for a demo visitor.
+        #
+        # openapi_url has to go too. docs_url=None removes the Swagger
+        # page and leaves /openapi.json serving the full schema, which
+        # is the same invitation in a machine-readable form -- the
+        # deployed demo was publishing a complete description of
+        # /api/research, request body included, while the UI it was
+        # meant to hide returned the SPA. Found during hosted
+        # acceptance, not by a test.
         docs_url=None if state.demo_mode else "/docs",
+        openapi_url=None if state.demo_mode else "/openapi.json",
         redoc_url=None,
     )
     app.state.research = state
