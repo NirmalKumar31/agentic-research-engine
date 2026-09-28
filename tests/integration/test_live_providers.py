@@ -45,7 +45,23 @@ def _ollama_running() -> bool:
         return False
 
 
-ollama = pytest.mark.skipif(not _ollama_running(), reason="Ollama is not reachable")
+@pytest.fixture
+def _require_ollama() -> None:
+    """Skip unless Ollama answers, checked when the test runs.
+
+    Deliberately a fixture rather than a module-level skipif. pytest
+    evaluates a skipif condition while *importing* the module, and it
+    imports every test module during collection -- including this one,
+    which the default run then deselects. So the reachability probe ran
+    on every invocation of the suite, an HTTP request to localhost from
+    a run that had already decided not to touch a provider. It made the
+    unit suite's behaviour depend on whether Ollama happened to be up.
+    """
+    if not _ollama_running():
+        pytest.skip("Ollama is not reachable")
+
+
+ollama = pytest.mark.usefixtures("_require_ollama")
 tavily = pytest.mark.skipif(
     TAVILY_KEY is None, reason="TAVILY_API_KEY is not set (checked env and .env)"
 )

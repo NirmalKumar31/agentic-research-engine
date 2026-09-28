@@ -60,7 +60,6 @@ class TestModeDefaults:
             ModelRole.PLANNER,
             ModelRole.CRITIC,
             ModelRole.SYNTHESIZER,
-            ModelRole.VERIFIER,
         ):
             assert resolved[role].provider is Provider.OPENAI
 

@@ -268,3 +268,51 @@ class TestArtifactsCarryProvenance:
     def test_provenance_survives_a_json_round_trip(self, field: str) -> None:
         block = json.loads(json.dumps(capture(Settings(llm_mode="local", _env_file=None))))
         assert block[field]
+
+
+class TestEnvironmentCaptureDoesNotProbeUnusedProviders:
+    """Capture records the Ollama server version and per-model digests,
+    which is what makes a local benchmark reproducible. It was called on
+    every run regardless of mode, so a cloud run on Render spent up to
+    the 3s HTTP timeout probing a host that is not there -- inside the
+    run's own wall-clock budget -- for a digest it would never use.
+    """
+
+    @staticmethod
+    def _settings(mode: str):
+        from agentic_research.config import Settings
+
+        return Settings(
+            llm_mode=mode,
+            tavily_api_key="tvly-test-key",
+            # Cloud mode refuses to construct without one.
+            openai_api_key="sk-" + "test-key-for-settings-construction",
+            _env_file=None,
+        )  # type: ignore[arg-type]
+
+    def test_a_cloud_run_makes_no_ollama_request(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from agentic_research import environment
+
+        calls: list[str] = []
+        monkeypatch.setattr(
+            environment, "_ollama_info", lambda url: calls.append(url) or {"version": "x"}
+        )
+        snapshot = environment.capture(self._settings("cloud"))
+        assert calls == [], "cloud run probed Ollama"
+        assert snapshot["ollama"] == {"version": "not used by this run"}
+
+    def test_a_local_run_still_records_the_digest(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Not simply removed: locally the digest is what lets a number
+        be reproduced, because a model tag moves."""
+        from agentic_research import environment
+
+        calls: list[str] = []
+
+        def fake(url: str) -> dict:
+            calls.append(url)
+            return {"version": "0.1.2", "models": {}}
+
+        monkeypatch.setattr(environment, "_ollama_info", fake)
+        snapshot = environment.capture(self._settings("local"))
+        assert len(calls) == 1
+        assert snapshot["ollama"]["version"] == "0.1.2"

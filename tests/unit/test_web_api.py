@@ -26,6 +26,7 @@ from agentic_research.models import (
 from agentic_research.runner import RunResult
 from agentic_research.web.api import create_app
 from agentic_research.web.limits import DemoLimits
+from fakes import FakeQuotaStore
 
 
 def demo_settings(**overrides: Any) -> Settings:
@@ -36,6 +37,10 @@ def demo_settings(**overrides: Any) -> Settings:
         # It ships off by default because the hosted demo serves recorded
         # runs; the gating itself is covered in test_replay_mode.py.
         "live_research_enabled": True,
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
         # Deliberately secret-shaped, and allowlisted in .gitleaks.toml.
         "tavily_api_key": "tvly-test-key",
         "max_research_rounds": 9,
@@ -44,6 +49,19 @@ def demo_settings(**overrides: Any) -> Settings:
     }
     base.update(overrides)
     return Settings(**base)  # type: ignore[arg-type]
+
+
+def demo_app(settings: Settings | None = None, store: FakeQuotaStore | None = None) -> Any:
+    """A demo app whose durable quota can actually admit a run.
+
+    The quota fails closed, so an app built without a reachable store
+    refuses every live run. That is correct behaviour and it would make
+    the tests below assert nothing about the paths they exist to cover,
+    so they supply an in-process store. Tests that care about the
+    refusal build the app without one, deliberately.
+    """
+    counter = store or FakeQuotaStore()
+    return create_app(settings or demo_settings(), counter_factory=counter.factory)
 
 
 def sample_result(run_id: str = "r1") -> RunResult:
@@ -133,7 +151,7 @@ def read_sse(body: str) -> list[tuple[str, dict[str, Any]]]:
 
 class TestHealthAndConfig:
     def test_health_is_cheap_and_credential_free(self) -> None:
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             response = client.get("/api/health")
         assert response.status_code == 200
         body = response.json()
@@ -142,7 +160,7 @@ class TestHealthAndConfig:
         assert "tvly" not in response.text
 
     def test_config_exposes_limits_but_no_secrets(self) -> None:
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             response = client.get("/api/config")
         body = response.json()
         assert body["max_rounds"] == DemoLimits().max_rounds
@@ -156,7 +174,7 @@ class TestHealthAndConfig:
         with the app shell, so the assertion is on the absence of the docs
         UI rather than on a 404.
         """
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             response = client.get("/docs")
         assert "swagger" not in response.text.lower()
         assert "redoc" not in response.text.lower()
@@ -165,17 +183,17 @@ class TestHealthAndConfig:
 class TestInputValidation:
     @pytest.mark.parametrize("query", ["", "   ", "hi", "too short"])
     def test_short_or_empty_queries_are_rejected(self, query: str) -> None:
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             response = client.post("/api/research", json={"query": query})
         assert response.status_code in (400, 422)
 
     def test_oversized_query_is_rejected_before_any_work(self) -> None:
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             response = client.post("/api/research", json={"query": "x " * 5_000})
         assert response.status_code in (400, 422)
 
     def test_absurd_payload_is_rejected(self) -> None:
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             response = client.post("/api/research", json={"query": "a" * 10_000_000})
         assert response.status_code in (400, 413, 422)
 
@@ -196,7 +214,7 @@ class TestClientCannotWidenLimits:
             yield {"event": "result", "result": sample_result()}
 
         monkeypatch.setattr("agentic_research.web.api.stream_research", capture)
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             client.post(
                 "/api/research",
                 json={
@@ -219,7 +237,7 @@ class TestClientCannotWidenLimits:
             yield {"event": "result", "result": sample_result()}
 
         monkeypatch.setattr("agentic_research.web.api.stream_research", capture)
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             client.post(
                 "/api/research",
                 json={"query": "a genuine research question here", "max_sources": 2},
@@ -230,7 +248,7 @@ class TestClientCannotWidenLimits:
 class TestRateLimiting:
     def test_per_client_hourly_cap_returns_429_with_retry_after(self, patched_stream) -> None:
         patched_stream()
-        app = create_app(demo_settings())
+        app = demo_app()
         app.state.research.limits = DemoLimits(runs_per_ip_per_hour=1)
         from agentic_research.web.limits import RateLimiter
 
@@ -248,7 +266,7 @@ class TestRateLimiting:
 
     def test_capacity_message_is_honest_not_a_generic_error(self, patched_stream) -> None:
         patched_stream()
-        app = create_app(demo_settings())
+        app = demo_app()
         # One run allowed, already consumed, so the daily cap is the thing
         # that refuses -- distinct from the zero-capacity case below.
         app.state.research.limits = DemoLimits(global_runs_per_day=1)
@@ -266,7 +284,7 @@ class TestRateLimiting:
 class TestStreaming:
     def test_graph_events_reach_the_browser(self, patched_stream) -> None:
         patched_stream()
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             body = client.post("/api/research", json={"query": "a genuine research question"}).text
 
         events = read_sse(body)
@@ -284,7 +302,7 @@ class TestStreaming:
         """The differentiator the UI is built around: a claim must arrive
         with the evidence ids that support it."""
         patched_stream()
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             body = client.post("/api/research", json={"query": "a genuine question here"}).text
 
         result = next(p for n, p in read_sse(body) if n == "result")
@@ -301,7 +319,7 @@ class TestStreaming:
         """State holds full page text; serialising it wholesale would bloat
         the payload and risk leaking configuration alongside it."""
         patched_stream()
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             body = client.post("/api/research", json={"query": "a genuine question here"}).text
         assert "must not be exposed" not in body
 
@@ -311,7 +329,7 @@ class TestStreaming:
             yield  # pragma: no cover
 
         monkeypatch.setattr("agentic_research.web.api.stream_research", explode)
-        with TestClient(create_app(demo_settings())) as client:
+        with TestClient(demo_app()) as client:
             body = client.post("/api/research", json={"query": "a genuine question here"}).text
 
         assert "sk-abc" not in body
@@ -327,7 +345,7 @@ class TestStreaming:
             yield  # pragma: no cover
 
         monkeypatch.setattr("agentic_research.web.api.stream_research", explode)
-        app = create_app(demo_settings())
+        app = demo_app()
         with TestClient(app) as client:
             client.post("/api/research", json={"query": "a genuine question here"}).read()
             assert client.get("/api/health").json()["capacity"]["active_runs"] == 0
@@ -368,11 +386,14 @@ class TestCapacityMatchesProviderQuota:
                 _env_file=None,
             )
         )
-        # 400 / 20, not 400 / 40: the account quota flows through unclamped,
-        # but max_cloud_calls is clamped to the demo ceiling, so a run's
-        # real worst case is 20 provider requests rather than the
-        # configured 40.
-        assert limits.global_runs_per_day == 20
+        # 400 / 30, not 400 / 20 and not 400 / 40. The account quota
+        # flows through unclamped. The divisor is the clamped
+        # *provider request* ceiling, because that is what a run can
+        # actually spend: one logical call becomes two requests when a
+        # structured-output repair fires, so deriving capacity from
+        # max_cloud_calls promised runs the quota could not pay for.
+        assert limits.global_runs_per_day == 13
+        assert limits.global_runs_per_day * limits.max_provider_requests <= 400
 
     def test_default_cap_does_not_exceed_the_measured_quota(self) -> None:
         from agentic_research.web.limits import DemoLimits

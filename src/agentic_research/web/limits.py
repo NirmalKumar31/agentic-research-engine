@@ -54,7 +54,24 @@ class DemoLimits:
     # only by dollars can still exhaust a request or token quota, and the
     # engine refuses a run whose reservation exceeds any single ceiling.
     max_cloud_calls: int = 20
-    max_cloud_input_tokens: int = 120_000
+    max_cloud_input_tokens: int = 240_000
+    """Denominated in the byte bound, not in real tokens.
+
+    The reservation is an upper bound now (llm/token_bound.py), and it
+    over-reserves by 2x to 6x depending on content. The old 120,000 was
+    chosen when the reservation was an estimate of real tokens, so the
+    change of denominator quietly made it about six times tighter.
+
+    Sized from the recorded run: 40,222 real input tokens across 2
+    rounds and 12 sources, so roughly 20,100 for a public run at half
+    that budget. At the worst measured prose ratio of 5.5 bytes/token
+    the bound reserves about 110,600 -- 92% of the old ceiling, which
+    would have refused a public run only slightly larger than the
+    extrapolation. 240,000 restores roughly 2x headroom.
+
+    The dollar reservation is deliberately unchanged. This
+    re-denominates a token allowance; it does not widen what a run may
+    spend."""
     max_cloud_output_tokens: int = 20_000
     max_provider_requests: int = 30
     """HTTP requests to the *model* provider in one run.
@@ -91,9 +108,17 @@ def runs_affordable(provider_requests_per_day: int, worst_case_requests_per_run:
     """How many demo runs a provider quota can safely support.
 
     Derived from the **worst case** a run may emit, not from an average.
-    A run reserves up to MAX_CLOUD_CALLS provider requests, and structured
-    repairs and compatibility retries each consume one, so any figure taken
-    from a single observed run is a floor rather than a bound.
+
+    That worst case is ``max_provider_requests`` -- HTTP requests to the
+    model provider -- and not ``max_cloud_calls``. The two are different
+    numbers for a reason: one logical call becomes several requests when
+    a structured-output repair or a compatibility retry fires, so the
+    request ceiling is the larger of the pair. Deriving capacity from
+    the smaller one promised more runs than the quota could pay for. At
+    the deployed values (50 per day, 20 calls, 30 requests) it allowed
+    two runs that could together issue 60 requests against a 50-request
+    quota, and the second run would have died mid-flight on a 429 after
+    spending OpenAI tokens.
 
     Returns **0** when the quota cannot afford even one safe run. An earlier
     version used ``max(1, ...)``, which promised a run the quota could not
@@ -117,7 +142,11 @@ def limits_from_settings(settings: Settings) -> DemoLimits:
     server has to enforce its own maximum rather than trust its own
     deployment config.
     """
-    cloud_calls = int(_at_most(settings.max_cloud_calls, _MAX.max_cloud_calls))
+    # The effective per-run ceiling on requests to the model provider,
+    # clamped the same way the run itself will be clamped, so the daily
+    # allowance is derived from the number each admitted run may actually
+    # reach rather than from a smaller, friendlier one.
+    provider_requests = int(_at_most(settings.max_provider_requests, _MAX.max_provider_requests))
     return DemoLimits(
         max_runtime_seconds=min(settings.demo_max_runtime_seconds, _MAX.max_runtime_seconds),
         runs_per_ip_per_hour=min(settings.demo_runs_per_hour, _MAX.runs_per_ip_per_hour),
@@ -131,8 +160,11 @@ def limits_from_settings(settings: Settings) -> DemoLimits:
         global_runs_per_day=runs_affordable(
             settings.demo_provider_requests_per_day,
             # The worst case a single run may emit *after clamping*, so
-            # capacity is never promised beyond what the quota can pay for.
-            worst_case_requests_per_run=max(1, cloud_calls),
+            # capacity is never promised beyond what the quota can pay
+            # for. Provider requests, not logical calls: a repair or a
+            # retry turns one call into two requests, and the quota is
+            # spent in requests.
+            worst_case_requests_per_run=max(1, provider_requests),
         ),
     )
 
@@ -200,18 +232,26 @@ class _Window:
 
 
 class RateLimiter:
-    """Per-client and global run limits, held in memory.
+    """Concurrency and per-client rate, held in memory.
 
-    In-memory is the right scope for a single free-tier instance, and is
-    stated as a limitation rather than dressed up: behind multiple replicas
-    these counters would diverge and the real ceiling would be the cloud
-    spend budget, which is enforced per run in the engine itself.
+    Deliberately *not* the daily admission count. That lives in the
+    shared Key Value counter, and keeping a second one here was a
+    latent inconsistency rather than a safety net: this one is a rolling
+    24-hour window, the shared one is keyed by UTC day, and the two
+    disagree in both directions. A web restart empties this one while
+    the shared count stands; UTC midnight resets the shared one while
+    this one still holds the last 24 hours. Whichever number was
+    reported was wrong half the time, and there is no version of "two
+    authorities" that is better than one.
+
+    What is left here is genuinely process-scoped and belongs that way:
+    how many runs are in flight on this instance, and how often one
+    caller may start them. Both bound accidents, not money.
     """
 
     def __init__(self, limits: DemoLimits) -> None:
         self._limits = limits
         self._per_client: dict[str, _Window] = {}
-        self._global = _Window()
         self._active = 0
         self._lock = asyncio.Lock()
 
@@ -235,13 +275,6 @@ class RateLimiter:
                     retry_after_seconds=None,
                 )
 
-            self._global.prune(86_400, now)
-            if len(self._global.stamps) >= self._limits.global_runs_per_day:
-                raise CapacityError(
-                    "The demo has reached its daily budget. It resets within 24 hours.",
-                    retry_after_seconds=3_600,
-                )
-
             window = self._per_client.setdefault(client_key, _Window())
             window.prune(3_600, now)
             if len(window.stamps) >= self._limits.runs_per_ip_per_hour:
@@ -254,21 +287,38 @@ class RateLimiter:
                 )
 
             window.stamps.append(now)
-            self._global.stamps.append(now)
             self._active += 1
 
-    async def release(self) -> None:
+    async def release(self, client_key: str | None = None) -> None:
+        """Give back what an admission took.
+
+        ``client_key`` is passed when the admission was subsequently
+        refused -- by the shared daily quota, which is checked after
+        this one. Releasing only the concurrency slot would leave the
+        caller charged an hourly allowance for a run that never
+        happened, so a refused request costs them nothing.
+        """
         async with self._lock:
             self._active = max(0, self._active - 1)
+            if client_key is None:
+                return
+            window = self._per_client.get(client_key)
+            if window and window.stamps:
+                window.stamps.pop()
 
     async def snapshot(self) -> dict[str, int]:
-        now = time.monotonic()
+        """What this process knows. Deliberately excludes the day count.
+
+        ``runs_today`` used to be reported here from the process-local
+        window and published through /api/health, where it read as the
+        shared count and was not. It is gone rather than renamed: a
+        truthful shared figure needs a non-mutating read of the Key
+        Value counter, and an approximate one is worse than none.
+        """
         async with self._lock:
-            self._global.prune(86_400, now)
             return {
                 "active_runs": self._active,
                 "max_concurrent_runs": self._limits.max_concurrent_runs,
-                "runs_today": len(self._global.stamps),
                 "global_runs_per_day": self._limits.global_runs_per_day,
             }
 

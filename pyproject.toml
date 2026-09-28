@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentic-research-engine"
-version = "0.2.0"
+version = "1.1.0"
 description = "A multi-stage agentic research engine on LangGraph, with evidence-level provenance, bounded research loops, and hybrid cloud/local model routing."
 readme = "README.md"
 # Bounded rather than open-ended: CI tests 3.11 and 3.12, and the
@@ -42,8 +42,48 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-web = ["fastapi>=0.120,<1", "uvicorn[standard]>=0.40,<1"]
+nli-local = [
+    # The local semantic verifier. Not a core dependency: the hosted web
+    # image must stay small enough for a 512MB plan, and the measured
+    # peak for this checkpoint is about 1.3GB. Install this for local
+    # research, or point NLI_MODE=remote at an endpoint.
+    "torch>=2.4,<3",
+    "transformers>=5,<6",
+    "safetensors>=0.5,<1",
+    "sentencepiece>=0.2,<1",
+]
+
+nli-remote = [
+    # Truncation detection for the managed endpoint, which reports a
+    # label and a score and nothing else. Pure Rust, about 3MB, and no
+    # torch: the point of remote mode is a host that cannot hold the
+    # checkpoint, so pulling transformers back in to count tokens would
+    # defeat it. Measured identical to the transformers tokenizer on
+    # the >512 decision across 263 pairs.
+    "tokenizers>=0.20,<1",
+]
+
+web = [
+    "fastapi>=0.120,<1",
+    "uvicorn[standard]>=0.40,<1",
+    # The hosted web service runs NLI_MODE=remote, so it needs the
+    # tokenizer for the same reason nli-remote does.
+    "tokenizers>=0.20,<1",
+    # The durable daily quota. Not optional for a live deployment: the
+    # in-memory counter bounds a process, and a Render instance that
+    # sleeps when idle starts each morning with a fresh one. Present in
+    # the image so the store is reachable, and DEMO_QUOTA_REQUIRED
+    # decides whether its absence refuses runs.
+    "redis>=5,<7",
+]
 dev = [
+    # Not a runtime dependency and deliberately not one: no encoding is
+    # published for this project's configured models, so the engine
+    # cannot use it to count. It is here so the tests can demonstrate,
+    # against a real byte-level BPE, that the byte bound is never below
+    # a true token count. Without it those tests skip and the one
+    # property that matters goes unverified in CI.
+    "tiktoken>=0.9,<1",
     "pytest>=9.1,<10",
     "pytest-asyncio>=1.4,<2",
     "pytest-cov>=7,<8",
@@ -146,7 +186,7 @@ check_untyped_defs = true
 
 # Third-party packages without bundled type information.
 [[tool.mypy.overrides]]
-module = ["trafilatura.*", "langchain_ollama.*", "psutil"]
+module = ["trafilatura.*", "langchain_ollama.*", "psutil", "redis", "redis.*", "tokenizers", "tokenizers.*"]
 ignore_missing_imports = true
 
 # torch ships type information, so mypy follows it into numpy, whose
@@ -164,11 +204,12 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 # Default runs are hermetic and free: no network, no credentials, no local
 # server. Opt in with `pytest -m ollama` or `pytest -m integration`.
-addopts = "-q --strict-markers -m 'not integration and not ollama and not nli'"
+addopts = "-q --strict-markers -m 'not integration and not ollama and not nli and not hosted_nli'"
 markers = [
     "integration: requires live API credentials; excluded from default runs",
     "ollama: requires a running local Ollama server",
     "nli: downloads and runs the real NLI checkpoint; excluded from default runs",
+    "hosted_nli: calls a live private inference endpoint that bills hourly; needs NLI_TEST_ENDPOINT",
 ]
 
 [tool.coverage.run]

@@ -241,19 +241,44 @@ dimensions differ in what they can promise:
 - *Pre-dispatch cost ceiling* — derived from the two above against a
   local price table, so it bounds expected spend rather than the invoice.
 
-The *daily* run cap lives in memory, so a host that sleeps resets it on
-every cold start. The provider account's own spend limit is the only
-monetary control that survives a restart, and is the documented backstop
-for any public live deployment.
+**The throttles and the admission counter have different scopes.**
+Concurrency and the per-client hourly rate are process-local: they live
+in the web process and reset when it does. They bound accidents and
+casual abuse, not money.
 
-**There is no durable or distributed quota**, which is why anonymous live
-research is off by default on the public deployment. Enabling it safely
-would need a persistent atomic quota store.
+The *global daily admission counter* is shared, through an external
+atomic INCR against Render Key Value. It is the same count for every
+web replica and it survives a web-service cold start, which the
+in-memory version did not — a sleeping free instance used to wake with
+the whole day's allowance back.
 
-**Rate limiting keys on `X-Forwarded-For`**, which is spoofable.
+**A free Key Value instance is not persistent storage.** Render states
+that data persistence is unavailable on the free plan, so a restart of
+the Key Value service itself returns the count to zero used. Call this
+counter shared, or distributed. Do not call it durable across datastore
+restarts unless it is running on a paid plan with persistence enabled.
 
-**Input token estimation is `len // 4`** — conservative for prose, wrong
-for code-heavy or non-Latin content.
+**The provider account's hard spend limit is the financial backstop.**
+Not this counter, and not the per-run ceiling. Set one before enabling
+anonymous live research.
+
+**Admission fails closed.** If the counter is required and the store is
+unreachable, the run is refused rather than admitted unbounded, and
+readiness reports the instance as not ready rather than quietly turning
+every visitor away.
+
+**Client identification uses the trusted-hop rule.** `X-Forwarded-For`
+is appended to by each proxy, so the address is read relative to the
+configured number of trusted proxies rather than from the first entry,
+which the caller supplies. Non-addresses and headers that did not
+arrive through the expected path fall back to the socket peer. This
+raises the cost of minting fresh per-client allowances; it is abuse
+mitigation and not the financial boundary.
+
+**Input token estimation is `len // 4`** — adequate for prose and *not*
+a conservative bound. Code, dense punctuation, non-Latin scripts and
+JSON schemas all exceed a quarter token per character, so the
+pre-dispatch reservation can land under the true cost.
 
 **No separate retry budget.** Retries, structured repairs and
 compatibility retries are each a distinct provider request and reserve
@@ -310,11 +335,77 @@ state which checkpoint served it, a checkpoint differing from the configured
 one, a missing truncation flag, and scores that are not a probability
 distribution — every one withholds the claim.
 
-**v1 ships replay-only, and remote mode is experimental.** No hosted
-provider has been selected, and remote mode is unit-tested against mocked
-transports only. It has never run against a live endpoint, so nothing here
-should be read as remote verification being production-tested. Presenting
-it as such would need a real endpoint and a live acceptance run.
+**Remote verification has been exercised against a real endpoint, from
+the CLI only.** A private Hugging Face Inference Endpoint was created
+on 2026-09-27, pinned to the calibrated revision and running the stock
+text-classification handler. Against it, measured rather than assumed:
+
+- All 50 calibration pairs scored, with **no publish decision differing**
+  from the local checkpoint at the 0.98 threshold.
+- Scores **bit-identical** across repeat runs and across batch sizes 8
+  and 1, so batch padding does not move a verdict.
+- Raw scores differ from the committed local ones by up to 9.4e-3. The
+  cause is precision, not the endpoint: the committed scores are
+  float16 and the endpoint runs the same commit in float32. See
+  [the calibration results](../examples/verifier-calibration/NLI-RESULTS.md).
+- Cold start from `scaledToZero` to a verified-ready verifier: **49.2s**.
+
+What that does *not* establish: the endpoint's pinned revision is
+checked out of band against the Hugging Face control plane rather than
+echoed per response, because the stock handler reports neither the
+model nor a truncation flag. Truncation is measured client-side
+instead. This is a weaker arrangement than the project's own scoring
+service provides, and it is chosen because the managed handler offers
+nothing stronger.
+
+**Hosted acceptance has happened, once, and proves deployment rather
+than research quality.** On 2026-09-28 the live service at commit
+`7e565492` served one anonymous run through the deployed HTTP/SSE path
+under the public limits (1 round, 6 sources):
+
+- verifier cold start from `scaledToZero`: **~57s**;
+- complete run: **142s** against the 240s wall-clock ceiling;
+- the shared daily cap refused the next request, and refused it again
+  for three forged `X-Forwarded-For` values;
+- replay kept working with the allowance spent;
+- no credential appeared in any response body.
+
+What that run does **not** establish: the final payload, exact provider
+usage and exact charge were not captured — the capture truncated the
+result event — and the public run checked only 2 claims and produced 0
+key findings. It is evidence that the deployment behaves correctly, not
+that the engine answers questions well. Those are separate claims and
+only the first is supported.
+
+Client disconnect and application-timeout cleanup have unit coverage
+but no hosted measurement.
+
+**Live research costs money at three independent providers.** OpenAI
+tokens, Tavily search credits and Hugging Face endpoint compute are
+billed separately and bound separately. An OpenAI project spend limit
+does not stop Tavily or Hugging Face, and a warm inference endpoint
+accrues cost whether or not anybody runs research. OpenAI's own limit
+is a durable backstop rather than an exact per-cent guarantee, because
+enforcement is not instantaneous.
+
+**Live research refuses to start unless the whole path is proven
+first.** The verifier is probed before any provider is called: if it
+cannot answer, no OpenAI request and no Tavily search is made, and the
+visitor is told the service is unavailable rather than shown a report
+with nothing in it. The public daily cap is backed by an external
+atomic counter, because a process-local count resets whenever a free
+instance wakes; if that counter is required and unreachable, live
+research is refused rather than admitted unbounded.
+
+That counter was dead code until 2026-09-27: it existed, was tested,
+and nothing on the request path called it, so the effective cap was
+still the in-memory one. It is now reserved before the model router,
+the search provider or the verifier is touched. On Render's free Key
+Value plan the store itself has no persistence, so the cap is shared
+across web instances and is *not* durable across a restart of the
+store; the provider-side account limit is the backstop there.
+
+**Replay still needs no credentials at all.**
 
 **Provider prices are estimates** from a local table. They do not account
 for cached input, long-context tiers, region or service tier.

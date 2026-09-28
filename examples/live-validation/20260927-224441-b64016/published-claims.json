@@ -1,0 +1,62 @@
+[
+  {
+    "section": "What studies measure",
+    "claim": "One transcript-based study compared coding-agent transcripts with hypothetical baseline task times estimated using LLM-as-a-judge methods.",
+    "evidence": [
+      {
+        "evidence_id": "S5-e3",
+        "source_id": "S5",
+        "source_url": "https://ingoeichhorst.medium.com/state-of-ai-coding-efficiency-2026-1abfa0ab7434",
+        "quote": "Their workaround was to analyze coding-agent transcripts and compare them against a hypothetical baseline estimated with LLM-as-a-judge methods. The measured time savings for seven METR staff members in January 2026 ranged from roughly 2x to more than 10x, depending on the individual. Interestingly, self-reported daily estimates consistently undershot the measured gains."
+      }
+    ]
+  },
+  {
+    "section": "Controlled experiments on speed and task completion",
+    "claim": "A METR study reported that AI assistants slowed experienced open-source developers on large, complex projects by as much as 20%.",
+    "evidence": [
+      {
+        "evidence_id": "S5-e4",
+        "source_id": "S5",
+        "source_url": "https://ingoeichhorst.medium.com/state-of-ai-coding-efficiency-2026-1abfa0ab7434",
+        "quote": "A METR study from early 2025 found that AI assistants actually slowed experienced open-source developers working on large, complex projects by as much as 20% (METR, 2025)."
+      }
+    ]
+  },
+  {
+    "section": "Quality, review, and net productivity",
+    "claim": "The study\u2019s panel GMM models found that accumulated technical debt subsequently reduced future velocity.",
+    "evidence": [
+      {
+        "evidence_id": "S8-e5",
+        "source_id": "S8",
+        "source_url": "https://arxiv.org/html/2511.04427v2",
+        "quote": "Panel GMM models reveal that accumulated technical debt subsequently reduces future velocity, creating a self-reinforcing cycle."
+      }
+    ]
+  },
+  {
+    "section": "Quality, review, and net productivity",
+    "claim": "One study focused on task-completion time rather than code quality.",
+    "evidence": [
+      {
+        "evidence_id": "S10-e5",
+        "source_id": "S10",
+        "source_url": "https://www.alphaxiv.org/abs/2302.06590",
+        "quote": "The study focused on task completion time rather than code quality."
+      }
+    ]
+  },
+  {
+    "section": "Variation by task and developer",
+    "claim": "That source identified developer over-optimism, low AI reliability, and high task complexity as potential slowdown mechanisms.",
+    "evidence": [
+      {
+        "evidence_id": "S8-e6",
+        "source_id": "S8",
+        "source_url": "https://arxiv.org/html/2511.04427v2",
+        "quote": "Becker et al. (2025) show through controlled experiments that early-2025 AI tools, including Cursor, do not help experienced open-source developers solve real day-to-day tasks faster, pointing to potential slowdown mechanisms such as developer over-optimism, low AI reliability, and high task complexity."
+      }
+    ]
+  }
+]

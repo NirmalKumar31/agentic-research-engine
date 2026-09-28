@@ -2,10 +2,12 @@ name: CI
 
 on:
   push:
-    # Release branches build on push as well as in their PR. Without
-    # this, a branch pushed for review carries no remote CI status at
-    # all, and a green local run gets mistaken for a verified one.
-    branches: [main, "verifier-*", "release/*"]
+    # Work branches build on push as well as in their PR. Without this,
+    # a branch pushed for review carries no remote CI status at all, and
+    # a green local run gets mistaken for a verified one -- which is
+    # exactly what happened to feat/live-research, whose prefix was
+    # missing from this list while the comment above claimed otherwise.
+    branches: [main, "feat/*", "fix/*", "verifier-*", "release/*"]
   pull_request:
 
 # Cancel superseded runs on the same branch rather than paying for both.
@@ -152,7 +154,24 @@ jobs:
         run: |
           docker run --rm agentic-research:ci --help
           docker run --rm -e LLM_MODE=local agentic-research:ci graph | head -5
-          docker run --rm -e LLM_MODE=local agentic-research:ci check
+
+          # `check` exits non-zero on a configuration that could not
+          # complete a verified run. That is the point of it, and this
+          # container is exactly such a configuration: no Ollama to
+          # reach and no search key. Asserting exit 0 here would mean
+          # either weakening the command or pretending the image is
+          # configured, so assert the diagnosis instead.
+          set +e
+          out=$(docker run --rm -e LLM_MODE=local agentic-research:ci check 2>&1)
+          rc=$?
+          set -e
+          echo "$out"
+          if [ "$rc" -ne 1 ]; then
+            echo "::error::expected check to exit 1 on an unconfigured image, got $rc"
+            exit 1
+          fi
+          echo "$out" | grep -q "no search provider key is configured"
+          echo "$out" | grep -q "Verifier mode"
 
   secrets:
     name: Secret scan (full history)
@@ -249,7 +268,10 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -e . pip-audit
+          # The [web] extra is what the deployed image installs, so it
+          # is what has to be audited. Auditing the bare package missed
+          # every dependency the public service actually runs.
+          pip install -e '.[web]' pip-audit
       - name: Audit
         # Skips the local package itself, which is not on PyPI.
         run: pip-audit --progress-spinner off --skip-editable
@@ -398,11 +420,22 @@ jobs:
         id: model
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
-          import re, pathlib
-          text = pathlib.Path("src/agentic_research/config.py").read_text()
-          for key in ("nli_model_id", "nli_model_revision"):
-              value = re.search(rf'{key}: str = "([^"]+)"', text).group(1)
-              print(f"{key}={value}")
+          # The literals live in nli_pin, not config: config imports them
+          # so that config and the client cannot drift apart. Reading
+          # config found `nli_model_id: str = NLI_DEFAULT_MODEL_ID` and
+          # matched nothing, which surfaced as an AttributeError on None
+          # rather than as the configuration error it was.
+          import pathlib, re, sys
+
+          text = pathlib.Path("src/agentic_research/citations/nli_pin.py").read_text()
+          for out_key, const in (
+              ("nli_model_id", "NLI_DEFAULT_MODEL_ID"),
+              ("nli_model_revision", "NLI_DEFAULT_REVISION"),
+          ):
+              found = re.search(rf'^{const} = "([^"]+)"', text, re.M)
+              if found is None:
+                  sys.exit(f"{const} not found in nli_pin.py; the pin moved")
+              print(f"{out_key}={found.group(1)}")
           PY
 
       - uses: actions/cache@v4

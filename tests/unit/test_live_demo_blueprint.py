@@ -25,6 +25,7 @@ from agentic_research.llm.base import ProviderRateLimited
 from agentic_research.web import recordings
 from agentic_research.web.api import create_app
 from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
+from fakes import FakeQuotaStore
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -57,8 +58,12 @@ class TestTheLiveBlueprint:
         assert env["DEMO_MODE"] == "true", "client values must stay clamped"
 
     def test_only_the_cheap_model_is_reachable(self, env: dict[str, str]) -> None:
-        assert env["OPENAI_MODEL"] == "gpt-6-luna"
-        assert env["OPENAI_FAST_MODEL"] == "gpt-6-luna"
+        # A deployment value now, prompted rather than committed: a
+        # model id baked into the repository outlives the provider's
+        # catalogue, and preflight refuses an unretrievable or unpriced
+        # one before the first paid call.
+        assert env["OPENAI_MODEL"] == "<prompted>"
+        assert env["OPENAI_FAST_MODEL"] == "<prompted>"
         # Checked against the configured values, not the file text: a
         # comment saying "Sol and Astra are never used" would otherwise
         # fail its own assertion.
@@ -72,7 +77,10 @@ class TestTheLiveBlueprint:
     def test_per_run_ceilings_match_the_agreed_values(self, env: dict[str, str]) -> None:
         assert env["MAX_CLOUD_CALLS"] == "20"
         assert env["MAX_CLOUD_COST_USD"] == "0.05"
-        assert env["MAX_CLOUD_INPUT_TOKENS"] == "120000"
+        # Denominated in the byte bound, which over-reserves 2x to 6x.
+        # The dollar ceiling above is what actually limits spending and
+        # is unchanged.
+        assert env["MAX_CLOUD_INPUT_TOKENS"] == "240000"
         assert env["MAX_CLOUD_OUTPUT_TOKENS"] == "20000"
         assert env["MAX_SEARCH_CREDITS"] == "8"
         assert env["MAX_PROVIDER_REQUESTS"] == "30"
@@ -87,23 +95,42 @@ class TestTheLiveBlueprint:
     def test_traffic_is_shaped_for_one_small_instance(self, env: dict[str, str]) -> None:
         assert env["DEMO_MAX_CONCURRENT_RUNS"] == "1"
         assert env["DEMO_RUNS_PER_HOUR"] == "2"
-        assert env["DEMO_PROVIDER_REQUESTS_PER_DAY"] == "50"
+        assert env["DEMO_PROVIDER_REQUESTS_PER_DAY"] == "150"
         assert env["DEMO_MAX_RUNTIME_SECONDS"] == "240"
 
     def test_nothing_is_persisted(self, env: dict[str, str]) -> None:
         assert env["PERSIST_RUNS"] == "false"
         assert env["CHECKPOINT_BACKEND"] == "memory"
 
-    def test_the_daily_cap_derives_from_the_quota(self, env: dict[str, str]) -> None:
-        """50 provider requests a day at 20 per run affords two runs. It is
-        derived rather than written down, so raising the tier raises the
-        cap without another edit."""
+    def test_the_daily_cap_derives_from_the_budget(self, env: dict[str, str]) -> None:
+        """150 provider requests a day at 30 per run affords five.
+
+        Divided by MAX_PROVIDER_REQUESTS, not MAX_CLOUD_CALLS: the
+        budget is spent in HTTP requests, and a structured-output repair
+        turns one logical call into two. Dividing by the smaller number
+        promised runs the budget could not cover.
+        """
         from agentic_research.web.limits import runs_affordable
 
-        affordable = runs_affordable(
-            int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"]), int(env["MAX_CLOUD_CALLS"])
+        budget = int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"])
+        per_run = int(env["MAX_PROVIDER_REQUESTS"])
+        affordable = runs_affordable(budget, per_run)
+        assert affordable == 5
+        assert affordable * per_run <= budget
+
+    def test_the_budget_is_not_presented_as_a_provider_quota(self) -> None:
+        """Nothing queries OpenAI for a daily request allowance, and
+        OpenAI publishes none this could be read from. The number is the
+        operator's choice and the comment has to say so."""
+        import re
+        from pathlib import Path as _P
+
+        root = _P(__file__).resolve().parents[2]
+        raw = (root / "deploy" / "render-live.yaml").read_text().lower()
+        prose = re.sub(r"\s+", " ", raw.replace("#", " "))
+        assert "operator-configured daily provider-request budget" in prose or (
+            "a number the operator chooses" in prose
         )
-        assert affordable == 2
 
     def test_every_key_maps_to_a_real_setting(self, env: dict[str, str]) -> None:
         """A misspelled variable is silently ignored by pydantic-settings,
@@ -157,11 +184,26 @@ def _live_settings(**over: Any) -> Settings:
         "llm_mode": "local",
         "demo_mode": True,
         "live_research_enabled": True,
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
         "tavily_api_key": "tvly-test-key",
         "_env_file": None,
     }
     base.update(over)
     return Settings(**base)
+
+
+def live_app(settings: Settings, store: FakeQuotaStore | None = None) -> Any:
+    """Build the app with a quota store that can admit a run.
+
+    The durable daily quota fails closed, so without a reachable store
+    every live request is refused before it reaches the behaviour these
+    tests cover.
+    """
+    counter = store or FakeQuotaStore()
+    return create_app(settings, counter_factory=counter.factory)
 
 
 class TestLiveFailureDoesNotBreakTheRecordedDemos:
@@ -175,7 +217,7 @@ class TestLiveFailureDoesNotBreakTheRecordedDemos:
             yield {}  # pragma: no cover - makes this an async generator
 
         monkeypatch.setattr(api_module, "stream_research", failing)
-        return TestClient(create_app(_live_settings()))
+        return TestClient(live_app(_live_settings()))
 
     def test_a_provider_429_is_reported_as_capacity_not_a_crash(
         self, monkeypatch: pytest.MonkeyPatch
@@ -231,7 +273,7 @@ class TestReplayNeedsNoProvider:
         settings = Settings(
             llm_mode="local", demo_mode=True, live_research_enabled=False, _env_file=None
         )
-        with TestClient(create_app(settings)) as client:
+        with TestClient(live_app(settings)) as client:
             assert client.get("/api/examples").json()["examples"]
             assert client.get("/api/examples/demo").status_code == 200
             assert client.get("/api/config").json()["service_mode"] == "replay"
@@ -261,6 +303,10 @@ class TestDemoLimitsCannotBeWidened:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_research_rounds=9,
             max_sources=99,
@@ -300,6 +346,11 @@ class TestDemoLimitsCannotBeWidened:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
+            tavily_api_key="tvly-test-key",
             max_sources=2,
             max_sources_per_round=2,
             max_llm_calls=5,
@@ -345,7 +396,7 @@ class TestDemoLimitsCannotBeWidened:
                 yield {}
 
         monkeypatch.setattr(api_module, "stream_research", capture)
-        with TestClient(create_app(self._generous())) as client:
+        with TestClient(live_app(self._generous())) as client:
             client.post("/api/research", json=payload)
 
         assert seen, "the run never started"
@@ -377,7 +428,7 @@ class TestDemoLimitsCannotBeWidened:
         settings = self._generous().model_copy(update={"demo_provider_requests_per_day": 10})
         assert limits_from_settings(settings).global_runs_per_day == 0
 
-        with TestClient(create_app(settings)) as client:
+        with TestClient(live_app(settings)) as client:
             response = client.post("/api/research", json={"query": "a genuine research question"})
         assert response.status_code == 429
         assert "cannot cover" in response.json()["error"]
@@ -411,6 +462,10 @@ class TestEveryPaidDimensionIsClamped:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_cloud_calls=999_999,
             max_cloud_input_tokens=99_999_999,
@@ -434,7 +489,7 @@ class TestEveryPaidDimensionIsClamped:
         clamped = apply_demo_limits(settings, limits)
 
         assert clamped.max_cloud_calls == 20
-        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_input_tokens == 240_000
         assert clamped.max_cloud_output_tokens == 20_000
         assert clamped.max_cloud_cost_usd == 0.05
         assert clamped.max_search_credits == 8.0
@@ -470,6 +525,10 @@ class TestEveryPaidDimensionIsClamped:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_cloud_calls=5,
             max_cloud_input_tokens=1_000,
@@ -508,6 +567,10 @@ class TestEveryPaidDimensionIsClamped:
             llm_mode="local",
             demo_mode=True,
             live_research_enabled=True,
+            nli_mode="remote",
+            nli_endpoint="https://nli.test.invalid/score",
+            nli_api_key="hf-test-placeholder",
+            demo_quota_url="redis://quota.test.invalid:6379/0",
             tavily_api_key="tvly-test-key",
             max_cloud_calls=0,
             max_cloud_input_tokens=0,
@@ -520,7 +583,7 @@ class TestEveryPaidDimensionIsClamped:
         clamped = apply_demo_limits(settings, limits_from_settings(settings))
 
         assert clamped.max_cloud_calls == 20
-        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_input_tokens == 240_000
         assert clamped.max_cloud_output_tokens == 20_000
         assert clamped.max_cloud_cost_usd == 0.05
         assert clamped.max_search_credits == 8.0

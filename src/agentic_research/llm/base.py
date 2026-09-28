@@ -145,13 +145,47 @@ class ProviderAttempt:
     rate_limited: bool = False
     """The provider refused for quota reasons. Still a provider request:
     it consumed rate-limit allowance even though it did no work."""
+    cached_input_tokens: int = 0
+    """Input the provider served from its prompt cache, when it says so.
+    Billed at a different rate where a provider publishes one."""
+    cache_write_tokens: int = 0
+    """Input written to the cache, where a provider bills it separately."""
+    reasoning_tokens: int = 0
+    """Reported inside ``output_tokens`` by every provider that emits
+    them, so recorded for reporting and deliberately not charged again."""
 
     @property
     def cost_usd(self) -> float | None:
         price = get_price(self.provider, self.model)
         if price is None:
             return None
-        return price.cost(self.input_tokens, self.output_tokens)
+        usd, _complete = price.reconcile(
+            self.input_tokens,
+            self.output_tokens,
+            cached_input_tokens=self.cached_input_tokens,
+            cache_write_tokens=self.cache_write_tokens,
+        )
+        return usd
+
+    @property
+    def cost_is_complete(self) -> bool:
+        """Whether every token category this response reported has a rate.
+
+        A response carrying cached or cache-write tokens for a model
+        with no such rate recorded produces a number that is not wrong
+        so much as unverified, and saying so is the difference between
+        a cost report and a guess.
+        """
+        price = get_price(self.provider, self.model)
+        if price is None:
+            return False
+        _usd, complete = price.reconcile(
+            self.input_tokens,
+            self.output_tokens,
+            cached_input_tokens=self.cached_input_tokens,
+            cache_write_tokens=self.cache_write_tokens,
+        )
+        return complete
 
 
 @dataclass(slots=True)
@@ -199,6 +233,11 @@ class UsageTotals:
     latency_s: float = 0.0
     known_cost_usd: float = 0.0
     unpriced_calls: int = 0
+    unpriced_categories: int = 0
+    """Responses that reported a token category with no recorded rate."""
+    cached_input_tokens: int = 0
+    cache_write_tokens: int = 0
+    reasoning_tokens: int = 0
     by_provider: dict[str, int] = field(default_factory=dict)
     by_role: dict[str, int] = field(default_factory=dict)
     provider_requests_by_model: dict[str, int] = field(default_factory=dict)
@@ -212,8 +251,13 @@ class UsageTotals:
 
     @property
     def cost_is_complete(self) -> bool:
-        """False when at least one call used a model with no known price."""
-        return self.unpriced_calls == 0
+        """False when any call was unpriced, or reported a category
+        this project has no rate for.
+
+        Previously only the first case counted, so a run billed partly
+        at a cached-input rate nobody had recorded still reported its
+        cost as complete."""
+        return self.unpriced_calls == 0 and self.unpriced_categories == 0
 
     @property
     def requests_per_logical_call(self) -> float:
@@ -459,11 +503,19 @@ class UsageTracker:
             totals.input_tokens += attempt.input_tokens
             totals.output_tokens += attempt.output_tokens
             totals.latency_s += attempt.latency_s
+            totals.cached_input_tokens += attempt.cached_input_tokens
+            totals.cache_write_tokens += attempt.cache_write_tokens
+            totals.reasoning_tokens += attempt.reasoning_tokens
             cost = attempt.cost_usd
             if cost is None:
                 totals.unpriced_calls += 1
             else:
                 totals.known_cost_usd += cost
+                if not attempt.cost_is_complete:
+                    # Priced, but against a category with no recorded
+                    # rate. Counted so the run cannot report a complete
+                    # cost it does not have.
+                    totals.unpriced_categories += 1
 
         totals.by_provider = dict(by_provider)
         totals.by_role = dict(by_role)

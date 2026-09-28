@@ -79,8 +79,19 @@ def test_an_unavailable_classifier_withholds_rather_than_degrading() -> None:
     assert not verdict.checked
 
 
-def test_the_adapter_raises_instead_of_returning_a_neutral_score() -> None:
+def test_the_adapter_raises_instead_of_returning_a_neutral_score(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A neutral score is indistinguishable from a real "no support"
-    finding, so the unavailable case must be a different type of event."""
+    finding, so the unavailable case must be a different type of event.
+
+    Forced offline rather than relying on a missing model to 404. As
+    written this reached huggingface.co for a name that does not exist
+    and waited out the round trip -- 4.7s of real network in a unit
+    suite, and a different failure depending on whether the machine had
+    a connection. Offline exercises the same except branch immediately.
+    """
+    monkeypatch.setenv("HF_HUB_OFFLINE", "1")
+    monkeypatch.setenv("TRANSFORMERS_OFFLINE", "1")
     with pytest.raises(nli.NLIUnavailable):
         nli.NLIVerifier("definitely/not-a-real-model", "main").score([("a", "b")])

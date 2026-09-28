@@ -165,7 +165,7 @@ agentic-research show latest                # re-display a stored run
 | Mode | Models | Notes |
 |---|---|---|
 | `local` | Ollama (`qwen3:4b`) | No paid LLM usage. ~15 minutes per run on an M-series laptop. Still needs a search provider. |
-| `cloud` | OpenAI | Substantially faster, at metered cost. No clean-corpus cloud run is currently published, so no timing is quoted here. |
+| `cloud` | OpenAI | Substantially faster, at metered cost. No clean-corpus benchmark run is published, so no timing is quoted here. One bounded live validation run is recorded under [examples/live-validation/](examples/live-validation/). |
 | `hybrid` | Extraction local, reasoning cloud | Extraction is the highest-volume role and is mechanical. |
 
 Set `LLM_MODE` and, for cloud or hybrid, `OPENAI_API_KEY`.
@@ -184,11 +184,17 @@ search provider and no model.
 **Live** (`LIVE_RESEARCH_ENABLED=true`) additionally accepts a visitor's own
 question, under the demo ceilings.
 
-Replay is the default for the public deployment because the daily run cap
-lives in process memory, and a host that sleeps when idle resets it on every
-cold start — so it cannot bound an account-level quota. Per-run request and
-spend ceilings are unaffected. The alternative was a persistent quota store
-whose only purpose would be letting strangers spend an API budget.
+Replay is the default for the public deployment: it needs no credentials and
+spends nothing, so it is the mode that can be left running.
+
+The daily cap for live mode is held in an external atomic counter rather than
+process memory, because a host that sleeps when idle would reset an in-memory
+count on every cold start. That counter is shared across web instances and
+survives a web restart. On Render's free Key Value plan it does **not** survive
+a restart of the store itself — Render states that persistence is unavailable
+on that plan — so the financial backstop there is the spend limit set on the
+provider account, not this counter. Per-run request and spend ceilings are
+separate and unaffected.
 
 ```bash
 pip install -e ".[web]"
@@ -197,10 +203,32 @@ uvicorn agentic_research.web.api:get_asgi_app --factory
 ```
 
 `render.yaml` deploys the replay site and declares no secrets.
-`deploy/render-live.yaml` deploys the live variant and prompts for two keys.
+`deploy/render-live.yaml` deploys the live variant. It prompts for three
+credentials — OpenAI, Tavily, and a Hugging Face token for the private
+verifier endpoint — and for three non-secret deployment values: the two
+model IDs and the endpoint URL. It also provisions the Key Value store that
+holds the daily cap, so that connection string is wired rather than pasted.
 Render's free tier sleeps when idle, so the first visit after a quiet period
 takes about a minute; replay makes that cheap, because waking the service
 spends nothing.
+
+## Usage
+
+The public demo replays recorded runs and needs no credentials. To run
+live research yourself:
+
+```bash
+pip install -e ".[nli-local]"     # includes the local semantic verifier
+cp .env.example .env              # add a search provider key
+agentic-research check            # verifies the whole path before spending
+agentic-research research "your question"
+```
+
+`check` exits non-zero if the selected path cannot complete a verified
+run — a missing search key, an unreachable model, a model with no
+verified price, or a verifier that cannot answer. Local mode runs the
+models on Ollama with no paid LLM usage; live web research still needs a
+search provider.
 
 ## Measured results
 

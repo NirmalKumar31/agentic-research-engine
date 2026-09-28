@@ -75,9 +75,47 @@ def fake_nli(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest) ->
     """
     if request.node.get_closest_marker("nli"):
         return
+    from agentic_research.citations import nli_preflight
     from agentic_research.citations.fake_nli import FakeScorer
     from agentic_research.graph.nodes import reporting
 
+    def fake(_settings: object) -> FakeScorer:
+        return FakeScorer(default=(0.99, 0.01, 0.0))
+
+    monkeypatch.setattr(reporting, "build_verifier", fake)
+
+    # The runner now probes the verifier before spending anything, so
+    # the preflight path needs the fake too -- otherwise every test that
+    # drives a run downloads and loads a 1.4GB checkpoint.
     monkeypatch.setattr(
-        reporting, "build_verifier", lambda _settings: FakeScorer(default=(0.99, 0.01, 0.0))
+        nli_preflight,
+        "check_nli_ready",
+        lambda _settings: nli_preflight.NLIReadiness(True, "fake verifier ready"),
+    )
+    monkeypatch.setattr(
+        "agentic_research.runner.check_nli_ready",
+        lambda _settings: nli_preflight.NLIReadiness(True, "fake verifier ready"),
+    )
+
+
+@pytest.fixture(autouse=True)
+def no_ollama_probe(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest) -> None:
+    """Environment capture must not reach the network in a unit test.
+
+    ``capture()`` records the Ollama server version and model digests,
+    which is genuinely useful for reproducing a local benchmark and is
+    an HTTP request. Every test that drives a run made it, so the unit
+    suite's behaviour depended on whether Ollama happened to be running
+    on the developer's machine -- fast and populated locally, a timeout
+    in CI. Tests that are about the capture itself opt out with the
+    ``ollama`` marker.
+    """
+    if request.node.get_closest_marker("ollama") or request.node.get_closest_marker("integration"):
+        return
+    from agentic_research import environment
+
+    monkeypatch.setattr(
+        environment,
+        "_ollama_info",
+        lambda _base_url: {"version": "stubbed-in-tests"},
     )

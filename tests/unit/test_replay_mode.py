@@ -25,6 +25,7 @@ from agentic_research.config import Settings
 from agentic_research.web import recordings
 from agentic_research.web.api import create_app
 from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
+from fakes import FakeQuotaStore
 
 
 def _settings(**overrides: Any) -> Settings:
@@ -32,10 +33,28 @@ def _settings(**overrides: Any) -> Settings:
         "llm_mode": "local",
         "demo_mode": True,
         "live_research_enabled": False,
+        # Present so a test can flip live on without also having to
+        # restate the whole hosted configuration. Replay ignores them
+        # entirely and still needs no credentials.
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
+        "tavily_api_key": "tvly-test-key",
         "_env_file": None,
     }
     base.update(overrides)
     return Settings(**base)
+
+
+def quota_app(settings: Any) -> Any:
+    """Build the app with a quota store that can admit a run.
+
+    The durable daily quota fails closed, so an app without a reachable
+    store refuses every live request before it reaches what these tests
+    are about. Refusal itself is covered in test_durable_quota_wiring.
+    """
+    return create_app(settings, counter_factory=FakeQuotaStore().factory)
 
 
 def _fake_credential(*parts: str) -> str:
@@ -171,7 +190,7 @@ def _isolated_recordings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Pat
 
 @pytest.fixture
 def client() -> Any:
-    with TestClient(create_app(_settings())) as c:
+    with TestClient(quota_app(_settings())) as c:
         yield c
 
 
@@ -197,7 +216,7 @@ class TestLiveResearchIsGatedOnTheServer:
             raise AssertionError("stream_research must not be called when live is disabled")
 
         monkeypatch.setattr(api_module, "stream_research", explode)
-        with TestClient(create_app(_settings())) as client:
+        with TestClient(quota_app(_settings())) as client:
             assert (
                 client.post("/api/research", json={"query": "a real question"}).status_code == 403
             )
@@ -228,7 +247,7 @@ class TestLiveResearchIsGatedOnTheServer:
                 yield {}
 
         monkeypatch.setattr(api_module, "stream_research", fake_stream)
-        app = create_app(_settings(live_research_enabled=True))
+        app = quota_app(_settings(live_research_enabled=True))
         with TestClient(app) as client:
             response = client.post("/api/research", json={"query": "a real research question"})
         assert response.status_code == 200
@@ -243,7 +262,7 @@ class TestConfigTellsTheTruth:
         assert body["recorded_examples"] == 1
 
     def test_reports_live_enabled_when_it_is(self) -> None:
-        with TestClient(create_app(_settings(live_research_enabled=True))) as client:
+        with TestClient(quota_app(_settings(live_research_enabled=True))) as client:
             body = client.get("/api/config").json()
         assert body["live_research_enabled"] is True
         assert body["service_mode"] == "live"
@@ -253,7 +272,7 @@ class TestConfigTellsTheTruth:
         mode refuses to start without an API key it will never use. There
         is no Ollama on that host, so claiming a local model is available
         would be false. Boot configuration is not a capability."""
-        with TestClient(create_app(_settings(llm_mode="local"))) as client:
+        with TestClient(quota_app(_settings(llm_mode="local"))) as client:
             body = client.get("/api/config").json()
         assert body["service_mode"] == "replay"
         assert body["local_models_available"] is False
@@ -261,7 +280,7 @@ class TestConfigTellsTheTruth:
 
     def test_local_models_are_advertised_only_when_live_and_local(self) -> None:
         with TestClient(
-            create_app(_settings(llm_mode="local", live_research_enabled=True))
+            quota_app(_settings(llm_mode="local", live_research_enabled=True))
         ) as client:
             body = client.get("/api/config").json()
         assert body["local_models_available"] is True
@@ -269,7 +288,7 @@ class TestConfigTellsTheTruth:
 
     def test_config_leaks_no_credential(self) -> None:
         settings = _settings(tavily_api_key="tvly-secret-value", openai_api_key="sk-secret-value")
-        with TestClient(create_app(settings)) as client:
+        with TestClient(quota_app(settings)) as client:
             body = json.dumps(client.get("/api/config").json())
         assert "secret-value" not in body
         assert "tvly-" not in body and "sk-" not in body
@@ -434,17 +453,17 @@ class TestRoutingIsIdenticalWithAndWithoutAFrontendBuild:
         return missing
 
     def test_with_a_build_a_client_route_gets_the_app_shell(self, built_frontend: Path) -> None:
-        with TestClient(create_app(_settings())) as client:
+        with TestClient(quota_app(_settings())) as client:
             response = client.get("/some/client/route")
         assert response.status_code == 200
         assert "<title>app</title>" in response.text
 
     def test_with_a_build_a_real_static_file_is_served(self, built_frontend: Path) -> None:
-        with TestClient(create_app(_settings())) as client:
+        with TestClient(quota_app(_settings())) as client:
             assert client.get("/favicon.svg").status_code == 200
 
     def test_with_a_build_unknown_api_paths_are_still_json(self, built_frontend: Path) -> None:
-        with TestClient(create_app(_settings())) as client:
+        with TestClient(quota_app(_settings())) as client:
             unknown = client.get("/api/does-not-exist")
             bad_id = client.get("/api/examples/Not-Valid")
             collection = client.get("/api/examples/")
@@ -456,7 +475,7 @@ class TestRoutingIsIdenticalWithAndWithoutAFrontendBuild:
         assert collection.status_code == 200
 
     def test_without_a_build_nothing_pretends_to_serve_a_frontend(self, no_frontend: Path) -> None:
-        with TestClient(create_app(_settings())) as client:
+        with TestClient(quota_app(_settings())) as client:
             client_route = client.get("/some/client/route")
             collection = client.get("/api/examples/")
         assert client_route.status_code == 404
@@ -466,7 +485,7 @@ class TestRoutingIsIdenticalWithAndWithoutAFrontendBuild:
     def test_a_traversal_outside_the_build_is_refused(self, built_frontend: Path) -> None:
         secret = built_frontend.parent.parent / "secret.txt"
         secret.write_text("TOP SECRET", encoding="utf-8")
-        with TestClient(create_app(_settings())) as client:
+        with TestClient(quota_app(_settings())) as client:
             response = client.get("/../../secret.txt")
         assert "TOP SECRET" not in response.text
 
@@ -663,7 +682,7 @@ class TestUntrustedTextIsNotInterpreted:
         monkeypatch.setattr(recordings, "RECORDINGS_DIR", directory)
         recordings._index.cache_clear()
         try:
-            with TestClient(create_app(_settings())) as client:
+            with TestClient(quota_app(_settings())) as client:
                 response = client.get("/api/examples/example-run")
             # Passed through byte-for-byte as data. The API deliberately
             # does not mangle it: escaping belongs to whatever renders it,
@@ -805,7 +824,7 @@ class TestNoInternalReasoningIsPublished:
         settings = Settings(
             llm_mode="local", demo_mode=True, live_research_enabled=False, _env_file=None
         )
-        with TestClient(create_app(settings)) as client:
+        with TestClient(quota_app(settings)) as client:
             for example in client.get("/api/examples").json()["examples"]:
                 body = client.get(f"/api/examples/{example['id']}").json()
                 assert_no_internal_reasoning(example["id"], body)
@@ -889,7 +908,7 @@ class TestTheFrontendIsFoundWhenInstalled:
         (dist / "index.html").write_text('<div id="root"></div>', encoding="utf-8")
         monkeypatch.setattr("agentic_research.web.api._FRONTEND_DIST", dist)
 
-        with TestClient(create_app(_settings())) as client:
+        with TestClient(quota_app(_settings())) as client:
             root = client.get("/")
             assert root.status_code == 200
             assert 'id="root"' in root.text
@@ -949,3 +968,29 @@ class TestUrlSlugsAreNotMistakenForKeys:
 
         for path in sorted(RECORDINGS_DIR.glob("*.json")):
             assert_no_secrets(path.stem, json.loads(path.read_text(encoding="utf-8")))
+
+
+class TestTheApiSchemaIsNotPublished:
+    """Hiding the docs page while serving the schema hides nothing.
+
+    The deployed demo returned the SPA for /docs -- correctly -- and the
+    complete OpenAPI document for /openapi.json, describing
+    /api/research and its request body. docs_url=None does not disable
+    openapi_url, and only a deployed check noticed.
+    """
+
+    def test_demo_mode_serves_no_schema(self) -> None:
+        app = quota_app(_settings(demo_mode=True))
+        assert app.openapi_url is None
+        assert app.docs_url is None
+
+    def test_a_non_demo_deployment_keeps_its_schema(self) -> None:
+        """A private or local deployment has nobody to hide it from."""
+        app = quota_app(_settings(demo_mode=False))
+        assert app.openapi_url == "/openapi.json"
+        assert app.docs_url == "/docs"
+
+    def test_the_schema_route_is_absent_in_demo_mode(self) -> None:
+        app = quota_app(_settings(demo_mode=True))
+        paths = {getattr(r, "path", None) for r in app.routes}
+        assert "/openapi.json" not in paths

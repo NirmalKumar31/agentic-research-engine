@@ -22,6 +22,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from agentic_research import __version__ as _VERSION
 
+# One source of truth for the pinned verifier. Duplicating the revision
+# here and in the NLI adapter let them drift, and the adapter's copy was
+# the unpinned string "main".
+from agentic_research.citations.nli_pin import (
+    NLI_DEFAULT_MODEL_ID,
+    NLI_DEFAULT_REVISION,
+)
+
 
 class LLMMode(StrEnum):
     """Where work runs by default."""
@@ -56,9 +64,6 @@ class ModelRole(StrEnum):
 
     SYNTHESIZER = "synthesizer"
     """Final report generation. Quality here is what the user actually sees."""
-
-    VERIFIER = "verifier"
-    """Claim/evidence entailment checking during citation verification."""
 
 
 class ModelSpec(BaseModel):
@@ -167,17 +172,24 @@ class Settings(BaseSettings):
     brave_api_key: SecretStr | None = None
 
     # --- Mode and models ---------------------------------------------------
-    llm_mode: LLMMode = LLMMode.HYBRID
+    llm_mode: LLMMode = LLMMode.LOCAL
+    """Local by default, matching .env.example and the quickstart.
+
+    The default was HYBRID while both of those said local, so a fresh
+    checkout failed to start with a message about a missing API key for
+    a mode the documentation never told anyone they were in."""
     openai_model: str = "gpt-6-sol"
     openai_fast_model: str = "gpt-6-luna"
     ollama_base_url: str = "http://localhost:11434"
+    openai_base_url: str = "https://api.openai.com/v1"
+    """Overridable for a compatible gateway. Used by the model-retrieval
+    preflight as well as by the client."""
     ollama_model: str = "qwen3:4b"
 
     planner_model: str | None = None
     researcher_model: str | None = None
     critic_model: str | None = None
     synthesizer_model: str | None = None
-    verifier_model: str | None = None
 
     allow_cloud_fallback: bool = False
 
@@ -190,8 +202,8 @@ class Settings(BaseSettings):
     # All three of model, revision and threshold are pinned and recorded
     # in every judgment. Changing any one changes which claims publish,
     # so a verdict that does not say which it used cannot be audited.
-    nli_model_id: str = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
-    nli_model_revision: str = "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7"
+    nli_model_id: str = NLI_DEFAULT_MODEL_ID
+    nli_model_revision: str = NLI_DEFAULT_REVISION
     nli_support_threshold: float = Field(default=0.98, ge=0.0, le=1.0)
     """Entailment probability a cited quote must reach. Calibrated, not
     guessed -- see examples/verifier-calibration/nli-calibration.json."""
@@ -202,7 +214,44 @@ class Settings(BaseSettings):
     for hosts too small to hold the model."""
     nli_endpoint: str | None = None
     nli_api_key: SecretStr | None = None
+    nli_dialect: Literal["contract", "hf"] = "contract"
+    """Wire format the remote speaks.
+
+    ``contract`` is this project's own scoring service, which echoes the
+    model, revision, per-pair id and truncation flag, so each response
+    is checked against the request that produced it.
+
+    ``hf`` is a managed Hugging Face Inference Endpoint on the stock
+    text-classification handler, which echoes none of those. Choosing it
+    moves the revision check to preflight, against the Hugging Face
+    control plane, and moves truncation detection into this process."""
     nli_timeout_seconds: float = Field(default=30.0, gt=0)
+    nli_scale_up_timeout_seconds: float = Field(default=0.0, ge=0)
+    """Bounded wait for a scaled-to-zero endpoint to wake. 0 disables
+    warm-up waiting entirely, which is the correct setting until an
+    always-warm deployment has passed acceptance."""
+
+    # --- durable public-demo quota ---------------------------------------
+    demo_quota_url: str | None = None
+    """Redis/Key-Value URL backing the global daily run cap.
+
+    The in-process counter bounds a process, not a day: a free instance
+    sleeps and wakes with the count at zero. Harmless for replay, where
+    a run costs nothing; not harmless for live research, which spends at
+    three providers per run."""
+
+    demo_quota_required: bool = True
+    """Refuse live research when durable counting is unavailable.
+
+    An unbounded fallback is precisely the failure the counter exists to
+    prevent, so the default is to fail closed. Replay never consults
+    it."""
+
+    trusted_proxy_hops: int = Field(default=0, ge=0, le=4)
+    """How many trailing X-Forwarded-For entries were added by proxies we
+    control. 0 means the header is not trusted at all: a client can send
+    any value, so only entries appended by our own boundary carry
+    meaning."""
 
     # --- cloud spend ceilings -------------------------------------------
     # Zero disables a dimension rather than meaning "no spend allowed";
@@ -221,6 +270,20 @@ class Settings(BaseSettings):
     max_cloud_input_tokens: int = Field(default=400_000, ge=0)
     max_cloud_output_tokens: int = Field(default=60_000, ge=0)
     max_cloud_cost_usd: float = Field(default=0.50, ge=0.0)
+    """Estimated application spend limit for one run. Not a billing cap.
+
+    The engine reserves against this before every provider request, but
+    the input side of the reservation is an estimate: token counts are
+    approximated from character length, which undershoots on code,
+    punctuation-dense text, non-Latin scripts and structured-output
+    schemas. The reservation also covers the messages this engine
+    assembles, not whatever the provider adds around them.
+
+    So it bounds what the engine believes it is about to spend, which is
+    enough to stop a runaway loop and not enough to be called a
+    guarantee. **The financial backstop is the hard limit set on the
+    provider account or project**, which is enforced by the provider
+    against real usage. Set one."""
     max_search_credits: float = Field(default=50.0, ge=0.0)
 
     # Per-role output ceilings. Synthesis legitimately needs room; a query
@@ -237,7 +300,6 @@ class Settings(BaseSettings):
     )
     max_output_tokens_critic: int = Field(default=1_500, ge=64)
     max_output_tokens_synthesizer: int = Field(default=6_000, ge=64)
-    max_output_tokens_verifier: int = Field(default=400, ge=64)
 
     llm_temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     llm_timeout_seconds: float = Field(default=180.0, gt=0)
@@ -304,11 +366,12 @@ class Settings(BaseSettings):
         default=False,
         description=(
             "Whether an anonymous HTTP request may start a paid research run. "
-            "Off by default, and deliberately so: the daily run cap lives in "
-            "process memory, and a host that spins down when idle resets it on "
-            "every cold start, so it cannot bound an account-level quota. The "
-            "per-run request and spend ceilings remain real; the daily one does "
-            "not survive a restart. The public site serves recorded runs "
+            "Off by default: turning it on requires provider credentials, a "
+            "pinned remote verifier and a reachable shared quota store, and a "
+            "deployment missing any of them is refused at startup rather than "
+            "booting half-configured. When on, the daily admission count is "
+            "held in that shared store, so it is one count across replicas and "
+            "survives a web cold start. The public site serves recorded runs "
             "instead, and the CLI is unaffected."
         ),
     )
@@ -391,7 +454,6 @@ class Settings(BaseSettings):
             ModelRole.RESEARCHER: self.researcher_model,
             ModelRole.CRITIC: self.critic_model,
             ModelRole.SYNTHESIZER: self.synthesizer_model,
-            ModelRole.VERIFIER: self.verifier_model,
         }
 
     def _default_spec(self, role: ModelRole) -> ModelSpec:
@@ -433,7 +495,6 @@ class Settings(BaseSettings):
                 ModelRole.RESEARCHER.value: self.max_output_tokens_researcher,
                 ModelRole.CRITIC.value: self.max_output_tokens_critic,
                 ModelRole.SYNTHESIZER.value: self.max_output_tokens_synthesizer,
-                ModelRole.VERIFIER.value: self.max_output_tokens_verifier,
             },
         )
 
@@ -449,6 +510,43 @@ class Settings(BaseSettings):
             max_parallel_fetches=self.max_parallel_fetches,
             max_run_seconds=self.run_timeout_seconds,
         )
+
+    @model_validator(mode="after")
+    def _live_research_needs_a_complete_path(self) -> Settings:
+        """A hosted live deployment must not boot healthy half-configured.
+
+        Live research spends money at three providers and publishes
+        nothing without a verifier. Booting with local NLI on a 512MB
+        web host, or with no endpoint at all, produces exactly the
+        failure this check exists to stop: a paid run whose every claim
+        is withheld because verification was never possible.
+        """
+        if not self.live_research_enabled:
+            return self
+
+        problems: list[str] = []
+        if self.nli_mode != "remote":
+            problems.append("NLI_MODE must be 'remote' (the web image carries no torch)")
+        elif not self.nli_endpoint:
+            problems.append("NLI_ENDPOINT is required when NLI_MODE=remote")
+        if self.nli_mode == "remote" and not self.nli_api_key:
+            problems.append("NLI_API_KEY is required for a private endpoint")
+        if len(self.nli_model_revision or "") != 40:
+            problems.append("NLI_MODEL_REVISION must be a full 40-character commit")
+        if self.llm_mode is LLMMode.CLOUD and not self.openai_api_key:
+            problems.append("OPENAI_API_KEY is required for LLM_MODE=cloud")
+        if not self.tavily_api_key and not self.brave_api_key:
+            problems.append("a search provider key is required")
+        if self.demo_quota_required and not self.demo_quota_url:
+            problems.append(
+                "DEMO_QUOTA_URL is required, or set DEMO_QUOTA_REQUIRED=false "
+                "to accept a process-local cap"
+            )
+        if problems:
+            raise ValueError(
+                "LIVE_RESEARCH_ENABLED=true but the live path is incomplete: " + "; ".join(problems)
+            )
+        return self
 
     def uses_provider(self, provider: Provider) -> bool:
         return any(spec.provider is provider for spec in self.resolve_models().values())

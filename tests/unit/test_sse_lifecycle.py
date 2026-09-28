@@ -33,6 +33,10 @@ def _settings(**over: Any) -> Settings:
         "llm_mode": "local",
         "demo_mode": True,
         "live_research_enabled": True,
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
         "tavily_api_key": "tvly-test-key",
         "_env_file": None,
     }

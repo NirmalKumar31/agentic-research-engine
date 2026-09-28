@@ -1,10 +1,11 @@
 """Recorded research runs, served without touching a provider.
 
 The public site shows real executions rather than running new ones. That is
-a deliberate deployment decision, not a limitation of the engine: the demo's
-daily run cap lives in process memory, and a free host that spins down when
-idle resets it on every cold start, so it cannot bound an account-level
-quota. Replaying a recording bounds it at zero.
+a deliberate deployment decision, not a limitation of the engine: a
+recording costs nothing to serve, needs no credential, and cannot fail
+because a provider is down. Live research is available alongside it,
+bounded by a shared daily counter; replay bounds spending at zero and stays
+available when live research does not.
 
 What is recorded is the *derived* artifact the API already returns -- report,
 claims, evidence with its quotes, sources with their metadata, verification
@@ -137,7 +138,18 @@ _SAFE_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 # Keys that must never appear in a committed recording, checked on load so a
 # bad recording fails loudly in CI rather than quietly on the public site.
 _FORBIDDEN_KEYS = frozenset(
-    {"api_key", "openai_api_key", "tavily_api_key", "brave_api_key", "authorization", "token"}
+    {
+        "api_key",
+        "openai_api_key",
+        "tavily_api_key",
+        "brave_api_key",
+        "nli_api_key",
+        "hf_token",
+        "huggingface_token",
+        "authorization",
+        "token",
+        "bearer",
+    }
 )
 
 # Key names are not enough: {"note": "sk-proj-..."} passes a name-only
@@ -149,6 +161,7 @@ _SECRET_VALUE_PATTERNS = (
     re.compile(r"\btvly-[A-Za-z0-9]{16,}"),
     re.compile(r"\bBSA[A-Za-z0-9_-]{20,}"),  # Brave
     re.compile(r"\bghp_[A-Za-z0-9]{36}"),
+    re.compile(r"\bhf_[A-Za-z0-9]{30,}"),  # Hugging Face access token
     re.compile(r"\bAKIA[0-9A-Z]{16}"),
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 )

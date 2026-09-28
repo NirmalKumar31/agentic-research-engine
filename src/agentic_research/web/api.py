@@ -12,10 +12,11 @@ survives proxies and free-tier hosting without special configuration.
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import json
 import os
 import time
-from collections.abc import AsyncGenerator, AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator, Callable
 from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,8 +30,17 @@ from pydantic import BaseModel, Field
 
 from agentic_research.config import Settings, get_settings
 from agentic_research.llm.base import ProviderRateLimited
-from agentic_research.observability import configure_logging, get_logger
+from agentic_research.observability import (
+    configure_logging,
+    get_logger,
+    register_secret_values,
+)
 from agentic_research.runner import new_run_id, stream_research
+from agentic_research.web.durable_quota import (
+    AtomicCounter,
+    DurableRunQuota,
+    build_counter,
+)
 from agentic_research.web.limits import (
     CapacityError,
     DemoLimits,
@@ -117,29 +127,233 @@ class AppState:
     limits: DemoLimits
     limiter: RateLimiter
     demo_mode: bool
+    # Built during startup, because connecting to the store is I/O and
+    # because a module imported at build time should not open sockets.
+    # None until then, which reads as "not ready" rather than "no limit".
+    quota: DurableRunQuota | None = None
+
+    def live_research_available(self) -> bool:
+        """Whether a live run could actually be admitted right now.
+
+        Distinct from ``live_research_enabled``, which is a statement of
+        intent. A deployment configured for live research whose quota
+        store is unreachable is enabled and unavailable at once, and
+        reporting only the intent is how a deploy looks healthy while
+        refusing every run.
+
+        Performs a bounded network round trip to the quota store, so
+        callers on the event loop must hand it to a thread. It never
+        increments the counter.
+        """
+        if not self.settings.live_research_enabled:
+            return False
+        if self.quota is None:
+            return False
+        return self.quota.usable()
 
 
-def _client_key(request: Request) -> str:
+def _peer(request: Request) -> str:
+    return request.client.host if request.client else "unknown"
+
+
+def _client_key(request: Request, trusted_hops: int) -> str:
     """Identify the caller for rate limiting.
 
-    Behind Render's proxy the peer address is the proxy, so the first entry
-    of X-Forwarded-For is used when present. It is spoofable by a determined
-    caller; the global daily cap and the per-run spend ceiling are the
-    limits that actually bound cost, and this one bounds accidents.
+    X-Forwarded-For is *appended to* by each proxy it passes through, so
+    the leftmost entry is whatever the caller chose to send and the
+    rightmost entries were added by infrastructure closer to us. Reading
+    the first entry therefore lets a caller name itself: sending
+    ``X-Forwarded-For: 1.2.3.4`` bought a fresh per-client allowance on
+    every request, and the header cost nothing to change.
+
+    With ``trusted_hops`` proxies in front of this service, the last
+    ``trusted_hops`` entries are the ones those proxies contributed, and
+    the caller's real address is the one immediately before them --
+    index ``len(parts) - trusted_hops``. For Render's single proxy that
+    is the last entry, which a spoofed prefix cannot displace.
+
+    Anything unexpected falls back to the socket peer: zero configured
+    hops (trust nothing), fewer entries than hops (the header did not
+    come through the expected path), or a value that is not an IP
+    address. The peer address is the one thing a caller cannot forge.
+
+    This bounds accidents and casual abuse. It is not the financial
+    boundary -- the durable global quota is.
     """
+    if trusted_hops <= 0:
+        return _peer(request)
+
     forwarded = request.headers.get("x-forwarded-for", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    parts = [p.strip() for p in forwarded.split(",") if p.strip()]
+    if len(parts) < trusted_hops:
+        return _peer(request)
+
+    candidate = parts[len(parts) - trusted_hops]
+    try:
+        # Parsed, not merely trimmed: a hostname, a port suffix or junk
+        # is refused, and so is 192.000.002.044, because leading zeros
+        # are octal to some stacks and decimal to others. Returned in
+        # normalised form so one client cannot hold two allowances by
+        # varying the spelling of its own address.
+        return str(ipaddress.ip_address(candidate))
+    except ValueError:
+        return _peer(request)
 
 
 def _sse(event: str, payload: dict[str, Any]) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, default=str)}\n\n"
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+# A 300-character question serialises to a few hundred bytes. 16 KiB is
+# generous for that and small enough that a body never becomes a memory
+# cost. Enforced below Pydantic, which otherwise reads the whole request
+# before deciding it was too long.
+_MAX_BODY_BYTES = 16 * 1024
+
+# Paths that must not return the app shell. Without this the SPA
+# fallback answers 200 for /docs and /redoc even when the schema is
+# disabled, so "are the docs off?" cannot be answered by looking.
+_RESERVED_PATHS = frozenset({"/docs", "/redoc", "/openapi.json", "/docs/oauth2-redirect"})
+
+# Same-origin Vite build and same-origin SSE, so everything is 'self'.
+# 'unsafe-inline' for styles only: the bundler inlines a style element
+# and there is no nonce plumbing in a static build. Scripts get no such
+# exemption, which is where it would matter.
+_CSP = "; ".join(
+    [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "font-src 'self' data:",
+        "connect-src 'self'",
+        "object-src 'none'",
+        "base-uri 'none'",
+        "form-action 'none'",
+        "frame-ancestors 'none'",
+    ]
+)
+
+_PERMISSIONS_POLICY = ", ".join(
+    f"{feature}=()"
+    for feature in (
+        "accelerometer",
+        "autoplay",
+        "camera",
+        "display-capture",
+        "encrypted-media",
+        "geolocation",
+        "gyroscope",
+        "magnetometer",
+        "microphone",
+        "midi",
+        "payment",
+        "usb",
+        "xr-spatial-tracking",
+    )
+)
+
+_SECURITY_HEADERS = {
+    "Content-Security-Policy": _CSP,
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": _PERMISSIONS_POLICY,
+    "X-Frame-Options": "DENY",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    # No includeSubDomains: this runs on a shared onrender.com hostname,
+    # and asserting HSTS for every sibling subdomain is not this
+    # service's decision to make.
+    "Strict-Transport-Security": "max-age=31536000",
+}
+
+
+class BodySizeLimitMiddleware:
+    """Refuse an oversized body before anything buffers it.
+
+    Pure ASGI rather than BaseHTTPMiddleware because the point is to act
+    *before* the framework reads the request. Content-Length is checked
+    when present and the streamed bytes are counted regardless, since a
+    chunked request can omit it or lie.
+    """
+
+    def __init__(self, app: Any, max_bytes: int = _MAX_BODY_BYTES) -> None:
+        self.app = app
+        self.max_bytes = max_bytes
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
+
+        headers = {k.decode("latin-1").lower(): v for k, v in scope.get("headers", [])}
+        declared = headers.get("content-length")
+        if declared is not None:
+            try:
+                if int(declared) > self.max_bytes:
+                    await self._too_large(send)
+                    return
+            except ValueError:
+                await self._too_large(send)
+                return
+
+        received = 0
+        exceeded = False
+
+        async def counting_receive() -> Any:
+            nonlocal received, exceeded
+            message = await receive()
+            if message.get("type") == "http.request":
+                received += len(message.get("body", b""))
+                if received > self.max_bytes:
+                    exceeded = True
+                    # Truncate rather than hand on an oversized body.
+                    return {"type": "http.disconnect"}
+            return message
+
+        await self.app(scope, counting_receive, send)
+        del exceeded
+
+    @staticmethod
+    async def _too_large(send: Any) -> None:
+        body = json.dumps({"error": "Request body is too large."}).encode()
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 413,
+                "headers": [
+                    (b"content-type", b"application/json"),
+                    (b"content-length", str(len(body)).encode()),
+                ],
+            }
+        )
+        await send({"type": "http.response.body", "body": body})
+
+
+def create_app(
+    settings: Settings | None = None,
+    *,
+    counter_factory: Callable[[str | None], AtomicCounter | None] = build_counter,
+) -> FastAPI:
+    """Build the application.
+
+    ``counter_factory`` is injectable so tests can give two app
+    instances one shared store and assert that the cap is genuinely
+    shared. Testing the quota object directly would prove only that the
+    class works, not that the route calls it.
+    """
     resolved = settings or get_settings()
     configure_logging(resolved.log_level, resolved.log_format)
+    # Register the configured credentials so they are scrubbed by value
+    # wherever they surface -- inside an exception string, a URL, a
+    # provider error body -- not only when logged under a known key.
+    register_secret_values(
+        resolved.openai_api_key,
+        resolved.tavily_api_key,
+        resolved.brave_api_key,
+        resolved.nli_api_key,
+        resolved.demo_quota_url,
+        resolved.nli_endpoint,
+    )
     limits = limits_from_settings(resolved)
     state = AppState(
         settings=resolved,
@@ -150,11 +364,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        # Connecting here rather than at import: this opens a socket, and
+        # a failure has to be visible as "not ready" rather than as an
+        # import error with no HTTP surface to report it on.
+        counter = await asyncio.to_thread(counter_factory, resolved.demo_quota_url)
+        state.quota = DurableRunQuota(
+            counter,
+            limits.global_runs_per_day,
+            required=resolved.demo_quota_required,
+        )
         log.info(
             "web_started",
             demo_mode=state.demo_mode,
             mode=resolved.llm_mode.value,
             frontend_present=_FRONTEND_DIST.is_dir(),
+            durable_quota=counter is not None,
         )
         yield
 
@@ -169,10 +393,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
         # No interactive docs in demo mode: they invite poking at an endpoint
         # that spends money, and add nothing for a demo visitor.
+        #
+        # openapi_url has to go too. docs_url=None removes the Swagger
+        # page and leaves /openapi.json serving the full schema, which
+        # is the same invitation in a machine-readable form -- the
+        # deployed demo was publishing a complete description of
+        # /api/research, request body included, while the UI it was
+        # meant to hide returned the SPA. Found during hosted
+        # acceptance, not by a test.
         docs_url=None if state.demo_mode else "/docs",
+        openapi_url=None if state.demo_mode else "/openapi.json",
         redoc_url=None,
     )
     app.state.research = state
+
+    @app.middleware("http")
+    async def security_headers(request: Request, call_next: Any) -> Response:
+        """Set on every response, including errors and the SSE stream.
+
+        The deployed service had none of these. They cost nothing and
+        each one closes something: nosniff stops a JSON error being
+        executed as script, frame-ancestors stops the demo being framed
+        by a page that then reads what a visitor typed.
+        """
+        response = await call_next(request)
+        for header, value in _SECURITY_HEADERS.items():
+            response.headers.setdefault(header, value)
+        return response
+
+    app.add_middleware(BodySizeLimitMiddleware, max_bytes=_MAX_BODY_BYTES)
 
     origins = [o.strip() for o in resolved.cors_origins.split(",") if o.strip()]
     if origins:
@@ -203,6 +452,57 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "demo_mode": state.demo_mode,
             "capacity": await state.limiter.snapshot(),
         }
+
+    @api.get("/readiness")
+    async def readiness() -> JSONResponse:
+        """What this instance can actually do, not merely that it is up.
+
+        Liveness passes on a deployment that refuses every run, which is
+        why it is the wrong signal for acceptance. These four facts come
+        apart in practice and each has a different remedy:
+
+        ``replay_available``
+            Recordings are present. Replay costs nothing and must keep
+            working even when live research cannot.
+        ``live_research_enabled``
+            What the configuration asks for.
+        ``durable_quota_available``
+            Whether the shared counter can be reached. Without it a live
+            deployment has no cap that survives a restart.
+        ``live_research_available``
+            Whether a run could actually be admitted. A deployment can
+            be enabled and unavailable at the same time.
+
+        503 when the instance cannot do what it is configured to do, so
+        a deploy check fails rather than reporting a healthy service
+        that turns every visitor away.
+        """
+        quota = state.quota
+        replay_available = bool(available_recordings())
+        enabled = state.settings.live_research_enabled
+        # Off the event loop: this pings the quota store, which is a
+        # network round trip, and a readiness probe must not block every
+        # other request while it waits.
+        live_available = await asyncio.to_thread(state.live_research_available)
+        quota_available = await asyncio.to_thread(quota.usable) if quota is not None else False
+        body: dict[str, Any] = {
+            "alive": True,
+            "replay_available": replay_available,
+            "live_research_enabled": enabled,
+            "live_research_available": live_available,
+            # "shared", not "durable": on the free Key Value plan the
+            # counter is atomic and shared across replicas and does not
+            # survive a restart of the store itself. The old name
+            # promised the property the plan does not provide.
+            "shared_quota_available": quota_available,
+            # Retained for one release so an existing probe does not
+            # break on the rename.
+            "durable_quota_available": quota_available,
+            "quota_initialised": quota is not None,
+        }
+        ready = replay_available and (live_available or not enabled)
+        body["ready"] = ready
+        return JSONResponse(body, status_code=200 if ready else 503)
 
     @api.get("/config")
     async def config() -> dict[str, Any]:
@@ -299,7 +599,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except ValueError as exc:
             return JSONResponse({"error": str(exc)}, status_code=400)
 
-        client = _client_key(request)
+        client = _client_key(request, state.settings.trusted_proxy_hops)
         try:
             await state.limiter.acquire(client)
         except CapacityError as exc:
@@ -310,6 +610,50 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 {"error": exc.reason, "capacity_reached": True},
                 status_code=429,
                 headers=headers,
+            )
+
+        # The financial boundary, and the only counter that outlives this
+        # process. Taken after the in-memory limiter so concurrency is
+        # already bounded, and before the router, the search provider and
+        # the verifier -- every one of which costs money.
+        #
+        # A refused reservation must hand back the concurrency slot it
+        # just took. The streaming path releases it on exit, and this
+        # path never reaches the streaming path.
+        quota = state.quota
+        if quota is None:
+            await state.limiter.release(client)
+            return JSONResponse(
+                {
+                    "error": "The service is still starting. Try again shortly.",
+                    "error_code": "not_ready",
+                },
+                status_code=503,
+            )
+        decision = await asyncio.to_thread(quota.reserve)
+        if not decision.allowed:
+            # The client keeps their hourly allowance: this run was
+            # refused by the shared daily cap, not spent by them.
+            await state.limiter.release(client)
+            log.info(
+                "live_run_refused",
+                reason=decision.detail,
+                used=decision.used,
+                limit=decision.limit,
+            )
+            return JSONResponse(
+                {
+                    # decision.detail names the mechanism, not the store,
+                    # the URL or any credential.
+                    "error": (
+                        "The demo has reached its daily budget. It resets within 24 hours."
+                        if decision.used >= decision.limit > 0
+                        else "Live research is unavailable right now."
+                    ),
+                    "capacity_reached": True,
+                },
+                status_code=429,
+                headers={"Retry-After": "3600"},
             )
 
         run_settings = state.settings
@@ -362,6 +706,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         in both cases.
         """
         path = request.url.path
+        if state.demo_mode and path.rstrip("/") in _RESERVED_PATHS:
+            # Schema and docs are disabled in demo mode. Letting the SPA
+            # answer 200 here means the only way to find out is to read
+            # the body, and a scanner reads the status.
+            return JSONResponse({"error": "Not found."}, status_code=404)
         if path == "/api" or path.startswith("/api/"):
             # A missing endpoint must not answer with the SPA shell, or a
             # caller cannot tell it apart from a working one.

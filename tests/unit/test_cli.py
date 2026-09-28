@@ -99,16 +99,22 @@ class TestHelpAndDiscovery:
 
 
 class TestCheck:
-    def test_check_reports_configuration_without_running_research(self) -> None:
+    def test_check_reports_the_whole_path(self) -> None:
         result = runner.invoke(app, ["check"])
-        assert result.exit_code == 0
         assert "local" in result.stdout
-        assert "Tavily key" in result.stdout
+        assert "Search key" in result.stdout
+        # The verifier decides what publishes, so a check that ignored
+        # it was not checking the path that matters.
+        assert "Verifier mode" in result.stdout
+        assert "threshold" in result.stdout
 
-    def test_check_reports_a_missing_key_rather_than_crashing(self) -> None:
+    def test_a_configuration_that_cannot_run_exits_nonzero(self) -> None:
+        """This printed a missing key in red and exited 0, so a scripted
+        check passed on a configuration that could not complete a run."""
         result = runner.invoke(app, ["check"])
-        assert result.exit_code == 0
+        assert result.exit_code == 1
         assert "missing" in result.stdout
+        assert "cannot complete a verified run" in result.stdout
 
     def test_invalid_configuration_exits_with_a_clear_message(
         self, monkeypatch: pytest.MonkeyPatch

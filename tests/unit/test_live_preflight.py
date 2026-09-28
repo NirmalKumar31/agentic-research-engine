@@ -27,6 +27,7 @@ from agentic_research.web import api as api_module
 from agentic_research.web import recordings
 from agentic_research.web.api import create_app
 from agentic_research.web.recordings import RECORDING_SCHEMA_VERSION
+from fakes import FakeQuotaStore
 
 REPO = Path(__file__).resolve().parents[2]
 LIVE_BLUEPRINT = "deploy/render-live.yaml"
@@ -38,16 +39,37 @@ def blueprint_env(name: str = LIVE_BLUEPRINT) -> dict[str, str]:
 
 
 def live_settings(**over: Any) -> Settings:
-    """The live posture, but on a local model so nothing can be billed."""
+    """The live posture, but on a local model so nothing can be billed.
+
+    Carries the full hosted live configuration, because a hosted
+    deployment that boots without a remote verifier or a durable quota
+    is refused at settings validation -- which is the point of that
+    check, and means a test of the live surface has to be a valid live
+    configuration.
+    """
     base: dict[str, Any] = {
         "llm_mode": "local",
         "demo_mode": True,
         "live_research_enabled": True,
         "tavily_api_key": "tvly-test-key",
+        "nli_mode": "remote",
+        "nli_endpoint": "https://nli.test.invalid/score",
+        "nli_api_key": "hf-test-placeholder",
+        "demo_quota_url": "redis://quota.test.invalid:6379/0",
         "_env_file": None,
     }
     base.update(over)
     return Settings(**base)
+
+
+def quota_app(settings: Any) -> Any:
+    """Build the app with a quota store that can admit a run.
+
+    The durable daily quota fails closed, so an app without a reachable
+    store refuses every live request before it reaches what these tests
+    are about. Refusal itself is covered in test_durable_quota_wiring.
+    """
+    return create_app(settings, counter_factory=FakeQuotaStore().factory)
 
 
 RECORDING = {
@@ -102,8 +124,12 @@ class TestStartupConfiguration:
 
     def test_only_luna_is_reachable_and_fallback_is_off(self) -> None:
         env = blueprint_env()
-        assert env["OPENAI_MODEL"] == "gpt-6-luna"
-        assert env["OPENAI_FAST_MODEL"] == "gpt-6-luna"
+        # The model is a deployment value now, prompted at Blueprint
+        # creation rather than committed. A model id baked into the
+        # repository outlives the provider's catalogue, and preflight
+        # refuses an unretrievable or unpriced one anyway.
+        assert env["OPENAI_MODEL"] == "<prompted>"
+        assert env["OPENAI_FAST_MODEL"] == "<prompted>"
         assert env["ALLOW_CLOUD_FALLBACK"] == "false"
         configured = {v.lower() for k, v in env.items() if k.startswith("OPENAI_")}
         assert not any("sol" in v or "astra" in v for v in configured)
@@ -117,13 +143,13 @@ class TestStartupConfiguration:
         assert env["TAVILY_API_KEY"] == "<prompted>"
 
     def test_the_service_reports_itself_as_live(self) -> None:
-        with TestClient(create_app(live_settings())) as client:
+        with TestClient(quota_app(live_settings())) as client:
             body = client.get("/api/config").json()
         assert body["service_mode"] == "live"
         assert body["live_research_enabled"] is True
 
     def test_recordings_still_load_in_the_live_service(self) -> None:
-        with TestClient(create_app(live_settings())) as client:
+        with TestClient(quota_app(live_settings())) as client:
             assert client.get("/api/examples").json()["examples"]
 
     def test_the_frontend_is_found_from_an_installed_layout(self) -> None:
@@ -163,7 +189,7 @@ class TestEveryCeilingIsServerEnforced:
     def test_paid_dimensions(self, clamped: Settings) -> None:
         assert clamped.max_provider_requests == 30
         assert clamped.max_cloud_calls == 20
-        assert clamped.max_cloud_input_tokens == 120_000
+        assert clamped.max_cloud_input_tokens == 240_000
         assert clamped.max_cloud_output_tokens == 20_000
         assert clamped.max_cloud_cost_usd == 0.05
         assert clamped.max_search_credits == 8.0
@@ -203,7 +229,7 @@ class TestEveryCeilingIsServerEnforced:
 class TestTheHttpSurface:
     @pytest.fixture
     def client(self) -> Any:
-        with TestClient(create_app(live_settings())) as c:
+        with TestClient(quota_app(live_settings())) as c:
             yield c
 
     def test_health(self, client: Any) -> None:
@@ -278,7 +304,7 @@ class TestTheHttpSurface:
 
     def test_capacity_is_refused_with_429_when_the_quota_cannot_pay(self) -> None:
         settings = live_settings(demo_provider_requests_per_day=10)
-        with TestClient(create_app(settings)) as client:
+        with TestClient(quota_app(settings)) as client:
             response = client.post("/api/research", json={"query": "a real question"})
         assert response.status_code == 429
 
@@ -291,7 +317,7 @@ class TestTheHttpSurface:
 
         monkeypatch.setattr(api_module, "stream_research", slow)
         with (
-            TestClient(create_app(live_settings(demo_max_runtime_seconds=0.05))) as client,
+            TestClient(quota_app(live_settings(demo_max_runtime_seconds=0.05))) as client,
             client.stream("POST", "/api/research", json={"query": "a real question"}) as r,
         ):
             body = "".join(r.iter_text())

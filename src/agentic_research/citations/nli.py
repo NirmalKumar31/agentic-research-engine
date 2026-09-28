@@ -17,20 +17,81 @@ from __future__ import annotations
 
 import logging
 import math
+import time
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
+
+from agentic_research.citations.nli_pin import (
+    NLI_DEFAULT_MODEL_ID,
+    NLI_DEFAULT_REVISION,
+)
+from agentic_research.citations.nli_tokens import (
+    TokenizerUnavailable,
+    load_pair_tokenizer,
+    pair_is_truncated,
+)
 
 log = logging.getLogger(__name__)
 
 # Pinned. A model id alone is a moving target, and a verifier whose
 # behaviour changes under us silently invalidates every calibration
 # number we publish.
-DEFAULT_MODEL_ID = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
-DEFAULT_REVISION = "main"
+DEFAULT_MODEL_ID = NLI_DEFAULT_MODEL_ID
+
+# The exact commit the 0.98 threshold was calibrated against. There is no
+# unpinned default: "main" moves, and a verifier whose weights change
+# under a fixed threshold is no longer the verifier that was measured.
+# Settings carries the same pair, and a test asserts they agree.
+DEFAULT_REVISION = NLI_DEFAULT_REVISION
+
+# Wire format this client speaks. A remote answering a different version
+# is not a compatible endpoint, whatever else it returns.
+CONTRACT_VERSION = 1
 
 # Compared against the primary during calibration; smaller and faster.
 ALTERNATIVE_MODEL_ID = "cross-encoder/nli-deberta-v3-base"
+
+# Wire formats this client can speak.
+#
+# "contract" is the project's own scoring service in deploy/nli-service,
+# which echoes the model, the revision, a per-pair id and a truncation
+# flag, so every response can be checked against what was asked.
+#
+# "hf" is a managed Hugging Face Inference Endpoint running the stock
+# text-classification handler. It echoes none of that -- it returns
+# labels and scores and nothing else -- so the guarantees it cannot
+# provide are recovered elsewhere: the revision is checked out of band
+# against the control plane before the run (nli_endpoint_meta), and
+# truncation is measured client-side with the pinned tokenizer.
+DIALECTS = ("contract", "hf")
+
+# The three labels the pinned checkpoint emits. The managed handler
+# sorts each row by descending score, so position carries no meaning:
+# ['entailment', 'neutral', 'contradiction'] on one pair and
+# ['contradiction', 'neutral', 'entailment'] on the next. Reading these
+# positionally would invert entailment and contradiction on exactly the
+# claims a contradiction is supposed to stop.
+_HF_LABELS = frozenset({"entailment", "neutral", "contradiction"})
+
+# What a scaled-to-zero endpoint answers while a replica boots.
+#
+# Hugging Face documents exactly one status for this: "the HTTP server
+# responds with a 502 Bad Gateway" while a new replica initialises, and
+# requests are rejected rather than queued. 503 is kept alongside it
+# because HF's serverless layer uses 503 for a loading model and the
+# two products share infrastructure; it costs a bounded wait to be
+# wrong about, and failing a real cold start costs the whole run.
+#
+# 504 is deliberately *not* here. A gateway timeout means the request
+# was accepted and took too long, which is a slow or wedged replica
+# rather than a starting one, and retrying it would spend the warm-up
+# window on something that is already failing.
+#
+# Everything else -- 401, 403, 404, 422, any other 4xx, a body that is
+# not JSON -- answers the same after another thirty seconds, and is
+# failed immediately.
+_WARMING_STATUSES = frozenset({502, 503})
 
 
 # Softmax outputs sum to one. A scorer whose three values do not are
@@ -229,6 +290,24 @@ class RemoteNLIVerifier:
     truncated body and a label set that does not parse all mean the same
     thing here: this claim was not verified. None of them may publish,
     and none falls back to a generative model.
+
+    Two dialects, with different guarantees:
+
+    ``contract``
+        The project's own service. It echoes the model, the revision, a
+        per-pair id and a truncation flag, so a response that does not
+        match the request is rejected per call.
+
+    ``hf``
+        A managed Inference Endpoint on the stock handler. It echoes
+        none of those, so results are matched positionally and the
+        served revision is taken on trust *from this client's point of
+        view*. That trust is not blind: :func:`verify_endpoint_pin`
+        checks the pin against the Hugging Face control plane during
+        preflight, before the run spends anything, and truncation is
+        measured here with the pinned tokenizer. It is a weaker
+        arrangement than the contract dialect and it is chosen only
+        because the managed handler offers nothing stronger.
     """
 
     def __init__(
@@ -240,13 +319,21 @@ class RemoteNLIVerifier:
         api_key: str | None = None,
         timeout: float = 30.0,
         batch_size: int = 8,
+        dialect: str = "contract",
+        max_length: int = 512,
+        scale_up_timeout: float = 0.0,
     ) -> None:
+        if dialect not in DIALECTS:
+            raise NLIUnavailable(f"unknown remote dialect {dialect!r}, expected one of {DIALECTS}")
         self.endpoint = endpoint
         self.model_id = model_id
         self.revision = revision
         self.api_key = api_key
         self.timeout = timeout
         self.batch_size = batch_size
+        self.dialect = dialect
+        self.max_length = max_length
+        self.scale_up_timeout = max(float(scale_up_timeout), 0.0)
 
     def score(self, pairs: list[tuple[str, str]]) -> list[NLIPrediction]:
         if not pairs:
@@ -259,73 +346,262 @@ class RemoteNLIVerifier:
 
         for start in range(0, len(pairs), self.batch_size):
             batch = pairs[start : start + self.batch_size]
-            payload = {
-                "model": self.model_id,
-                "revision": self.revision,
-                "pairs": [{"premise": p, "hypothesis": h} for p, h in batch],
-            }
+            if self.dialect == "hf":
+                out.extend(self._score_hf(httpx, headers, batch))
+            else:
+                out.extend(self._score_contract(httpx, headers, batch, start))
+        return out
+
+    # -- transport ----------------------------------------------------
+
+    def _post(self, httpx: Any, headers: dict[str, str], payload: dict[str, Any]) -> Any:
+        """POST once, or keep trying while the endpoint is still waking.
+
+        An endpoint that scales to zero answers 502 for the half-minute
+        or so its replica takes to boot, and refuses the connection
+        outright before that. Treating either as a failure would
+        withhold every claim in the first run after an idle period,
+        which is most runs on a demo deployment.
+
+        Only those two conditions retry. A 401, a 422 and a body that is
+        not JSON are configuration faults: they will answer exactly the
+        same after another thirty seconds, and retrying them would spend
+        the whole warm-up window learning nothing. Retries are bounded
+        by ``scale_up_timeout``, and the default of zero means a single
+        attempt.
+        """
+        started = time.monotonic()
+        deadline = started + self.scale_up_timeout
+        delay = 2.0
+        attempt = 1
+
+        while True:
             try:
                 response = httpx.post(
                     self.endpoint, json=payload, headers=headers, timeout=self.timeout
                 )
+            except Exception as exc:
+                # A refused connection and a 502 are one event seen from
+                # two sides while a replica boots.
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise NLIUnavailable(f"remote scoring failed: {type(exc).__name__}") from exc
+                time.sleep(min(delay, remaining))
+                delay = min(delay * 2, 15.0)
+                continue
+
+            if response.status_code in _WARMING_STATUSES:
+                remaining = deadline - time.monotonic()
+                if remaining > 0:
+                    # Logged so a hosted acceptance run records which
+                    # status a real cold start actually produced. The
+                    # 49.2s cold start measured from the CLI did not
+                    # capture it, and a documented 502 is not the same
+                    # as an observed one.
+                    # Plain %-style: this module uses the standard
+                    # library logger, not structlog, and keyword fields
+                    # raise TypeError on it -- inside the retry loop,
+                    # which is the one path that only runs during a
+                    # real cold start.
+                    log.info(
+                        "nli_endpoint_warming status=%s attempt=%s waited=%.1fs budget=%.0fs",
+                        response.status_code,
+                        attempt,
+                        time.monotonic() - started,
+                        self.scale_up_timeout,
+                    )
+                    time.sleep(min(delay, remaining))
+                    delay = min(delay * 2, 15.0)
+                    attempt += 1
+                    continue
+
+            try:
                 response.raise_for_status()
-                body = response.json()
             except Exception as exc:
                 raise NLIUnavailable(f"remote scoring failed: {type(exc).__name__}") from exc
 
-            if not isinstance(body, dict):
-                raise NLIUnavailable(f"remote returned {type(body).__name__}, not an object")
+            try:
+                return response.json()
+            except Exception as exc:
+                raise NLIUnavailable(f"remote scoring failed: {type(exc).__name__}") from exc
 
-            # The endpoint has to say what served the request. Without
-            # this a silently redeployed remote could answer with a
-            # different checkpoint than the calibrated one and every
-            # published claim would cite a threshold it was never
-            # measured against.
-            for field in ("contract_version", "model_id", "model_revision"):
-                if not body.get(field):
-                    raise NLIUnavailable(f"remote response omits {field}")
-            if body["model_id"] != self.model_id or body["model_revision"] != self.revision:
+    def _tokenizer(self) -> Any:
+        try:
+            return load_pair_tokenizer(self.model_id, self.revision)
+        except TokenizerUnavailable as exc:
+            # Not knowing whether the premise was cut is not the same as
+            # knowing it was not, so this withholds rather than assuming.
+            raise NLIUnavailable(f"cannot determine truncation: {exc}") from exc
+
+    # -- dialects -----------------------------------------------------
+
+    def _score_hf(
+        self, httpx: Any, headers: dict[str, str], batch: list[tuple[str, str]]
+    ) -> list[NLIPrediction]:
+        payload = {
+            "inputs": [{"text": premise, "text_pair": hypothesis} for premise, hypothesis in batch],
+            # top_k=None returns every label rather than the winner
+            # alone; without it the response carries one score and the
+            # threshold has nothing to compare against.
+            "parameters": {"top_k": None, "function_to_apply": "softmax"},
+        }
+        body = self._post(httpx, headers, payload)
+
+        if not isinstance(body, list):
+            raise NLIUnavailable(f"remote returned {type(body).__name__}, not a list")
+        if len(body) != len(batch):
+            raise NLIUnavailable(f"remote returned {len(body)} rows for {len(batch)} pairs")
+
+        tokenizer = self._tokenizer()
+        out: list[NLIPrediction] = []
+
+        for (premise, hypothesis), row in zip(batch, body, strict=True):
+            if not isinstance(row, list):
                 raise NLIUnavailable(
-                    f"remote served {body['model_id']}@{body['model_revision']}, "
-                    f"configured for {self.model_id}@{self.revision}"
+                    "remote row is not a list of labelled scores; "
+                    "the endpoint may be returning only its top label"
                 )
-
-            results = body.get("results")
-            if not isinstance(results, list) or len(results) != len(batch):
-                raise NLIUnavailable(
-                    f"remote returned {type(results).__name__} for {len(batch)} pairs"
-                )
-
-            for (premise, hypothesis), item in zip(batch, results, strict=True):
+            by_label: dict[str, float] = {}
+            for entry in row:
+                if not isinstance(entry, dict) or "label" not in entry or "score" not in entry:
+                    raise NLIUnavailable("remote row entry omits label or score")
+                label = str(entry["label"]).strip().lower()
+                if label in by_label:
+                    raise NLIUnavailable(f"remote row repeats label {label!r}")
                 try:
-                    scores = NLIScores(
-                        entailment=float(item["entailment"]),
-                        neutral=float(item["neutral"]),
-                        contradiction=float(item["contradiction"]),
-                    )
-                except (KeyError, TypeError, ValueError) as exc:
+                    by_label[label] = float(entry["score"])
+                except (TypeError, ValueError) as exc:
                     raise NLIUnavailable(f"malformed remote score: {exc}") from exc
-                if not scores.is_distribution():
-                    raise NLIUnavailable(
-                        "remote scores are not a probability distribution: "
-                        f"{scores.entailment}, {scores.neutral}, {scores.contradiction}"
-                    )
-                # Truncation must be stated, not assumed. Defaulting a
-                # missing field to False would let an endpoint that
-                # silently cut a long premise report support for a claim
-                # the qualifying half contradicts.
-                if "truncated" not in item:
-                    raise NLIUnavailable("remote result omits truncated")
-                out.append(
-                    NLIPrediction(
-                        premise=premise,
-                        hypothesis=hypothesis,
-                        scores=scores,
-                        model_id=body["model_id"],
-                        model_revision=body["model_revision"],
-                        truncated=bool(item["truncated"]),
-                    )
+
+            if set(by_label) != _HF_LABELS:
+                raise NLIUnavailable(
+                    f"remote returned labels {sorted(by_label)}, expected {sorted(_HF_LABELS)}"
                 )
+
+            scores = NLIScores(
+                entailment=by_label["entailment"],
+                neutral=by_label["neutral"],
+                contradiction=by_label["contradiction"],
+            )
+            if not scores.is_distribution():
+                raise NLIUnavailable(
+                    "remote scores are not a probability distribution: "
+                    f"{scores.entailment}, {scores.neutral}, {scores.contradiction}"
+                )
+
+            out.append(
+                NLIPrediction(
+                    premise=premise,
+                    hypothesis=hypothesis,
+                    scores=scores,
+                    # Configured, not echoed: the stock handler reports
+                    # neither. Preflight proves these match what the
+                    # endpoint actually serves.
+                    model_id=self.model_id,
+                    model_revision=self.revision,
+                    truncated=pair_is_truncated(tokenizer, premise, hypothesis, self.max_length),
+                )
+            )
+        return out
+
+    def _score_contract(
+        self,
+        httpx: Any,
+        headers: dict[str, str],
+        batch: list[tuple[str, str]],
+        start: int,
+    ) -> list[NLIPrediction]:
+        # Stable ids so results are matched by identity rather than
+        # by list position. A remote that reorders, drops or
+        # duplicates results would otherwise silently attach one
+        # claim's score to another claim.
+        pair_ids = [f"{start + i}" for i in range(len(batch))]
+        payload = {
+            "contract_version": CONTRACT_VERSION,
+            "model": self.model_id,
+            "revision": self.revision,
+            "pairs": [
+                {"pair_id": pid, "premise": p, "hypothesis": h}
+                for pid, (p, h) in zip(pair_ids, batch, strict=True)
+            ],
+        }
+        body = self._post(httpx, headers, payload)
+
+        if not isinstance(body, dict):
+            raise NLIUnavailable(f"remote returned {type(body).__name__}, not an object")
+
+        # The endpoint has to say what served the request. Without
+        # this a silently redeployed remote could answer with a
+        # different checkpoint than the calibrated one and every
+        # published claim would cite a threshold it was never
+        # measured against.
+        for field in ("contract_version", "model_id", "model_revision"):
+            if not body.get(field):
+                raise NLIUnavailable(f"remote response omits {field}")
+        if body["contract_version"] != CONTRACT_VERSION:
+            raise NLIUnavailable(
+                f"remote speaks contract {body['contract_version']}, "
+                f"this client speaks {CONTRACT_VERSION}"
+            )
+        if body["model_id"] != self.model_id or body["model_revision"] != self.revision:
+            raise NLIUnavailable(
+                f"remote served {body['model_id']}@{body['model_revision']}, "
+                f"configured for {self.model_id}@{self.revision}"
+            )
+
+        results = body.get("results")
+        if not isinstance(results, list) or len(results) != len(batch):
+            raise NLIUnavailable(f"remote returned {type(results).__name__} for {len(batch)} pairs")
+
+        # Index by echoed id and reject anything that does not line
+        # up exactly: a missing, unknown or duplicated id means the
+        # mapping from claims to scores is unknown, and an unknown
+        # mapping is not a score.
+        by_id: dict[str, Any] = {}
+        for item in results:
+            if not isinstance(item, dict) or "pair_id" not in item:
+                raise NLIUnavailable("remote result omits pair_id")
+            pid = str(item["pair_id"])
+            if pid in by_id:
+                raise NLIUnavailable(f"remote returned duplicate pair_id {pid}")
+            by_id[pid] = item
+        if set(by_id) != set(pair_ids):
+            raise NLIUnavailable(
+                f"remote pair_ids {sorted(by_id)} do not match requested {sorted(pair_ids)}"
+            )
+
+        out: list[NLIPrediction] = []
+        for pid, (premise, hypothesis) in zip(pair_ids, batch, strict=True):
+            item = by_id[pid]
+            try:
+                scores = NLIScores(
+                    entailment=float(item["entailment"]),
+                    neutral=float(item["neutral"]),
+                    contradiction=float(item["contradiction"]),
+                )
+            except (KeyError, TypeError, ValueError) as exc:
+                raise NLIUnavailable(f"malformed remote score: {exc}") from exc
+            if not scores.is_distribution():
+                raise NLIUnavailable(
+                    "remote scores are not a probability distribution: "
+                    f"{scores.entailment}, {scores.neutral}, {scores.contradiction}"
+                )
+            # Truncation must be stated, not assumed. Defaulting a
+            # missing field to False would let an endpoint that
+            # silently cut a long premise report support for a claim
+            # the qualifying half contradicts.
+            if "truncated" not in item:
+                raise NLIUnavailable("remote result omits truncated")
+            out.append(
+                NLIPrediction(
+                    premise=premise,
+                    hypothesis=hypothesis,
+                    scores=scores,
+                    model_id=body["model_id"],
+                    model_revision=body["model_revision"],
+                    truncated=bool(item["truncated"]),
+                )
+            )
         return out
 
 
@@ -340,11 +616,14 @@ def build_verifier(settings: object) -> NLIVerifier | RemoteNLIVerifier:
         if not endpoint:
             raise NLIUnavailable("nli_mode is 'remote' but no nli_endpoint is configured")
         key = getattr(settings, "nli_api_key", None)
+        dialect = getattr(settings, "nli_dialect", "contract")
         return RemoteNLIVerifier(
             endpoint,
             model_id,
             revision,
             api_key=key.get_secret_value() if key is not None else None,
             timeout=getattr(settings, "nli_timeout_seconds", 30.0),
+            dialect=dialect,
+            scale_up_timeout=getattr(settings, "nli_scale_up_timeout_seconds", 0.0),
         )
     return NLIVerifier(model_id, revision)
