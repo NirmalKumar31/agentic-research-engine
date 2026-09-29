@@ -2,6 +2,60 @@
 
 Notable changes per release. Dates are UTC.
 
+## v1.3.0 — 2026-09-29
+
+The interface shows what the question required. Verified on the
+deployment, which found a defect that only a deployment could show.
+
+- **The answer contract is rendered beside the report**: each required
+  slot, which the published claims filled, and a plain statement when
+  the report does not answer the question. It names the slot that
+  discharged a core requirement when an alternative did. Derived from
+  the published claims rather than read from a field, so it cannot
+  drift from what was published. An unfilled slot is grey, not red —
+  a gap in the answer is not an error in the run.
+
+  The three committed recordings carry no contract, so the panel is
+  hidden for them rather than rendered empty. Showing one would imply
+  they were held to a contract and failed it.
+- `AnswerContract.to_dict()` now serialises `satisfied_by`. It did
+  not, so nothing outside the engine could tell that a core slot had
+  been discharged by an alternative: the interface recomputed
+  coverage, found the contrast slot unfilled, and would have rendered
+  "this report does not answer the question" directly above a report
+  whose own limitations said otherwise. A page contradicting the
+  report beneath it is worse than either verdict alone.
+
+  This is the second v1.2.0 record unreadable for the same underlying
+  reason — a decision made inside the engine whose explanation did not
+  travel. The first was `answer_slot`.
+
+### Verified on the deployment
+
+One authorised run on the public demo at `1d21b110`, on the question
+v1.2.0 answered wrongly:
+[`examples/live-validation/v121-20260929-024544/`](examples/live-validation/v121-20260929-024544/)
+
+| Claim | Slot | Outcome |
+| --- | --- | --- |
+| An LLM is a type of neural network that uses transformer… | `relationship` | **published** |
+| The evidence distinguishes LLMs as a specific class… | `direct_contrast` | withheld, entailment 0.007 |
+
+The only claim that would have filled the contrast slot directly was
+refused by its own evidence; the core requirement was discharged by the
+alternative, and the report carries no "did not answer the question"
+limitation. v1.2.0 reported the opposite on the same question. Four of
+six claims were still withheld, by four different mechanisms — the fix
+did not make the gate permissive.
+
+**Not verified by that run:** the missing-`answer_slot` path. The cloud
+model declared a slot on every claim, so the behaviour that had made
+local mode publish nothing was never reached. Unit tests and two local
+runs cover it.
+
+Also recorded in LIMITATIONS: the deployed demo is no longer
+blueprint-managed, so a change to `render-live.yaml` will not reach it.
+
 ## v1.2.1 — 2026-09-29
 
 Deployment naming only. No change to research behaviour, verification
