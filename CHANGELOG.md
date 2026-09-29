@@ -51,8 +51,27 @@ Neither field ever enters the NLI premise; the existing test that the
 scorer never sees them still holds, and a new one checks it through
 the real wiring.
 
+Measured, on the same question and the same limits, before and after
+the selection change:
+
+| | before | after |
+| --- | --- | --- |
+| Best source selected | 0.57 blog | **0.96 academic (arXiv)** |
+| Kinds selected | blog only | academic, other, blog |
+
+Two live runs are **not a controlled comparison** — web search is
+nondeterministic, and the candidate pool differed. The direction is
+what the unit tests pin; this is evidence the mechanism reaches a real
+run, not a measurement of how much it helps.
+
+Both runs still published nothing. Locally that is the critic, not
+retrieval: a 4B model rejects most of what it is given, which is
+already recorded in LIMITATIONS. Better sources do not fix a weak
+critic, and this release does not claim they do.
+
 No change on the frozen adversarial set: 0 irrelevant published, 6
-published, unchanged throughout.
+published, unchanged throughout. It supplies its own sources and never
+exercises selection.
 
 ## v1.3.0 — 2026-09-29
 

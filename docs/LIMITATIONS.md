@@ -448,6 +448,18 @@ store; the provider-side account limit is the backstop there.
 **Provider prices are estimates** from a local table. They do not account
 for cached input, long-context tiers, region or service tier.
 
+### Source preference is ordering, not sourcing
+
+Three decisions now take a source's kind into account: which pages to
+fetch, which evidence the synthesiser is shown, and which of several
+equally-entailed quotes carries a claim. All three are *orderings*.
+None of them can produce a good source that the search provider did
+not return.
+
+A run whose candidate pool is entirely blogs will still read blogs.
+Preference decides among what was found, and what is found is the
+search provider's doing — one query set, one provider, six pages.
+
 ### The deployed demo is not currently blueprint-managed
 
 `deploy/render-live.yaml` describes the public demo, and for now it
