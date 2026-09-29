@@ -39,9 +39,15 @@ audited:
   a `reason` string, or discarded entirely. `claim.text` is
   reassigned in place on repair, so a published claim's earlier
   wording existed nowhere.
+- Each claim carries its `answer_slot`. The slot decides the
+  relevance verdict and was the one input to it that went
+  unrecorded: hosted acceptance produced a rewrite refused with
+  "cannot fill the contrast slot" and published the identical
+  sentence under a different slot, which was correct and unreadable.
 - `/api/readiness` reports `quota_namespace`.
-- Recording schema 3. The three committed recordings carry
-  `contract: null`, which is truthful: they predate the contract.
+- Recording schema 4. The three committed recordings carry
+  `contract: null` and empty answer slots, which is truthful: they
+  predate the contract and declared no slots against it.
 
 Deployment:
 

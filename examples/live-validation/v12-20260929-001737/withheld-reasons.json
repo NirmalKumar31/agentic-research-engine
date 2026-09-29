@@ -1,0 +1,34 @@
+[
+  {
+    "claim": "Neural networks consist of layers of nodes, with each node representing a mathematical function.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It defines neural networks but does not distinguish them from LLMs or explain their relationship.",
+    "best_entailment": 0.9964,
+    "best_evidence_id": "S3-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "LLMs are a specific, language-focused subset of neural networks.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.990332,
+    "best_evidence_id": "S3-e2",
+    "guards_passed": false
+  },
+  {
+    "claim": "LLM pretraining is an unsupervised process in which the model learns from vast amounts of text data to acquire a general understanding of language.",
+    "verdict": "unsupported",
+    "reason": "best entailment 0.039 from S6-e4 is below the 0.98 support threshold",
+    "best_entailment": 0.039208,
+    "best_evidence_id": "S6-e4",
+    "guards_passed": true
+  },
+  {
+    "claim": "LLMs can typically generate, summarize, translate, and analyze text in many contexts.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It lists LLM capabilities but does not compare LLMs with neural networks or explain how they are related.",
+    "best_entailment": 0.9904,
+    "best_evidence_id": "S2-e6",
+    "guards_passed": true
+  }
+]

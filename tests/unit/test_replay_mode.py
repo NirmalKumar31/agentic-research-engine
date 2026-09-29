@@ -116,6 +116,7 @@ RECORDING = {
                 {
                     "text": "Precision-recall beats ROC AUC under heavy imbalance.",
                     "kind": "factual",
+                    "answer_slot": "",
                     "evidence_ids": ["S1-e1"],
                     "citation_ids": ["S1"],
                 }

@@ -52,7 +52,10 @@ RECORDINGS_DIR = Path(__file__).resolve().parent / "recorded_runs"
 #    answer contract entirely, so theirs is null -- a truthful record of
 #    runs that were never held to one, not a contract back-filled to make
 #    the shape match.
-RECORDING_SCHEMA_VERSION = 3
+# 4: claim.answer_slot added. Empty in those same recordings, and for
+#    the same reason: no claim in them declared a slot, because there
+#    was no contract to declare one against.
+RECORDING_SCHEMA_VERSION = 4
 
 # Progress events are copied into a committed, publicly served file, so the
 # fields that survive are listed rather than filtered. An allowlist cannot
@@ -489,6 +492,10 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
         return {
             "text": c.text,
             "kind": c.kind.value,
+            # Which part of the contract it set out to fill. Without it
+            # a reader cannot tell why two claims with the same wording
+            # got different relevance verdicts.
+            "answer_slot": c.answer_slot or "",
             "evidence_ids": list(c.evidence_ids),
             "citation_ids": list(c.citation_ids),
         }

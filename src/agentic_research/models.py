@@ -733,6 +733,15 @@ class ClaimJudgment(BaseModel):
     claim_text: str
     """Complete, never truncated. This is the point of the record."""
     kind: ClaimKind
+    answer_slot: str = ""
+    """Which part of the contract the claim set out to fill.
+
+    Recorded because it decides the relevance verdict and was the one
+    input to it that went unrecorded. In the v1.2.0 acceptance run a
+    rewrite was refused with "cannot fill the contrast slot" and the
+    identical sentence published under a different slot -- correct
+    behaviour that the artifact had no way to show, so it read as a
+    contradiction."""
     evidence_ids: list[str] = Field(default_factory=list)
     verdict: Literal["supported", "partially_supported", "unsupported", "irrelevant"] | None = None
     """None when the claim was never checked -- an exhausted budget, or

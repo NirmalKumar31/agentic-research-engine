@@ -1,0 +1,9 @@
+[
+  {
+    "original": "LLMs are a specific, language-focused subset of neural networks.",
+    "rewritten": "LLMs are a specific subset of neural networks.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "still irrelevant: the claim describes one subject rather than contrasting them, so it cannot fill the contrast slot"
+  }
+]

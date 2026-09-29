@@ -1,0 +1,30 @@
+{
+  "question": "What is the difference between a large language model (LLM) and a neural network, and how are the two related?",
+  "question_type": "comparison",
+  "entities": [
+    "large language model (LLM)",
+    "neural network"
+  ],
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "direct_contrast",
+      "description": "An explicit statement of how the subjects differ",
+      "core": true
+    },
+    {
+      "name": "dimension",
+      "description": "A named dimension along which they differ",
+      "core": false
+    },
+    {
+      "name": "relationship",
+      "description": "How the subjects relate, such as one being a kind of the other",
+      "core": false
+    }
+  ]
+}

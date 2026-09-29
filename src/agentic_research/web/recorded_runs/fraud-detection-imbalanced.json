@@ -1,5 +1,5 @@
 {
-  "recording_schema_version": 3,
+  "recording_schema_version": 4,
   "meta": {
     "id": "fraud-detection-imbalanced",
     "label": "Fraud detection under class imbalance",
@@ -193,6 +193,7 @@
         {
           "text": "Random Forest with SMOTE-ENN achieved an AUC-ROC of 0.85, balancing precision and recall.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S5-e1"
           ],
@@ -203,6 +204,7 @@
         {
           "text": "LSTM models paired with SMOTE-ENN delivered an AUC-ROC of 0.90.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S5-e1"
           ],
@@ -213,6 +215,7 @@
         {
           "text": "The random forest model achieved an accuracy of 99.95%.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S2-e1"
           ],
@@ -223,6 +226,7 @@
         {
           "text": "The random forest model achieved an F1 score of 0.8256.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S2-e1"
           ],
@@ -233,6 +237,7 @@
         {
           "text": "The random forest model achieved an ROC-AUC of 0.9759.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S2-e1"
           ],
@@ -243,6 +248,7 @@
         {
           "text": "The deep learning model provided the highest precision.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S2-e1"
           ],

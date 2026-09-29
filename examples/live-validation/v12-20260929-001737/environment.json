@@ -1,0 +1,75 @@
+{
+  "run_id": "20260929-001744-30d65f",
+  "started_utc": "2026-09-29T00:17:43Z",
+  "wall_clock_seconds": 165.85,
+  "engine_duration_seconds": 165.4,
+  "executed_by": "deployed public HTTP/SSE endpoint",
+  "is_hosted_acceptance": true,
+  "is_research_quality_evaluation": false,
+  "deployed_commit": "6cf9999c",
+  "version": "1.2.0",
+  "service_url": "https://agentic-research-engine-rc.onrender.com",
+  "service_note": "A temporary release-candidate deployment, deleted after this acceptance. Not the public demo, which stayed on v1.1.1 throughout and served its own five-run daily allowance from a separate key in the same shared store.",
+  "question": "How does a large language model differ from a neural network?",
+  "question_note": "Chosen because v1.1.x answered it badly: the pipeline published claims that were entailed by their evidence and did not address the comparison. It is the case the answer contract and the relevance gate exist for.",
+  "public_limits_in_force": {
+    "max_research_rounds": 1,
+    "max_sources": 6,
+    "max_search_queries": 6,
+    "max_llm_calls": 20,
+    "max_provider_requests": 30,
+    "demo_max_runtime_seconds": 240,
+    "global_runs_per_day": 1,
+    "note": "Identical to the public demo's per-run ceilings. Only the daily admission count differs: 30 // 30 = 1 rather than 150 // 30 = 5."
+  },
+  "models": {
+    "critic": "openai:gpt-6-luna",
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "task": "text-classification",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted",
+    "shared_with": "the public demo, which uses the same endpoint and revision"
+  },
+  "quota": {
+    "store": "shared with the public demo (Render permits one free Key Value instance per workspace)",
+    "namespace": "rc",
+    "namespace_reported_by_readiness": true,
+    "isolation_note": "The namespace is the only thing separating the two daily counters. It was verified against /api/readiness before the run rather than read from the dashboard.",
+    "cap_verified": "A second request after this run was refused 429 at the quota gate, before any provider call, so it spent nothing. The daily admission of one is enforced, not merely configured."
+  },
+  "capture": {
+    "method": "raw bytes streamed to disk, timing recorded in a separate index",
+    "raw_bytes": 48174,
+    "chunks": 51,
+    "events": 34,
+    "complete": true,
+    "tool": "examples/live-validation/tools/acceptance.py",
+    "note": "Derived files were built offline from these bytes by the same tool. No second run was performed, and none could be: the daily allowance was one."
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.009466,
+    "openai_reserved_upper_bound_usd": 0.031377,
+    "reservation_was_sufficient": true,
+    "openai_cost_is_complete": false,
+    "openai_dashboard_charge_usd": "not reconciled; the owner can read it from the provider dashboard for 2026-09-29",
+    "tavily_credits": 6.0,
+    "tavily_usd": "not measured; free-tier key",
+    "huggingface_billed_usd": "not measured; billed per hour of endpoint uptime, not per request",
+    "total_cross_provider_cost_complete": false
+  },
+  "provider_usage": {
+    "llm_calls": 14,
+    "provider_requests": 14,
+    "provider_request_ceiling": 30,
+    "input_tokens": 25498,
+    "output_tokens": 13833
+  }
+}

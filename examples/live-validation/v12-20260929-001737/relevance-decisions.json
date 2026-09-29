@@ -1,0 +1,37 @@
+[
+  {
+    "claim": "Neural networks consist of layers of nodes, with each node representing a mathematical function.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It defines neural networks but does not distinguish them from LLMs or explain their relationship.",
+    "published": false
+  },
+  {
+    "claim": "LLMs are a specific subset of neural networks.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It explains the relationship by identifying LLMs as a subset of neural networks.",
+    "published": true
+  },
+  {
+    "claim": "LLMs are typically based on the transformer architecture.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It gives a typical architectural characteristic of LLMs that helps distinguish them from neural networks in general.",
+    "published": true
+  },
+  {
+    "claim": "An LLM is typically a neural-network AI model trained on vast amounts of text for natural-language processing, especially language generation.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It describes LLMs as neural-network models and identifies their training data and language-focused purpose.",
+    "published": true
+  },
+  {
+    "claim": "LLMs can typically generate, summarize, translate, and analyze text in many contexts.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It lists LLM capabilities but does not compare LLMs with neural networks or explain how they are related.",
+    "published": false
+  }
+]

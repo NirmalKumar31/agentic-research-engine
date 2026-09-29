@@ -564,6 +564,7 @@ async def _check_entailment(
         record = ClaimJudgment(
             claim_text=claim.text,
             kind=claim.kind,
+            answer_slot=claim.answer_slot or "",
             evidence_ids=list(claim.evidence_ids),
             reason=reason,
         )

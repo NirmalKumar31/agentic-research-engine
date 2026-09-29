@@ -1,5 +1,5 @@
 {
-  "recording_schema_version": 3,
+  "recording_schema_version": 4,
   "meta": {
     "id": "nist-ai-risk-framework",
     "label": "NIST AI Risk Management Framework",
@@ -198,6 +198,7 @@
         {
           "text": "The Manage function implements mitigations and addresses residual risks.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S1-e2"
           ],
@@ -208,6 +209,7 @@
         {
           "text": "The NIST AI Risk Management Framework 1.0 defines practical use cases through profiles that apply the framework to specific AI systems or technology classes.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S1-e3"
           ],
@@ -224,6 +226,7 @@
             {
               "text": "The Govern function spans the entire organization.",
               "kind": "factual",
+              "answer_slot": "",
               "evidence_ids": [
                 "S3-e2"
               ],

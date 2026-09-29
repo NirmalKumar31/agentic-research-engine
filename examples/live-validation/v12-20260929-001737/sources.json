@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://d2l.ai/chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html",
+    "title": "11.9. Large-Scale Pretraining with Transformers \u2014 Dive into Deep Learning 1.0.3 documentation",
+    "domain": "d2l.ai",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.615,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://en.wikipedia.org/wiki/Large_language_model",
+    "title": "Large language model - Wikipedia",
+    "domain": "en.wikipedia.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.613,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://metafraze.com/what-are-neural-networks-and-large-language-models",
+    "title": "What are Neural Networks and Large Language Models? | Metafraze",
+    "domain": "metafraze.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.605,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://arxiv.org/html/2402.06196v2",
+    "title": "Large Language Models: A Survey",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.951,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://www.elastic.co/what-is/large-language-models",
+    "title": "Understanding large language models: A comprehensive guide | Elastic",
+    "domain": "elastic.co",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.6,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://leena.ai/blog/large-language-models-llms-guide",
+    "title": "Introduction to Large Language Models (LLMs): A Guide",
+    "domain": "leena.ai",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.549,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

@@ -1,5 +1,5 @@
 {
-  "recording_schema_version": 3,
+  "recording_schema_version": 4,
   "meta": {
     "id": "rag-vector-vs-search",
     "label": "Vector databases vs search engines for RAG",
@@ -153,6 +153,7 @@
         {
           "text": "Pure vector search creates two problems: raw user questions are converted directly to embeddings without query refinement and vector similarity favors recall over precision.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S4-e2"
           ],
@@ -163,6 +164,7 @@
         {
           "text": "Vector databases are not strictly required for RAG implementations.",
           "kind": "factual",
+          "answer_slot": "",
           "evidence_ids": [
             "S2-e1"
           ],
