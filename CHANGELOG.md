@@ -29,6 +29,24 @@ each sentence follows from a quote.
   failures are never eligible — rephrasing those is laundering.
 - **Answer coverage.** A report that publishes claims and answers none
   of the contract's core slots now says so in its limitations.
+- A comparison is answered by a contrast **or** by a relationship.
+  Hosted acceptance asked how a large language model differs from a
+  neural network, found and published that one is a subset of the
+  other, and then reported that it had not answered -- because a
+  subset is not a contrast. It was the answer. When one subject is a
+  category containing the other there is no contrast to find, and
+  demanding one makes the engine wrong about itself.
+
+  Verified by replaying the captured run's own contract and published
+  slots through the new coverage, not by a second live run: the
+  change post-dates the acceptance capture and the deployment admits
+  one run a day. The cost is stated in the code -- for two unrelated
+  subjects a vague relationship claim now discharges the core slot
+  too, with the relevance judgement as the backstop.
+- `AnswerCoverage.answered` requires **every** core slot, which is
+  what the code always did; the docstring said "at least one". Only
+  multi-part questions have more than one core slot, and that is
+  exactly where the strict reading matters.
 
 Provenance, because a decision that leaves no record cannot be
 audited:

@@ -34,16 +34,31 @@ class AnswerCoverage:
     def missing(self) -> tuple[str, ...]:
         return tuple(s.name for s in self.required if s.name not in self.satisfied)
 
+    def _discharged(self, slot: AnswerSlot) -> bool:
+        """Whether this core slot was filled, directly or by an
+        alternative the question also admits."""
+        return slot.name in self.satisfied or any(
+            name in self.satisfied for name in slot.satisfied_by
+        )
+
     @property
     def missing_core(self) -> tuple[str, ...]:
-        return tuple(s.name for s in self.contract.core_slots if s.name not in self.satisfied)
+        return tuple(s.name for s in self.contract.core_slots if not self._discharged(s))
 
     @property
     def answered(self) -> bool:
-        """At least one core slot filled.
+        """Every core slot discharged.
 
-        Not "some claims published". A comparison with two definitions
-        published has answered nothing.
+        Not "at least one", which an earlier version of this docstring
+        claimed while the code required all of them. The code was
+        right: a multi-part question makes each part its own core slot,
+        and a report answering one part of three has not answered the
+        question. Every canonical question type has exactly one core
+        slot, so the two readings only diverge for multi-part
+        questions -- which is precisely where the strict one matters.
+
+        Not "some claims published" either. A comparison with two
+        definitions published has answered nothing.
         """
         return bool(self.contract.core_slots) and not self.missing_core
 

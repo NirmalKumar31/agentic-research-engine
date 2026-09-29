@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from agentic_research.answer_contract import build_contract
+from agentic_research.answer_contract import QuestionType, build_contract
 from agentic_research.answer_coverage import assess_coverage
 from agentic_research.citations.repair import (
     REPAIRABLE_GUARDS,
@@ -222,3 +222,109 @@ class TestRepairIsWiredCorrectly:
 
     def test_the_repairer_is_not_the_synthesiser(self) -> None:
         assert "ModelRole.CRITIC" in self._source()
+
+
+class TestAComparisonHasTwoHonestAnswers:
+    """The finding hosted acceptance produced.
+
+    v1.2.0 was asked "How does a large language model differ from a
+    neural network?". It found and published that one is a subset of
+    the other -- which is the answer -- and then reported that it had
+    not answered, because a subset is not a contrast.
+
+    When one subject is a category containing the other there is no
+    contrast to find. Demanding one makes the engine wrong about
+    itself, which is worse than being strict.
+    """
+
+    CONTRACT = build_contract(
+        "How does a large language model differ from a neural network?",
+        QuestionType.COMPARISON,
+        entities=("large language model (LLM)", "neural network"),
+    )
+
+    def test_a_relationship_answers_a_comparison(self) -> None:
+        """The exact slots the acceptance run published."""
+        coverage = assess_coverage(self.CONTRACT, ["relationship", "dimension", "dimension"])
+        assert coverage.answered
+        assert coverage.missing_core == ()
+
+    def test_a_direct_contrast_still_answers_it(self) -> None:
+        """Non-vacuity in the other direction: the original slot was
+        not replaced, only given an alternative."""
+        coverage = assess_coverage(self.CONTRACT, ["direct_contrast"])
+        assert coverage.answered
+
+    def test_dimensions_alone_do_not(self) -> None:
+        """The failure the contract exists for. Naming axes along which
+        two things differ, without saying how they differ or how they
+        relate, is not an answer."""
+        coverage = assess_coverage(self.CONTRACT, ["dimension", "dimension"])
+        assert not coverage.answered
+        assert coverage.missing_core == ("direct_contrast",)
+
+    def test_publishing_nothing_relevant_does_not(self) -> None:
+        coverage = assess_coverage(self.CONTRACT, [])
+        assert not coverage.answered
+
+    def test_the_alternative_is_declared_not_inferred(self) -> None:
+        """No slot gets this by accident: it is one entry on one slot."""
+        from agentic_research.answer_contract import CANONICAL_SLOTS
+
+        with_alternatives = {
+            (str(qt), s.name)
+            for qt, slots in CANONICAL_SLOTS.items()
+            for s in slots
+            if s.satisfied_by
+        }
+        assert with_alternatives == {("comparison", "direct_contrast")}
+
+    def test_it_does_not_leak_into_other_question_types(self) -> None:
+        """A definition answered by a relationship claim is still
+        unanswered -- the slot does not even exist there."""
+        definition = build_contract(
+            "What is a large language model?",
+            QuestionType.DEFINITION,
+            entities=("large language model",),
+        )
+        coverage = assess_coverage(definition, ["relationship"])
+        assert not coverage.answered
+
+
+class TestEveryCorePartMustBeAnswered:
+    """A multi-part question makes each part its own core slot, and the
+    strict reading is the one that matters there.
+
+    The `answered` docstring claimed "at least one core slot filled"
+    while the code required all of them. Every canonical type has
+    exactly one core slot, so the two readings only diverge for
+    multi-part questions -- where answering one part of three is not
+    answering the question.
+    """
+
+    def test_one_part_of_three_is_not_an_answer(self) -> None:
+        contract = build_contract(
+            "What is X, how is it deployed, and what does it cost?",
+            QuestionType.SYNTHESIS,
+            parts=("what_it_is", "how_deployed", "what_it_costs"),
+        )
+        core = [s.name for s in contract.core_slots]
+        assert len(core) == 3, "each part should be its own core slot"
+
+        assert not assess_coverage(contract, core[:1]).answered
+        assert not assess_coverage(contract, core[:2]).answered
+        assert assess_coverage(contract, core).answered
+
+    def test_the_missing_parts_are_named(self) -> None:
+        """Named from the contract rather than guessed: the slots are
+        positional, so a test that invented their names would be
+        asserting its own assumption."""
+        contract = build_contract(
+            "What is X, how is it deployed, and what does it cost?",
+            QuestionType.SYNTHESIS,
+            parts=("what_it_is", "how_deployed", "what_it_costs"),
+        )
+        core = [s.name for s in contract.core_slots]
+        coverage = assess_coverage(contract, core[:1])
+        assert set(coverage.missing_core) == set(core[1:])
+        assert coverage.missing_core, "a missing part must be reported, not inferred"

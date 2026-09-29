@@ -390,7 +390,12 @@ and neural network differ; what survived describes them separately."*
 2. For *"how does X differ from Y"* where Y is a superset of X, the
    honest answer is a subset relationship — which the engine found,
    published, and then reported as not answering, because the
-   contract's core slot for a comparison is a direct contrast. Open.
+   contract's core slot for a comparison was a direct contrast.
+   **Fixed:** a comparison is now answered by a contrast *or* a
+   relationship. Verified by replaying this run's own contract and
+   published slots through the new coverage — the change post-dates
+   the capture, and the deployment admits one run a day, so it is
+   not covered by a second live run.
 
 **Proposition decomposition was not exercised by this run.** No claim
 decomposed into more than one part, so that path is covered by tests

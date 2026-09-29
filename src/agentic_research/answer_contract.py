@@ -48,10 +48,24 @@ class AnswerSlot:
     core: bool = True
     """A core slot carries the answer. A report satisfying none of them
     has not answered the question, whatever else it contains."""
+    satisfied_by: tuple[str, ...] = ()
+    """Other slots that also discharge this one, when the question
+    admits more than one shape of answer.
+
+    Not a general escape hatch -- an empty tuple is the default and
+    every slot but one has it. It exists because "how does X differ
+    from Y" has two honest answers and only one of them is a contrast:
+    when Y is a category containing X, no contrast exists to find, and
+    the answer is where X sits inside Y."""
 
 
-def _slot(name: str, description: str, core: bool = True) -> AnswerSlot:
-    return AnswerSlot(name=name, description=description, core=core)
+def _slot(
+    name: str,
+    description: str,
+    core: bool = True,
+    satisfied_by: tuple[str, ...] = (),
+) -> AnswerSlot:
+    return AnswerSlot(name=name, description=description, core=core, satisfied_by=satisfied_by)
 
 
 # The shape of each kind of answer, fixed rather than generated.
@@ -63,7 +77,26 @@ CANONICAL_SLOTS: dict[QuestionType, tuple[AnswerSlot, ...]] = {
     QuestionType.COMPARISON: (
         # The slot the live failure was missing. Definitions of each
         # side, however well supported, do not fill it.
-        _slot("direct_contrast", "An explicit statement of how the subjects differ"),
+        #
+        # `relationship` discharges it because a comparison has two
+        # honest answers. Hosted acceptance asked how a large language
+        # model differs from a neural network, found and published that
+        # one is a subset of the other, and then reported that it had
+        # not answered -- because a subset is not a contrast. It was
+        # the answer. When one subject is a category containing the
+        # other there is no contrast to find, and demanding one makes
+        # the engine wrong about itself.
+        #
+        # The cost, stated rather than hidden: for a genuine comparison
+        # of two unrelated subjects, a vague relationship claim now
+        # discharges the core slot too. The relevance judgement is the
+        # backstop there -- a claim that does not help answer how they
+        # differ is withheld before coverage ever sees its slot.
+        _slot(
+            "direct_contrast",
+            "An explicit statement of how the subjects differ",
+            satisfied_by=("relationship",),
+        ),
         _slot("dimension", "A named dimension along which they differ", core=False),
         _slot(
             "relationship",
