@@ -108,6 +108,20 @@ async def _claim_budget(contract: AnswerContract | None = None) -> int | None:
     for each part the answer requires. This is a *quality* bound and
     is now labelled as one.
 
+    It is a **request, not a ceiling**, and that is worth being exact
+    about because the name invites the opposite reading. The number
+    reaches the synthesiser as "write at most N" and the synthesiser
+    may write more; nothing trims the surplus. A local run asked for
+    six and produced eight.
+
+    Not enforced deliberately. Every claim is gated individually and
+    an extra one costs no model call, so exceeding the request is
+    untidy rather than unsafe -- while truncating a report to a count
+    would mean discarding claims before anything had looked at them,
+    and the one filling the required part is as likely to go as any
+    other. What the request buys is measured and real: unbounded, the
+    same question produced thirteen claims; asked for six, eight.
+
     It did not used to be. The cap was derived from the remaining call
     budget, one call per claim, which was right when entailment was a
     generative call and wrong from the moment the NLI classifier

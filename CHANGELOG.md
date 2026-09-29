@@ -45,9 +45,29 @@ place. **This is a tightening**: the judge may no longer freelance,
 and a claim filling no listed part still fails. Both the refusal
 clause and the structural checks are asserted by tests.
 
-Unverified on the hosted path. The run that motivated both is
-committed at `examples/live-validation/v161-20260929-191831/`, with
-the prediction it falsified.
+**The bound is a request, not a ceiling**, and the docstring says so.
+A local run asked for six claims and produced eight; nothing trims
+the surplus. Not enforced deliberately — every claim is gated
+individually and an extra one costs no model call, so exceeding the
+request is untidy rather than unsafe, while truncating a report to a
+count would discard claims before anything had looked at them. What
+the request buys is measured: unbounded, thirteen claims; asked for
+six, eight.
+
+**A local model cannot evaluate the relevance-judge change.** Both
+prompts were run head to head on `qwen2.5:7b-instruct` against the
+two claims a hosted run judged oppositely plus two controls. Every
+claim came back *no* under both, including the one the hosted critic
+published. The local judge is saturated at refusal, so an A/B on it
+would report "no change" whatever the change was. Recorded in
+LIMITATIONS: a prompt change to this gate can only be evaluated on
+the hosted path.
+
+So of the two corrections, the contract bound is verified end to end
+locally and the judge change is not verifiable without one hosted
+run. The run that motivated both is committed at
+`examples/live-validation/v161-20260929-191831/`, with the prediction
+it falsified.
 
 ## v1.6.1 — 2026-09-29
 

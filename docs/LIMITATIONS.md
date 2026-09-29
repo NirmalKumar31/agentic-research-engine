@@ -273,6 +273,24 @@ Neither symptom appears on the hosted path with a larger model, which
 published 3 of 7 and 2 of 6 on the same question. **Local mode
 exercises the pipeline; it does not demonstrate it.**
 
+### A local model cannot be used to test the relevance judge
+
+Measured, because it was tried. Two prompts for the relevance
+judgement were run head to head on `qwen2.5:7b-instruct` against four
+claims: the two that a hosted run had judged oppositely, and two
+controls that must be refused.
+
+Every claim came back *no*, under both prompts — including *"LLMs are
+built upon deep neural networks"*, which the hosted critic judged
+relevant and published. The local judge is saturated at refusal, so
+it cannot distinguish a better prompt from a worse one, and an A/B on
+it would report "no change" whatever the change was.
+
+The consequence for anyone working on this gate: **a prompt change to
+the relevance judgement can only be evaluated on the hosted path.**
+Local runs will confirm that it executes, and nothing about whether
+it decides better.
+
 Two consequences worth stating plainly. A local run is not a fair
 demonstration of what the pipeline can do. And the relevance numbers
 in the adversarial set were produced with entailment pinned and no

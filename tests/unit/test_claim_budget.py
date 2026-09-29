@@ -145,6 +145,42 @@ class TestARunThatCannotFinishSynthesisesNothing:
         assert await _claim_budget(rich) == 0
 
 
+class TestItIsARequestNotACeiling:
+    """The name invites the wrong reading, so the docstring has to
+    correct it and this has to hold the docstring to it.
+
+    The number reaches the synthesiser as "write at most N" and the
+    synthesiser may write more. A local run asked for six and produced
+    eight. Nothing trims the surplus, on purpose: every claim is gated
+    individually and an extra one costs no model call, so exceeding
+    the request is untidy rather than unsafe -- while truncating to a
+    count would discard claims before anything had looked at them, and
+    the one filling the required part is as likely to go as any other.
+    """
+
+    def test_the_docstring_does_not_promise_enforcement(self) -> None:
+        doc = _claim_budget.__doc__ or ""
+        assert "request, not a ceiling" in doc
+        assert "may write more" in doc
+
+    def test_the_measurement_is_recorded(self) -> None:
+        """Thirteen unbounded, eight when asked for six. A request that
+        changes nothing would be worth removing; this one is not."""
+        doc = _claim_budget.__doc__ or ""
+        assert "thirteen" in doc and "eight" in doc
+
+    def test_nothing_truncates_the_report(self) -> None:
+        """Non-vacuity for the reasoning above: if a trim were added,
+        this is where it would surface."""
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        body = inspect.getsource(reporting.synthesize_report)
+        assert "[:claim_budget]" not in body
+        assert "claim_budget]" not in body
+
+
 class TestTheReasonIsRecorded:
     def test_both_bounds_are_named(self) -> None:
         """This was stale for three releases because the docstring
