@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentic-research-engine"
-version = "1.3.0"
+version = "1.4.0"
 description = "A multi-stage agentic research engine on LangGraph, with evidence-level provenance, bounded research loops, and hybrid cloud/local model routing."
 readme = "README.md"
 # Bounded rather than open-ended: CI tests 3.11 and 3.12, and the

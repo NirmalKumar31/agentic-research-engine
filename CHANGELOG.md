@@ -2,7 +2,7 @@
 
 Notable changes per release. Dates are UTC.
 
-## Unreleased
+## v1.4.0 — 2026-09-29
 
 Source quality now reaches the three decisions that should have been
 using it. Both defects were found by reading the committed run
