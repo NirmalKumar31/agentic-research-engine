@@ -29,7 +29,19 @@
 
 services:
   - type: web
-    name: agentic-research-engine
+    # agentic-research-engine-live, not agentic-research-engine.
+    #
+    # The shorter name was tried and reverted. A Render service name is
+    # what the blueprint matches an existing service by, so changing it
+    # here is not a rename -- it reads as "delete that service, create a
+    # different one", which Render declines to do on a sync. Two syncs
+    # produced nothing at all.
+    #
+    # Changing it is therefore a full teardown and rebuild, with every
+    # credential re-entered, for a cosmetically shorter hostname. Not
+    # worth it. The replay blueprint keeps the descriptive
+    # -replay suffix it gained, which was a real improvement.
+    name: agentic-research-engine-live
     runtime: docker
     # Pinned explicitly. Render's rule for an omitted branch is "use the
     # Blueprint's branch" when the service lives in the same repository,

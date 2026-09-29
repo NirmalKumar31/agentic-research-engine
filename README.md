@@ -267,7 +267,7 @@ spends nothing.
 
 ## Usage
 
-**Live demo:** <https://agentic-research-engine.onrender.com> — a free
+**Live demo:** <https://agentic-research-engine-live.onrender.com> — a free
 instance, so the first request wakes it and takes about a minute.
 
 The public demo replays recorded runs and needs no credentials. To run

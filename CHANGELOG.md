@@ -2,6 +2,27 @@
 
 Notable changes per release. Dates are UTC.
 
+## v1.2.1 — 2026-09-29
+
+Deployment naming only. No change to research behaviour, verification
+thresholds, publication gates or recorded results.
+
+- The public demo's Render service is `agentic-research-engine-live`
+  again. v1.2.0 renamed it to `agentic-research-engine`, which cannot
+  be deployed: a blueprint matches an existing service by name, so
+  changing the name reads as "delete that service and create a
+  different one" rather than as a rename, and Render declines it on a
+  sync. Two syncs produced nothing.
+
+  Reverted rather than pursued. Making it stick means a full teardown
+  with every credential re-entered, for a cosmetically shorter
+  hostname. The reason is now a comment in the blueprint so the next
+  person does not try it again.
+- The replay blueprint keeps `agentic-research-engine-replay`. That
+  part of the rename was a real improvement and nothing was deployed
+  under the old name.
+- The README's demo link points at the service that exists.
+
 ## v1.2.0 — 2026-09-28
 
 Research quality. The pipeline now knows what question it was asked
