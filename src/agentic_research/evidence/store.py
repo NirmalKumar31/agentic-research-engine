@@ -13,6 +13,7 @@ import re
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 
+from agentic_research.citations.guards import authority_rank_of
 from agentic_research.models import (
     EvidenceItem,
     QuoteMatch,
@@ -238,6 +239,25 @@ class EvidenceStore:
 
     # -- packaging ---------------------------------------------------------
 
+    def _source_rank(self, source_id: str) -> float:
+        """How strongly to prefer this source when relevance ties.
+
+        Authority first, then the quality score, combined into one
+        number so it can sit in a sort key. Authority dominates
+        because it answers a different question: quality is a
+        heuristic about the page, authority is about how close the
+        publisher is to what it reports, and a well-made blog post is
+        still an account of a paper.
+
+        An unresolvable source ranks 0, below every classified one.
+        """
+        source = self.source(source_id)
+        if source is None:
+            return 0.0
+        rank = authority_rank_of(source.source_type.value)
+        # quality_score is in [0, 1], so this never reorders authority.
+        return rank + source.quality_score
+
     def build_package(
         self,
         sub_questions: list[SubQuestion],
@@ -273,7 +293,34 @@ class EvidenceStore:
                 continue
             # Contradictions first so they survive the per-question cap; the
             # whole point of tracking disagreement is to not silently drop it.
-            kept.sort(key=lambda e: (e.stance is not Stance.CONTRADICTS, -e.confidence))
+            #
+            # Then relevance band, then the source, then relevance again.
+            #
+            # Source quality used not to appear here at all, and two
+            # hosted runs show what that cost: an arXiv survey scoring
+            # 0.95 with six citable quotes was offered alongside a blog
+            # and never cited, in both runs the best eligible source
+            # went unused. The engine classifies sources and then
+            # showed the synthesiser a list in which that classification
+            # was invisible.
+            #
+            # Banding matters. Sorting by quality outright would put a
+            # barely-relevant quote from a good source above the quote
+            # that actually answers the sub-question, which is the
+            # wrong trade -- relevance is why the item is here at all.
+            # Rounding confidence to a tenth keeps clearly-better
+            # matches ahead and lets the source decide among ones that
+            # are equally good, which is the case that was being
+            # settled arbitrarily.
+            kept.sort(
+                key=lambda e: (
+                    e.stance is not Stance.CONTRADICTS,
+                    -round(e.confidence, 1),
+                    -self._source_rank(e.source_id),
+                    -e.confidence,
+                    e.id,
+                )
+            )
             kept = kept[:max_items_per_question]
 
             lines.append(f"\n### {sub_question.id}: {sub_question.text}")

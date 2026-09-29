@@ -2,6 +2,48 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+Source quality now reaches the two decisions that should have been
+using it. Both defects were found by reading the committed run
+evidence rather than the code.
+
+In both hosted runs the best eligible source — usable, with citable
+evidence — was never cited. One was an arXiv survey scoring 0.95 with
+six citable quotes, passed over for a blog. The engine classifies
+sources and neither decision could see the classification.
+
+- **Synthesis is shown the better source first.** `build_package`
+  ordered evidence by extraction confidence alone, so among quotes
+  that answer a sub-question equally well the choice was arbitrary,
+  and the per-question cap dropped good sources at random. Ordering
+  is now contradictions, then a relevance band, then the source, then
+  relevance again. Banded deliberately: sorting by quality outright
+  would put a barely-relevant quote from a good source above the one
+  that actually answers the question.
+- **The entailment gate receives the authority it ranks by.**
+  `verify_claim` orders equally-entailed quotes by source authority
+  and quality. `SourceIdentity` was built in production with only
+  `domain` and `title`, so every source ranked UNKNOWN at quality 0.0
+  and that ordering collapsed to entailment alone. Implemented,
+  tested against hand-built identities, and inert where it mattered.
+
+  Reverting the wiring broke no test, which is how it survived. The
+  adversarial eval builds its own identities correctly, so it
+  exercised the ranking the whole time and could never have caught
+  this. There are now tests on the function that builds the identity.
+
+- `authority_of` / `authority_rank_of` map a source kind to how close
+  it is to what it reports, beside the enum that makes the same
+  distinction rather than in a second table that would drift.
+
+Neither field ever enters the NLI premise; the existing test that the
+scorer never sees them still holds, and a new one checks it through
+the real wiring.
+
+No change on the frozen adversarial set: 0 irrelevant published, 6
+published, unchanged throughout.
+
 ## v1.3.0 — 2026-09-29
 
 The interface shows what the question required. Verified on the

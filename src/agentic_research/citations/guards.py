@@ -211,6 +211,48 @@ class SourceAuthority(StrEnum):
 # Ranked worst to best, so a larger number is a stronger source. Used
 # only to order evidence that has *already* passed entailment and the
 # guards; it never contributes to whether a claim is supported.
+def authority_rank_of(source_type: str) -> int:
+    """Authority as a number, for callers building a sort key.
+
+    Exists so the rank table stays private to this module: the
+    evidence layer needs the ordering, not the mapping.
+    """
+    return _AUTHORITY_RANK[authority_of(source_type)]
+
+
+def authority_of(source_type: str) -> SourceAuthority:
+    """Map a source's coarse kind to how close it is to what it reports.
+
+    Kept beside the enum rather than in the evidence layer because it
+    is a statement about the same distinction the enum makes, and a
+    second copy elsewhere would drift.
+
+    A standards body, a paper, a government publisher and first-party
+    documentation are all the thing itself for their own subject. News
+    and vendor pages are accounts of something else. Blogs and forums
+    are where a reader goes to find the primary source, not instead of
+    it -- useful for discovery, which is what AGGREGATOR means here.
+
+    Anything unrecognised is UNKNOWN and therefore ranks last, which
+    is the safe direction: an unclassified source never outranks a
+    classified one on authority alone.
+    """
+    return _AUTHORITY_BY_TYPE.get(source_type, SourceAuthority.UNKNOWN)
+
+
+_AUTHORITY_BY_TYPE: dict[str, SourceAuthority] = {
+    "standards_body": SourceAuthority.PRIMARY,
+    "academic": SourceAuthority.PRIMARY,
+    "official_docs": SourceAuthority.PRIMARY,
+    "government": SourceAuthority.PRIMARY,
+    "news": SourceAuthority.SECONDARY,
+    "vendor": SourceAuthority.SECONDARY,
+    "other": SourceAuthority.SECONDARY,
+    "blog": SourceAuthority.AGGREGATOR,
+    "forum": SourceAuthority.AGGREGATOR,
+}
+
+
 _AUTHORITY_RANK: dict[SourceAuthority, int] = {
     SourceAuthority.UNKNOWN: 0,
     SourceAuthority.AGGREGATOR: 1,

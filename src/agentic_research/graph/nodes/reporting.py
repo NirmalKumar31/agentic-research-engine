@@ -8,7 +8,7 @@ from typing import Any
 
 from agentic_research.answer_contract import AnswerContract
 from agentic_research.answer_coverage import assess_coverage
-from agentic_research.citations.guards import SourceIdentity
+from agentic_research.citations.guards import SourceAuthority, SourceIdentity, authority_of
 from agentic_research.citations.nli import NLIUnavailable, build_verifier
 from agentic_research.citations.propositions import decompose
 from agentic_research.citations.publication import (
@@ -966,9 +966,22 @@ def _scoring_pairs(evidence_ids: list[str], store: EvidenceStore) -> list[CitedE
             CitedEvidence(
                 evidence_id=evidence_id,
                 quote=item.quote,
+                # Authority and quality are populated here, and were
+                # not. verify_claim ranks equally-entailed quotes by
+                # them, so leaving them at their defaults made every
+                # source rank UNKNOWN/0.0 and collapsed that ordering
+                # to entailment alone -- the selection was implemented,
+                # tested against constructed identities, and inert in
+                # production. Neither field ever enters the premise.
                 source=SourceIdentity(
                     domain=(source.domain if source else "") or "",
                     title=(source.title if source else "") or "",
+                    authority=(
+                        authority_of(source.source_type.value)
+                        if source
+                        else SourceAuthority.UNKNOWN
+                    ),
+                    quality=(source.quality_score if source else 0.0),
                 ),
             )
         )
