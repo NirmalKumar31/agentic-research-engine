@@ -228,6 +228,32 @@ passed verification. Those excerpts are quotations, not findings:
 `final_published_claims` stays 0 and they are counted separately in
 `evidence_only_excerpts`. Nothing generalises, joins or interprets them.
 
+### The relevance judgement is only as good as the critic
+
+Structural relevance is deterministic. The judgement that follows it
+is a model call, and its quality tracks the model.
+
+Measured, on the same question in the same week:
+
+- Hosted, `gpt-6-luna`: asked how a large language model differs from
+  a neural network, the critic judged *"LLMs are a specific subset of
+  neural networks"* **relevant**, and it published.
+- Local, `qwen3:4b`: given the near-identical claim *"Large language
+  models are a specific type of neural network architecture"*, the
+  critic judged it **irrelevant**, and it was withheld. Of six claims,
+  it rejected four and published one.
+
+The small model over-rejects. That direction is the safe one — the
+gate withholds true claims rather than publishing irrelevant ones —
+but it means local mode publishes sparse reports, and a zero-claim
+local run is as likely to be the critic as the evidence.
+
+Two consequences worth stating plainly. A local run is not a fair
+demonstration of what the pipeline can do. And the relevance numbers
+in the adversarial set were produced with entailment pinned and no
+critic call at all, so they measure the structural half only; the
+judged half has no frozen benchmark, and one hosted run is not one.
+
 ## Operations
 
 **Budget enforcement is per process, and not all of it is exact.**
