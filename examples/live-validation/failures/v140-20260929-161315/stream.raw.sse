@@ -1,0 +1,92 @@
+event: started
+data: {"run_id": "20260929-161315-9ab8c6", "query": "How does a large language model differ from a neural network?"}
+
+event: progress
+data: {"event": "started", "run_id": "20260929-161315-9ab8c6", "query": "How does a large language model differ from a neural network?", "models": {"planner": "openai:gpt-6-luna", "researcher": "openai:gpt-6-luna", "critic": "openai:gpt-6-luna", "synthesizer": "openai:gpt-6-luna"}}
+
+event: progress
+data: {"event": "progress", "data": {"event": "verifier_waking", "mode": "remote", "detail": "Waking the verifier", "expected_seconds": 90}}
+
+: keepalive
+
+: keepalive
+
+: keepalive
+
+event: progress
+data: {"event": "progress", "data": {"event": "verifier_ready", "detail": "Verifier ready"}}
+
+event: progress
+data: {"event": "analyzing_query", "query": "How does a large language model differ from a neural network?"}
+
+event: progress
+data: {"event": "query_analyzed", "intent": "Understand how LLMs differ from neural networks and how the concepts are related.", "format": "overview"}
+
+event: progress
+data: {"event": "answer_contract", "question_type": "definition", "required": ["definition"]}
+
+event: progress
+data: {"event": "planning"}
+
+event: progress
+data: {"event": "plan_generated", "count": 4, "questions": ["What is a neural network as a general class of computational models, and what kinds of tasks and architectures can it encompass?", "What characteristics make a model a large language model, including its language focus, scale, and typical training objectives?", "How do LLMs fit within the broader category of neural networks, and are all LLMs neural networks or all neural networks LLMs?", "Which differences in purpose and typical capabilities distinguish LLMs from other neural networks, such as models for vision or classification?"]}
+
+event: progress
+data: {"event": "generating_queries", "round": 1, "sub_questions": 4}
+
+event: progress
+data: {"event": "queries_generated", "round": 1, "count": 6, "queries": ["neural network computational model weighted layers nonlinear functions architectures tasks", "neural network architecture taxonomy CNN RNN transformer classification regression generation", "large language model definition scale parameters text pretraining next token prediction", "LLM training objectives autoregressive language modeling corpus scale transformer", "large language models neural networks transformer architecture relationship taxonomy", "LLM subset of neural networks distinction neural network models language specialization"]}
+
+event: progress
+data: {"event": "search_completed", "query_id": "Q1", "query": "neural network computational model weighted layers nonlinear functions architectures tasks", "results": 8}
+
+event: progress
+data: {"event": "search_completed", "query_id": "Q3", "query": "large language model definition scale parameters text pretraining next token prediction", "results": 8}
+
+event: progress
+data: {"event": "search_completed", "query_id": "Q2", "query": "neural network architecture taxonomy CNN RNN transformer classification regression generation", "results": 8}
+
+event: progress
+data: {"event": "search_completed", "query_id": "Q5", "query": "large language models neural networks transformer architecture relationship taxonomy", "results": 8}
+
+event: progress
+data: {"event": "search_completed", "query_id": "Q6", "query": "LLM subset of neural networks distinction neural network models language specialization", "results": 8}
+
+event: progress
+data: {"event": "search_completed", "query_id": "Q4", "query": "LLM training objectives autoregressive language modeling corpus scale transformer", "results": 8}
+
+event: progress
+data: {"event": "sources_deduplicated", "results": 48, "unique": 47, "avoided": 1, "selected": 6}
+
+event: progress
+data: {"event": "sources_registered", "usable": 6, "duplicates": 0, "extracting": 6}
+
+event: progress
+data: {"event": "evidence_extracted", "source_id": "S1", "items": 2}
+
+event: progress
+data: {"event": "evidence_extracted", "source_id": "S4", "items": 3}
+
+event: progress
+data: {"event": "evidence_extracted", "source_id": "S3", "items": 6}
+
+event: progress
+data: {"event": "evidence_extracted", "source_id": "S2", "items": 6}
+
+event: progress
+data: {"event": "evidence_extracted", "source_id": "S6", "items": 5}
+
+event: progress
+data: {"event": "evidence_extracted", "source_id": "S5", "items": 6}
+
+event: progress
+data: {"event": "assessing_coverage", "round": 1}
+
+: keepalive
+
+event: error
+data: {"error": "The research run failed. Please try again."}
+
+event: done
+data: {"run_id": "20260929-161315-9ab8c6"}
+

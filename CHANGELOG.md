@@ -2,6 +2,48 @@
 
 Notable changes per release. Dates are UTC.
 
+## v1.4.1 — 2026-09-29
+
+A run no longer dies because an advisory model call did.
+
+The first hosted run on v1.4.0 reached `assessing_coverage` with six
+sources and twenty-eight extracted quotes, then emitted an error
+instead of a report. The capture is kept in
+`examples/live-validation/failures/`.
+
+The coverage critique is advice. Every number that routes the run --
+the per-question verdicts, the ratio, the domain concentration -- is
+computed from evidence already in hand *before* the model is called,
+and the node's own comment said "the counted half still stands, so
+routing remains sound". It caught `LLMError`. Anything else ended a
+run that had already paid for four searches and twenty-eight
+extractions, in order to lose an opinion.
+
+Six other calls had the same shape: question analysis, planning,
+query generation, follow-up generation, synthesis, wording repair and
+the relevance judgement. Each has a real fallback -- the raw question,
+a single dimension, the sub-question text, an evidence-only report,
+the original refusals, withholding -- and each fired only for the
+failure type someone happened to anticipate. A fallback like that is
+a promise the code does not keep.
+
+All seven now degrade on any exception, and record the exception type
+into the run's error list so a bug surfaces as a degraded run rather
+than as silence.
+
+**This cannot swallow the wall-clock deadline.** `asyncio.timeout`
+cancels with `CancelledError`, which derives from `BaseException` and
+passes straight through `except Exception`. That property is what
+makes the widening safe, and it is asserted by a test rather than
+assumed.
+
+**The root cause of that run's failure is not known.** The public
+error message is deliberately generic and the server log was not
+retrieved before it rotated. A local reproduction at the same commit
+completed normally, so the failure did not reproduce. What changed is
+that this class of failure now degrades instead of ending the run;
+what has not changed is that nobody knows which exception it was.
+
 ## v1.4.0 — 2026-09-29
 
 Source quality now reaches the three decisions that should have been

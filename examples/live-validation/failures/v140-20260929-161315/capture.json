@@ -1,0 +1,9 @@
+{
+  "started_utc": "2026-09-29T16:13:15Z",
+  "wall_clock_seconds": 126.82,
+  "raw_bytes": 4586,
+  "chunks": 29,
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "How does a large language model differ from a neural network?",
+  "method": "raw bytes streamed to disk, timing recorded in a separate index"
+}

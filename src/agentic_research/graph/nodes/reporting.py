@@ -43,7 +43,6 @@ from agentic_research.graph.prompts import (
     synthesizer_user,
 )
 from agentic_research.graph.state import ResearchState
-from agentic_research.llm.base import LLMError
 from agentic_research.models import (
     CitationIssue,
     CitationIssueType,
@@ -205,8 +204,11 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                 ],
                 limitations=_dedupe_limitations(list(out.limitations) + gaps),
             )
-        except LLMError as exc:
-            log.error("synthesis_failed", error=str(exc)[:300])
+        except Exception as exc:
+            # The evidence-only report exists for exactly this. A
+            # non-LLMError here used to end the run instead, losing
+            # every quote already extracted and paid for.
+            log.error("synthesis_failed", error_type=type(exc).__name__, error=str(exc)[:300])
             report = _fallback_report(question, store, gaps, _safe_failure_reason(exc))
             errors = [error_from("synthesize", exc, "emitted evidence-only report")]
         timing["evidence_items"] = package.evidence_count
@@ -848,8 +850,10 @@ async def _repair_wording(
             .router.get(ModelRole.CRITIC)
             .structured(RepairOut, REPAIR_SYSTEM, repair_user(contract.question, items))
         )
-    except LLMError as exc:
-        log.warning("wording_repair_failed", error=str(exc)[:200])
+    except Exception as exc:
+        # Repair is optional; its failure refuses the rewrites and
+        # leaves every original refusal standing.
+        log.warning("wording_repair_failed", error_type=type(exc).__name__, error=str(exc)[:200])
         for _claim, _verdict, _pairs, reason, record in candidates:
             refuse(record, record.claim_text, None, reason, f"repair call failed: {exc}"[:200])
         return []
@@ -932,8 +936,15 @@ async def _judge_relevance(
                 ),
             )
         )
-    except LLMError as exc:
-        log.warning("relevance_judgement_failed", error=str(exc)[:200])
+    except Exception as exc:
+        # Returning {} withholds every claim this would have judged,
+        # which is the fail-closed behaviour the gate is specified to
+        # have. It has to hold for any failure, not just an LLM one.
+        log.warning(
+            "relevance_judgement_failed",
+            error_type=type(exc).__name__,
+            error=str(exc)[:200],
+        )
         return {}
 
     judged: dict[int, tuple[bool | None, str]] = {}

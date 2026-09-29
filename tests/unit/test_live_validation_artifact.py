@@ -37,12 +37,16 @@ CORE = {
 HOSTED_EXTRA = {"stream.raw.sse", "stream.index.jsonl", "withheld-reasons.json"}
 
 
-# Directories under examples/live-validation that are not runs. Named
-# explicitly rather than inferred from their contents: a rule like
+# Directories under examples/live-validation that are not runs.
+# `failures` holds captures of runs that produced no result: they have
+# no report and no metrics, so the contract below cannot apply, and a
+# directory pretending otherwise is worse than none.
+#
+# Named explicitly rather than inferred from their contents: a rule like
 # "has metrics.json" would make a run that is missing its metrics
 # vanish from the parametrisation instead of failing, which is the one
 # thing this file exists to catch.
-NOT_A_RUN = {"tools"}
+NOT_A_RUN = {"tools", "failures"}
 
 
 def runs() -> list[Path]:

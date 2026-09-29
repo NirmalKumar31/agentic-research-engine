@@ -25,7 +25,6 @@ from agentic_research.graph.prompts import (
     query_writer_user,
 )
 from agentic_research.graph.state import ResearchState
-from agentic_research.llm.base import LLMError
 from agentic_research.models import (
     OutputFormat,
     QueryAnalysis,
@@ -68,8 +67,15 @@ async def analyze_query(state: ResearchState) -> ResearchState:
                 requires_web_research=out.requires_web_research,
             )
             errors = []
-        except LLMError as exc:
-            log.warning("analysis_failed_using_fallback", error=str(exc)[:200])
+        except Exception as exc:
+            # Any failure, not only LLMError: the fallback below is the
+            # whole point, and one that fires for a single exception
+            # type is a promise the node does not keep.
+            log.warning(
+                "analysis_failed_using_fallback",
+                error_type=type(exc).__name__,
+                error=str(exc)[:200],
+            )
             analysis = QueryAnalysis(
                 original_query=query, normalized_query=query, intent="unclassified"
             )
@@ -172,8 +178,12 @@ async def plan_research(state: ResearchState) -> ResearchState:
                 .structured(PlanOut, PLANNER_SYSTEM, planner_user(_analysis_block(analysis)))
             )
             raw = out.sub_questions[:8]
-        except LLMError as exc:
-            log.warning("planning_failed_using_single_dimension", error=str(exc)[:200])
+        except Exception as exc:
+            log.warning(
+                "planning_failed_using_single_dimension",
+                error_type=type(exc).__name__,
+                error=str(exc)[:200],
+            )
             raw = []
             errors = [error_from("plan_research", exc, "single-dimension fallback")]
 
@@ -257,8 +267,12 @@ async def generate_queries(state: ResearchState) -> ResearchState:
                 query_writer_user(_sub_question_block(targets), [q.text for q in completed]),
             )
             proposed = [(q.sub_question_id, q.text) for q in out.queries]
-        except LLMError as exc:
-            log.warning("query_generation_failed_using_text", error=str(exc)[:200])
+        except Exception as exc:
+            log.warning(
+                "query_generation_failed_using_text",
+                error_type=type(exc).__name__,
+                error=str(exc)[:200],
+            )
             # The sub-question text is a serviceable query on its own.
             proposed = [(q.id, q.text) for q in targets]
             errors = [error_from("generate_queries", exc, "using sub-question text")]
@@ -341,8 +355,12 @@ async def generate_followups(state: ResearchState) -> ResearchState:
                 )
             )
             items = out.followups[:4]
-        except LLMError as exc:
-            log.warning("followup_generation_failed", error=str(exc)[:200])
+        except Exception as exc:
+            log.warning(
+                "followup_generation_failed",
+                error_type=type(exc).__name__,
+                error=str(exc)[:200],
+            )
             items = []
             errors = [error_from("generate_followups", exc)]
 

@@ -23,7 +23,6 @@ from agentic_research.evidence.store import EvidenceStore
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import CRITIC_SYSTEM, critic_user
 from agentic_research.graph.state import ResearchState
-from agentic_research.llm.base import LLMError
 from agentic_research.models import CoverageAssessment, Stance
 from agentic_research.observability import get_logger
 from agentic_research.schemas import CoverageOut
@@ -89,9 +88,32 @@ async def assess_coverage(state: ResearchState) -> ResearchState:
             llm_missing = list(out.missing_angles)
             contradictions = list(dict.fromkeys(contradictions + list(out.contradictions)))[:10]
             reasoning = out.reasoning
-        except LLMError as exc:
-            # The counted half still stands, so routing remains sound.
-            log.warning("coverage_critique_failed", error=str(exc)[:200])
+        except Exception as exc:
+            # Any exception, not only LLMError.
+            #
+            # This call is advice. Every number that routes the run --
+            # the per-question verdicts, the ratio, the domain
+            # concentration -- is computed above it from evidence
+            # already in hand, and the critic only adds to the weak
+            # list and names gaps. Letting a failure here end the run
+            # throws away four searches and twenty-eight extracted
+            # quotes that were already paid for, to lose an opinion.
+            #
+            # A hosted run died exactly here: it reached
+            # assessing_coverage with 28 items and emitted an error
+            # instead of a report. LLMError was caught and everything
+            # else was not, which made the narrow catch a promise the
+            # node did not keep.
+            #
+            # Not silent. The exception type reaches the run's error
+            # list and its metrics, so a bug here shows up as a
+            # degraded run rather than as nothing -- swallowing it
+            # would trade a lost run for a hidden defect.
+            log.warning(
+                "coverage_critique_failed",
+                error_type=type(exc).__name__,
+                error=str(exc)[:200],
+            )
             reasoning = "critique unavailable; using mechanical coverage counts only"
             errors = [error_from("assess_coverage", exc, "counts-only assessment")]
 
