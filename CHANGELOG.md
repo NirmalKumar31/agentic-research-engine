@@ -2,6 +2,58 @@
 
 Notable changes per release. Dates are UTC.
 
+## v1.2.0 — 2026-09-28
+
+Research quality. The pipeline now knows what question it was asked
+and checks its answers against that, rather than only checking that
+each sentence follows from a quote.
+
+- **Answer contract.** A question is decomposed into canonical slots
+  before retrieval, and refuses rather than guesses: a comparison
+  naming fewer than two entities produces an unusable contract with
+  no slots at all.
+- **Proposition decomposition.** Support is checked per assertion,
+  not per sentence. A claim bundling a measured figure with an
+  unsupported assertion used to publish at 0.983 because the sentence
+  as a whole was close enough to the quote as a whole.
+- **Relevance gate.** Support and relevance are separate questions and
+  only one was being asked. A live run published five claims that were
+  entailed by their evidence and answered nothing. Structure is checked
+  free; the judgement is one batched critic call, asked of the critic
+  rather than the synthesiser, and withheld rather than guessed when
+  it cannot be obtained.
+- **Bounded wording repair.** One rewrite attempt for claims refused
+  on phrasing alone, validated before re-verification. A rewrite may
+  not add a number, introduce a subject, invent causation or
+  strengthen a modality, and causal, exclusivity, framing and hedge
+  failures are never eligible — rephrasing those is laundering.
+- **Answer coverage.** A report that publishes claims and answers none
+  of the contract's core slots now says so in its limitations.
+
+Provenance, because a decision that leaves no record cannot be
+audited:
+
+- The contract, the propositions with their per-part entailment, the
+  relevance decisions and every repair attempt — accepted and refused
+  — are carried in the result payload. They were previously prose in
+  a `reason` string, or discarded entirely. `claim.text` is
+  reassigned in place on repair, so a published claim's earlier
+  wording existed nowhere.
+- `/api/readiness` reports `quota_namespace`.
+- Recording schema 3. The three committed recordings carry
+  `contract: null`, which is truthful: they predate the contract.
+
+Deployment:
+
+- `DEMO_QUOTA_NAMESPACE` separates one deployment's daily counter from
+  another's sharing a store. Empty by default, so an existing
+  deployment's key is unchanged.
+- `deploy/render-rc.yaml` deploys a release candidate beside the
+  public demo. One line changes per acceptance: `branch`.
+- `examples/live-validation/tools/acceptance.py` performs the hosted
+  capture: credential-free checks, one run streamed to disk byte for
+  byte, then the artifact derived offline from those bytes.
+
 ## v1.1.1 — 2026-09-28
 
 Progress reporting only. No change to research behaviour, verification
