@@ -10,8 +10,42 @@ export type ClaimKind = "factual" | "synthesis" | "framing" | "extracted";
 export interface Claim {
   text: string;
   kind: ClaimKind;
+  /**
+   * Which part of the answer contract the claim set out to fill.
+   *
+   * Empty when the synthesiser declared nothing, which smaller local
+   * models routinely do. Such a claim can still publish; it just
+   * counts toward no slot.
+   */
+  answer_slot?: string;
   evidence_ids: string[];
   citation_ids: string[];
+}
+
+/** One thing the answer has to contain. */
+export interface AnswerSlot {
+  name: string;
+  description: string;
+  core: boolean;
+  /** Other slots that also discharge this one, when the question
+   * admits more than one shape of answer. */
+  satisfied_by?: string[];
+}
+
+/**
+ * What the question was decided to require, before anything was
+ * retrieved. Null for recordings made before contracts existed.
+ */
+export interface Contract {
+  question: string;
+  question_type: string;
+  entities: string[];
+  dimensions: string[];
+  constraints: string[];
+  ambiguities: string[];
+  usable: boolean;
+  unusable_reason: string;
+  required_slots: AnswerSlot[];
 }
 
 export interface Section {
@@ -127,6 +161,7 @@ export interface RunResult {
   run_id: string;
   report: Report | null;
   plan: Plan | null;
+  contract: Contract | null;
   evidence: Evidence[];
   sources: Source[];
   verification: Verification | null;

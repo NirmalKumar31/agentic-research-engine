@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ContractView } from "./ContractView";
 import { ClaimView } from "./ClaimView";
 import { EvidenceDrawer } from "./EvidenceDrawer";
 import { evidenceOnlyExcerpts } from "./fallback";
@@ -107,6 +108,8 @@ export function ReportView({
           </p>
           <p className="hint">Select any citation to see the exact passage behind it.</p>
         </header>
+
+        <ContractView contract={result.contract} report={report} />
 
         {coverage && coverage.covered < coverage.total && (
           <p className="notice notice--coverage">

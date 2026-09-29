@@ -464,3 +464,35 @@ code, kbd { font-family: var(--mono); font-size: 0.86em; }
 }
 .ask__disclaimer, .report__disclaimer { margin-top: 0.75rem; font-size: 0.75rem; }
 .report__disclaimer { border-top: 1px solid var(--line); padding-top: 0.75rem; }
+
+/* --- answer contract ----------------------------------------------------
+ *
+ * What the question was decided to require, and what the report
+ * delivered. Shown because a claim that answers nothing looks exactly
+ * like one that answers well: both are true, both are cited, and only
+ * this panel distinguishes them.
+ */
+
+.contract { margin-bottom: 2rem; }
+.contract__slots { list-style: none; padding-left: 0; margin: 0.8rem 0 1rem; }
+
+.slot {
+  display: flex; gap: 0.55rem; align-items: baseline;
+  padding: 0.3rem 0; line-height: 1.45;
+}
+.slot__mark { font: 600 0.9rem/1.4 var(--mono); flex: none; width: 1rem; }
+.slot--filled .slot__mark { color: var(--ok); }
+/* Deliberately not red. An unfilled slot is a gap in the answer, not an
+ * error in the run, and colouring it as a failure overstates it. */
+.slot--missing .slot__mark { color: var(--muted); }
+.slot--missing .slot__body code { color: var(--ink-dim); }
+.slot__body code { font: 600 0.82rem/1 var(--mono); }
+
+.flag--core { color: var(--ink-dim); background: var(--surface); border: 1px solid var(--line); }
+
+.notice--ok {
+  border-left: 3px solid var(--ok);
+  background: color-mix(in srgb, var(--ok) 8%, transparent);
+  padding: 0.7rem 0.9rem; border-radius: var(--radius);
+  font-size: 0.88rem; margin: 0 0 1.2rem;
+}

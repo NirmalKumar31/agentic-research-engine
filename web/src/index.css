@@ -7,6 +7,14 @@
   background: color-mix(in srgb, var(--amber, #b45309) 8%, transparent);
 }
 
+/* The contract panel reuses .notice--withheld for an unanswered
+ * question, so it needs the same padding the coverage notice has --
+ * without it the panel's notice sits flush against the slot list. */
+.contract .notice--withheld {
+  padding: 0.7rem 0.9rem; border-radius: var(--radius);
+  font-size: 0.88rem; margin: 0 0 1.2rem;
+}
+
 .excerpts__list {
   list-style: none;
   margin: 0;

@@ -270,6 +270,13 @@ spends nothing.
 **Live demo:** <https://agentic-research-engine-live.onrender.com> — a free
 instance, so the first request wakes it and takes about a minute.
 
+The interface shows the answer contract beside the report: which parts
+of the question the run was required to fill, and which it did. That
+panel appears on a live run. The three recorded runs predate contracts
+entirely and carry none, so it is hidden for them rather than shown
+empty — a recording back-filled with a contract it was never held to
+would be the opposite of what this project is for.
+
 The public demo replays recorded runs and needs no credentials. To run
 live research yourself:
 
