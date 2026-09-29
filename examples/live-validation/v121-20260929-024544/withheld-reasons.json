@@ -1,0 +1,34 @@
+[
+  {
+    "claim": "The evidence distinguishes LLMs as a specific class built on neural-network architectures from the broader set of neural-network architectures, which includes feedforward, convolutional, and recurrent networks.",
+    "verdict": "unsupported",
+    "reason": "best entailment 0.007 from S3-e1 is below the 0.98 support threshold",
+    "best_entailment": 0.006612,
+    "best_evidence_id": "S3-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "LLMs are trained on vast quantities of text data to learn patterns and relationships in human language.",
+    "verdict": "partially_supported",
+    "reason": "best entailment 0.851 from S3-e5 is below the 0.98 support threshold",
+    "best_entailment": 0.850741,
+    "best_evidence_id": "S3-e5",
+    "guards_passed": true
+  },
+  {
+    "claim": "LLMs are described as capable of a broad range of natural-language tasks, including sentiment analysis, conversational question answering, translation, classification, and generation.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes tasks LLMs can perform, not how they relate to or differ from neural networks.",
+    "best_entailment": 0.993843,
+    "best_evidence_id": "S5-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "Transformer models include encoder-only, decoder-only, and encoder-decoder hybrid designs.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: the claim describes one subject rather than contrasting them, so it cannot fill the contrast slot",
+    "best_entailment": 0.988092,
+    "best_evidence_id": "S6-e6",
+    "guards_passed": true
+  }
+]

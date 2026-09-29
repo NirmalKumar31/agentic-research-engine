@@ -1,0 +1,30 @@
+[
+  {
+    "claim": "An LLM is a type of neural network that specifically uses transformer architectures.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It directly states that an LLM is a kind of neural network and identifies its architecture.",
+    "published": true
+  },
+  {
+    "claim": "LLMs are described as capable of a broad range of natural-language tasks, including sentiment analysis, conversational question answering, translation, classification, and generation.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes tasks LLMs can perform, not how they relate to or differ from neural networks.",
+    "published": false
+  },
+  {
+    "claim": "Transformers are described as the most common architecture for LLMs.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It identifies a common architecture of LLMs, which helps characterize how they differ from neural networks generally.",
+    "published": true
+  },
+  {
+    "claim": "Transformer models include encoder-only, decoder-only, and encoder-decoder hybrid designs.",
+    "stage": "structural",
+    "relevant": false,
+    "reason": "the claim describes one subject rather than contrasting them, so it cannot fill the contrast slot",
+    "published": false
+  }
+]

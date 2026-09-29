@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://en.wikipedia.org/wiki/Large_language_model",
+    "title": "Large language model - Wikipedia",
+    "domain": "en.wikipedia.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.619,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://blog.gopenai.com/anatomy-of-llms-transformer-overview-encoder-decoder-autoregressive-flow-6a59bc839710",
+    "title": "Anatomy of LLMs: Transformer Overview \u2014 Encoder, Decoder & Autoregressive Flow",
+    "domain": "blog.gopenai.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.615,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://medium.com/ai-simplified-in-plain-english/the-architectural-evolution-of-neural-networks-in-large-language-models-5846978d2fac",
+    "title": "The Architectural Evolution of Neural Networks in Large Language Models",
+    "domain": "medium.com",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.563,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://www.researchgate.net/publication/393798537_Large_Language_Models_A_Structured_Taxonomy_and_Review_of_Challenges_Limitations_Solutions_and_Future_Directions",
+    "title": "(PDF) Large Language Models: A Structured Taxonomy ...",
+    "domain": "researchgate.net",
+    "source_type": "other",
+    "content_origin": "none",
+    "quality_score": 0.0,
+    "page_count": null,
+    "usable": false,
+    "fetch_status": "http_error"
+  },
+  {
+    "id": "S5",
+    "url": "https://www.elastic.co/what-is/large-language-models",
+    "title": "Understanding large language models: A comprehensive guide | Elastic",
+    "domain": "elastic.co",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.598,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://magazine.sebastianraschka.com/p/understanding-encoder-and-decoder",
+    "title": "Understanding Encoder And Decoder LLMs",
+    "domain": "magazine.sebastianraschka.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.598,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

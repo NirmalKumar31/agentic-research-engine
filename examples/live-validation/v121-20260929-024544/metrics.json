@@ -1,0 +1,215 @@
+{
+  "already_known_urls": 0,
+  "billable_provider_requests": 11,
+  "cache_write_tokens": 22802,
+  "cached_input_tokens": 0,
+  "calls_by_provider": {
+    "openai": 12
+  },
+  "calls_by_role": {
+    "critic": 2,
+    "planner": 3,
+    "researcher": 6,
+    "synthesizer": 1
+  },
+  "citable_evidence": 27,
+  "citation_coverage_rate": 1.0,
+  "citation_integrity_rate": 1.0,
+  "citations_repaired": false,
+  "citations_total": 2,
+  "claim_support_rate": 0.3333,
+  "claims_reconciliation": {
+    "checked": 6,
+    "generated": 6,
+    "not_checked": 0,
+    "note": "Only a supported and relevant claim publishes. A claim demoted to irrelevant is counted under unsupported, because it is withheld for the same reason from the reader's point of view: it is not in the report.",
+    "published": 2,
+    "withheld": 4,
+    "withheld_partially_supported": 1,
+    "withheld_unsupported": 3
+  },
+  "compatibility_retries": 1,
+  "content_duplicates": 0,
+  "content_origins": {
+    "provider_raw": 5
+  },
+  "contradictions_auditable": 0,
+  "contradictions_total": 0,
+  "cost_field_definitions": {
+    "cost_is_complete": false,
+    "known_cost_usd": "OpenAI token cost only, the engine's arithmetic over provider-reported counts, priced from pricing.toml.",
+    "reserved_worst_case_usd": "Sum of the pre-dispatch upper bounds. Bytes, not tokens -- see llm/token_bound.py. 3.4x actual here.",
+    "total_cross_provider_cost_complete": false,
+    "unpriced_calls": 0,
+    "why_not_complete": "Hugging Face endpoint uptime and Tavily credits are billed by their own providers and are not visible to this process."
+  },
+  "cost_is_complete": false,
+  "cross_attributed_evidence": 19,
+  "distinct_domains": 5,
+  "domain_concentration": 0.2,
+  "duplicate_urls": 3,
+  "duration_s": 155.17,
+  "entailment_exhaustive": true,
+  "environment": {
+    "cpu_count": 8,
+    "machine": "x86_64",
+    "ollama": {
+      "version": "not used by this run"
+    },
+    "packages": {
+      "agentic-research-engine": "1.2.1",
+      "httpx": "0.28.1",
+      "langchain-core": "1.6.5",
+      "langchain-ollama": "1.1.0",
+      "langchain-openai": "1.6.6",
+      "langgraph": "1.2.12",
+      "openai": "3.19.2",
+      "pydantic": "2.13.5",
+      "pypdf": "6.19.0",
+      "trafilatura": "2.2.0"
+    },
+    "platform": "Linux-7.0.0-1009-aws-x86_64-with-glibc2.41",
+    "processor": "x86_64",
+    "provenance": {
+      "config_fingerprint": "49795e23b224",
+      "engine_version": "1.2.1",
+      "evaluator_version": "2",
+      "git": {
+        "branch": "main",
+        "commit": "1d21b1109d66d8f71383fd9f4c44529b8d83f3ac",
+        "dirty": false,
+        "short_commit": "1d21b110",
+        "source": "RENDER_GIT_COMMIT"
+      },
+      "model_assignments": {
+        "critic": "openai:gpt-6-luna",
+        "planner": "openai:gpt-6-luna",
+        "researcher": "openai:gpt-6-luna",
+        "synthesizer": "openai:gpt-6-luna"
+      },
+      "prompt_version": "27e0cab8b1e8",
+      "schema_version": "be1e5413cd73"
+    },
+    "python": "3.12.14",
+    "settings": {
+      "llm_mode": "cloud",
+      "llm_temperature": 0.2,
+      "max_llm_calls": 20,
+      "max_parallel_fetches": 8,
+      "max_parallel_local_llm_calls": 2,
+      "max_parallel_searches": 5,
+      "max_research_rounds": 1,
+      "max_sources": 6,
+      "max_sources_per_round": 6,
+      "search_depth": "basic"
+    }
+  },
+  "error_kinds": {},
+  "errors": 0,
+  "evidence_integrity_rate": 1.0,
+  "evidence_items": 28,
+  "evidence_refs_total": 2,
+  "exact_quotes": 27,
+  "failed_provider_requests": 1,
+  "fetch_failures": 1,
+  "fetch_status_breakdown": {
+    "http_error": 1
+  },
+  "fetches_avoided": 3,
+  "fuzzy_quotes": 0,
+  "input_tokens": 24768,
+  "known_cost_usd": 0.008523,
+  "llm_calls": 12,
+  "llm_failed_calls": 1,
+  "mode": "cloud",
+  "model_assignments": {
+    "critic": "openai:gpt-6-luna",
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "output_tokens": 12092,
+  "pages_fetched": 0,
+  "partial_support_rate": 0.1667,
+  "provider_content_reused": 5,
+  "provider_requests": 12,
+  "provider_requests_by_model": {
+    "openai:gpt-6-luna": 12
+  },
+  "query": "How does a large language model differ from a neural network?",
+  "quote_fidelity": {
+    "definition": "Exact normalised substring match against the fetched source text. Fuzzy matches are counted separately and are not citable.",
+    "denominator_extracted_quotes": 28,
+    "fuzzy_quotes": 0,
+    "numerator_exact_quotes": 27,
+    "rate": 0.9643,
+    "unmatched_quotes": 1
+  },
+  "rate_limit_refusals": 0,
+  "reasoning_tokens": 8153,
+  "research_rounds": 1,
+  "reservation_was_sufficient": true,
+  "reserved_worst_case_usd": 0.028553,
+  "run_id": "20260929-024545-64d2f9",
+  "search_credits": 6.0,
+  "search_queries": 6,
+  "search_results": 48,
+  "searches_failed": 0,
+  "stage_seconds": {
+    "analyze_query": 10.4,
+    "assess_coverage": 12.304,
+    "dedupe_sources": 0.003,
+    "generate_queries": 4.57,
+    "plan_research": 4.308,
+    "register_sources": 0.0,
+    "synthesize": 20.939,
+    "verify_citations": 24.096
+  },
+  "stop_reason": "stopped after round 1",
+  "structured_repairs": 0,
+  "support_breakdown": {
+    "not_checked": 0,
+    "partially_supported": 1,
+    "supported": 2,
+    "unsupported": 3
+  },
+  "transport_retries": 0,
+  "unique_sources": 6,
+  "unmatched_quotes": 1,
+  "unpriced_calls": 0,
+  "unpriced_categories": 7,
+  "unused_sources": 4,
+  "usable_sources": 5,
+  "verification": {
+    "checkable_claims": 6,
+    "checked_claims": 6,
+    "contradiction_sides_checkable": 0,
+    "contradiction_sides_checked": 0,
+    "contradictions_auditable": 0,
+    "contradictions_semantically_supported": 0,
+    "contradictions_total": 0,
+    "duplicate_claims_removed": 0,
+    "entailment_exhaustive": true,
+    "evidence_only_excerpts": 0,
+    "final_published_claims": 2,
+    "generated_substantive_claims": 6,
+    "not_checked_claims": 0,
+    "partially_supported_claims": 1,
+    "removed_after_verification": 4,
+    "repaired": false,
+    "resolvable_citations": 2,
+    "resolvable_evidence_refs": 2,
+    "substantive_claims": 2,
+    "supported_claims": 2,
+    "total_citations": 2,
+    "total_claims": 2,
+    "total_evidence_refs": 2,
+    "unsupported_claims": 3,
+    "unused_source_ids": [
+      "S1",
+      "S2",
+      "S3",
+      "S6"
+    ]
+  }
+}

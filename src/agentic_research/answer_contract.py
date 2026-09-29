@@ -187,8 +187,19 @@ class AnswerContract:
             "ambiguities": list(self.ambiguities),
             "usable": self.usable,
             "unusable_reason": self.unusable_reason,
+            # satisfied_by travels with the slot. Without it a client
+            # cannot tell that a core requirement was discharged by an
+            # alternative, so it computes "unanswered" and renders that
+            # directly beneath a report whose own limitations say the
+            # opposite. The hosted v1.2.1 run produced exactly that
+            # contradiction before this line existed.
             "required_slots": [
-                {"name": s.name, "description": s.description, "core": s.core}
+                {
+                    "name": s.name,
+                    "description": s.description,
+                    "core": s.core,
+                    "satisfied_by": list(s.satisfied_by),
+                }
                 for s in self.required_slots
             ],
         }

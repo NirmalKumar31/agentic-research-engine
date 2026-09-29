@@ -1,0 +1,83 @@
+{
+  "contract": {
+    "question": "Explain how large language models relate to neural networks and how they differ, including whether an LLM is a kind of neural network.",
+    "question_type": "comparison",
+    "entities": [
+      "large language models",
+      "neural networks"
+    ],
+    "dimensions": [],
+    "constraints": [],
+    "ambiguities": [],
+    "usable": true,
+    "unusable_reason": "",
+    "required_slots": [
+      {
+        "name": "direct_contrast",
+        "description": "An explicit statement of how the subjects differ",
+        "core": true,
+        "satisfied_by": [
+          "relationship"
+        ]
+      },
+      {
+        "name": "dimension",
+        "description": "A named dimension along which they differ",
+        "core": false,
+        "satisfied_by": []
+      },
+      {
+        "name": "relationship",
+        "description": "How the subjects relate, such as one being a kind of the other",
+        "core": false,
+        "satisfied_by": []
+      }
+    ]
+  },
+  "report": {
+    "title": "How Large Language Models Relate to Neural Networks",
+    "summary_claims": [
+      {
+        "text": "An LLM is a type of neural network that specifically uses transformer architectures.",
+        "kind": "factual",
+        "answer_slot": "relationship",
+        "evidence_ids": [
+          "S5-e3"
+        ],
+        "citation_ids": [
+          "S5"
+        ]
+      }
+    ],
+    "key_findings": [],
+    "sections": [
+      {
+        "heading": "Tasks and architecture",
+        "claims": [
+          {
+            "text": "Transformers are described as the most common architecture for LLMs.",
+            "kind": "factual",
+            "answer_slot": "dimension",
+            "evidence_ids": [
+              "S5-e4"
+            ],
+            "citation_ids": [
+              "S5"
+            ]
+          }
+        ]
+      }
+    ],
+    "contradictions": [],
+    "limitations": [
+      "The evidence does not establish a general comparison of LLMs and neural networks across training objectives or scale; it gives only limited information about how LLM training differs from neural-network training more broadly.",
+      "The evidence describes text training and language tasks for LLMs, but does not establish that all LLMs use the same training data, objectives, or task set.",
+      "Only limited evidence was found for: How do LLMs differ from neural networks more generally in training data, objectives, scale, and intended tasks.",
+      "Only limited evidence was found for: What common misconceptions obscure the distinction between LLMs and neural networks\u2014for example, whether every neural network is an LLM or whether all LLMs use the same design.",
+      "1 extracted finding(s) were excluded because their quotes could not be located in the source text",
+      "4 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.",
+      "The evidence did not establish an explicit statement of how the subjects differ."
+    ]
+  },
+  "_provenance": "Claims and limitations are verbatim from the hosted v1.2.1 run at commit 1d21b110, committed under examples/live-validation/v121-20260929-024544. The contract is rebuilt from that run's own question, type and entities with the current serialiser: build_contract is deterministic, and the run's payload predates satisfied_by being serialised -- which is the bug this fixture found."
+}

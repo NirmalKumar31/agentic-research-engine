@@ -153,3 +153,51 @@ class TestTheExistingAnalysisLabelMaps:
 
     def test_an_unknown_format_maps_to_nothing(self) -> None:
         assert type_from_output_format("interpretive_dance") is None
+
+
+class TestTheSerialisedContractCarriesItsAlternatives:
+    """A client that cannot see `satisfied_by` computes the wrong answer.
+
+    The hosted v1.2.1 run published a claim filling `relationship`,
+    which discharges the comparison's `direct_contrast` requirement.
+    The engine's own limitations therefore did not say the question was
+    unanswered. The payload omitted `satisfied_by`, so the interface
+    recomputed coverage, found the core slot unfilled, and would have
+    rendered "this report does not answer the question" directly above
+    a report saying the opposite.
+    """
+
+    def test_satisfied_by_is_serialised(self) -> None:
+        contract = build_contract(
+            "How does a large language model differ from a neural network?",
+            QuestionType.COMPARISON,
+            entities=("large language model", "neural network"),
+        )
+        slots = {s["name"]: s for s in contract.to_dict()["required_slots"]}  # type: ignore[union-attr,index]
+        assert slots["direct_contrast"]["satisfied_by"] == ["relationship"]
+
+    def test_a_slot_without_alternatives_serialises_an_empty_list(self) -> None:
+        """Present and empty, not absent. A client checking the field
+        should not have to distinguish "no alternatives" from "this
+        build does not report them"."""
+        contract = build_contract(
+            "What is a vector database?", QuestionType.DEFINITION, entities=("vector database",)
+        )
+        for slot in contract.to_dict()["required_slots"]:  # type: ignore[union-attr]
+            assert slot["satisfied_by"] == []
+
+    def test_the_payload_round_trips_the_alternative(self) -> None:
+        """The property that matters: a consumer reading only the dict
+        can reach the same verdict the engine did."""
+        contract = build_contract(
+            "How does X differ from Y?",
+            QuestionType.COMPARISON,
+            entities=("X", "Y"),
+        )
+        payload = contract.to_dict()
+        published = {"relationship"}
+        core = [s for s in payload["required_slots"] if s["core"]]  # type: ignore[union-attr]
+        discharged = [
+            s for s in core if s["name"] in published or set(s["satisfied_by"]) & published
+        ]
+        assert len(discharged) == len(core), "a client could not see the alternative"

@@ -1,0 +1,30 @@
+[
+  {
+    "claim": "An LLM is a type of neural network that specifically uses transformer architectures.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S5-e3",
+        "resolved": true,
+        "quote": "An LLM is a type of neural network (NN) that specifically uses transformer architectures, which are models designed to detect dependencies between different parts of a sequence of data, regardless of their distance from each other.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.elastic.co/what-is/large-language-models",
+        "source_title": "Understanding large language models: A comprehensive guide | Elastic"
+      }
+    ]
+  },
+  {
+    "claim": "Transformers are described as the most common architecture for LLMs.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S5-e4",
+        "resolved": true,
+        "quote": "A transformer model is the most common architecture of a large language model. It typically consists of both an encoder and a decoder, though some models, like GPT, use only the decoder.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.elastic.co/what-is/large-language-models",
+        "source_title": "Understanding large language models: A comprehensive guide | Elastic"
+      }
+    ]
+  }
+]

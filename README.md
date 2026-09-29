@@ -442,6 +442,42 @@ decomposed into more than one part, so that path is covered by tests
 and unproven in production. One run is not a benchmark either: three
 published claims here says nothing about the next question.
 
+### The fixes, verified on the deployment
+
+The two defects above were fixed *after* the acceptance capture, so
+neither had been through the live pipeline. A second run, on the public
+demo at `1d21b110`, closed that:
+[`examples/live-validation/v121-20260929-024544/`](examples/live-validation/v121-20260929-024544/)
+
+Same question. 6 claims generated, **2 published**, 155.2s, $0.008523.
+The decisive pair arrived on its own:
+
+| Claim | Slot | Outcome |
+| --- | --- | --- |
+| *An LLM is a type of neural network that specifically uses transformer…* | `relationship` | **published** |
+| *The evidence distinguishes LLMs as a specific class built on n…* | `direct_contrast` | withheld, entailment **0.007** |
+
+The only claim that would have filled the contrast slot directly was
+refused by its own evidence, the core requirement was discharged by the
+alternative, and the report carries **no** "did not answer the question"
+limitation. On this same question, v1.2.0 reported the opposite.
+
+The gate did not become permissive: four of six claims were still
+withheld, by four different mechanisms — two on entailment, one by the
+relevance judgement, one by the structural check.
+
+**And the run found a third defect.** `AnswerContract.to_dict()` dropped
+`satisfied_by`, so nothing outside the engine could see that a core slot
+had been discharged by an alternative. The interface recomputes coverage
+from the published claims, so it concluded the question was unanswered
+and would have printed that directly above a report saying otherwise.
+Found by pointing the interface's own logic at the run's payload.
+
+**Not verified by this run:** the missing-`answer_slot` path. This model
+declared a slot on every claim, so the behaviour that had made local
+mode publish nothing was never reached. Unit tests and two local runs
+cover it; this run is silent on it.
+
 ### How the audits went
 
 Six manually reviewed canonical audits. The first three each published

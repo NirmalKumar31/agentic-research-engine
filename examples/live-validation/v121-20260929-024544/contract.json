@@ -1,0 +1,30 @@
+{
+  "question": "Explain how large language models relate to neural networks and how they differ, including whether an LLM is a kind of neural network.",
+  "question_type": "comparison",
+  "entities": [
+    "large language models",
+    "neural networks"
+  ],
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "direct_contrast",
+      "description": "An explicit statement of how the subjects differ",
+      "core": true
+    },
+    {
+      "name": "dimension",
+      "description": "A named dimension along which they differ",
+      "core": false
+    },
+    {
+      "name": "relationship",
+      "description": "How the subjects relate, such as one being a kind of the other",
+      "core": false
+    }
+  ]
+}

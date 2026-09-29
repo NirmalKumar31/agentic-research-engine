@@ -448,6 +448,26 @@ store; the provider-side account limit is the backstop there.
 **Provider prices are estimates** from a local table. They do not account
 for cached input, long-context tiers, region or service tier.
 
+### The deployed demo is not currently blueprint-managed
+
+`deploy/render-live.yaml` describes the public demo, and for now it
+describes rather than governs it.
+
+A rename was attempted and reverted (see v1.2.1). In between, the
+blueprint's web service was replaced and then deleted, which left
+`agentic-research-engine-live` running as a standalone service and the
+blueprint instance managing only the Key Value store. Render cannot
+adopt an existing unmanaged service into a blueprint by name, so that
+instance reports a failed sync and will keep doing so.
+
+The consequence to be aware of: **a change to the env vars in
+`render-live.yaml` will not reach the running demo.** The committed
+file is still the reviewable record of what the deployment should be,
+and the deployment currently matches it, but the two are no longer
+wired together. Re-establishing that means deleting the service and the
+store and recreating both from the blueprint, with every credential
+re-entered.
+
 ## Security
 
 **DNS rebinding protection is proven against a test CA.** The wrong-SNI

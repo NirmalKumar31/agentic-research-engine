@@ -1,0 +1,77 @@
+{
+  "run_id": "20260929-024545-64d2f9",
+  "started_utc": "2026-09-29T02:45:44Z",
+  "wall_clock_seconds": 155.54,
+  "engine_duration_seconds": 155.17,
+  "executed_by": "deployed public HTTP/SSE endpoint",
+  "is_hosted_acceptance": true,
+  "is_research_quality_evaluation": false,
+  "deployed_commit": "1d21b110",
+  "version": "1.2.1",
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "service_note": "The public demo itself, not a candidate. This run verified the two fixes that landed after the v1.2.0 acceptance capture and had never been through the live pipeline.",
+  "question": "How does a large language model differ from a neural network?",
+  "question_note": "The same question as the v1.2.0 acceptance run, deliberately, so the two are comparable.",
+  "what_this_run_verified": {
+    "answer_slot_is_serialised": "Finding 1 of the v1.2.0 review. All six judgments carry a slot; the v1.2.0 capture carried none.",
+    "a_relationship_answers_a_comparison": "Finding 2. The claim declaring direct_contrast was withheld on entailment at 0.007; the one declaring relationship published, discharged the core slot, and the report carries no 'did not answer the question' limitation. v1.2.0 reported the opposite on the same question.",
+    "a_missing_slot_is_not_a_rejection": "Not exercised. Every claim this cloud model produced declared a slot, so the path that made local mode publish nothing was not reached. It is covered by unit tests and by two local runs."
+  },
+  "what_this_run_found": {
+    "satisfied_by_was_not_serialised": "AnswerContract.to_dict() dropped satisfied_by, so a client could not tell that a core slot had been discharged by an alternative. The interface recomputed coverage, found direct_contrast unfilled, and would have rendered 'this report does not answer the question' directly above a report whose own limitations said otherwise. Fixed after this capture; contract.json here records the payload as sent."
+  },
+  "public_limits_in_force": {
+    "max_research_rounds": 1,
+    "max_sources": 6,
+    "max_search_queries": 6,
+    "max_llm_calls": 20,
+    "max_provider_requests": 30,
+    "demo_max_runtime_seconds": 240,
+    "global_runs_per_day": 5
+  },
+  "models": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted"
+  },
+  "quota": {
+    "store": "the public demo's own",
+    "namespace": "",
+    "note": "Reported as '' by /api/readiness, distinct from the 'rc' namespace the v1.2.0 candidate used in the same store."
+  },
+  "capture": {
+    "method": "raw bytes streamed to disk, timing recorded in a separate index",
+    "raw_bytes": 43984,
+    "chunks": 50,
+    "events": 34,
+    "complete": true,
+    "tool": "examples/live-validation/tools/acceptance.py"
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.008523,
+    "openai_reserved_upper_bound_usd": 0.028553,
+    "reservation_was_sufficient": true,
+    "openai_cost_is_complete": false,
+    "openai_dashboard_charge_usd": "not reconciled; readable from the provider dashboard for 2026-09-29",
+    "tavily_credits": 6.0,
+    "tavily_usd": "not measured; free-tier key",
+    "huggingface_billed_usd": "not measured; billed per hour of endpoint uptime, not per request",
+    "total_cross_provider_cost_complete": false
+  },
+  "provider_usage": {
+    "llm_calls": 12,
+    "provider_requests": 12,
+    "provider_request_ceiling": 30,
+    "input_tokens": 24768,
+    "output_tokens": 12092
+  }
+}
