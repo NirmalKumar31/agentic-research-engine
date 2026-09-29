@@ -1,25 +1,29 @@
-"""The report is sized to what the run can afford to verify.
+"""The report is bounded by what claims cost, and they cost nothing.
 
-A live cloud run generated 25 substantive claims, could afford to check
-4, and published 2. Under the publication gate an unchecked claim is not
-published, so generating past the verification budget does not produce a
-longer report -- it produces the same short report, with the surplus
-paid for and then deleted.
+This file used to assert the opposite, correctly, for a design that no
+longer exists. When entailment was a generative call, every
+substantive claim cost one, and a live run generated 25 claims, could
+afford to check 4, and published 2. Sizing the report to the
+verification budget was the fix for that.
 
-The demo ceiling is 20 logical model calls. Research spends about 11 of
-them before synthesis, which leaves roughly 9 for entailment. The
-synthesiser is told that number.
+The NLI classifier replaced the generative verifier and is not a model
+call. The two calls that follow synthesis -- the relevance judgement
+and the wording repair -- are each batched over the whole report. So
+an extra claim costs no additional call, and the budget kept capping
+the report against a cost that had been removed: on the hosted demo it
+told the synthesiser to write at most 7 claims from 32 evidence items.
+
+What bounds the report now is the prompt and the gates. A spend
+ceiling does not stand in for them.
 """
 
 from __future__ import annotations
 
+import inspect
+
 import pytest
 
-from agentic_research.graph.nodes.reporting import (
-    _DEFAULT_ENTAILMENT_SAMPLE,
-    _VERIFICATION_OVERHEAD,
-    _claim_budget,
-)
+from agentic_research.graph.nodes.reporting import _POST_SYNTHESIS_CALLS, _claim_budget
 from agentic_research.graph.prompts import synthesizer_user
 
 
@@ -51,73 +55,70 @@ def budget_with(monkeypatch: pytest.MonkeyPatch):
     return _set
 
 
-class TestTheBudgetTracksWhatIsAffordable:
-    async def test_the_demo_shape_gets_a_real_budget(self, budget_with) -> None:
-        """20-call ceiling, ~11 spent on research: the report is bounded."""
-        budget_with(9)
-        budget = await _claim_budget()
-        assert budget is not None
-        assert budget == 9 - 1 - _VERIFICATION_OVERHEAD
-
-    async def test_an_ample_budget_imposes_no_limit(self, budget_with) -> None:
-        """A local run has room; telling it to write a short report would
-        be a constraint invented for no reason."""
-        budget_with(40)
+class TestClaimsAreNotRationed:
+    async def test_the_demo_budget_no_longer_caps_the_report(self, budget_with) -> None:
+        """The measured case. MAX_LLM_CALLS is 20 and research spends
+        about ten before synthesis, which used to yield "write at most
+        7" while 32 evidence items sat in the prompt."""
+        budget_with(10)
         assert await _claim_budget() is None
 
-    async def test_the_boundary_is_the_sample_size(self, budget_with) -> None:
-        budget_with(_DEFAULT_ENTAILMENT_SAMPLE + 1 + _VERIFICATION_OVERHEAD)
+    @pytest.mark.parametrize("remaining", [3, 5, 10, 50])
+    async def test_any_run_that_can_finish_is_unbounded(self, budget_with, remaining: int) -> None:
+        budget_with(remaining)
         assert await _claim_budget() is None
 
-    async def test_an_exhausted_budget_asks_for_no_claims(self, budget_with) -> None:
-        """Zero, not a floor. A claim the run cannot verify is removed on
-        the way out, so promising four of them buys nothing but spend.
-        The caller emits the evidence listing instead."""
-        budget_with(0)
+    async def test_the_exact_boundary_is_synthesis_plus_its_followers(self, budget_with) -> None:
+        budget_with(1 + _POST_SYNTHESIS_CALLS)
+        assert await _claim_budget() is None
+
+
+class TestARunThatCannotFinishSynthesisesNothing:
+    @pytest.mark.parametrize("remaining", [0, 1, 2])
+    async def test_it_returns_zero(self, budget_with, remaining: int) -> None:
+        """Zero is not "a short report". Without the relevance
+        judgement every claim is withheld, so synthesising would spend
+        a call to publish nothing; the caller emits the evidence
+        listing instead."""
+        budget_with(remaining)
         assert await _claim_budget() == 0
 
-    async def test_the_budget_never_goes_negative(self, budget_with) -> None:
-        budget_with(1)
-        assert await _claim_budget() == 0
-
-    async def test_one_affordable_claim_is_still_worth_synthesising(self, budget_with) -> None:
-        budget_with(1 + _VERIFICATION_OVERHEAD + 1)
-        assert await _claim_budget() == 1
-
-
-class TestThePromptCarriesTheBudget:
-    def test_the_claim_limit_is_stated(self) -> None:
-        prompt = synthesizer_user("q", "overview", "evidence", "", claim_budget=8)
-        assert "at most 8 substantive claims" in prompt
-
-    def test_framing_is_excluded_from_the_count(self) -> None:
-        prompt = synthesizer_user("q", "overview", "evidence", "", claim_budget=8)
-        assert "framing sentences do not count" in prompt.lower()
-
-    def test_the_reason_is_given_not_just_the_number(self) -> None:
-        """A bare cap invites padding up to it. The prompt says why."""
-        prompt = synthesizer_user("q", "overview", "evidence", "", claim_budget=8)
-        assert "checked individually" in prompt
-        assert "dropped before publication" in prompt
-
-    def test_no_budget_means_no_instruction(self) -> None:
-        prompt = synthesizer_user("q", "overview", "evidence", "")
-        assert "at most" not in prompt
+    async def test_zero_and_unbounded_are_the_only_answers(self, budget_with) -> None:
+        """Non-vacuity for the rewrite: any intermediate number would
+        mean something still rations claims."""
+        seen = set()
+        for remaining in range(0, 40):
+            budget_with(remaining)
+            seen.add(await _claim_budget())
+        assert seen == {0, None}, seen
 
 
-class TestTheRegressionThisPrevents:
-    def test_generation_no_longer_outruns_verification(self) -> None:
-        """The failing run, as arithmetic.
+class TestTheReasonIsRecorded:
+    def test_the_cost_it_prices_is_named(self) -> None:
+        """A future reader has to be able to tell whether this is
+        stale again. It was stale for three releases because the
+        docstring described a cost that had been removed."""
+        doc = _claim_budget.__doc__ or ""
+        assert "not a model call" in doc
+        assert "batched" in doc
 
-        25 claims against a 9-call verification budget published 2. With
-        the budget applied, generation is bounded by what can be checked,
-        so every generated claim can survive.
-        """
-        verification_budget = 9
-        generated_before = 25
-        published_before = 2
-        assert published_before < verification_budget, "most of the budget went unused"
+    def test_nothing_reintroduces_a_per_claim_divisor(self) -> None:
+        body = inspect.getsource(_claim_budget)
+        assert "//" not in body and "/" not in body.split('"""')[-1]
 
-        generated_after = verification_budget - 1 - _VERIFICATION_OVERHEAD
-        assert generated_after <= verification_budget
-        assert generated_after < generated_before
+
+class TestThePromptStillBoundsTheReport:
+    def test_an_unbounded_budget_omits_the_cap_sentence(self) -> None:
+        assert "Write at most" not in synthesizer_user("q", "overview", "e", "")
+
+    def test_a_budget_is_stated_when_there_is_one(self) -> None:
+        assert "Write at most 3 substantive claims" in synthesizer_user(
+            "q", "overview", "e", "", claim_budget=3
+        )
+
+    def test_quality_over_quantity_survives(self) -> None:
+        """The bound that remains. Removing the spend cap must not
+        remove the instruction that fewer well-evidenced claims beat
+        more thin ones."""
+        text = synthesizer_user("q", "overview", "e", "", claim_budget=3)
+        assert "fewer well-evidenced claims beat more thinly-evidenced ones" in text

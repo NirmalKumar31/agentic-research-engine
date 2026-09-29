@@ -72,44 +72,45 @@ from agentic_research.schemas import (
 
 log = get_logger(__name__)
 
-# Entailment no longer samples: it used to cost one generative call per
-# claim, and the NLI gate classifies locally at no provider cost, so every
-# checkable candidate is checked. What survives is this number's second
-# job -- the point below which the run is too poor to be worth asking for
-# an unbounded report, used by _claim_budget to size synthesis.
-_DEFAULT_ENTAILMENT_SAMPLE = 10
-
-# Headroom left when sizing the report: verification also spends a call
-# resolving structure, and a structured-output repair can cost another.
-_VERIFICATION_OVERHEAD = 2
+# What synthesis costs *after* the report is written, however many
+# claims it contains: one batched relevance judgement, and at most one
+# batched wording-repair pass. Neither is per-claim.
+_POST_SYNTHESIS_CALLS = 2
 
 
 async def _claim_budget() -> int | None:
-    """How many substantive claims this run can afford to verify.
+    """Whether the run can afford to synthesise at all.
 
-    Every substantive claim costs one entailment call, and under the
-    publication gate an unverified claim is not published. Generating
-    more than the budget allows does not lengthen the report; the surplus
-    is deleted after being paid for. A live run generated 25 claims,
-    could check 4, and published 2.
+    Not how many claims it can afford to verify. Verification is the
+    NLI classifier, which is not a model call, and the two model calls
+    that follow synthesis -- the relevance judgement and the wording
+    repair -- are each batched over the whole report. **An extra claim
+    costs no additional call.**
 
-    Returns ``None`` when the remaining budget is ample, so an
-    unconstrained local run is not told to write a short report for no
-    reason, and ``0`` when the run cannot afford synthesis plus even one
-    verified claim -- the caller emits the evidence listing instead of
-    promising claims that would be removed on the way out.
+    This used to divide the remaining call budget by one call per
+    claim. That was right when entailment was a generative call and a
+    run generated 25 claims, checked 4 and published 2. It stopped
+    being right when the NLI classifier replaced it, and kept sizing
+    the report against a cost that no longer existed: on the hosted
+    demo it told the synthesiser to write at most **7** claims from 32
+    evidence items, for no reason a budget could justify.
 
-    Deliberately no floor. An earlier version asked for at least four
-    claims regardless of budget, which is a promise the run could not
-    keep: those claims were generated, went unverified and were then
-    dropped, so the floor bought nothing but spend.
+    What still bounds the report is the prompt, which asks for fewer
+    well-evidenced claims over more thin ones, and the gates, which
+    remove what the evidence does not carry. Those are quality bounds.
+    A spend ceiling should not stand in for them.
+
+    Returns ``None`` -- unbounded -- when synthesis and its two batched
+    followers fit, and ``0`` when they do not. Zero matters: without
+    the relevance judgement every claim is withheld, so synthesising
+    anyway would spend a call to publish nothing, and the caller emits
+    the evidence listing instead.
     """
     remaining = await ctx().router.tracker.remaining()
     # One for synthesis itself, which has not been reserved yet.
-    affordable = remaining - 1 - _VERIFICATION_OVERHEAD
-    if affordable >= _DEFAULT_ENTAILMENT_SAMPLE:
+    if remaining - 1 - _POST_SYNTHESIS_CALLS >= 0:
         return None
-    return max(0, affordable)
+    return 0
 
 
 async def synthesize_report(state: ResearchState) -> ResearchState:
