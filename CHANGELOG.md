@@ -2,6 +2,64 @@
 
 Notable changes per release. Dates are UTC.
 
+## v1.5.0 — 2026-09-29
+
+A claim asserts something about the subject, not about the evidence.
+The synthesiser prompt was teaching the opposite.
+
+Three hosted runs produced claims of the form "The evidence describes
+X" and "The architectures discussed in the study are based on Y".
+Every one was refused, at entailment **0.007, 0.031 and 0.115** — the
+premise is the quote, and the quote does not say what the evidence
+describes, it just says the thing. In the v1.4.1 run that was **two of
+three claims**, and the report published nothing.
+
+The prompt caused it. Two of its three worked examples for splitting a
+compound claim began *"The source reports"*. The model was following
+the instruction it was given, and the verifier was correctly refusing
+the result.
+
+Measured on the pinned checkpoint, against a quote reading "Large
+language models are built on artificial neural network architectures":
+
+| Claim form | Entailment | |
+| --- | --- | --- |
+| plain assertion | **0.998** | publishes |
+| "The source reports that…" | 0.856 | withheld |
+| "The evidence describes…" | 0.519 | withheld |
+
+Adding a frame the quote does not have costs up to 0.48 and
+guarantees refusal. Those numbers are now in the prompt, because a
+rule with a measurement behind it is one a model can weigh.
+
+**The exception is kept and is load-bearing.** Audit 2 of this project
+found "We demonstrate that X" published as bare "X", which presents
+one paper's result as the field's agreement. When the *quote* is
+framed, the claim must carry the frame. The rule is not "never
+attribute" — it is carry the frame the quote has, never add one it
+does not. A test asserts the framing guard still catches a deleted
+frame, so the two rules cannot drift apart.
+
+**Unverified on the hosted path.** The fix landed after the capture
+that motivated it, and confirming it costs a paid run.
+
+### Hosted run: live research restored
+
+`examples/live-validation/v141-20260929-163832/` — v1.4.1 at
+`c8f9d14f`, 113.0s, $0.009305, 13 of 30 provider requests, **zero
+recorded errors**. Live research completes again after the v1.4.0
+failure.
+
+Selection now reaches better material: an arXiv source at quality
+**0.98**, academic, six citable quotes, where a pre-fix local run on
+the same question selected six blogs at best 0.57.
+
+It published nothing, for the reason above, so whether the better
+source gets *cited* is still open on the hosted path. The capture
+tool now says when a stream is incomplete rather than printing a byte
+count that reads like success — two captures were reported that way
+and neither was a run.
+
 ## v1.4.1 — 2026-09-29
 
 A run no longer dies because an advisory model call did.

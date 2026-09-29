@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://arxiv.org/html/2510.26622v1",
+    "title": "Encoder-Decoder or Decoder-Only? Revisiting Encoder-Decoder Large Language Model",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.981,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://en.wikipedia.org/wiki/Transformer_(deep_learning)",
+    "title": "Transformer (deep learning) - Wikipedia",
+    "domain": "en.wikipedia.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.621,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://www.youtube.com/watch?v=OEXc7Mj-Wwc",
+    "title": "Architecture of Artificial Neural Networks | Exclusive Lesson",
+    "domain": "youtube.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.603,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://www.startups.com/lexicon/large-language-model",
+    "title": "Large Language Model (LLM): definition, the text-prediction technology powering ChatGPT, and how LLMs actually work | Startups.com",
+    "domain": "startups.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.618,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://magazine.sebastianraschka.com/p/understanding-encoder-and-decoder",
+    "title": "Understanding Encoder And Decoder LLMs",
+    "domain": "magazine.sebastianraschka.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.616,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://www.ibm.com/think/topics/encoder-decoder-model",
+    "title": "What is an encoder-decoder model? | IBM",
+    "domain": "ibm.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.619,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

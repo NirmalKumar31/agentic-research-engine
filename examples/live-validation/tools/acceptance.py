@@ -291,9 +291,34 @@ def run_capture(base: str, question: str, out: Path) -> int:
 
     elapsed = round(time.time() - started, 2)
     print(f"\n{offset} bytes in {chunks} chunks over {elapsed}s -> {raw_path}", file=sys.stderr)
+
+    # Say whether the stream finished, rather than reporting a byte
+    # count and letting a reader assume it did.
+    #
+    # Two captures were reported this way and neither was a run: one
+    # ended with an `error` event after the coverage critique, the
+    # other simply stopped mid-wake with no terminal event at all. The
+    # tool printed a byte count both times and said nothing, which is
+    # the same defect it exists to prevent -- a number that looks like
+    # success.
+    text = raw_path.read_text(encoding="utf-8", errors="replace")
+    complete = "event: done" in text
+    has_result = "event: result" in text
+    has_error = "event: error" in text
+    if not complete or not has_result:
+        print(
+            "\nINCOMPLETE CAPTURE — this is not a run artifact:"
+            f"\n  result event: {'yes' if has_result else 'NO'}"
+            f"\n  done event  : {'yes' if complete else 'NO'}"
+            f"\n  error event : {'yes' if has_error else 'no'}"
+            "\n  The bytes are kept. `build` will refuse them.",
+            file=sys.stderr,
+        )
     (out / "capture.json").write_text(
         json.dumps(
             {
+                "complete": complete and has_result,
+                "terminal_event": ("result" if has_result else ("error" if has_error else "none")),
                 "started_utc": started_iso,
                 "wall_clock_seconds": elapsed,
                 "raw_bytes": offset,
@@ -520,7 +545,13 @@ def run_build(run_dir: Path) -> int:
     events = parse_events(raw)
     names = [name for name, _ in events]
     if "result" not in names:
-        print("no result event in the capture; nothing to build", file=sys.stderr)
+        print(
+            "no result event in this capture, so there is no run to describe.\n"
+            "A failed run has no report, metrics or reconciliation and cannot be\n"
+            "made into a run artifact. Keep the bytes under\n"
+            "examples/live-validation/failures/ instead.",
+            file=sys.stderr,
+        )
         return 1
     result = next(payload for name, payload in events if name == "result")
 

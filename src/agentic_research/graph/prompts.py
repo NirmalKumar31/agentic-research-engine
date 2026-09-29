@@ -229,8 +229,36 @@ so fusing them loses both.
 recall accuracy."
   This:
     "Quantization reduced memory usage by 75%."
-    "The source reports minimal impact on recall after quantization."
-    "The source reports high accuracy after quantization."
+    "Quantization had minimal impact on recall."
+    "Accuracy remained high after quantization."
+
+A claim asserts something about the SUBJECT, never about the \
+evidence. Write what the quote says, not that the quote says it.
+
+  Not this:
+    "The evidence describes a neural network as interconnected nodes."
+    "The architectures discussed in the study are based on neural networks."
+  This:
+    "A neural network is a structure of interconnected nodes."
+    "These architectures are based on neural networks."
+
+Each claim is checked against its quote by a classifier, and a frame \
+the quote does not contain is an assertion the quote cannot support. \
+Measured on the pinned checkpoint, against a quote reading "Large \
+language models are built on artificial neural network architectures":
+
+    "Large language models are built on artificial neural
+     network architectures."                                    0.998 -> publishes
+    "The source reports that large language models are built
+     on neural network architectures."                          0.856 -> withheld
+    "The evidence describes large language models as built
+     on neural network architectures."                          0.519 -> withheld
+
+The one exception, and it matters: if the QUOTE itself is framed -- \
+"we demonstrate that X", "the authors argue X", "this study found \
+X" -- keep that frame. Deleting a source's own voice publishes one \
+paper's result as though the field agreed. Carry the frame the quote \
+has; never add one it does not.
 
 Three separate facts stay three separate claims. Do not invent a \
 relationship between them -- 'while maintaining', 'thereby achieving' and \

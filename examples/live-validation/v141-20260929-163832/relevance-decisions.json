@@ -1,0 +1,9 @@
+[
+  {
+    "claim": "An LLM is trained on massive amounts of text to predict the next token in a sequence.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes how an LLM is trained, but does not contrast it with a neural network or explain their relationship.",
+    "published": false
+  }
+]

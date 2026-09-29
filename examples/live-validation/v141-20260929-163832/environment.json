@@ -1,0 +1,78 @@
+{
+  "run_id": "20260929-163832-eeb670",
+  "started_utc": "2026-09-29T16:38:32Z",
+  "wall_clock_seconds": 113.51,
+  "engine_duration_seconds": 113.02,
+  "executed_by": "deployed public HTTP/SSE endpoint",
+  "is_hosted_acceptance": true,
+  "is_research_quality_evaluation": false,
+  "deployed_commit": "c8f9d14f",
+  "version": "1.4.1",
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "How does a large language model differ from a neural network?",
+  "why_this_run": "The first hosted run on v1.4.0 died at the coverage critique. This one verifies that live research completes on v1.4.1, and measures whether the source-quality fixes changed which pages the engine reads.",
+  "outcome": {
+    "completed": true,
+    "errors_recorded": 0,
+    "published_claims": 0,
+    "generated_claims": 3,
+    "note": "Completed cleanly with zero recorded errors -- nothing degraded, so the widened handlers were not exercised. Published nothing: of three claims, one failed the atomicity guard, one scored 0.031 entailment, one was judged irrelevant. Two of the three were claims about the evidence rather than about the subject, which the synthesiser prompt was teaching; that is fixed after this capture and is not verified here."
+  },
+  "selection": {
+    "best_source_fetched": "arxiv.org, quality 0.98, academic, 6 citable quotes",
+    "note": "The selection fix works: an academic source at 0.98 was chosen and fetched, where a pre-fix local run on this question selected six blogs. Whether it gets *cited* is unanswered here, because nothing published."
+  },
+  "public_limits_in_force": {
+    "max_research_rounds": 1,
+    "max_sources": 6,
+    "max_search_queries": 6,
+    "max_llm_calls": 20,
+    "max_provider_requests": 30,
+    "demo_max_runtime_seconds": 240,
+    "global_runs_per_day": 5
+  },
+  "models": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted"
+  },
+  "quota": {
+    "store": "the public demo's own",
+    "namespace": ""
+  },
+  "capture": {
+    "method": "raw bytes streamed to disk, timing recorded in a separate index",
+    "raw_bytes": 41076,
+    "chunks": 47,
+    "events": 34,
+    "complete": true,
+    "tool": "examples/live-validation/tools/acceptance.py"
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.009305,
+    "openai_reserved_upper_bound_usd": 0.03067,
+    "reservation_was_sufficient": true,
+    "openai_cost_is_complete": false,
+    "openai_dashboard_charge_usd": "not reconciled; readable from the provider dashboard for 2026-09-29",
+    "tavily_credits": 6.0,
+    "tavily_usd": "not measured; free-tier key",
+    "huggingface_billed_usd": "not measured; billed per hour of endpoint uptime, not per request",
+    "total_cross_provider_cost_complete": false
+  },
+  "provider_usage": {
+    "llm_calls": 13,
+    "provider_requests": 13,
+    "provider_request_ceiling": 30,
+    "input_tokens": 25890,
+    "output_tokens": 13432
+  }
+}
