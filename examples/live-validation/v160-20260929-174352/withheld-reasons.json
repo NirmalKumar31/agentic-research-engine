@@ -1,0 +1,34 @@
+[
+  {
+    "claim": "LLMs learn to predict token sequences in large text corpora, whereas GCNs, a type of neural network, are designed to process graph-structured data.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.810006,
+    "best_evidence_id": "S6-e1",
+    "guards_passed": false
+  },
+  {
+    "claim": "LLM pre-training uses self-supervised learning on a massive text corpus, with token prediction as its objective and no human labels required.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.019914,
+    "best_evidence_id": "S3-e4",
+    "guards_passed": false
+  },
+  {
+    "claim": "Decoder-only transformer models such as GPT, LLaMA, Mistral, and Claude are trained with causal language modeling to predict the next token from preceding tokens.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes how some LLMs are trained but does not contrast them with neural networks generally.",
+    "best_entailment": 0.99776,
+    "best_evidence_id": "S3-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "Encoder models such as BERT and RoBERTa predict randomly masked input tokens using bidirectional context.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes how some encoder models are trained but does not explain a difference between LLMs and neural networks.",
+    "best_entailment": 0.997574,
+    "best_evidence_id": "S3-e2",
+    "guards_passed": true
+  }
+]

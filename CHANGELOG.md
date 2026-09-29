@@ -2,7 +2,10 @@
 
 Notable changes per release. Dates are UTC.
 
-## Unreleased
+## v1.6.1 — 2026-09-29
+
+Deployment and evidence. No change to research behaviour.
+
 
 - Daily admissions raised from **5 to 8** (`DEMO_PROVIDER_REQUESTS_PER_DAY`
   150 -> 240, still `// MAX_PROVIDER_REQUESTS`).
@@ -23,6 +26,34 @@ Notable changes per release. Dates are UTC.
   deliberately — a refund path is how a broken loop spends a whole
   budget. Two of five admissions on 2026-09-29 produced nothing, so
   debugging spends the allowance about twice as fast as it reads.
+
+### Hosted run: v1.6.0's required-slot fix confirmed
+
+`examples/live-validation/v160-20260929-174352/` — 166.0s, $0.009190,
+13 of 30 provider requests, zero errors.
+
+| | v1.5.0 | v1.6.0 |
+| --- | --- | --- |
+| `direct_contrast` claims written | 0 | **1** |
+| Claims generated | 3 | 5 |
+| Published | 0 | **1** |
+
+The first contrast claim across five hosted runs, and the first
+report in three runs that publishes and does not claim to have
+failed.
+
+**Found: a contrast is not atomic.** That claim — "LLMs learn to
+predict token sequences in large text corpora, whereas…" — was
+refused by the atomicity guard, correctly, because it asserts two
+things. The contract asks for a contrast, the guard refuses compound
+claims, and a contrast is compound by nature, so `direct_contrast`
+may be systematically unfillable while atomicity holds.
+
+Recorded rather than changed. Loosening atomicity reopens the defect
+audits 1–3 closed, and the `relationship` alternative already covers
+the case — it is what published here. Expressing a contrast as two
+atomic claims filling the slot jointly is a contract-design change
+that deserves its own evidence.
 
 ## v1.6.0 — 2026-09-29
 

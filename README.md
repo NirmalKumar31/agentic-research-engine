@@ -478,6 +478,45 @@ declared a slot on every claim, so the behaviour that had made local
 mode publish nothing was never reached. Unit tests and two local runs
 cover it; this run is silent on it.
 
+### Six hosted runs, and what each one found
+
+Every run is committed with its raw stream, derived artifacts and a
+written review, under
+[`examples/live-validation/`](examples/live-validation/).
+
+| Run | Published | What it found |
+| --- | --- | --- |
+| v1.2.0 | 3 of 7 | `answer_slot` not serialised; a relationship should answer a comparison |
+| v1.2.1 | 2 of 6 | `satisfied_by` not serialised, so the page contradicted the report |
+| v1.4.0 | — | the run died at the coverage critique |
+| v1.4.1 | 0 of 3 | two of three claims were about the evidence, not the subject |
+| v1.5.0 | 0 of 3 | meta-claims gone; no slot marked required |
+| v1.6.0 | 1 of 5 | a contrast is not atomic |
+
+**Every refusal inspected across all six was the correct refusal.**
+What was wrong each time was upstream — what the synthesiser was
+told, or a value the engine computed and then did not pass on. Six
+instances of that second pattern are recorded in the changelog; four
+of them passed every test, because the test fakes constructed the
+object correctly while production did not.
+
+The v1.6.0 report publishes one claim:
+
+> **LLMs are built upon deep neural networks.** [S5]
+>
+> *"At their core, LLMs are built upon deep neural networks, enabling
+> them to process vast amounts of text and learn complex patterns."*
+
+with an exact-normalised quote resolving to a live URL, and a
+limitations section naming what the evidence did not establish. It
+does not claim to have failed, because locating one subject inside
+the other is what "how does X differ from Y" means when Y is a
+category containing X.
+
+One published claim is a thin report and not a measurement of
+quality. The [adversarial set](examples/quality-eval/) is the
+measurement; these are deployment evidence.
+
 ### How the audits went
 
 Six manually reviewed canonical audits. The first three each published

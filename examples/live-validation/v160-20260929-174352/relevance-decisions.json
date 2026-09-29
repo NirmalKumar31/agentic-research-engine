@@ -1,0 +1,23 @@
+[
+  {
+    "claim": "LLMs are built upon deep neural networks.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It explains the relationship by stating that LLMs are built on deep neural networks.",
+    "published": true
+  },
+  {
+    "claim": "Decoder-only transformer models such as GPT, LLaMA, Mistral, and Claude are trained with causal language modeling to predict the next token from preceding tokens.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes how some LLMs are trained but does not contrast them with neural networks generally.",
+    "published": false
+  },
+  {
+    "claim": "Encoder models such as BERT and RoBERTa predict randomly masked input tokens using bidirectional context.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes how some encoder models are trained but does not explain a difference between LLMs and neural networks.",
+    "published": false
+  }
+]

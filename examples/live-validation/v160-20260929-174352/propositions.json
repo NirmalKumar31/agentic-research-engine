@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "Decoder-only transformer models such as GPT, LLaMA, Mistral, and Claude are trained with causal language modeling to predict the next token from preceding tokens.",
+    "parts": [
+      {
+        "text": "Decoder-only transformer models such as GPT, LLaMA, Mistral",
+        "supported": true,
+        "best_entailment": 0.99762,
+        "best_evidence_id": "S3-e1"
+      },
+      {
+        "text": "Claude are trained with causal language modeling to predict the next token from preceding tokens",
+        "supported": true,
+        "best_entailment": 0.997221,
+        "best_evidence_id": "S3-e1"
+      }
+    ],
+    "verdict": "irrelevant"
+  }
+]

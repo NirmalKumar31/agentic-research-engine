@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "LLMs are built upon deep neural networks.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S5-e1",
+        "resolved": true,
+        "quote": "At their core, LLMs are built upon deep neural networks, enabling them to process vast amounts of text and learn complex patterns.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.johnsnowlabs.com/introduction-to-large-language-models-llms-an-overview-of-bert-gpt-and-other-popular-models",
+        "source_title": "Introduction to Large Language Models (LLMs): An Overview of BERT, GPT, and Other Popular Models - John Snow Labs"
+      }
+    ]
+  }
+]

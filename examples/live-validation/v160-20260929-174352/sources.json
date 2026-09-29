@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://www.alphaxiv.org/abs/2605.24956v1",
+    "title": "NITP: Next Implicit Token Prediction for LLM Pre-training | alphaXiv",
+    "domain": "alphaxiv.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.621,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://learnixo.io/blog/tx-pretraining",
+    "title": "Pretraining: How LLMs Learn from Raw Text | Learnixo",
+    "domain": "learnixo.io",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.582,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://www.ml4devs.com/what-is/pre-training",
+    "title": "Pre-training: How LLMs Learn from Massive Text Corpora",
+    "domain": "ml4devs.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.617,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://link.springer.com/article/10.1007/s42452-025-07668-w",
+    "title": "Large language models: an overview of foundational architectures, recent trends, and a new taxonomy | Discover Applied Sciences | Springer Nature Link",
+    "domain": "link.springer.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.605,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://www.johnsnowlabs.com/introduction-to-large-language-models-llms-an-overview-of-bert-gpt-and-other-popular-models",
+    "title": "Introduction to Large Language Models (LLMs): An Overview of BERT, GPT, and Other Popular Models - John Snow Labs",
+    "domain": "johnsnowlabs.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.601,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://www.geeksforgeeks.org/deep-learning/graph-convolutional-networks-gcns-architectural-insights-and-applications",
+    "title": "Graph Convolutional Networks (GCNs): Architectural Insights and Applications - GeeksforGeeks",
+    "domain": "geeksforgeeks.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.619,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]
