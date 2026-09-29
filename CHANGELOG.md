@@ -4,7 +4,7 @@ Notable changes per release. Dates are UTC.
 
 ## Unreleased
 
-Source quality now reaches the two decisions that should have been
+Source quality now reaches the three decisions that should have been
 using it. Both defects were found by reading the committed run
 evidence rather than the code.
 
@@ -33,6 +33,16 @@ sources and neither decision could see the classification.
   exercised the ranking the whole time and could never have caught
   this. There are now tests on the function that builds the identity.
 
+- **Selection prefers the better page before fetching it.** The layer
+  that decides what the engine ever reads sorted on the search
+  provider's relevance score alone. That is the most consequential of
+  the three, because the engine reads six pages: a local run on this
+  question selected five blogs and a sixth blog, so no later
+  preference for better sources had anything to prefer. The kind of a
+  page is knowable from its URL before it is fetched, which is what
+  makes the decision possible there. Banded the same way — an
+  authoritative page about the wrong subject is worse than a blog
+  about the right one.
 - `authority_of` / `authority_rank_of` map a source kind to how close
   it is to what it reports, beside the enum that makes the same
   distinction rather than in a second table that would drift.

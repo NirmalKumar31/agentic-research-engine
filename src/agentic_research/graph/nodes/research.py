@@ -16,8 +16,10 @@ from __future__ import annotations
 
 from langgraph.types import Overwrite
 
+from agentic_research.citations.guards import authority_rank_of
 from agentic_research.config import ModelRole
 from agentic_research.evidence.dedup import (
+    Candidate,
     dedupe_by_content,
     dedupe_search_results,
 )
@@ -133,7 +135,31 @@ async def dedupe_sources(state: ResearchState) -> ResearchState:
 
         # Best-first, so the per-round and total source caps keep the most
         # promising pages rather than an arbitrary prefix.
-        candidates.sort(key=lambda c: c.best_score or 0.0, reverse=True)
+        #
+        # "Promising" is relevance *and* what kind of page it is. Sorting
+        # on the provider's score alone decides what the engine will ever
+        # read, and it reads six pages: a local run on this question
+        # selected five blogs and a sixth blog, so no later preference
+        # for better sources had anything to prefer. The kind of a page
+        # is knowable from its URL before it is fetched, which is what
+        # makes this decidable here at all.
+        #
+        # Banded, like the two orderings downstream. The provider's
+        # score is the only signal that a page is about the question,
+        # and an authoritative page about the wrong subject is worse
+        # than a blog about the right one -- so relevance decides
+        # first, in tenths, and authority only settles pages the
+        # provider rated alike.
+        def _rank(candidate: Candidate) -> tuple[float, int, str]:
+            return (
+                round(candidate.best_score or 0.0, 1),
+                authority_rank_of(classify_source(candidate.url, candidate.domain).value),
+                # Stable last resort, so the same results always select
+                # the same pages.
+                candidate.canonical_url,
+            )
+
+        candidates.sort(key=_rank, reverse=True)
 
         room_total = max(0, context.budget.max_sources - len(existing_sources))
         limit = min(context.budget.max_sources_per_round, room_total)

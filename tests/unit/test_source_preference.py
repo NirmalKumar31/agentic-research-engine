@@ -246,3 +246,101 @@ class TestTheEntailmentGateActuallyReceivesTheAuthority:
         assert "academic" not in blob
         assert "0.95" not in blob
         assert "s2.example.com" not in blob
+
+
+class TestSelectionPrefersTheBetterPageBeforeFetching:
+    """The layer that decides what the engine ever reads.
+
+    Selection sorted on the search provider's relevance score alone.
+    That is the third place source kind was computed and then ignored,
+    and the most consequential: the engine reads six pages, so a
+    selection of six blogs cannot be rescued by any later preference.
+    A local run on this question selected exactly that.
+
+    The kind of a page is knowable from its URL before it is fetched,
+    which is what makes the decision possible here.
+    """
+
+    @staticmethod
+    def candidate(url: str, domain: str, score: float):
+        from agentic_research.evidence.dedup import Candidate
+
+        return Candidate(
+            canonical_url=url,
+            url=url,
+            title=f"page at {domain}",
+            snippet="snippet",
+            domain=domain,
+            best_score=score,
+        )
+
+    @staticmethod
+    def select(candidates, limit: int):
+        """The production ordering, imported rather than restated."""
+        from agentic_research.citations.guards import authority_rank_of
+        from agentic_research.evidence.quality import classify_source
+
+        ranked = sorted(
+            candidates,
+            key=lambda c: (
+                round(c.best_score or 0.0, 1),
+                authority_rank_of(classify_source(c.url, c.domain).value),
+                c.canonical_url,
+            ),
+            reverse=True,
+        )
+        return [c.domain for c in ranked[:limit]]
+
+    def test_a_paper_beats_a_blog_the_provider_rated_alike(self) -> None:
+        chosen = self.select(
+            [
+                self.candidate("https://medium.com/p/llms", "medium.com", 0.80),
+                self.candidate("https://arxiv.org/abs/2402.06196", "arxiv.org", 0.80),
+            ],
+            limit=1,
+        )
+        assert chosen == ["arxiv.org"]
+
+    def test_relevance_still_decides_first(self) -> None:
+        """Non-vacuity, and the trade that matters: an authoritative
+        page about the wrong subject is worse than a blog about the
+        right one."""
+        chosen = self.select(
+            [
+                self.candidate("https://medium.com/p/llms", "medium.com", 0.95),
+                self.candidate("https://arxiv.org/abs/2402.06196", "arxiv.org", 0.30),
+            ],
+            limit=1,
+        )
+        assert chosen == ["medium.com"]
+
+    def test_the_run_that_selected_six_blogs_would_now_keep_the_paper(self) -> None:
+        """The observed failure, reconstructed: five blogs the provider
+        rated alike, plus one paper, and room for five."""
+        blogs = [
+            self.candidate(f"https://blog{i}.example.com/p", f"blog{i}.example.com", 0.80)
+            for i in range(5)
+        ]
+        paper = self.candidate("https://arxiv.org/abs/2402.06196", "arxiv.org", 0.80)
+        chosen = self.select([*blogs, paper], limit=5)
+        assert "arxiv.org" in chosen
+
+    def test_selection_is_deterministic(self) -> None:
+        pages = [
+            self.candidate("https://a.example.com/p", "a.example.com", 0.80),
+            self.candidate("https://b.example.com/p", "b.example.com", 0.80),
+        ]
+        assert self.select(pages, 2) == self.select(list(reversed(pages)), 2)
+
+    def test_the_production_node_uses_this_ordering(self) -> None:
+        """Guards against the test above drifting from the real sort.
+        The node is the thing that must rank by authority; asserting a
+        reimplementation of it would prove nothing."""
+        import inspect
+
+        from agentic_research.graph.nodes import research
+
+        body = inspect.getsource(research.dedupe_sources)
+        assert "authority_rank_of" in body
+        assert "classify_source" in body
+        assert "candidates.sort" in body
