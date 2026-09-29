@@ -1,0 +1,307 @@
+[
+  {
+    "event": "started",
+    "data": {
+      "run_id": "20260929-191832-688622",
+      "query": "How does a large language model differ from a neural network?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "started",
+      "run_id": "20260929-191832-688622",
+      "query": "How does a large language model differ from a neural network?",
+      "models": {
+        "planner": "openai:gpt-6-luna",
+        "researcher": "openai:gpt-6-luna",
+        "critic": "openai:gpt-6-luna",
+        "synthesizer": "openai:gpt-6-luna"
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_waking",
+        "mode": "remote",
+        "detail": "Waking the verifier",
+        "expected_seconds": 90
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_ready",
+        "detail": "Verifier ready"
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "analyzing_query",
+      "query": "How does a large language model differ from a neural network?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "query_analyzed",
+      "intent": "Understand how LLMs differ from neural networks as concepts and how the two relate.",
+      "format": "comparison"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "answer_contract",
+      "question_type": "comparison",
+      "required": [
+        "direct_contrast"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "planning"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "plan_generated",
+      "count": 5,
+      "questions": [
+        "What is a neural network, and what kinds of tasks and architectures can neural networks encompass?",
+        "What qualifies a model as a large language model, including its purpose and the role of language data?",
+        "How are LLMs related to neural networks: are LLMs a type of neural network, and what neural-network architectures are commonly used to build them?",
+        "What differences in scale, training data, and training objectives commonly distinguish LLMs from other neural networks?",
+        "What capabilities and limitations follow from this distinction, and what common misconceptions arise when comparing LLMs with neural networks?"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "generating_queries",
+      "round": 1,
+      "sub_questions": 5
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "queries_generated",
+      "round": 1,
+      "count": 6,
+      "queries": [
+        "neural network definition layers weights nonlinear activation functions architectures CNN RNN transformer applications",
+        "artificial neural network architecture types feedforward convolutional recurrent tasks classification regression",
+        "large language model definition next token prediction pretraining text corpus natural language processing",
+        "LLM language data training purpose generative language model technical overview",
+        "large language models neural networks transformer architecture attention layers",
+        "LLM architectures transformer decoder encoder decoder neural network foundation models"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q4",
+      "query": "LLM language data training purpose generative language model technical overview",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q1",
+      "query": "neural network definition layers weights nonlinear activation functions architectures CNN RNN transformer applications",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q2",
+      "query": "artificial neural network architecture types feedforward convolutional recurrent tasks classification regression",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q5",
+      "query": "large language models neural networks transformer architecture attention layers",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q3",
+      "query": "large language model definition next token prediction pretraining text corpus natural language processing",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q6",
+      "query": "LLM architectures transformer decoder encoder decoder neural network foundation models",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_deduplicated",
+      "results": 48,
+      "unique": 45,
+      "avoided": 2,
+      "selected": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "source_retrieved",
+      "source_id": "S2",
+      "title": "Transformers and Pretraining"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_registered",
+      "usable": 6,
+      "duplicates": 0,
+      "extracting": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S6",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S4",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S1",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S3",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S5",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "assessing_coverage",
+      "round": 1
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "coverage_evaluated",
+      "round": 1,
+      "ratio": 0.4,
+      "sufficient": false,
+      "covered": 2,
+      "total": 5,
+      "weak": 3,
+      "missing": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesizing",
+      "evidence": 30
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesized",
+      "sections": 2,
+      "findings": 3
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "verifying_citations"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "citations_verified",
+      "total": 0,
+      "evidence_integrity": 1.0,
+      "support": {
+        "supported": 0,
+        "partially_supported": 0,
+        "unsupported": 10,
+        "not_checked": 0
+      },
+      "exhaustive": true,
+      "not_checked": 0,
+      "removed": 10,
+      "published": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "completed",
+      "stop_reason": "stopped after round 1"
+    }
+  },
+  {
+    "event": "done",
+    "data": {
+      "run_id": "20260929-191832-688622"
+    }
+  }
+]

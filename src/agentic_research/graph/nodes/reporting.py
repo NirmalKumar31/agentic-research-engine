@@ -77,40 +77,62 @@ log = get_logger(__name__)
 # batched wording-repair pass. Neither is per-claim.
 _POST_SYNTHESIS_CALLS = 2
 
+# How many claims a contract is worth, per part it asks for.
+#
+# Two: one to fill the part and one in reserve, since a claim can be
+# refused on wording or on evidence and the part still wants filling.
+# More than that is padding -- the contract names what the answer
+# requires, and a report with four claims per part is not answering
+# it four times over.
+_CLAIMS_PER_SLOT = 2
 
-async def _claim_budget() -> int | None:
-    """Whether the run can afford to synthesise at all.
+# The floor when no contract could be built, and the value that stood
+# in for all of this before. A question with no resolvable shape still
+# gets a bounded report rather than an unbounded one.
+_CLAIMS_WITHOUT_A_CONTRACT = 6
 
-    Not how many claims it can afford to verify. Verification is the
-    NLI classifier, which is not a model call, and the two model calls
-    that follow synthesis -- the relevance judgement and the wording
-    repair -- are each batched over the whole report. **An extra claim
-    costs no additional call.**
 
-    This used to divide the remaining call budget by one call per
-    claim. That was right when entailment was a generative call and a
-    run generated 25 claims, checked 4 and published 2. It stopped
-    being right when the NLI classifier replaced it, and kept sizing
-    the report against a cost that no longer existed: on the hosted
-    demo it told the synthesiser to write at most **7** claims from 32
-    evidence items, for no reason a budget could justify.
+async def _claim_budget(contract: AnswerContract | None = None) -> int | None:
+    """How many claims this report is worth writing, and whether it can
+    be written at all.
 
-    What still bounds the report is the prompt, which asks for fewer
-    well-evidenced claims over more thin ones, and the gates, which
-    remove what the evidence does not carry. Those are quality bounds.
-    A spend ceiling should not stand in for them.
+    Two separate bounds, and getting them confused cost a release.
 
-    Returns ``None`` -- unbounded -- when synthesis and its two batched
-    followers fit, and ``0`` when they do not. Zero matters: without
-    the relevance judgement every claim is withheld, so synthesising
-    anyway would spend a call to publish nothing, and the caller emits
-    the evidence listing instead.
+    **Affordability.** ``0`` when the run cannot pay for synthesis and
+    the two batched calls that follow it. Without the relevance
+    judgement every claim is withheld, so synthesising would spend a
+    call to publish nothing, and the caller emits the evidence listing
+    instead.
+
+    **Focus.** Otherwise, the contract decides: ``_CLAIMS_PER_SLOT``
+    for each part the answer requires. This is a *quality* bound and
+    is now labelled as one.
+
+    It did not used to be. The cap was derived from the remaining call
+    budget, one call per claim, which was right when entailment was a
+    generative call and wrong from the moment the NLI classifier
+    replaced it -- the classifier is not a model call, and the
+    judgement and repair are batched, so an extra claim costs nothing.
+    Removing the spend justification was correct. Removing the cap with
+    it was not, and the hosted runs measured the difference:
+
+        with a cap of 7   5 claims generated, 1 published
+        with no cap      13 claims generated, 0 published
+
+    The cap had been doing a second job nobody had written down. The
+    synthesiser given no bound wrote thin claims until it ran out of
+    evidence, and a larger batch of thin claims fared worse at the
+    relevance gate than a smaller batch of considered ones. So the
+    bound stays, tied to the thing that actually says how much answer
+    is wanted.
     """
     remaining = await ctx().router.tracker.remaining()
     # One for synthesis itself, which has not been reserved yet.
-    if remaining - 1 - _POST_SYNTHESIS_CALLS >= 0:
-        return None
-    return 0
+    if remaining - 1 - _POST_SYNTHESIS_CALLS < 0:
+        return 0
+    if contract is None or not contract.usable or not contract.required_slots:
+        return _CLAIMS_WITHOUT_A_CONTRACT
+    return _CLAIMS_PER_SLOT * len(contract.required_slots)
 
 
 async def synthesize_report(state: ResearchState) -> ResearchState:
@@ -146,7 +168,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
             )
 
         errors: list[RunError] = []
-        claim_budget = await _claim_budget()
+        claim_budget = await _claim_budget(contract)
         if claim_budget == 0:
             # Not enough budget left to synthesise *and* verify even one
             # claim. Every claim written here would be removed by the

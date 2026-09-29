@@ -2,6 +2,53 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+Two corrections, both from one hosted run that falsified a prediction
+written down before it.
+
+**The claim bound is the contract's, not the call budget's.** v1.6.1
+removed the cap because it priced a per-claim verification cost that
+the NLI classifier had made free. Removing the justification was
+right; removing the cap with it was not:
+
+| | cap of 7 | no cap |
+| --- | --- | --- |
+| Claims generated | 5 | **13** |
+| Published | **1** | **0** |
+
+The cap had a second job nobody had written down. Unbounded, the
+synthesiser wrote thin claims until the evidence ran out, and a larger
+batch of thin claims fared worse at the relevance gate than a smaller
+batch of considered ones. The bound is back as a **quality** bound,
+labelled as one, and tied to the thing that says how much answer was
+asked for: two claims per required part of the contract.
+
+**The relevance judge is asked the contract's question.** It had been
+asked "does this help answer the question?" while being shown a list
+of parts it was not asked about, so it applied its own notion and
+contradicted the contract the report is scored against:
+
+| Run | Claim | Verdict |
+| --- | --- | --- |
+| v1.6.0 | *LLMs are built upon deep neural networks.* | relevant → published |
+| v1.6.1 | *An LLM is a neural network.* | **irrelevant** |
+
+Both declared `relationship`. That slot exists because when one
+subject is a kind of the other there is no contrast to draw and
+saying so *is* the answer. The judge refused a claim for failing a
+test the contract had already excused it from.
+
+It is now asked whether a claim fills one of the listed parts, and
+told to judge each claim on its own rather than as candidates for one
+place. **This is a tightening**: the judge may no longer freelance,
+and a claim filling no listed part still fails. Both the refusal
+clause and the structural checks are asserted by tests.
+
+Unverified on the hosted path. The run that motivated both is
+committed at `examples/live-validation/v161-20260929-191831/`, with
+the prediction it falsified.
+
 ## v1.6.1 — 2026-09-29
 
 Deployment and evidence. No change to research behaviour.

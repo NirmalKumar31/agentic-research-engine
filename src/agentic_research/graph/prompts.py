@@ -390,7 +390,15 @@ is true, and you are not being asked to check its evidence -- that has \
 already been done and every claim you see is supported by the quote it \
 cites.
 
-The only question is whether the claim helps answer what was asked.
+The question is whether the claim fills one of the listed parts of \
+the answer. Those parts are the definition of what answering means \
+here; they were fixed before any evidence was gathered, and a claim \
+that fills one of them answers, whether or not it reads like the \
+question's own words.
+
+This is not a licence to accept everything. A claim that fills none \
+of the listed parts does not answer, however true and well sourced \
+it is.
 
 A claim can be entirely true, carefully sourced, and no answer at all. A \
 definition of one system does not answer how two systems differ. A \
@@ -403,8 +411,16 @@ source may answer correctly without using the question's vocabulary: a \
 paper describing "scaled dot-product attention" does answer a question \
 about self-attention. Judge the substance, not the phrasing.
 
-When a claim only partly bears on the question, say no. Something that \
-nearly answers is what the limitations section is for."""
+When a claim fills none of the listed parts, say no. Something that \
+nearly answers is what the limitations section is for.
+
+One case has caused real inconsistency and is worth stating plainly. \
+When a question asks how two things differ and one of them turns out \
+to be a kind of the other, saying so *is* the answer -- there is no \
+contrast to draw, and the listed parts say as much. Two runs on the \
+same question judged "LLMs are built upon deep neural networks" \
+relevant and "An LLM is a neural network" irrelevant. They are the \
+same answer."""
 
 
 def relevance_user(
@@ -448,7 +464,10 @@ def relevance_user(
         # three local runs showed no effect, and measuring it on the
         # hosted critic costs a paid run. An unmeasured loosening of
         # the gate this release exists to add is not worth the line.
-        "For each claim, by index, say whether it helps answer the question."
+        "For each claim, by index, say whether it fills one of the parts "
+        "listed above. Judge each claim on its own: they are different "
+        "claims, not candidates competing for one place, and a report "
+        "fills its parts with several."
     )
 
 

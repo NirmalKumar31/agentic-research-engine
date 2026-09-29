@@ -1,0 +1,44 @@
+[
+  {
+    "claim": "An LLM is a neural network.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It states the relationship but does not explain how an LLM differs from a neural network.",
+    "published": false
+  },
+  {
+    "claim": "LLMs are typically pre-trained language models with substantially larger parameter sizes and extensive training data.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes LLMs\u2019 size and training but does not clearly contrast them with neural networks or state their relationship.",
+    "published": false
+  },
+  {
+    "claim": "An LLM predicts a token or sequence of tokens, potentially spanning many paragraphs.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes what an LLM predicts, not how LLMs differ from or relate to neural networks.",
+    "published": false
+  },
+  {
+    "claim": "Neural networks also include CNNs used for image captioning and visual question answering.",
+    "stage": "structural",
+    "relevant": false,
+    "reason": "the claim describes one subject rather than contrasting them, so it cannot fill the contrast slot",
+    "published": false
+  },
+  {
+    "claim": "The model size of LLMs usually exceeds 6\u201310 billion parameters.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It gives a parameter-count threshold for LLMs without comparing them to neural networks.",
+    "published": false
+  },
+  {
+    "claim": "Neural language models are based on neural networks.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes neural language models\u2019 basis but does not directly compare LLMs with neural networks or establish their relationship.",
+    "published": false
+  }
+]

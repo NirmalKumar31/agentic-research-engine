@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://www.truefoundry.com/blog/transformer-architecture",
+    "title": "Demystifying Transformer Architecture in Large Language Models",
+    "domain": "truefoundry.com",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.576,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://web.stanford.edu/~jurafsky/slp3/7.pdf",
+    "title": "Transformers and Pretraining",
+    "domain": "web.stanford.edu",
+    "source_type": "academic",
+    "content_origin": "pdf_extract",
+    "quality_score": 0.957,
+    "page_count": 5,
+    "usable": true,
+    "fetch_status": "ok"
+  },
+  {
+    "id": "S3",
+    "url": "https://developers.google.com/machine-learning/crash-course/llm/transformers",
+    "title": "LLMs: What's a large language model? \u00a0|\u00a0 Machine Learning \u00a0|\u00a0 Google for Developers",
+    "domain": "developers.google.com",
+    "source_type": "official_docs",
+    "content_origin": "provider_raw",
+    "quality_score": 0.965,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://arxiv.org/html/2401.02038v2",
+    "title": "Understanding LLMs: A Comprehensive Overview from Training to Inference",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.952,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://www.youtube.com/watch?v=KMHkbXzHn7s",
+    "title": "How Attention Mechanism Works in Transformer Architecture",
+    "domain": "youtube.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.61,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://www.ibm.com/think/topics/attention-mechanism",
+    "title": "What is an attention mechanism? | IBM",
+    "domain": "ibm.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.603,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

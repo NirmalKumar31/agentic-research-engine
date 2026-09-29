@@ -354,3 +354,71 @@ class TestTheJudgeIsToldWhatTheSlotsMean:
         text = relevance_user(COMPARISON.question, COMPARISON.required_slots, ["A.", "B."])
         assert "0. A." in text
         assert "1. B." in text
+
+
+class TestTheJudgeIsAskedTheContractsQuestion:
+    """The critic and the contract disagreed, in production, twice.
+
+    Two hosted runs on the same question:
+
+        "LLMs are built upon deep neural networks."  -> relevant
+        "An LLM is a neural network."                -> irrelevant,
+            "states the relationship but does not explain how an LLM
+             differs from a neural network"
+
+    Those are the same answer. The second was refused for not being a
+    contrast -- which is exactly what the `relationship` slot exists
+    to say is unnecessary when one subject is a kind of the other.
+
+    The judge was asked "does this help answer the question?" while
+    being shown a list of parts it was not asked about. It applied its
+    own notion of answering and contradicted the contract the report
+    is scored against. Asking it the contract's question is a
+    tightening, not a loosening: it may no longer freelance, and a
+    claim filling no listed part still fails.
+    """
+
+    def test_the_instruction_references_the_listed_parts(self) -> None:
+        from agentic_research.graph.prompts import relevance_user
+
+        text = relevance_user(COMPARISON.question, COMPARISON.required_slots, ["A claim."])
+        assert "fills one of the parts" in text
+
+    def test_it_says_to_judge_each_claim_alone(self) -> None:
+        """The second run put ten claims in one batch and rejected
+        nine. Whether that was comparative judging is not proven, but
+        the prompt should not leave it open -- these are different
+        claims, not candidates for one place."""
+        from agentic_research.graph.prompts import relevance_user
+
+        text = relevance_user(COMPARISON.question, COMPARISON.required_slots, ["A.", "B."])
+        assert "Judge each claim on its own" in text
+        assert "competing for one place" in text
+
+    def test_filling_no_part_is_still_a_refusal(self) -> None:
+        """Non-vacuity. Aligning the judge to the contract must not
+        turn it into a rubber stamp."""
+        from agentic_research.graph.prompts import RELEVANCE_SYSTEM
+
+        assert "fills none of the listed parts does not answer" in RELEVANCE_SYSTEM
+        assert "not a licence to accept everything" in RELEVANCE_SYSTEM
+
+    def test_the_subset_case_is_stated(self) -> None:
+        """The specific inconsistency, written down with the two claims
+        that produced it, so the next reader knows it was measured
+        rather than imagined."""
+        from agentic_research.graph.prompts import RELEVANCE_SYSTEM
+
+        assert "a kind of the other" in RELEVANCE_SYSTEM
+        assert "An LLM is a neural network" in RELEVANCE_SYSTEM
+
+    def test_the_structural_gate_is_untouched(self) -> None:
+        """The prompt changed; the free deterministic checks did not.
+        A claim about a different named subject is still refused
+        before any model sees it."""
+        verdict = check(
+            "MySQL sustained 40,000 inserts per second in the benchmark.",
+            "measured_value",
+            POSTGRES,
+        )
+        assert not verdict.publishable

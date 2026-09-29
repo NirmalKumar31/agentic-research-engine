@@ -1,0 +1,80 @@
+{
+  "run_id": "20260929-191832-688622",
+  "started_utc": "2026-09-29T19:18:31Z",
+  "wall_clock_seconds": 187.95,
+  "engine_duration_seconds": 187.48,
+  "executed_by": "deployed public HTTP/SSE endpoint",
+  "is_hosted_acceptance": true,
+  "is_research_quality_evaluation": false,
+  "deployed_commit": "1c1ace31",
+  "version": "1.6.1",
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "How does a large language model differ from a neural network?",
+  "why_this_run": "To test a prediction: removing the claim cap, which priced a per-claim verification cost that no longer exists, should produce more claims and therefore more published ones.",
+  "what_it_showed": {
+    "the_cap_was_binding": "13 claims generated against 5 in the previous run on the same question. The prediction's first half held.",
+    "the_prediction_was_wrong": "0 published against 1. More claims did not mean more published. The synthesiser given no bound wrote thin claims until the evidence ran out, and the larger batch fared worse at the relevance gate than the smaller batch of considered ones.",
+    "the_critic_contradicted_itself": "'An LLM is a neural network' was judged irrelevant here -- 'states the relationship but does not explain how an LLM differs' -- while 'LLMs are built upon deep neural networks' was judged relevant and published in the previous run. They are the same answer, and the relationship slot exists to say a contrast is unnecessary when one subject is a kind of the other."
+  },
+  "consequences": "The claim bound was reinstated as a quality bound tied to the contract (two claims per required part) rather than to the call budget, and the relevance judge was asked the contract's question -- does this fill one of the listed parts -- instead of its own. Both landed after this capture and are unverified on the hosted path.",
+  "outcome": {
+    "completed": true,
+    "errors_recorded": 1,
+    "published_claims": 0,
+    "generated_claims": 13
+  },
+  "public_limits_in_force": {
+    "max_research_rounds": 1,
+    "max_sources": 6,
+    "max_search_queries": 6,
+    "max_llm_calls": 20,
+    "max_provider_requests": 30,
+    "demo_max_runtime_seconds": 240,
+    "global_runs_per_day": 8
+  },
+  "models": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted"
+  },
+  "quota": {
+    "store": "the public demo's own",
+    "namespace": "",
+    "daily_admissions": 8
+  },
+  "capture": {
+    "method": "raw bytes streamed to disk, timing recorded in a separate index",
+    "raw_bytes": 54656,
+    "chunks": 52,
+    "events": 34,
+    "complete": true,
+    "tool": "examples/live-validation/tools/acceptance.py"
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.010072,
+    "openai_reserved_upper_bound_usd": 0.032568,
+    "reservation_was_sufficient": true,
+    "openai_cost_is_complete": false,
+    "openai_dashboard_charge_usd": "not reconciled; readable from the provider dashboard for 2026-09-29",
+    "tavily_credits": 6.0,
+    "tavily_usd": "not measured; free-tier key",
+    "huggingface_billed_usd": "not measured; billed per hour of endpoint uptime, not per request",
+    "total_cross_provider_cost_complete": false
+  },
+  "provider_usage": {
+    "llm_calls": 14,
+    "provider_requests": 14,
+    "provider_request_ceiling": 30,
+    "input_tokens": 24043,
+    "output_tokens": 15336
+  }
+}

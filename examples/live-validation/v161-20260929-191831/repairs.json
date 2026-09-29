@@ -1,0 +1,9 @@
+[
+  {
+    "original": "LLMs are trained on large amounts of text data, typically somewhat filtered.",
+    "rewritten": "A phenomenal amount of text training data is a primary ingredient in building an LLM.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "the rewrite introduced subjects not in the original: ['llm']"
+  }
+]

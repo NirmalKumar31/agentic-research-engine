@@ -1,0 +1,82 @@
+[
+  {
+    "claim": "An LLM is a neural network used to predict language-token sequences, whereas neural networks also include models used for visual tasks.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity, hedge",
+    "best_entailment": 0.557022,
+    "best_evidence_id": "S6-e2",
+    "guards_passed": false
+  },
+  {
+    "claim": "An LLM is a neural network.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It states the relationship but does not explain how an LLM differs from a neural network.",
+    "best_entailment": 0.99832,
+    "best_evidence_id": "S3-e4",
+    "guards_passed": true
+  },
+  {
+    "claim": "LLMs are typically pre-trained language models with substantially larger parameter sizes and extensive training data.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes LLMs\u2019 size and training but does not clearly contrast them with neural networks or state their relationship.",
+    "best_entailment": 0.994106,
+    "best_evidence_id": "S4-e4",
+    "guards_passed": true
+  },
+  {
+    "claim": "LLMs can use full Transformer architectures, encoder-only architectures, or decoder-only architectures.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: modality",
+    "best_entailment": 0.163984,
+    "best_evidence_id": "S3-e5",
+    "guards_passed": false
+  },
+  {
+    "claim": "An LLM predicts a token or sequence of tokens, potentially spanning many paragraphs.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes what an LLM predicts, not how LLMs differ from or relate to neural networks.",
+    "best_entailment": 0.998469,
+    "best_evidence_id": "S3-e2",
+    "guards_passed": true
+  },
+  {
+    "claim": "Neural networks also include CNNs used for image captioning and visual question answering.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: the claim describes one subject rather than contrasting them, so it cannot fill the contrast slot",
+    "best_entailment": 0.980249,
+    "best_evidence_id": "S6-e2",
+    "guards_passed": true
+  },
+  {
+    "claim": "LLMs are trained on large amounts of text data, typically somewhat filtered.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.99539,
+    "best_evidence_id": "S3-e3",
+    "guards_passed": false
+  },
+  {
+    "claim": "The model size of LLMs usually exceeds 6\u201310 billion parameters.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It gives a parameter-count threshold for LLMs without comparing them to neural networks.",
+    "best_entailment": 0.998502,
+    "best_evidence_id": "S4-e6",
+    "guards_passed": true
+  },
+  {
+    "claim": "Neural language models are based on neural networks.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes neural language models\u2019 basis but does not directly compare LLMs with neural networks or establish their relationship.",
+    "best_entailment": 0.997912,
+    "best_evidence_id": "S4-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "Transformer-based pre-training and fine-tuning is described as the prevailing approach for pre-trained language models.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.172375,
+    "best_evidence_id": "S4-e5",
+    "guards_passed": false
+  }
+]
