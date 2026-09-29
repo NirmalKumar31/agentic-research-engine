@@ -340,6 +340,39 @@ reviewer is committed at
 carrying only claims, quotes and sources — no verdict, score, guard
 result or prior label.
 
+### Adversarial quality set
+
+Eleven cases, seventeen claims, frozen in
+[`examples/quality-eval/`](examples/quality-eval/) and run
+credential-free. Entailment is pinned per (claim, evidence) pair,
+because the 0.98 threshold is not what this measures — the subject is
+evidence selection, the guards, relevance, and coverage.
+
+`python examples/quality-eval/run_eval.py`
+
+| | v1.1.1 | v1.2.0 |
+|---|---|---|
+| **Irrelevant claims published** | **6** | **0** |
+| Irrelevant publication rate | 0.429 | 0.0 |
+| Wrong evidence selected | 1 | 0 |
+| Mean selected source quality | 0.855 | 0.935 |
+| Lowest selected source quality | 0.55 | 0.88 |
+| Claims published | 14 | 6 |
+| Correct claims wrongly withheld | 0 | **1** |
+| Cases publishing nothing | 2 | **6** |
+
+**Read the bottom three rows as carefully as the top one.** This is a
+precision-for-recall trade, and it is a large one: published claims
+fell from 14 to 6, one correct claim is now wrongly withheld that was
+not before, and six of eleven cases publish nothing at all. What was
+bought is that no claim in the set is published that does not answer
+its question, where previously 43% were.
+
+Whether that trade is right depends on what the report is for. For a
+research tool whose entire premise is that a citation means something,
+withholding a true claim costs a line; publishing a well-cited
+irrelevance costs the premise.
+
 ### Hosted acceptance
 
 Deployment acceptance, not a research-quality evaluation: one live run
