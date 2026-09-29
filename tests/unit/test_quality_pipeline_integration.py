@@ -9,7 +9,7 @@ which required part is missing.
 
 from __future__ import annotations
 
-from agentic_research.answer_contract import QuestionType
+from agentic_research.answer_contract import AnswerSlot, QuestionType
 from agentic_research.graph.nodes.planning import contract_from_analysis
 from agentic_research.graph.prompts import synthesizer_user
 from agentic_research.models import OutputFormat, QueryAnalysis
@@ -70,7 +70,12 @@ class TestTheSynthesiserIsToldWhatToFill:
             "comparison",
             "- S1-e1: something",
             "",
-            answer_slots=[("direct_contrast", "An explicit statement of how they differ")],
+            answer_slots=[
+                AnswerSlot(
+                    name="direct_contrast",
+                    description="An explicit statement of how they differ",
+                )
+            ],
         )
         assert "direct_contrast" in prompt
         assert "An explicit statement of how they differ" in prompt
@@ -80,7 +85,11 @@ class TestTheSynthesiserIsToldWhatToFill:
         supports, which is how a comparison was answered with five
         definitions."""
         prompt = synthesizer_user(
-            "q", "comparison", "e", "", answer_slots=[("direct_contrast", "d")]
+            "q",
+            "comparison",
+            "e",
+            "",
+            answer_slots=[AnswerSlot(name="direct_contrast", description="d")],
         )
         assert "does not belong in the report" in prompt
 

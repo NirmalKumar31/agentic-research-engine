@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "A neural network is a layered machine-learning model that learns weights and biases from data to map inputs to outputs.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It defines a neural network but does not contrast it with an LLM or explain their relationship.",
+    "published": false
+  },
+  {
+    "claim": "Large language models are described as generative AI models that learn distributions over data to synthesize outputs including text, images, audio, and code.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes LLMs but does not compare them with neural networks or explain how the terms relate.",
+    "published": false
+  }
+]

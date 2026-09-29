@@ -1,0 +1,79 @@
+{
+  "run_id": "20260929-170941-b420be",
+  "started_utc": "2026-09-29T17:09:41Z",
+  "wall_clock_seconds": 171.64,
+  "engine_duration_seconds": 171.32,
+  "executed_by": "deployed public HTTP/SSE endpoint",
+  "is_hosted_acceptance": true,
+  "is_research_quality_evaluation": false,
+  "deployed_commit": "636e9e86",
+  "version": "1.5.0",
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "How does a large language model differ from a neural network?",
+  "why_this_run": "To check whether v1.5.0's synthesiser-prompt fix stopped the model writing claims about the evidence rather than about the subject.",
+  "what_it_verified": {
+    "meta_claims_eliminated": "Zero claims about the evidence, against one in the v1.2.0 run and two of three in the v1.4.1 run. Those had scored 0.007, 0.031 and 0.115 entailment. The prompt fix worked."
+  },
+  "what_it_found": {
+    "the_required_slot_was_not_marked": "All three claims declared the optional `dimension` slot and none filled the required `direct_contrast`. The relevance gate refused two for describing one subject rather than contrasting them, correctly. The synthesiser prompt listed the three slots identically: the contract knew which was core and the call site flattened the slots to (name, description) pairs, dropping the flag. Fixed after this capture and not verified here."
+  },
+  "outcome": {
+    "completed": true,
+    "errors_recorded": 0,
+    "published_claims": 0,
+    "generated_claims": 3
+  },
+  "public_limits_in_force": {
+    "max_research_rounds": 1,
+    "max_sources": 6,
+    "max_search_queries": 6,
+    "max_llm_calls": 20,
+    "max_provider_requests": 30,
+    "demo_max_runtime_seconds": 240,
+    "global_runs_per_day": 5
+  },
+  "models": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted"
+  },
+  "quota": {
+    "store": "the public demo's own",
+    "namespace": ""
+  },
+  "capture": {
+    "method": "raw bytes streamed to disk, timing recorded in a separate index",
+    "raw_bytes": 41356,
+    "chunks": 48,
+    "events": 34,
+    "complete": true,
+    "tool": "examples/live-validation/tools/acceptance.py"
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.008139,
+    "openai_reserved_upper_bound_usd": 0.031067,
+    "reservation_was_sufficient": true,
+    "openai_cost_is_complete": false,
+    "openai_dashboard_charge_usd": "not reconciled; readable from the provider dashboard for 2026-09-29",
+    "tavily_credits": 6.0,
+    "tavily_usd": "not measured; free-tier key",
+    "huggingface_billed_usd": "not measured; billed per hour of endpoint uptime, not per request",
+    "total_cross_provider_cost_complete": false
+  },
+  "provider_usage": {
+    "llm_calls": 13,
+    "provider_requests": 13,
+    "provider_request_ceiling": 30,
+    "input_tokens": 25159,
+    "output_tokens": 11247
+  }
+}

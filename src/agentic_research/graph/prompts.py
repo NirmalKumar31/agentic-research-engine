@@ -317,7 +317,7 @@ def synthesizer_user(
     evidence_block: str,
     gaps_note: str,
     claim_budget: int | None = None,
-    answer_slots: list[tuple[str, str]] | None = None,
+    answer_slots: Sequence[AnswerSlot] | None = None,
 ) -> str:
     """Build the synthesis prompt, optionally bounded to a claim budget.
 
@@ -334,11 +334,33 @@ def synthesizer_user(
     # of one of them.
     slots = ""
     if answer_slots:
-        listed = "\n".join(f"- {name}: {description}" for name, description in answer_slots)
+        # Marked required, and it was not.
+        #
+        # All three were rendered alike, so a comparison offered
+        # direct_contrast, dimension and relationship read as three
+        # equally good options. A hosted run wrote three `dimension`
+        # claims and no contrast, the relevance gate refused two of
+        # them for describing one subject instead of contrasting, and
+        # the report published nothing. The contract knew which slot
+        # was core; the call site dropped the flag.
+        listed = "\n".join(
+            f"- {slot.name}{' (REQUIRED)' if slot.core else ' (optional)'}: {slot.description}"
+            for slot in answer_slots
+        )
+        required = [slot.name for slot in answer_slots if slot.core]
+        demand = (
+            "\nThe report has not answered the question unless a claim fills "
+            f"{' and '.join(required)}. Write that claim first, and only then "
+            "the optional parts. Several claims filling optional parts while "
+            "the required one is missing is a report that answers nothing.\n"
+            if required
+            else ""
+        )
         slots = (
             "\n\nThis question is only answered if these parts are covered. "
             "Give each claim the answer_slot it fills, copied exactly:\n"
             f"{listed}\n"
+            f"{demand}"
             "A claim filling none of them does not belong in the report, "
             "however well the evidence supports it."
         )

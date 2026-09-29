@@ -173,8 +173,12 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                         package.text or "(no citable evidence was gathered)",
                         "\n".join(f"- {g}" for g in gaps),
                         claim_budget=claim_budget,
+                        # The slots themselves, not name/description
+                        # pairs: flattening them here dropped `core`,
+                        # and the synthesiser could not tell the slot
+                        # the answer turns on from the optional ones.
                         answer_slots=(
-                            [(s.name, s.description) for s in contract.required_slots]
+                            contract.required_slots
                             if contract is not None and contract.usable
                             else None
                         ),

@@ -115,3 +115,101 @@ class TestTheGuardsStillDisagreeWithEachOtherNowhere:
 
         quote = "We demonstrate that quantization reduces memory usage by 75%."
         assert not framing_guard("Quantization reduces memory usage by 75%.", quote).passed
+
+
+class TestTheSynthesiserIsToldWhichSlotIsRequired:
+    """Three slots rendered alike read as three equally good options.
+
+    A hosted run on v1.5.0 wrote three `dimension` claims and no
+    contrast. The relevance gate refused two of them for describing
+    one subject instead of contrasting them, and the report published
+    nothing. The contract knew `direct_contrast` was the core slot;
+    the call site flattened the slots to (name, description) pairs and
+    dropped `core` on the way to the prompt.
+
+    Sixth instance of the same shape in this project: a value computed
+    and then not passed to the thing that needed it.
+    """
+
+    @staticmethod
+    def prompt(contract) -> str:
+        from agentic_research.graph.prompts import synthesizer_user
+
+        return synthesizer_user(
+            contract.question,
+            "comparison",
+            "(evidence)",
+            "",
+            claim_budget=8,
+            answer_slots=contract.required_slots,
+        )
+
+    @staticmethod
+    def comparison():
+        from agentic_research.answer_contract import QuestionType, build_contract
+
+        return build_contract(
+            "How does a large language model differ from a neural network?",
+            QuestionType.COMPARISON,
+            entities=("large language model", "neural network"),
+        )
+
+    def test_the_core_slot_is_marked_required(self) -> None:
+        assert "direct_contrast (REQUIRED)" in self.prompt(self.comparison())
+
+    def test_the_optional_ones_are_marked_optional(self) -> None:
+        """Non-vacuity: marking everything required would be the same
+        failure with louder words."""
+        text = self.prompt(self.comparison())
+        assert "dimension (optional)" in text
+        assert "relationship (optional)" in text
+        assert "dimension (REQUIRED)" not in text
+
+    def test_it_says_the_report_fails_without_it(self) -> None:
+        """The run that motivated this filled optional parts three
+        times over. Naming the slot is not enough; the consequence of
+        omitting it has to be stated."""
+        text = self.prompt(self.comparison())
+        assert "has not answered the question unless a claim fills direct_contrast" in text
+        assert "answers nothing" in text
+
+    def test_the_descriptions_survive(self) -> None:
+        for slot in self.comparison().required_slots:
+            assert slot.description in self.prompt(self.comparison())
+
+    def test_a_contract_with_no_core_slot_makes_no_demand(self) -> None:
+        """Guards against emitting "unless a claim fills " with an
+        empty name, which would read as a broken instruction."""
+        from agentic_research.answer_contract import AnswerContract, AnswerSlot, QuestionType
+        from agentic_research.graph.prompts import synthesizer_user
+
+        slots = (AnswerSlot(name="only_optional", description="d", core=False),)
+        contract = AnswerContract(
+            question="q", question_type=QuestionType.DEFINITION, required_slots=slots
+        )
+        text = synthesizer_user(
+            contract.question, "overview", "(e)", "", answer_slots=contract.required_slots
+        )
+        assert "has not answered the question unless" not in text
+        assert "only_optional (optional)" in text
+
+    def test_no_slots_at_all_renders_nothing(self) -> None:
+        from agentic_research.graph.prompts import synthesizer_user
+
+        text = synthesizer_user("q", "overview", "(e)", "", answer_slots=None)
+        assert "REQUIRED" not in text
+
+
+class TestTheCoreFlagSurvivesTheCallSite:
+    def test_reporting_passes_slots_not_flattened_pairs(self) -> None:
+        """The bug was here, not in the prompt. Flattening to
+        (name, description) silently discarded `core`."""
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        body = inspect.getsource(reporting.synthesize_report)
+        assert "answer_slots=(" in body
+        assert "(s.name, s.description) for s in" not in body, (
+            "the call site flattens the slots again and drops `core`"
+        )

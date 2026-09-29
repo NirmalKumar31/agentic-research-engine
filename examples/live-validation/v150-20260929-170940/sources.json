@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://www.ibm.com/think/topics/neural-networks",
+    "title": "What Is a Neural Network? | IBM",
+    "domain": "ibm.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.643,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://ixdf.org/literature/topics/neural-networks",
+    "title": "What are Neural Networks? \u2014 updated 2026 | IxDF",
+    "domain": "ixdf.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.64,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://www.geeksforgeeks.org/deep-learning/types-of-neural-networks",
+    "title": "Types of Neural Networks - GeeksforGeeks",
+    "domain": "geeksforgeeks.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.636,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://en.wikipedia.org/wiki/Neural_network_(machine_learning)",
+    "title": "Neural network (machine learning)",
+    "domain": "en.wikipedia.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.639,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://www.coursera.org/articles/neural-network-example",
+    "title": "Neural Network Examples, Applications, and Use Cases | Coursera",
+    "domain": "coursera.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.639,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://www.baslerweb.com/en/learning/neural-networks",
+    "title": "Neural Networks in Machine Vision: How They Work & Applications | Basler AG",
+    "domain": "baslerweb.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.637,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

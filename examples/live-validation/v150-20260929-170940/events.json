@@ -1,0 +1,307 @@
+[
+  {
+    "event": "started",
+    "data": {
+      "run_id": "20260929-170941-b420be",
+      "query": "How does a large language model differ from a neural network?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "started",
+      "run_id": "20260929-170941-b420be",
+      "query": "How does a large language model differ from a neural network?",
+      "models": {
+        "planner": "openai:gpt-6-luna",
+        "researcher": "openai:gpt-6-luna",
+        "critic": "openai:gpt-6-luna",
+        "synthesizer": "openai:gpt-6-luna"
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_waking",
+        "mode": "remote",
+        "detail": "Waking the verifier",
+        "expected_seconds": 90
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_ready",
+        "detail": "Verifier ready"
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "analyzing_query",
+      "query": "How does a large language model differ from a neural network?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "query_analyzed",
+      "intent": "The user wants to understand how an LLM differs from the broader category of neural networks.",
+      "format": "comparison"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "answer_contract",
+      "question_type": "comparison",
+      "required": [
+        "direct_contrast"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "planning"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "plan_generated",
+      "count": 5,
+      "questions": [
+        "What is a neural network as a broad class of computational models, and what kinds of tasks can neural networks perform?",
+        "What makes a model a large language model, including its language focus, training data and objectives, and typical scale?",
+        "How do LLMs relate taxonomically to neural networks, and are there LLMs or neural networks that fall outside the other category?",
+        "Which architectural features are common in LLMs, such as transformers, and which are characteristic of neural networks more generally rather than required definitions?",
+        "What common misconceptions blur the distinction between the terms, such as treating an LLM as a synonym for any neural network or assuming all neural networks process language?"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "generating_queries",
+      "round": 1,
+      "sub_questions": 5
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "queries_generated",
+      "round": 1,
+      "count": 6,
+      "queries": [
+        "artificial neural networks computational models definition applications classification regression prediction pattern recognition",
+        "neural network applications computer vision speech recognition forecasting control reinforcement learning",
+        "large language model definition language pretraining next token prediction training corpus parameter scale",
+        "LLM characteristics text corpus self supervised language modeling billions parameters",
+        "large language models subset of neural networks taxonomy non language neural network models",
+        "language models neural network architecture symbolic language models CNN vision neural networks"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q4",
+      "query": "LLM characteristics text corpus self supervised language modeling billions parameters",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q1",
+      "query": "artificial neural networks computational models definition applications classification regression prediction pattern recognition",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q3",
+      "query": "large language model definition language pretraining next token prediction training corpus parameter scale",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q5",
+      "query": "large language models subset of neural networks taxonomy non language neural network models",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q6",
+      "query": "language models neural network architecture symbolic language models CNN vision neural networks",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q2",
+      "query": "neural network applications computer vision speech recognition forecasting control reinforcement learning",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_deduplicated",
+      "results": 48,
+      "unique": 43,
+      "avoided": 5,
+      "selected": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_registered",
+      "usable": 6,
+      "duplicates": 0,
+      "extracting": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S4",
+      "items": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S5",
+      "items": 2
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S6",
+      "items": 4
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S3",
+      "items": 3
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S2",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S1",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "assessing_coverage",
+      "round": 1
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "coverage_evaluated",
+      "round": 1,
+      "ratio": 0.4,
+      "sufficient": false,
+      "covered": 2,
+      "total": 5,
+      "weak": 3,
+      "missing": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesizing",
+      "evidence": 21
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesized",
+      "sections": 0,
+      "findings": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "verifying_citations"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "citations_verified",
+      "total": 0,
+      "evidence_integrity": 1.0,
+      "support": {
+        "supported": 0,
+        "partially_supported": 0,
+        "unsupported": 3,
+        "not_checked": 0
+      },
+      "exhaustive": true,
+      "not_checked": 0,
+      "removed": 3,
+      "published": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "completed",
+      "stop_reason": "stopped after round 1"
+    }
+  },
+  {
+    "event": "done",
+    "data": {
+      "run_id": "20260929-170941-b420be"
+    }
+  }
+]

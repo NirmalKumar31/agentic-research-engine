@@ -2,6 +2,55 @@
 
 Notable changes per release. Dates are UTC.
 
+## v1.6.0 — 2026-09-29
+
+The synthesiser is told which slot the answer turns on.
+
+A comparison's slots were listed to it identically:
+
+```
+- direct_contrast: An explicit statement of how the subjects differ
+- dimension: A named dimension along which they differ
+- relationship: How the subjects relate…
+```
+
+Three options, no signal. The hosted run on v1.5.0 wrote **three
+`dimension` claims and no contrast**; the relevance gate refused two
+of them for describing one subject instead of contrasting them —
+correctly — and the report published nothing.
+
+The contract marks `direct_contrast` as core. The call site flattened
+the slots to `(name, description)` pairs and dropped `core` before
+the prompt saw it. **Sixth instance in this project of a value
+computed and then not passed to the thing that needed it**, after the
+durable quota, `answer_slot`, `satisfied_by`, `SourceIdentity`'s
+authority and the slot descriptions in the relevance prompt.
+
+Slots now render as `(REQUIRED)` or `(optional)`, and the prompt
+states the consequence: a report that fills optional parts while the
+required one is missing has answered nothing. Naming the slot was
+never enough — the v1.5.0 run named all three and the model picked
+the easiest.
+
+**Unverified on the hosted path.** The fix landed after the capture
+that motivated it, and today's run allowance is spent.
+
+### Hosted run: the meta-claim fix confirmed
+
+`examples/live-validation/v150-20260929-170940/` — v1.5.0 at
+`636e9e86`, 171.3s, $0.008139, 13 of 30 provider requests, zero
+errors.
+
+| Run | Claims about the evidence |
+| --- | --- |
+| v1.2.0 | 1, at entailment 0.007 |
+| v1.4.1 | 2 of 3, at 0.031 and 0.115 |
+| **v1.5.0** | **0** |
+
+The prompt had been teaching it; it no longer does, and the model
+stopped. That fix is verified. It published nothing, for the slot
+reason above.
+
 ## v1.5.0 — 2026-09-29
 
 A claim asserts something about the subject, not about the evidence.

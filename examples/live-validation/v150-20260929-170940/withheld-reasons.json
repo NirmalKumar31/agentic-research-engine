@@ -1,0 +1,26 @@
+[
+  {
+    "claim": "A neural network is a layered machine-learning model that learns weights and biases from data to map inputs to outputs.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It defines a neural network but does not contrast it with an LLM or explain their relationship.",
+    "best_entailment": 0.996493,
+    "best_evidence_id": "S1-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "Large language models are described as generative AI models that learn distributions over data to synthesize outputs including text, images, audio, and code.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes LLMs but does not compare them with neural networks or explain how the terms relate.",
+    "best_entailment": 0.996332,
+    "best_evidence_id": "S1-e3",
+    "guards_passed": true
+  },
+  {
+    "claim": "Neural networks can support tasks including computer vision, natural language processing, speech recognition, forecasting, and facial recognition.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: modality",
+    "best_entailment": 0.667901,
+    "best_evidence_id": "S1-e2",
+    "guards_passed": false
+  }
+]
