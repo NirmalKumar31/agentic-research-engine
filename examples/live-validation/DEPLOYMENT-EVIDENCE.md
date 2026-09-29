@@ -19,6 +19,42 @@ evaluation, and nothing here says the engine answers questions well.**
 > and editing it to match today's deployment would make it a
 > description rather than a record.
 
+## Configuration verified 2026-09-29 (v1.2.1)
+
+The public demo serving v1.2.1 at `3cc8f926`, checked with
+`examples/live-validation/tools/acceptance.py checks`, which needs no
+credentials and spends nothing. **16 of 16 passed**, with the research
+route skipped rather than probed because probing it would spend a run.
+
+| | |
+| --- | --- |
+| Service | `agentic-research-engine-live` |
+| Version / commit | 1.2.1 / `3cc8f926` |
+| Live research | enabled **and** available |
+| Shared quota | reachable |
+| Daily admissions | 5 = 150 // 30 |
+| Recorded examples | 3, all replaying |
+| Interactive schema | `/openapi.json`, `/docs`, `/redoc` all 404 |
+
+### Quota isolation, now observed rather than argued
+
+The v1.2.0 acceptance run shared one Key Value store with the demo,
+separated only by `DEMO_QUOTA_NAMESPACE`. At the time that rested on
+the key construction and its tests: the demo's build predated
+`/api/readiness` reporting its namespace, so the demo's own value
+could not be read from outside. The manual review said so and left
+the gap open.
+
+Both processes now report it:
+
+| Deployment | `quota_namespace` | Key |
+| --- | --- | --- |
+| `agentic-research-engine-live` | `""` | `are:live-runs:<date>` |
+| `agentic-research-engine-rc` | `"rc"` | `are:live-runs:rc:<date>` |
+
+Different keys, read from the two running services rather than from
+either dashboard. The candidate never touched the demo's counter.
+
 ## Configuration verified 2026-09-28
 
 ### Web service
