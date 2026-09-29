@@ -17,6 +17,10 @@ mostly means: short, concrete, one job per call.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
+from agentic_research.answer_contract import AnswerSlot
+
 ANALYST_SYSTEM = """\
 You analyse research questions before any searching happens.
 
@@ -353,19 +357,47 @@ When a claim only partly bears on the question, say no. Something that \
 nearly answers is what the limitations section is for."""
 
 
-def relevance_user(question: str, required_slots: list[str], claims: list[str]) -> str:
+def relevance_user(
+    question: str,
+    required_slots: Sequence[AnswerSlot],
+    claims: list[str],
+) -> str:
     """Ask for a verdict on every candidate claim in one call.
 
     Batched deliberately: one provider request for a whole report
     rather than one per claim, because a public run has twenty calls
     in total and relevance must not eat them.
+
+    The slots arrive with their descriptions, and used not to. The
+    judge was shown bare names -- ``direct_contrast``, ``dimension``,
+    ``relationship`` -- and had to infer what they meant. A capable
+    model guesses correctly; a 4B one does not, and a local run
+    rejected "Large language models are a specific type of neural
+    network architecture" as failing to answer how the two relate,
+    which is the `relationship` slot almost verbatim. The contract
+    carries a sentence for each slot and it stopped at this boundary.
+
+    Which slots are required is marked for the same reason: a claim
+    filling an optional part is worth less than one filling the part
+    the answer turns on, and the judge could not tell them apart.
     """
-    slots = "\n".join(f"- {name}" for name in required_slots) or "- (none stated)"
+    slots = (
+        "\n".join(
+            f"- {slot.name}{' (required)' if slot.core else ''}: {slot.description}"
+            for slot in required_slots
+        )
+        or "- (none stated)"
+    )
     listed = "\n".join(f"{i}. {text}" for i, text in enumerate(claims))
     return (
         f"Question:\n{question}\n\n"
         f"An answer to it must cover:\n{slots}\n\n"
         f"Candidate claims:\n{listed}\n\n"
+        # Deliberately unchanged. Telling the judge that filling one
+        # part is enough was tried and reverted: it loosens a gate,
+        # three local runs showed no effect, and measuring it on the
+        # hosted critic costs a paid run. An unmeasured loosening of
+        # the gate this release exists to add is not worth the line.
         "For each claim, by index, say whether it helps answer the question."
     )
 

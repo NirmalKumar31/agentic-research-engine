@@ -290,3 +290,67 @@ class TestCoverageStaysHonestWithoutSlots:
         coverage = assess_coverage(COMPARISON, [])
         assert not coverage.answered
         assert coverage.limitations()
+
+
+class TestTheJudgeIsToldWhatTheSlotsMean:
+    """A bare slot name is not a question a model can answer well.
+
+    The judge was shown `direct_contrast`, `dimension`,
+    `relationship` and nothing else, while the contract carried a
+    sentence describing each. A capable model infers them; a 4B one
+    does not, and a local run rejected "Large language models are a
+    specific type of neural network architecture" for not addressing
+    how the two relate -- which is the `relationship` slot almost
+    verbatim.
+
+    Fourth instance of the same shape in this release: the engine
+    computes something useful and it stops at a boundary.
+    """
+
+    @staticmethod
+    def prompt(contract) -> str:
+        from agentic_research.graph.prompts import relevance_user
+
+        return relevance_user(contract.question, contract.required_slots, ["A claim."])
+
+    def test_each_slot_carries_its_description(self) -> None:
+        text = self.prompt(COMPARISON)
+        for slot in COMPARISON.required_slots:
+            assert slot.name in text
+            assert slot.description in text, f"{slot.name} lost its description"
+
+    def test_the_required_slot_is_marked(self) -> None:
+        """A claim filling an optional part is worth less than one
+        filling the part the answer turns on, and the judge could not
+        tell them apart."""
+        text = self.prompt(COMPARISON)
+        core = [s for s in COMPARISON.required_slots if s.core]
+        assert core
+        for slot in core:
+            assert f"{slot.name} (required)" in text
+        for slot in COMPARISON.required_slots:
+            if not slot.core:
+                assert f"{slot.name} (required)" not in text
+
+    def test_the_instruction_was_not_loosened(self) -> None:
+        """A line telling the judge that filling one part is enough was
+        tried and reverted. It loosens the gate this release exists to
+        add, three local runs showed no effect, and measuring it on the
+        hosted critic costs a paid run. The descriptions are pure added
+        information; the instruction is not, so it stays out."""
+        text = self.prompt(COMPARISON)
+        assert "even if it does not cover the others" not in text
+
+    def test_a_contract_with_no_slots_still_renders(self) -> None:
+        unusable = build_contract("compare them", "comparison", entities=["only one"])
+        assert not unusable.usable
+        assert "(none stated)" in self.prompt(unusable)
+
+    def test_the_claims_are_still_indexed(self) -> None:
+        """The verdicts come back by index; losing the numbering would
+        silently misattribute every judgement."""
+        from agentic_research.graph.prompts import relevance_user
+
+        text = relevance_user(COMPARISON.question, COMPARISON.required_slots, ["A.", "B."])
+        assert "0. A." in text
+        assert "1. B." in text

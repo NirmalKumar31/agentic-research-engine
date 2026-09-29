@@ -248,6 +248,31 @@ gate withholds true claims rather than publishing irrelevant ones —
 but it means local mode publishes sparse reports, and a zero-claim
 local run is as likely to be the critic as the evidence.
 
+**Measured across four local runs on the same question: zero
+published claims, every time.** It is not one bad draw. Two things
+compound:
+
+- The local synthesiser writes definitions when asked for a
+  comparison. One run generated 21 claims, nearly all of the form
+  "large language models are/do X" — correctly refused by a contract
+  whose core slot is a contrast.
+- The local critic then rejects what survives, including claims that
+  plainly fill a listed slot. It rejected *"Large language models
+  often use transformer architectures"* against a contract with a
+  `dimension` slot described as "a named dimension along which they
+  differ".
+
+Giving the judge each slot's description was tried against this and
+**did not change the outcome** — the information was not what the 4B
+model lacked. The descriptions were kept anyway, because a judge
+shown a bare token like `direct_contrast` is being asked to guess;
+the change is justified on its own terms, not by an improvement it
+did not produce.
+
+Neither symptom appears on the hosted path with a larger model, which
+published 3 of 7 and 2 of 6 on the same question. **Local mode
+exercises the pipeline; it does not demonstrate it.**
+
 Two consequences worth stating plainly. A local run is not a fair
 demonstration of what the pipeline can do. And the relevance numbers
 in the adversarial set were produced with entailment pinned and no

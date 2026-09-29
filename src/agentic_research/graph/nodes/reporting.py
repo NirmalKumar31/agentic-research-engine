@@ -927,7 +927,7 @@ async def _judge_relevance(
                 RELEVANCE_SYSTEM,
                 relevance_user(
                     contract.question,
-                    [s.name for s in contract.required_slots],
+                    contract.required_slots,
                     [claim.text for claim in claims],
                 ),
             )

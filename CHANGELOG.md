@@ -43,6 +43,20 @@ sources and neither decision could see the classification.
   makes the decision possible there. Banded the same way — an
   authoritative page about the wrong subject is worse than a blog
   about the right one.
+- **The relevance judge is told what each slot means.** It was shown
+  bare names — `direct_contrast`, `dimension`, `relationship` — while
+  the contract carried a sentence describing each, and which are
+  required. Fourth instance in this release of the engine computing
+  something useful that stopped at a boundary.
+
+  Honest about the result: this was tried against local mode's
+  zero-publication problem and **did not fix it**. A 4B critic still
+  rejects claims that plainly fill a listed slot. The change is kept
+  because asking a model to judge against a bare token is asking it
+  to guess, not because it produced an improvement. A line telling
+  the judge that filling one part suffices was also tried and
+  **reverted** — it loosens the gate, showed no effect, and measuring
+  it on the hosted critic costs a paid run.
 - `authority_of` / `authority_rank_of` map a source kind to how close
   it is to what it reports, beside the enum that makes the same
   distinction rather than in a second table that would drift.
