@@ -43,6 +43,18 @@ each sentence follows from a quote.
   one run a day. The cost is stated in the code -- for two unrelated
   subjects a vague relationship claim now discharges the core slot
   too, with the relevance judgement as the backstop.
+- A claim that declares no `answer_slot` is no longer refused for
+  that alone. The slot is the synthesiser's statement of intent, not
+  a property of the claim, and a smaller local model omits it on
+  every claim: a real run on `qwen3:4b` withheld three otherwise
+  publishable claims for a missing field and published nothing at
+  all. The fake synthesiser in the tests always declares one, so the
+  whole suite passed while local mode was unusable.
+
+  What fails closed is unchanged. A slotless claim still needs an
+  affirmative relevance judgement, still passes every support gate,
+  and still counts toward no slot -- so a report built only from such
+  claims reports that it did not answer the question.
 - `AnswerCoverage.answered` requires **every** core slot, which is
   what the code always did; the docstring said "at least one". Only
   multi-part questions have more than one core slot, and that is

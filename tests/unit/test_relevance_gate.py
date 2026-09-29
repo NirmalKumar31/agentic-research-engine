@@ -175,5 +175,118 @@ class TestItFailsClosed:
         assert v.publishable is False
         assert "not required" in v.reason
 
-    def test_a_claim_declaring_no_slot_is_refused(self) -> None:
-        assert check("A vector database stores embeddings.", None, VECTORDB).publishable is False
+    def test_a_claim_declaring_no_slot_still_needs_the_judgement(self) -> None:
+        """Reversed, deliberately, and narrowed to what fails closed.
+
+        This previously asserted that a claim declaring no slot is
+        refused outright. That was grouped here by analogy with the
+        cases above rather than argued, and it cost more than it
+        bought: a local run on qwen3:4b, which omits the field on
+        every claim, published nothing at all.
+
+        What fails closed is the judgement, not the field. A slotless
+        claim still cannot publish without an affirmative relevance
+        verdict -- that is asserted here -- and it counts toward no
+        slot, so coverage still reports the question unanswered.
+        Support and the independent judgement are untouched.
+        """
+        assert (
+            assess_relevance(
+                "A vector database stores embeddings.",
+                None,
+                VECTORDB,
+                model_says_relevant=None,
+            ).publishable
+            is False
+        )
+        assert check("A vector database stores embeddings.", None, VECTORDB).publishable is True
+
+
+class TestAMissingSlotIsNotARejection:
+    """A local run found this; no test did.
+
+    The fake synthesiser in tests/fakes.py declares an answer_slot on
+    every claim, so the whole suite exercised a world in which models
+    always comply. qwen3:4b does not. A real local run withheld three
+    otherwise-publishable claims with "the claim declares no answer
+    slot" -- refused for a missing field rather than for anything
+    about what they said -- and published nothing at all.
+
+    The slot is the synthesiser's statement of intent, not a property
+    of the claim. Its absence means the slot-specific checks cannot
+    run, not that the claim is irrelevant.
+    """
+
+    def test_a_claim_without_a_slot_can_still_publish(self) -> None:
+        verdict = check(
+            "Large language models are built on transformer architectures.",
+            None,
+            COMPARISON,
+        )
+        assert verdict.publishable, verdict.reason
+
+    def test_it_says_no_slot_was_declared_rather_than_claiming_one(self) -> None:
+        """The record must not imply a slot was satisfied. Coverage
+        reads slots, and inventing one here would make a report claim
+        it answered a part nothing declared."""
+        verdict = check("Large language models use transformers.", None, COMPARISON)
+        assert verdict.answer_slot is None
+        assert verdict.slot_satisfied is False
+
+    def test_the_slotless_claim_still_needs_the_judgement(self) -> None:
+        """Nothing structural rejected it is not the same as something
+        affirmed it, and with no slot the judge is all there is."""
+        from agentic_research.citations.relevance import assess_relevance
+
+        withheld = assess_relevance(
+            "Large language models use transformers.",
+            None,
+            COMPARISON,
+            model_says_relevant=None,
+        )
+        assert not withheld.publishable
+
+        rejected = assess_relevance(
+            "Large language models use transformers.",
+            None,
+            COMPARISON,
+            model_says_relevant=False,
+        )
+        assert not rejected.publishable
+
+    def test_the_checks_that_need_no_slot_still_run(self) -> None:
+        """Non-vacuity. Skipping the slot checks must not skip the
+        rest: a claim about a different named subject is refused
+        whether or not it declared a slot."""
+        verdict = check(
+            "MySQL sustained 40,000 inserts per second in the benchmark.",
+            None,
+            POSTGRES,
+        )
+        assert not verdict.publishable
+        assert "MySQL" in verdict.reason or "PostgreSQL" in verdict.reason
+
+    def test_an_unusable_contract_still_withholds_without_a_slot(self) -> None:
+        unusable = build_contract("compare them", "comparison", entities=["only one"])
+        assert not unusable.usable
+        assert not check("Anything at all.", None, unusable).publishable
+
+    def test_a_declared_but_unknown_slot_is_still_refused(self) -> None:
+        """Only the *absent* slot is forgiven. A slot the question
+        never asked for is a claim answering something else."""
+        verdict = check("Large language models use transformers.", "invented_slot", COMPARISON)
+        assert not verdict.publishable
+        assert "not required by this question" in verdict.reason
+
+
+class TestCoverageStaysHonestWithoutSlots:
+    def test_slotless_claims_do_not_count_as_answering(self) -> None:
+        """The other half of the fix. Claims may now publish without a
+        slot, and a report built only from those must still report
+        that it did not answer -- nothing declared which part of the
+        question it filled."""
+        from agentic_research.answer_coverage import assess_coverage
+
+        coverage = assess_coverage(COMPARISON, [])
+        assert not coverage.answered
+        assert coverage.limitations()

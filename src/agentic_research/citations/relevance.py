@@ -75,7 +75,19 @@ class RelevanceVerdict:
 
     @property
     def publishable(self) -> bool:
-        return self.checked and self.answers_question and self.slot_satisfied
+        """Nothing rejected it, and any slot it declared was satisfied.
+
+        ``slot_satisfied`` is deliberately not required when no slot
+        was declared. Setting the flag true in that case would be the
+        easy fix and the wrong one: coverage reads slots, so a claim
+        pretending to satisfy a slot it never named would make a
+        report claim it answered a part of the question that nothing
+        declared. A slotless claim publishes on the judgement alone
+        and counts toward no slot.
+        """
+        if not (self.checked and self.answers_question):
+            return False
+        return self.slot_satisfied or self.answer_slot is None
 
 
 def _no(reason: str, slot: str | None, *, checked: bool = True, **flags: bool) -> RelevanceVerdict:
@@ -213,10 +225,26 @@ def deterministic_relevance(
             checked=False,
         )
 
-    if not declared_slot:
-        return _no("the claim declares no answer slot", None)
-
-    if not contract.has_slot(declared_slot):
+    # An undeclared slot is not a rejection.
+    #
+    # It was, and that turned local mode into a system that publishes
+    # nothing. The slot is the synthesiser's statement of what it was
+    # trying to do, not a property of the claim; a smaller model omits
+    # it on every claim, and a run on qwen3:4b withheld three
+    # otherwise-publishable claims for a missing field rather than for
+    # anything about what they said. The fake synthesiser in the tests
+    # always declares one, so every test passed while this was true.
+    #
+    # Without a slot the slot-specific checks cannot run -- there is
+    # nothing to check the claim against -- so they are skipped and
+    # the independent judgement decides. The checks that do not need a
+    # slot still run: a claim about a different named subject is
+    # rejected whether or not it declared anything.
+    #
+    # Coverage is unaffected and stays honest: a claim that declares no
+    # slot fills no slot, so a report built only from such claims still
+    # reports that it did not answer the question.
+    if declared_slot and not contract.has_slot(declared_slot):
         return _no(
             f"slot {declared_slot!r} is not required by this question "
             f"(expected one of {sorted(contract.slot_names)})",
@@ -279,11 +307,21 @@ def deterministic_relevance(
         contract.question_type is QuestionType.COMPARISON
         and declared_slot == "direct_contrast"
         and not _is_contrastive(claim_text, contract.entities)
-    ):
+    ):  # only reachable with a slot declared, by the guard above
         return _no(
             "the claim describes one subject rather than contrasting them, "
             "so it cannot fill the contrast slot",
             declared_slot,
+        )
+
+    if not declared_slot:
+        return RelevanceVerdict(
+            answers_question=True,
+            answer_slot=None,
+            # Nothing was satisfied, because nothing was claimed. The
+            # judgement below is the only thing that will affirm this.
+            slot_satisfied=False,
+            reason="nothing structural rejected it; it declares no slot to check",
         )
 
     return RelevanceVerdict(
