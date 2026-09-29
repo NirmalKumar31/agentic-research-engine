@@ -1,0 +1,44 @@
+[
+  {
+    "claim": "LLMs are a specific subset of neural networks.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e2",
+        "resolved": true,
+        "quote": "Large Language Models (LLMs) are a specific subset of neural networks designed to understand and generate human language.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://metafraze.com/what-are-neural-networks-and-large-language-models",
+        "source_title": "What are Neural Networks and Large Language Models? | Metafraze"
+      }
+    ]
+  },
+  {
+    "claim": "LLMs are typically based on the transformer architecture.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S2-e2",
+        "resolved": true,
+        "quote": "LLMs are typically based on transformer \"Transformer (deep learning)\") architecture.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://en.wikipedia.org/wiki/Large_language_model",
+        "source_title": "Large language model - Wikipedia"
+      }
+    ]
+  },
+  {
+    "claim": "An LLM is typically a neural-network AI model trained on vast amounts of text for natural-language processing, especially language generation.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S2-e1",
+        "resolved": true,
+        "quote": "A large language model (LLM) is an AI model (typically a neural network \"Neural network (machine learning)\")) trained on a vast amount of text for natural language processing tasks, especially language generation.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://en.wikipedia.org/wiki/Large_language_model",
+        "source_title": "Large language model - Wikipedia"
+      }
+    ]
+  }
+]

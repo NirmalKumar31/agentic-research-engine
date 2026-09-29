@@ -6,6 +6,12 @@ are the only place identifiers get assigned.
 
 from __future__ import annotations
 
+from agentic_research.answer_contract import (
+    AnswerContract,
+    build_contract,
+    type_from_output_format,
+    unusable,
+)
 from agentic_research.config import ModelRole
 from agentic_research.graph.nodes.common import ctx, emit, error_from, numbered, stage
 from agentic_research.graph.prompts import (
@@ -76,7 +82,57 @@ async def analyze_query(state: ResearchState) -> ResearchState:
         time_sensitive=analysis.time_sensitive,
     )
     emit("query_analyzed", intent=analysis.intent, format=analysis.output_format.value)
-    return {"analysis": analysis, "stage_timings": [timing], "errors": errors}
+
+    contract = contract_from_analysis(analysis)
+    if contract.usable:
+        log.info(
+            "answer_contract",
+            type=str(contract.question_type),
+            slots=[s.name for s in contract.required_slots],
+        )
+        emit(
+            "answer_contract",
+            question_type=str(contract.question_type),
+            required=[s.name for s in contract.core_slots],
+        )
+    else:
+        # Not fatal. The run continues and publishes nothing on
+        # relevance grounds, and the report says the question could not
+        # be turned into checkable requirements -- which is more useful
+        # than a confident answer to a question nobody pinned down.
+        log.warning("answer_contract_unusable", reason=contract.unusable_reason)
+        emit("answer_contract_unusable", reason=contract.unusable_reason)
+
+    return {
+        "analysis": analysis,
+        "contract": contract,
+        "stage_timings": [timing],
+        "errors": errors,
+    }
+
+
+def contract_from_analysis(analysis: QueryAnalysis) -> AnswerContract:
+    """Derive the answer contract from the structured analysis.
+
+    The question type comes from the analysis stage's own
+    ``output_format`` rather than being classified a second time: two
+    classifications that can disagree are worse than one.
+    """
+    question_type = type_from_output_format(analysis.output_format.value)
+    if question_type is None:
+        return unusable(
+            analysis.normalized_query,
+            f"no answer shape is defined for {analysis.output_format.value!r}",
+        )
+    # A comparison needs its subjects. The analysis names entities; the
+    # contract refuses when there are fewer than two, rather than
+    # accepting a contrast nothing could fill.
+    return build_contract(
+        analysis.normalized_query,
+        question_type,
+        entities=analysis.entities,
+        constraints=analysis.constraints,
+    )
 
 
 def _analysis_block(analysis: QueryAnalysis) -> str:

@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
 from typing import Any
 
+from agentic_research.answer_contract import AnswerContract
+from agentic_research.answer_coverage import assess_coverage
 from agentic_research.citations.guards import SourceIdentity
 from agentic_research.citations.nli import NLIUnavailable, build_verifier
+from agentic_research.citations.propositions import decompose
 from agentic_research.citations.publication import (
     ClaimKey,
     ClaimVerdict,
@@ -15,8 +19,11 @@ from agentic_research.citations.publication import (
     filter_report_by_verification,
     key_of,
 )
+from agentic_research.citations.relevance import deterministic_relevance
+from agentic_research.citations.repair import is_repairable, validate_rewrite
 from agentic_research.citations.semantic import (
     CitedEvidence,
+    Scorer,
     SemanticVerdict,
     verify_claim,
 )
@@ -28,7 +35,11 @@ from agentic_research.config import ModelRole
 from agentic_research.evidence.store import EvidenceStore
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import (
+    RELEVANCE_SYSTEM,
+    REPAIR_SYSTEM,
     SYNTHESIZER_SYSTEM,
+    relevance_user,
+    repair_user,
     synthesizer_user,
 )
 from agentic_research.graph.state import ResearchState
@@ -43,6 +54,9 @@ from agentic_research.models import (
     Contradiction,
     CoverageAssessment,
     EvidenceScoreRecord,
+    PropositionRecord,
+    RelevanceRecord,
+    RepairRecord,
     ReportSection,
     ResearchReport,
     RunError,
@@ -50,7 +64,12 @@ from agentic_research.models import (
 )
 from agentic_research.observability import get_logger
 from agentic_research.report import MAX_EXCERPTS
-from agentic_research.schemas import MAX_EVIDENCE_PER_CLAIM, ReportOut
+from agentic_research.schemas import (
+    MAX_EVIDENCE_PER_CLAIM,
+    RelevanceOut,
+    RepairOut,
+    ReportOut,
+)
 
 log = get_logger(__name__)
 
@@ -106,6 +125,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
     sources = state.get("sources", [])
     evidence = state.get("evidence", [])
     analysis = state.get("analysis")
+    contract = state.get("contract")
     question = analysis.normalized_query if analysis else state["original_query"]
     coverage = state.get("coverage")
 
@@ -154,6 +174,11 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                         package.text or "(no citable evidence was gathered)",
                         "\n".join(f"- {g}" for g in gaps),
                         claim_budget=claim_budget,
+                        answer_slots=(
+                            [(s.name, s.description) for s in contract.required_slots]
+                            if contract is not None and contract.usable
+                            else None
+                        ),
                     ),
                 )
             )
@@ -215,6 +240,7 @@ def _to_claim(out: object) -> Claim:
         evidence_ids=list(getattr(out, "evidence_ids", []) or []),
         citation_ids=[],
         kind=kind,
+        answer_slot=str(getattr(out, "answer_slot", "") or "").strip(),
     )
 
 
@@ -452,6 +478,31 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         if result.final_published_claims == 0:
             result.evidence_only_excerpts = min(len(store.citable_evidence()), MAX_EXCERPTS)
 
+        # What the published claims actually covered of what was asked.
+        #
+        # A report could finish with claims in it and answer nothing --
+        # a comparison whose survivors are two definitions is the case
+        # that prompted this. The limitations say which required part
+        # is missing, by name, rather than leaving a reader to infer it
+        # from the absence.
+        contract = state.get("contract")
+        if contract is not None:
+            coverage = assess_coverage(
+                contract,
+                [c.answer_slot for c in report.substantive_claims() if c.answer_slot],
+            )
+            gaps = coverage.limitations()
+            if gaps:
+                report = report.model_copy(
+                    update={"limitations": _dedupe_limitations([*report.limitations, *gaps])}
+                )
+            log.info(
+                "answer_coverage",
+                answered=coverage.answered,
+                satisfied=list(coverage.satisfied),
+                missing=list(coverage.missing_core),
+            )
+
         timing["citations"] = result.total_citations
 
     log.info(
@@ -513,6 +564,7 @@ async def _check_entailment(
         record = ClaimJudgment(
             claim_text=claim.text,
             kind=claim.kind,
+            answer_slot=claim.answer_slot or "",
             evidence_ids=list(claim.evidence_ids),
             reason=reason,
         )
@@ -556,6 +608,13 @@ async def _check_entailment(
     settings = ctx().settings
     threshold = settings.nli_support_threshold
     errors: list = []
+    contract = state.get("contract")
+    # The audit record travels with the claim through both later
+    # gates. Relevance and repair are decided after this loop, and
+    # without a handle on the record they were decided nowhere the
+    # transcript could see.
+    awaiting_judgement: list[tuple[Claim, SemanticVerdict, ClaimJudgment]] = []
+    repairable: list[tuple[Claim, SemanticVerdict, list[CitedEvidence], str, ClaimJudgment]] = []
 
     try:
         scorer = ctx().nli_scorer or build_verifier(settings)
@@ -579,7 +638,54 @@ async def _check_entailment(
         verdict = await asyncio.to_thread(
             verify_claim, claim.text, pairs, scorer, support_threshold=threshold
         )
-        _record(claim.text, claim.evidence_ids, verdict, result, judgment(claim))
+
+        # Support and relevance are separate questions, and only ever
+        # one of them was being asked. A claim can be entailed by its
+        # quote and answer nothing that was put to the engine; a live
+        # run published five of those. Relevance is checked against
+        # the contract built before retrieval, and a supported but
+        # irrelevant claim is withheld with its own reason rather than
+        # being reported as unsupported, which it is not.
+        # Created here rather than after the gates below, because the
+        # gates need somewhere to write. It is appended to
+        # result.judgments on construction, so the ordering of the
+        # transcript is unchanged.
+        record = judgment(claim)
+
+        if verdict.publishable and contract is not None:
+            # Structure only, and free. The judgement is asked once for
+            # everything that survives, below.
+            relevance = deterministic_relevance(
+                claim.text,
+                claim.answer_slot or None,
+                contract,
+                evidence_text=" ".join(item.quote for item in pairs),
+            )
+            record.relevance = RelevanceRecord(
+                stage="structural",
+                relevant=relevance.publishable,
+                reason=relevance.reason,
+            )
+            if not relevance.publishable:
+                verdict = replace(
+                    verdict,
+                    publishable=False,
+                    verdict="irrelevant",
+                    reason=f"does not answer the question: {relevance.reason}",
+                )
+            else:
+                awaiting_judgement.append((claim, verdict, record))
+        elif not verdict.publishable and verdict.checked:
+            eligible, why = is_repairable(
+                verdict.reason,
+                every_proposition_supported=_propositions_supported(
+                    claim.text, pairs, scorer, threshold
+                ),
+            )
+            if eligible:
+                repairable.append((claim, verdict, pairs, why, record))
+
+        _record(claim.text, claim.evidence_ids, verdict, result, record)
         if verdict.checked:
             result.checked_claims += 1
             verdicts[key_of(claim)] = verdict.verdict
@@ -604,10 +710,238 @@ async def _check_entailment(
                 )
             )
 
+    # One repair pass, before the judgement, for claims refused on
+    # wording alone.
+    #
+    # Eligibility is narrow by design: every proposition must already
+    # be supported, and the refusal must name only wording guards.
+    # Repair is not a second chance at evidence, and the rewrite is
+    # checked deterministically before it is re-verified so nothing it
+    # smuggled in reaches the gates that would have to notice.
+    if contract is not None:
+        repaired = await _repair_wording(contract, repairable, store, scorer, threshold)
+        for claim, verdict, record in repaired:
+            verdicts[key_of(claim)] = "supported"
+            result.supported_claims += 1
+            result.unsupported_claims = max(0, result.unsupported_claims - 1)
+            # Re-scored on the new wording, so the stored verdict and
+            # propositions must describe the text that will publish,
+            # not the text that was refused.
+            _record(claim.text, claim.evidence_ids, verdict, result, record)
+            awaiting_judgement.append((claim, verdict, record))
+
+    # One judgement call for everything that survived structure.
+    #
+    # Asked of the critic rather than the synthesiser: a model marking
+    # its own homework finds it relevant. Batched into a single request
+    # because a public run has twenty in total, and a gate that costs
+    # one per claim would be the most expensive thing in the report.
+    #
+    # Fails closed. If the judgement cannot be obtained, the claims it
+    # would have covered are withheld -- an unanswered relevance
+    # question is not a yes.
+    if awaiting_judgement and contract is not None:
+        judged = await _judge_relevance(contract, [claim for claim, _, _ in awaiting_judgement])
+        for index, (claim, verdict, record) in enumerate(awaiting_judgement):
+            answers, why = judged.get(index, (None, "no judgement was returned"))
+            # Overwrites the structural record on purpose: the
+            # judgement is the decision that stood, and the structural
+            # pass that preceded it is a yes by construction -- nothing
+            # reaches here having failed it.
+            record.relevance = RelevanceRecord(stage="judged", relevant=answers, reason=why)
+            if answers is True:
+                continue
+            reason = (
+                f"does not answer the question: {why}"
+                if answers is False
+                else f"relevance could not be judged: {why}"
+            )
+            demoted = replace(verdict, publishable=False, verdict="irrelevant", reason=reason)
+            record.verdict = "irrelevant"
+            record.publishable = False
+            record.reason = reason
+            verdicts[key_of(claim)] = "irrelevant"
+            result.supported_claims = max(0, result.supported_claims - 1)
+            result.unsupported_claims += 1
+            result.issues.append(
+                CitationIssue(
+                    type=CitationIssueType.UNSUPPORTED_CLAIM,
+                    severity="warning",
+                    claim_text=claim.text[:200],
+                    evidence_id=",".join(claim.evidence_ids),
+                    detail=demoted.reason[:200],
+                )
+            )
+
     result.entailment_exhaustive = result.checked_claims == result.checkable_claims
     result.not_checked_claims = max(0, result.checkable_claims - result.checked_claims)
     errors += await _check_contradictions(report, store, result, state, verdicts, scorer)
     return errors, verdicts
+
+
+def _propositions_supported(
+    claim_text: str,
+    pairs: list[CitedEvidence],
+    scorer: Scorer,
+    threshold: float,
+) -> bool:
+    """Whether every assertion in the claim already has its evidence.
+
+    The precondition for repair. A claim whose evidence does not carry
+    it is not eligible however its wording reads, because rewording
+    an unsupported claim into a supported-looking one is the
+    laundering the whole design refuses.
+    """
+    for part in decompose(claim_text):
+        verdict = verify_claim(
+            part.text, pairs, scorer, support_threshold=threshold, check_propositions=False
+        )
+        if not verdict.publishable and verdict.best_entailment < threshold:
+            return False
+    return True
+
+
+async def _repair_wording(
+    contract: AnswerContract,
+    candidates: list[tuple[Claim, SemanticVerdict, list[CitedEvidence], str, ClaimJudgment]],
+    store: EvidenceStore,
+    scorer: Scorer,
+    threshold: float,
+) -> list[tuple[Claim, SemanticVerdict, ClaimJudgment]]:
+    """One rewrite attempt each, then every gate again from the start.
+
+    Returns only claims that passed on the second attempt. A claim
+    that fails again keeps its original refusal and the rewrite is
+    discarded -- there is no third try, and no partial credit.
+
+    Every attempt is written to the claim's audit record, including
+    the refused ones. A rewrite rejected for inventing a number is the
+    validator doing its job, and it used to be observable only in a
+    log line.
+    """
+    if not candidates:
+        return []
+
+    def refuse(
+        record: ClaimJudgment, original: str, rewritten: str | None, guard: str, why: str
+    ) -> None:
+        record.repair = RepairRecord(
+            original_text=original,
+            repaired_text=rewritten,
+            guard=guard,
+            accepted=False,
+            reason=why,
+        )
+
+    items = [
+        (
+            index,
+            claim.text,
+            reason,
+            "\n   ".join(f"- {item.quote}" for item in pairs),
+        )
+        for index, (claim, _verdict, pairs, reason, _record) in enumerate(candidates)
+    ]
+    try:
+        out = (
+            await ctx()
+            .router.get(ModelRole.CRITIC)
+            .structured(RepairOut, REPAIR_SYSTEM, repair_user(contract.question, items))
+        )
+    except LLMError as exc:
+        log.warning("wording_repair_failed", error=str(exc)[:200])
+        for _claim, _verdict, _pairs, reason, record in candidates:
+            refuse(record, record.claim_text, None, reason, f"repair call failed: {exc}"[:200])
+        return []
+
+    healed: list[tuple[Claim, SemanticVerdict, ClaimJudgment]] = []
+    attempted = {rewrite.claim_index for rewrite in out.verdicts}
+    for index, (_claim, _verdict, _pairs, reason, record) in enumerate(candidates):
+        if index not in attempted:
+            refuse(record, record.claim_text, None, reason, "no rewrite was returned")
+    for rewrite in out.verdicts:
+        if not 0 <= rewrite.claim_index < len(candidates):
+            continue
+        claim, _original, pairs, reason, record = candidates[rewrite.claim_index]
+        # Captured before the claim is mutated below. Once claim.text
+        # is reassigned the pre-repair wording of a published claim
+        # exists nowhere else.
+        original = claim.text
+        text = (rewrite.rewritten or "").strip()
+        if not text:
+            refuse(record, original, None, reason, "the rewrite was empty")
+            continue
+
+        ok, why = validate_rewrite(claim.text, text)
+        if not ok:
+            log.info("wording_repair_rejected", reason=why[:120])
+            refuse(record, original, text, reason, why)
+            continue
+
+        # Every gate again, from the beginning, on the new wording.
+        verdict = await asyncio.to_thread(
+            verify_claim, text, pairs, scorer, support_threshold=threshold
+        )
+        if not verdict.publishable:
+            log.info("wording_repair_still_refused", reason=verdict.reason[:120])
+            refuse(record, original, text, reason, f"still unsupported: {verdict.reason}")
+            continue
+        relevance = deterministic_relevance(
+            text,
+            claim.answer_slot or None,
+            contract,
+            evidence_text=" ".join(item.quote for item in pairs),
+        )
+        if not relevance.publishable:
+            refuse(record, original, text, reason, f"still irrelevant: {relevance.reason}")
+            continue
+
+        claim.text = text
+        record.repair = RepairRecord(
+            original_text=original,
+            repaired_text=text,
+            guard=reason,
+            accepted=True,
+        )
+        healed.append((claim, verdict, record))
+        log.info("wording_repair_accepted", rule=reason[:60])
+
+    log.info("wording_repair", attempted=len(candidates), accepted=len(healed))
+    return healed
+
+
+async def _judge_relevance(
+    contract: AnswerContract, claims: list[Claim]
+) -> dict[int, tuple[bool | None, str]]:
+    """Ask, once, which of these claims answer the question.
+
+    Returns nothing rather than guessing when the call fails, and the
+    caller withholds what it cannot get a verdict for.
+    """
+    try:
+        out = (
+            await ctx()
+            .router.get(ModelRole.CRITIC)
+            .structured(
+                RelevanceOut,
+                RELEVANCE_SYSTEM,
+                relevance_user(
+                    contract.question,
+                    [s.name for s in contract.required_slots],
+                    [claim.text for claim in claims],
+                ),
+            )
+        )
+    except LLMError as exc:
+        log.warning("relevance_judgement_failed", error=str(exc)[:200])
+        return {}
+
+    judged: dict[int, tuple[bool | None, str]] = {}
+    for verdict in out.verdicts:
+        if 0 <= verdict.claim_index < len(claims):
+            judged[verdict.claim_index] = (verdict.answers_question, verdict.reason)
+    log.info("relevance_judged", asked=len(claims), answered=len(judged))
+    return judged
 
 
 def _scoring_pairs(evidence_ids: list[str], store: EvidenceStore) -> list[CitedEvidence]:
@@ -666,6 +1000,15 @@ def _record(
     record.guards_passed = (
         any(s.guards_passed for s in verdict.per_evidence) if verdict.per_evidence else None
     )
+    record.propositions = [
+        PropositionRecord(
+            text=part.text,
+            supported=part.supported,
+            best_entailment=round(part.best_entailment, 6),
+            best_evidence_id=part.best_evidence_id,
+        )
+        for part in verdict.propositions
+    ]
     record.evidence_scores = [
         EvidenceScoreRecord(
             evidence_id=s.evidence_id,

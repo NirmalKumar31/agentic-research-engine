@@ -1,0 +1,306 @@
+[
+  {
+    "event": "started",
+    "data": {
+      "run_id": "20260929-001744-30d65f",
+      "query": "How does a large language model differ from a neural network?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "started",
+      "run_id": "20260929-001744-30d65f",
+      "query": "How does a large language model differ from a neural network?",
+      "models": {
+        "planner": "openai:gpt-6-luna",
+        "researcher": "openai:gpt-6-luna",
+        "critic": "openai:gpt-6-luna",
+        "synthesizer": "openai:gpt-6-luna"
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_waking",
+        "mode": "remote",
+        "detail": "Waking the verifier",
+        "expected_seconds": 90
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_ready",
+        "detail": "Verifier ready"
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "analyzing_query",
+      "query": "How does a large language model differ from a neural network?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "query_analyzed",
+      "intent": "Understand how LLMs differ from neural networks and how they fit into the broader category of neural-network-based systems.",
+      "format": "comparison"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "answer_contract",
+      "question_type": "comparison",
+      "required": [
+        "direct_contrast"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "planning"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "plan_generated",
+      "count": 4,
+      "questions": [
+        "What is a neural network, and what defines a large language model (LLM) as a category of model?",
+        "How do LLMs typically differ from other neural networks in architecture, training data, and training objectives?",
+        "How does the category relationship work: are all LLMs neural networks, and why are most neural networks not LLMs?",
+        "What capabilities and typical uses distinguish LLMs from neural networks designed for other tasks, and where do these categories overlap?"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "generating_queries",
+      "round": 1,
+      "sub_questions": 4
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "queries_generated",
+      "round": 1,
+      "count": 6,
+      "queries": [
+        "neural network definition layers weights activation functions large language model definition",
+        "large language model characteristics parameter scale language modeling pretraining transformer",
+        "LLM transformer architecture web-scale text corpus next token prediction task-specific neural network training",
+        "large language model pretraining objective self-supervised learning versus supervised neural network training",
+        "large language models subset of neural networks taxonomy artificial intelligence model categories",
+        "neural network task-specific image classification speech recognition language model distinction"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q2",
+      "query": "large language model characteristics parameter scale language modeling pretraining transformer",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q3",
+      "query": "LLM transformer architecture web-scale text corpus next token prediction task-specific neural network training",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q1",
+      "query": "neural network definition layers weights activation functions large language model definition",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q6",
+      "query": "neural network task-specific image classification speech recognition language model distinction",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q4",
+      "query": "large language model pretraining objective self-supervised learning versus supervised neural network training",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q5",
+      "query": "large language models subset of neural networks taxonomy artificial intelligence model categories",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_deduplicated",
+      "results": 48,
+      "unique": 46,
+      "avoided": 2,
+      "selected": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_registered",
+      "usable": 6,
+      "duplicates": 0,
+      "extracting": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S3",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S6",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S2",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S5",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S1",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S4",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "assessing_coverage",
+      "round": 1
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "coverage_evaluated",
+      "round": 1,
+      "ratio": 0.25,
+      "sufficient": false,
+      "covered": 1,
+      "total": 4,
+      "weak": 3,
+      "missing": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesizing",
+      "evidence": 36
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesized",
+      "sections": 2,
+      "findings": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "verifying_citations"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "citations_verified",
+      "total": 3,
+      "evidence_integrity": 1.0,
+      "support": {
+        "supported": 3,
+        "partially_supported": 0,
+        "unsupported": 4,
+        "not_checked": 0
+      },
+      "exhaustive": true,
+      "not_checked": 0,
+      "removed": 4,
+      "published": 3
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "completed",
+      "stop_reason": "stopped after round 1"
+    }
+  },
+  {
+    "event": "done",
+    "data": {
+      "run_id": "20260929-001744-30d65f"
+    }
+  }
+]

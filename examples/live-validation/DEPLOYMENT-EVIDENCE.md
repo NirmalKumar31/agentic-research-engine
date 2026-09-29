@@ -7,6 +7,15 @@ hosted claim can be checked rather than taken on trust.
 **This is deployment acceptance. It is not a research-quality
 evaluation, and nothing here says the engine answers questions well.**
 
+> **Renamed 2026-09-28.** The Render services were rebuilt from
+> scratch and the public demo is now `agentic-research-engine`
+> (`agentic-research-engine.onrender.com`). The names below are left
+> as they were on the day this was verified: this file records what
+> was checked and against what, and editing it to match today's names
+> would make it a description rather than a record. The same applies
+> to the `service_url` in each committed run's `environment.json`,
+> which is covered by a checksum.
+
 ## Configuration verified 2026-09-28
 
 ### Web service

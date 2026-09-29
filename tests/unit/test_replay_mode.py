@@ -116,6 +116,7 @@ RECORDING = {
                 {
                     "text": "Precision-recall beats ROC AUC under heavy imbalance.",
                     "kind": "factual",
+                    "answer_slot": "",
                     "evidence_ids": ["S1-e1"],
                     "citation_ids": ["S1"],
                 }
@@ -169,6 +170,9 @@ RECORDING = {
                 "fetch_status": "ok",
             }
         ],
+        # Null, as it is in the three committed recordings: they were
+        # captured before the answer contract existed.
+        "contract": None,
         "verification": {"total_claims": 1},
         "metrics": {"duration_s": 1096.0, "evidence_items": 2},
         "markdown": "# Fraud detection\n",

@@ -24,7 +24,7 @@ both must stay out of the report.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final, Literal, Protocol
 
 from agentic_research.citations.guards import (
@@ -34,13 +34,18 @@ from agentic_research.citations.guards import (
     run_guards,
 )
 from agentic_research.citations.nli import NLIPrediction, NLIUnavailable
+from agentic_research.citations.propositions import decompose
 
 if TYPE_CHECKING:
     from agentic_research.models import ClaimJudgment, ClaimKind
 
 # Diagnostic verdicts. Only SUPPORTED publishes; the boundary between
 # the other two is informational and deliberately not release-critical.
-Verdict = Literal["supported", "partially_supported", "unsupported"]
+Verdict = Literal["supported", "partially_supported", "unsupported", "irrelevant"]
+"""``irrelevant`` is a supported claim that answers nothing the
+question asked. Reporting it as unsupported would misstate why it
+was withheld and hide the distinction the relevance gate exists to
+draw."""
 
 SUPPORTED: Final[Verdict] = "supported"
 PARTIALLY_SUPPORTED: Final[Verdict] = "partially_supported"
@@ -90,6 +95,9 @@ class EvidenceScore:
     contradiction: float
     guards: list[GuardResult]
     truncated: bool = False
+    source: SourceIdentity | None = None
+    """Carried for *selection*, never for scoring. Recorded on the
+    verdict so a reader can see which source was chosen and why."""
 
     @property
     def guards_passed(self) -> bool:
@@ -111,6 +119,23 @@ class EvidenceScore:
 
 
 @dataclass(frozen=True)
+class PropositionScore:
+    """One assertion inside a claim, and whether its own evidence carried it.
+
+    Kept because the decomposition is the interesting part of the
+    verdict and the only part that used to vanish. A claim withheld for
+    asserting two things is reported as one refusal string; which part
+    failed, and by how far, was reconstructable only by rerunning the
+    classifier against a guess at how the sentence was split.
+    """
+
+    text: str
+    supported: bool
+    best_entailment: float
+    best_evidence_id: str | None = None
+
+
+@dataclass(frozen=True)
 class SemanticVerdict:
     """The complete, untruncated record of why a claim did or did not publish."""
 
@@ -124,6 +149,8 @@ class SemanticVerdict:
     best_evidence_id: str | None = None
     best_entailment: float = 0.0
     per_evidence: list[EvidenceScore] = field(default_factory=list)
+    propositions: list[PropositionScore] = field(default_factory=list)
+    """Empty when the claim asserted one thing and was not decomposed."""
 
 
 def _withheld(
@@ -146,6 +173,7 @@ def verify_claim(
     scorer: Scorer,
     *,
     support_threshold: float,
+    check_propositions: bool = True,
 ) -> SemanticVerdict:
     """Decide whether one claim may publish.
 
@@ -157,6 +185,67 @@ def verify_claim(
     no source identity to offer, such as the adversarial suite; those
     simply leave the attribution guard nothing to check against.
     """
+    # Support is checked per assertion, not per sentence.
+    #
+    # A claim bundling a measured figure with an assertion its quote
+    # never contained published at 0.983, because the sentence as a
+    # whole was close enough to the quote as a whole. Verifying the
+    # sentence verified the average of its parts, and the unsupported
+    # half rode in on the supported one.
+    #
+    # Every proposition must stand on its own evidence. One that does
+    # not withholds the entire claim -- the supported half reaches
+    # print only if something upstream proposes it as its own claim.
+    if check_propositions:
+        parts = decompose(claim_text)
+        if len(parts) > 1:
+            # Scored parts accumulate as they are checked, and travel
+            # out on whichever verdict is returned. The loop still stops
+            # at the first failure -- one unsupported proposition
+            # withholds the claim, and scoring the rest would spend
+            # classifier calls to learn nothing that changes the answer.
+            # So this list ends at the part that failed, deliberately.
+            scored: list[PropositionScore] = []
+            for part in parts:
+                verdict = verify_claim(
+                    part.text,
+                    evidence,
+                    scorer,
+                    support_threshold=support_threshold,
+                    check_propositions=False,
+                )
+                scored.append(
+                    PropositionScore(
+                        text=part.text,
+                        supported=verdict.publishable,
+                        best_entailment=verdict.best_entailment,
+                        best_evidence_id=verdict.best_evidence_id,
+                    )
+                )
+                if not verdict.publishable:
+                    return replace(
+                        _withheld(
+                            f"the claim asserts {len(parts)} things and "
+                            f"{part.text.strip()!r} is not supported: {verdict.reason}",
+                            support_threshold,
+                            scorer.model_id,
+                            scorer.revision,
+                            checked=verdict.checked,
+                        ),
+                        propositions=scored,
+                    )
+            # Every part stands. Report the whole claim's own numbers.
+            return replace(
+                verify_claim(
+                    claim_text,
+                    evidence,
+                    scorer,
+                    support_threshold=support_threshold,
+                    check_propositions=False,
+                ),
+                propositions=scored,
+            )
+
     cited: list[CitedEvidence] = [
         item if isinstance(item, CitedEvidence) else CitedEvidence(item[0], item[1])
         for item in evidence
@@ -217,6 +306,7 @@ def verify_claim(
                 contradiction=s.contradiction,
                 guards=run_guards(claim_text, quote, item.source),
                 truncated=getattr(prediction, "truncated", False),
+                source=item.source,
             )
         )
 
@@ -226,7 +316,37 @@ def verify_claim(
     # highest-entailment item overall may well be one whose numbers or
     # modality do not match, and it must not carry the claim.
     valid = [s for s in scores if s.guards_passed]
-    best_valid = max(valid, key=lambda s: s.entailment, default=None)
+
+    # Among evidence that has already qualified, the strongest source
+    # carries the claim -- not the highest entailment.
+    #
+    # Entailment stays a gate and never becomes a ranking: an item
+    # below the threshold cannot be chosen however authoritative its
+    # publisher. Above it, the differences are small and mean little.
+    # A live run cited a tweet at 0.994 over an arXiv paper at 0.985
+    # for the same technical claim, because 0.994 is the larger number.
+    # It is not the better source, and the engine had already computed
+    # that and thrown it away.
+    #
+    # Ordered by authority, then quality, then entailment, then id, so
+    # the same candidates always produce the same citation.
+    def _rank(item: EvidenceScore) -> tuple[int, float, float, str]:
+        src = item.source
+        return (
+            src.authority_rank if src else 0,
+            src.quality if src else 0.0,
+            item.entailment,
+            # Reversed below; a stable last resort rather than a tie.
+            item.evidence_id,
+        )
+
+    qualified = [s for s in valid if s.entailment >= support_threshold]
+    if qualified:
+        best_valid: EvidenceScore | None = max(qualified, key=_rank)
+    else:
+        # Nothing qualifies, so nothing is being chosen between. The
+        # highest scorer is reported to explain how close it came.
+        best_valid = max(valid, key=lambda s: s.entailment, default=None)
     best_any = max(scores, key=lambda s: s.entailment)
 
     if best_valid is not None and best_valid.entailment >= support_threshold:

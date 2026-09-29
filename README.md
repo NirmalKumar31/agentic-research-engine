@@ -5,6 +5,13 @@ parallel, extracts evidence as exact-normalized source quotes, and publishes
 only the atomic claims a dedicated entailment classifier scored as supported
 by one of their own cited quotes. Everything else is withheld.
 
+Supported is not the same as relevant, so both are checked. A claim can be
+entailed by its quote at 0.996, cited correctly, and answer nothing that was
+asked — a deployed run published five of those before the answer contract
+existed. Claims are held to a contract built from the question before
+retrieval starts, and one that fills no part of it is withheld with its own
+reason rather than reported as unsupported, which it is not.
+
 ---
 
 ## The problem
@@ -16,6 +23,10 @@ This project separates them and measures whether the result holds.
 
 ## What it does
 
+- **Builds an answer contract** from the question before retrieving
+  anything — the canonical slots an answer of that kind must fill — and
+  **refuses rather than guesses**: a comparison naming fewer than two
+  entities produces an unusable contract with no slots at all.
 - **Decomposes** the question into 4–6 researchable dimensions.
 - **Searches in parallel**, one query per dimension, rewriting queries each
   round so follow-ups do not repeat earlier searches.
@@ -33,6 +44,13 @@ This project separates them and measures whether the result holds.
 - **Checks every claim against each of its own quotes separately**, using a
   pinned NLI classifier plus deterministic guards, and removes everything
   that does not clear the bar before publishing.
+- **Checks relevance separately from support**, so a true, well-cited
+  claim that answers nothing is withheld for that reason and labelled as
+  such.
+- **Repairs wording, never substance.** A claim refused on phrasing alone
+  gets one rewrite, validated before it is re-verified.
+- **Reports what it did not answer.** A report that publishes claims and
+  fills none of the contract's core slots says so in its limitations.
 - **Falls back to exact source excerpts** when nothing passes, rather than
   publishing an empty report or relaxing the bar.
 
@@ -71,6 +89,41 @@ error is withholding a true claim, but "withheld" and "published" are not
 proofs. This is not zero hallucinations, not perfect factuality, not general
 entailment correctness — it is a measured, fail-closed filter whose
 behaviour on the cases tested is written down below.
+
+## Does it answer the question?
+
+A separate axis from support, and for one release only the first was
+being asked. A deployed run published five claims that every gate above
+passed — entailed by their own quotes, correctly cited, atomic — and
+that collectively did not address what was asked. "Supported" had been
+standing in for "an answer".
+
+| Stage | Who | What |
+|---|---|---|
+| Answer contract | Plain Python | Turns the question into the slots an answer must fill. A comparison needs a direct contrast; a definition needs a definition. Refuses when the question cannot be given a shape. |
+| Proposition decomposition | Plain Python | Splits a claim on a new subject with a finite verb, not on the word "and". Each assertion must earn its own entailment score. |
+| Structural relevance | Plain Python | Does the claim fill the slot it declared, and mention what the question is about? Free, so it runs on everything. |
+| Relevance judgement | The **critic** model, one batched call | Does this claim help answer the question? Asked of the critic, not the synthesiser — a model marking its own homework finds its work relevant. |
+| Bounded repair | The critic, then every gate again | One rewrite for claims refused on wording alone. |
+| Coverage | Plain Python | Which core slots the published report actually filled. |
+
+**Support is checked per assertion, not per sentence.** A claim bundling
+a measured figure with an assertion its quote never contained published
+at 0.983, because the sentence as a whole was close enough to the quote
+as a whole. Verifying the sentence verified the average of its parts,
+and the unsupported half rode in on the supported one.
+
+**Repair may not launder.** A rewrite is checked deterministically
+before it is re-verified, and refused if it adds or changes a number,
+introduces a named subject, invents causation, or states the claim more
+strongly. Causal, exclusivity, framing and hedge failures are never
+eligible at all: those are about what a claim says, not how, and
+rephrasing them is laundering. Every attempt is recorded, including the
+refused ones.
+
+**Relevance fails closed.** If the judgement cannot be obtained, the
+claims it would have covered are withheld. An unanswered relevance
+question is not a yes.
 
 ## Architecture
 
@@ -214,6 +267,9 @@ spends nothing.
 
 ## Usage
 
+**Live demo:** <https://agentic-research-engine.onrender.com> — a free
+instance, so the first request wakes it and takes about a minute.
+
 The public demo replays recorded runs and needs no credentials. To run
 live research yourself:
 
@@ -283,6 +339,101 @@ reviewer is committed at
 [`examples/release-audit/reviewer-packet.json`](examples/release-audit/reviewer-packet.json),
 carrying only claims, quotes and sources — no verdict, score, guard
 result or prior label.
+
+### Adversarial quality set
+
+Eleven cases, seventeen claims, frozen in
+[`examples/quality-eval/`](examples/quality-eval/) and run
+credential-free. Entailment is pinned per (claim, evidence) pair,
+because the 0.98 threshold is not what this measures — the subject is
+evidence selection, the guards, relevance, and coverage.
+
+`python examples/quality-eval/run_eval.py`
+
+| | v1.1.1 | v1.2.0 |
+|---|---|---|
+| **Irrelevant claims published** | **6** | **0** |
+| Irrelevant publication rate | 0.429 | 0.0 |
+| Wrong evidence selected | 1 | 0 |
+| Mean selected source quality | 0.855 | 0.935 |
+| Lowest selected source quality | 0.55 | 0.88 |
+| Claims published | 14 | 6 |
+| Correct claims wrongly withheld | 0 | **1** |
+| Cases publishing nothing | 2 | **6** |
+
+**Read the bottom three rows as carefully as the top one.** This is a
+precision-for-recall trade, and it is a large one: published claims
+fell from 14 to 6, one correct claim is now wrongly withheld that was
+not before, and six of eleven cases publish nothing at all. What was
+bought is that no claim in the set is published that does not answer
+its question, where previously 43% were.
+
+Whether that trade is right depends on what the report is for. For a
+research tool whose entire premise is that a citation means something,
+withholding a true claim costs a line; publishing a well-cited
+irrelevance costs the premise.
+
+### Hosted acceptance
+
+Deployment acceptance, not a research-quality evaluation: one live run
+through the deployed endpoint under the public budgets, captured byte
+for byte. Everything in
+[`examples/live-validation/v12-20260929-001737/`](examples/live-validation/v12-20260929-001737/)
+is derived from those bytes offline, and rebuilding it is a command —
+a file that no longer matches `checksums.sha256` was edited, not
+derived.
+
+*"How does a large language model differ from a neural network?"* —
+chosen because the previous release answered it badly.
+
+| | |
+|---|---|
+| Generated / checked / **published** | 7 / 7 / **3** |
+| Withheld: below threshold | 1 |
+| Withheld: guard failure (atomicity) | 1 |
+| Withheld: **supported but irrelevant** | **2** |
+| Duration | 165.4s of a 240s ceiling |
+| Cost | $0.009466 OpenAI, 6 Tavily credits |
+
+The two withheld for irrelevance are the point. Both were entailed by
+their own quotes — at **0.996** and **0.990** — and correctly cited:
+
+> *"Neural networks consist of layers of nodes, with each node
+> representing a mathematical function."*
+> → withheld: *defines neural networks but does not distinguish them
+> from LLMs or explain their relationship.*
+
+True, sourced, and not an answer. Under the previous release it would
+have published.
+
+The engine then disagreed with its own output. It published three
+claims and wrote in its limitations that *"this research did not answer
+the question. Nothing published states how large language model (LLM)
+and neural network differ; what survived describes them separately."*
+
+**Two findings, both recorded rather than smoothed over**, in
+[`manual-review.md`](examples/live-validation/v12-20260929-001737/manual-review.md):
+
+1. A rewrite was refused with *"cannot fill the contrast slot"* and the
+   identical sentence published — correct, because the two claims
+   declared different slots, and unreadable, because the slot was not
+   serialised. Fixed for future runs; **the artifact for this run
+   cannot be repaired**, because the field was never sent and the
+   deployment admits one run a day.
+2. For *"how does X differ from Y"* where Y is a superset of X, the
+   honest answer is a subset relationship — which the engine found,
+   published, and then reported as not answering, because the
+   contract's core slot for a comparison was a direct contrast.
+   **Fixed:** a comparison is now answered by a contrast *or* a
+   relationship. Verified by replaying this run's own contract and
+   published slots through the new coverage — the change post-dates
+   the capture, and the deployment admits one run a day, so it is
+   not covered by a second live run.
+
+**Proposition decomposition was not exercised by this run.** No claim
+decomposed into more than one part, so that path is covered by tests
+and unproven in production. One run is not a benchmark either: three
+published claims here says nothing about the next question.
 
 ### How the audits went
 

@@ -37,10 +37,18 @@ CORE = {
 HOSTED_EXTRA = {"stream.raw.sse", "stream.index.jsonl", "withheld-reasons.json"}
 
 
+# Directories under examples/live-validation that are not runs. Named
+# explicitly rather than inferred from their contents: a rule like
+# "has metrics.json" would make a run that is missing its metrics
+# vanish from the parametrisation instead of failing, which is the one
+# thing this file exists to catch.
+NOT_A_RUN = {"tools"}
+
+
 def runs() -> list[Path]:
     if not VALIDATION.is_dir():
         return []
-    return sorted(p for p in VALIDATION.iterdir() if p.is_dir())
+    return sorted(p for p in VALIDATION.iterdir() if p.is_dir() and p.name not in NOT_A_RUN)
 
 
 def is_hosted(run_dir: Path) -> bool:
@@ -56,6 +64,17 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 class TestTheArtifactIsComplete:
     def test_at_least_one_run_is_committed(self) -> None:
         assert runs()
+
+    def test_the_exclusion_list_hides_no_real_run(self) -> None:
+        """A name added to NOT_A_RUN removes a directory from every
+        check in this file. It must never be able to do that to a run."""
+        for name in NOT_A_RUN:
+            directory = VALIDATION / name
+            if not directory.is_dir():
+                continue
+            assert not (directory / "metrics.json").exists(), (
+                f"{name} looks like a run but is excluded from every assertion"
+            )
 
     def test_a_hosted_run_is_committed(self) -> None:
         """Deployment acceptance needs evidence from the deployment."""

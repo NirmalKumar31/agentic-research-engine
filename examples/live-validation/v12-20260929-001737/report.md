@@ -1,0 +1,73 @@
+# Large Language Models and Neural Networks
+
+**Question:** How does a large language model differ from a neural network?
+
+## Summary
+
+LLMs are a specific subset of neural networks. [S3] LLMs are typically based on the transformer architecture. [S2]
+
+## Training and data
+
+An LLM is typically a neural-network AI model trained on vast amounts of text for natural-language processing, especially language generation. [S2]
+
+## Limitations
+
+- The evidence does not establish that every LLM is invariably a neural network; one definition describes LLMs as typically neural networks, while another calls them a specific subset.
+- The evidence does not explain why most neural networks are not LLMs.
+- The evidence offers limited comparison of LLMs with other neural networks beyond architecture, training data, objectives, and typical language tasks.
+- Only limited evidence was found for: How do LLMs typically differ from other neural networks in architecture, training data, and training objectives.
+- Only limited evidence was found for: How does the category relationship work: are all LLMs neural networks, and why are most neural networks not LLMs.
+- Only limited evidence was found for: What capabilities and typical uses distinguish LLMs from neural networks designed for other tasks, and where do these categories overlap.
+- 2 extracted finding(s) were excluded because their quotes could not be located in the source text
+- 4 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.
+- This research did not answer the question. Nothing published states how large language model (LLM) and neural network differ; what survived describes them separately.
+- More than one published claim fills the dimension slot; they may repeat each other.
+
+## Sources
+
+- **[S1]** [11.9. Large-Scale Pretraining with Transformers — Dive into Deep Learning 1.0.3 documentation](https://d2l.ai/chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html) — d2l.ai, other, n.d., quality 0.61 _(retrieved, not cited)_
+- **[S2]** [Large language model - Wikipedia](https://en.wikipedia.org/wiki/Large_language_model) — en.wikipedia.org, other, n.d., quality 0.61
+- **[S3]** [What are Neural Networks and Large Language Models? | Metafraze](https://metafraze.com/what-are-neural-networks-and-large-language-models) — metafraze.com, other, n.d., quality 0.60
+- **[S4]** [Large Language Models: A Survey](https://arxiv.org/html/2402.06196v2) — arxiv.org, academic, n.d., quality 0.95 _(retrieved, not cited)_
+- **[S5]** [Understanding large language models: A comprehensive guide | Elastic](https://www.elastic.co/what-is/large-language-models) — elastic.co, other, n.d., quality 0.60 _(retrieved, not cited)_
+- **[S6]** [Introduction to Large Language Models (LLMs): A Guide](https://leena.ai/blog/large-language-models-llms-guide) — leena.ai, blog, n.d., quality 0.55 _(retrieved, not cited)_
+
+## Citation verification
+
+- Evidence references: 3, 3 resolved to citable evidence (100%). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.
+- Evidence-owing claims carrying a citation: 100% of 3
+- Entailment checked against each claim's own evidence, over every eligible claim: 3 supported, 0 partially supported, 4 unsupported, 0 not checked
+- Retrieved but never cited: S1, S4, S5, S6
+
+<details><summary>Open citation issues</summary>
+
+- `unsupported_claim` every cited quote failed a deterministic guard: atomicity — LLMs are a specific, language-focused subset of neural networks.
+- `unsupported_claim` best entailment 0.039 from S6-e4 is below the 0.98 support threshold — LLM pretraining is an unsupervised process in which the model learns from vast amounts of text data to acquire a general
+- `unsupported_claim` does not answer the question: It defines neural networks but does not distinguish them from LLMs or explain their relationship. — Neural networks consist of layers of nodes, with each node representing a mathematical function.
+- `unsupported_claim` does not answer the question: It lists LLM capabilities but does not compare LLMs with neural networks or explain how they are related. — LLMs can typically generate, summarize, translate, and analyze text in many contexts.
+
+</details>
+
+## Run metrics
+
+| Metric | Value |
+| --- | --- |
+| Mode | cloud |
+| Research rounds | 1 |
+| Stopped because | stopped after round 1 |
+| Search queries | 6 |
+| Unique sources | 6 |
+| Usable sources | 6 |
+| Distinct domains | 6 |
+| Fetches avoided by dedup | 2 |
+| Evidence items | 36 |
+| Quotes verbatim (exact-normalised) | 94% |
+| Quotes fuzzy (excluded from citation) | 0% |
+| LLM calls | 14 |
+| Tokens (in/out) | 25,498 / 13,833 |
+| Estimated cost | $0.0095 (8 responses used a token category with no recorded rate) |
+| Duration | 165.4s |
+
+---
+
+_Generated by Agentic Research Engine on 2026-09-29 00:20 UTC._

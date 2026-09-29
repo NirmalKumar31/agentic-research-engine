@@ -285,6 +285,7 @@ def synthesizer_user(
     evidence_block: str,
     gaps_note: str,
     claim_budget: int | None = None,
+    answer_slots: list[tuple[str, str]] | None = None,
 ) -> str:
     """Build the synthesis prompt, optionally bounded to a claim budget.
 
@@ -295,6 +296,21 @@ def synthesizer_user(
     surplus deleted afterwards. One run generated 25 claims, could afford
     to check 4, and published 2.
     """
+    # The required parts of an answer, named. Without this the model
+    # writes whatever the evidence supports, which is how a question
+    # asking how two things differ was answered with five definitions
+    # of one of them.
+    slots = ""
+    if answer_slots:
+        listed = "\n".join(f"- {name}: {description}" for name, description in answer_slots)
+        slots = (
+            "\n\nThis question is only answered if these parts are covered. "
+            "Give each claim the answer_slot it fills, copied exactly:\n"
+            f"{listed}\n"
+            "A claim filling none of them does not belong in the report, "
+            "however well the evidence supports it."
+        )
+
     gaps = f"\n\nKnown gaps in the evidence:\n{gaps_note}" if gaps_note else ""
     budget = ""
     if claim_budget is not None:
@@ -309,6 +325,88 @@ def synthesizer_user(
     return (
         f"Research question:\n{question}\n\n"
         f"Expected shape of answer: {output_format}\n\n"
-        f"Evidence:\n{evidence_block}{gaps}{budget}\n\n"
+        f"Evidence:\n{evidence_block}{slots}{gaps}{budget}\n\n"
         "Write the report."
+    )
+
+
+RELEVANCE_SYSTEM = """\
+You judge whether a claim answers a question. You do not judge whether it \
+is true, and you are not being asked to check its evidence -- that has \
+already been done and every claim you see is supported by the quote it \
+cites.
+
+The only question is whether the claim helps answer what was asked.
+
+A claim can be entirely true, carefully sourced, and no answer at all. A \
+definition of one system does not answer how two systems differ. A \
+benchmark for one database does not answer a question about another. \
+Background about a topic does not answer a question about how to do \
+something.
+
+Be strict about what the question asked and generous about wording. A \
+source may answer correctly without using the question's vocabulary: a \
+paper describing "scaled dot-product attention" does answer a question \
+about self-attention. Judge the substance, not the phrasing.
+
+When a claim only partly bears on the question, say no. Something that \
+nearly answers is what the limitations section is for."""
+
+
+def relevance_user(question: str, required_slots: list[str], claims: list[str]) -> str:
+    """Ask for a verdict on every candidate claim in one call.
+
+    Batched deliberately: one provider request for a whole report
+    rather than one per claim, because a public run has twenty calls
+    in total and relevance must not eat them.
+    """
+    slots = "\n".join(f"- {name}" for name in required_slots) or "- (none stated)"
+    listed = "\n".join(f"{i}. {text}" for i, text in enumerate(claims))
+    return (
+        f"Question:\n{question}\n\n"
+        f"An answer to it must cover:\n{slots}\n\n"
+        f"Candidate claims:\n{listed}\n\n"
+        "For each claim, by index, say whether it helps answer the question."
+    )
+
+
+REPAIR_SYSTEM = """\
+You reword claims that are already supported by their evidence but were \
+refused for how they are written.
+
+The evidence is settled. Every claim you see is entailed by the quote \
+beneath it, and your job is not to make it more convincing -- it is to \
+make it say the same thing without breaking the stated rule.
+
+You may: split a sentence that asserts two things into the one it can \
+support, name the actor a quote actually attributes something to, state \
+a figure with the units the quote gives it, restore a hedge the quote \
+has and the claim dropped.
+
+You may not: add any fact the quote does not contain, add or change a \
+number, name a source, state the claim more strongly than it was \
+stated, or turn an association into a cause. A rewrite that does any of \
+these is rejected automatically and the claim is dropped.
+
+If the rule cannot be satisfied by rewording, return an empty string. \
+That is a correct answer and a common one. Do not invent a way through."""
+
+
+def repair_user(question: str, items: list[tuple[int, str, str, str]]) -> str:
+    """Ask for rewordings, one call for every repairable claim.
+
+    Each item is (index, claim, the rule it broke, the quotes it cites).
+    """
+    blocks = []
+    for index, claim, rule, quotes in items:
+        blocks.append(
+            f"{index}. Claim: {claim}\n"
+            f"   Refused because: {rule}\n"
+            f"   Evidence it cites:\n   {quotes}"
+        )
+    return (
+        f"Question being answered:\n{question}\n\n"
+        + "\n\n".join(blocks)
+        + "\n\nReword each claim so it no longer breaks its rule, or return "
+        "an empty string for it."
     )

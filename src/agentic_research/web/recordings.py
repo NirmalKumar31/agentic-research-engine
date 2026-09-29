@@ -48,7 +48,14 @@ RECORDINGS_DIR = Path(__file__).resolve().parent / "recorded_runs"
 # renders as a subtly broken demo rather than an obvious error.
 # 2: planner free prose (plan.strategy, sub_question.rationale) removed
 #    from the public payload -- both carried model self-talk.
-RECORDING_SCHEMA_VERSION = 2
+# 3: result.contract added. The three committed recordings predate the
+#    answer contract entirely, so theirs is null -- a truthful record of
+#    runs that were never held to one, not a contract back-filled to make
+#    the shape match.
+# 4: claim.answer_slot added. Empty in those same recordings, and for
+#    the same reason: no claim in them declared a slot, because there
+#    was no contract to declare one against.
+RECORDING_SCHEMA_VERSION = 4
 
 # Progress events are copied into a committed, publicly served file, so the
 # fields that survive are listed rather than filtered. An allowlist cannot
@@ -479,11 +486,16 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
     evidence = state.get("evidence", []) or []
     sources = state.get("sources", []) or []
     plan = state.get("plan")
+    contract = state.get("contract")
 
     def claim(c: Any) -> dict[str, Any]:
         return {
             "text": c.text,
             "kind": c.kind.value,
+            # Which part of the contract it set out to fill. Without it
+            # a reader cannot tell why two claims with the same wording
+            # got different relevance verdicts.
+            "answer_slot": c.answer_slot or "",
             "evidence_ids": list(c.evidence_ids),
             "citation_ids": list(c.citation_ids),
         }
@@ -563,6 +575,12 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
             }
             for s in sources
         ],
+        # The contract the run was held to. Without it the relevance
+        # decisions in ``verification`` cannot be read: "does not
+        # answer the question" is only checkable against the slots the
+        # question was decomposed into, and those were built before
+        # retrieval and then discarded.
+        "contract": None if contract is None else contract.to_dict(),
         "verification": state.get("verification"),
         "metrics": result.metrics.model_dump(mode="json"),
         "markdown": result.markdown,

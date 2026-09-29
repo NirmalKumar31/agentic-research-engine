@@ -507,6 +507,15 @@ class Claim(BaseModel):
         description="Source ids, derived from evidence_ids by the engine",
     )
     kind: ClaimKind = ClaimKind.FACTUAL
+    answer_slot: str = Field(
+        default="",
+        description="Which required part of the question this claim answers",
+    )
+    """Empty when the run had no usable answer contract.
+
+    Publication requires a slot the contract actually asked for: a
+    claim can be true, well sourced and no answer to the question, and
+    a live run published five such claims before this existed."""
 
     @property
     def requires_evidence(self) -> bool:
@@ -651,6 +660,61 @@ class EvidenceScoreRecord(BaseModel):
     """Guard names, empty when all passed."""
 
 
+class PropositionRecord(BaseModel):
+    """One assertion inside a claim, with the score it earned alone."""
+
+    text: str
+    supported: bool
+    best_entailment: float
+    best_evidence_id: str | None = None
+
+
+class RelevanceRecord(BaseModel):
+    """Why a supported claim was, or was not, allowed to answer.
+
+    Support and relevance are separate gates, and a claim can pass the
+    first and fail the second. Recorded structurally because the two
+    failures used to be distinguishable only by reading prose: both
+    arrived as a ``reason`` string beginning "does not answer the
+    question", whether the structural check refused it for free or a
+    critic call was paid for to refuse it.
+    """
+
+    stage: Literal["structural", "judged"]
+    """``structural`` is the free check against the contract's slots and
+    entities. ``judged`` is the batched critic call, asked only of what
+    survived structure."""
+    relevant: bool | None
+    """None means no judgement was obtained. Withheld, not rejected --
+    an unanswered relevance question is not a yes, and the distinction
+    matters when reading why a run published little."""
+    reason: str
+
+
+class RepairRecord(BaseModel):
+    """One bounded rewrite attempt, whatever became of it.
+
+    Rejected attempts are recorded too. A repair that was refused
+    because it added a number is the gate working, and it was
+    previously visible only in a log line that no acceptance capture
+    reads.
+
+    ``original_text`` is duplicated from the judgment rather than
+    inferred: :meth:`Claim.text` is mutated in place when a repair is
+    accepted, so without an explicit copy the pre-repair wording of a
+    published claim exists nowhere.
+    """
+
+    original_text: str
+    repaired_text: str | None = None
+    """None when the model returned nothing to check."""
+    guard: str
+    """The refusal the repair was attempting to address."""
+    accepted: bool = False
+    reason: str = ""
+    """Why it was rejected, or empty when it was accepted."""
+
+
 class ClaimJudgment(BaseModel):
     """The full record of one claim's semantic verdict.
 
@@ -669,10 +733,23 @@ class ClaimJudgment(BaseModel):
     claim_text: str
     """Complete, never truncated. This is the point of the record."""
     kind: ClaimKind
+    answer_slot: str = ""
+    """Which part of the contract the claim set out to fill.
+
+    Recorded because it decides the relevance verdict and was the one
+    input to it that went unrecorded. In the v1.2.0 acceptance run a
+    rewrite was refused with "cannot fill the contrast slot" and the
+    identical sentence published under a different slot -- correct
+    behaviour that the artifact had no way to show, so it read as a
+    contradiction."""
     evidence_ids: list[str] = Field(default_factory=list)
-    verdict: Literal["supported", "partially_supported", "unsupported"] | None = None
+    verdict: Literal["supported", "partially_supported", "unsupported", "irrelevant"] | None = None
     """None when the claim was never checked -- an exhausted budget, or
-    more cited evidence than can be shown at once."""
+    more cited evidence than can be shown at once.
+
+    ``irrelevant`` means supported by its evidence and no answer to the
+    question. Recorded distinctly so a reader is not told that a true,
+    well-cited claim failed verification."""
     reason: str | None = None
     checked: bool = False
 
@@ -695,6 +772,15 @@ class ClaimJudgment(BaseModel):
     publishable: bool = False
     """The only field the publication gate reads. Deliberately separate
     from ``verdict``, which is a derived diagnostic label."""
+
+    # --- what the claim was decomposed into, and the gates after support ---
+    propositions: list[PropositionRecord] = Field(default_factory=list)
+    """Empty when the claim asserted one thing and was never split."""
+    relevance: RelevanceRecord | None = None
+    """None when the claim never reached the relevance gate, which is
+    the normal case for a claim its evidence did not support."""
+    repair: RepairRecord | None = None
+    """None when no rewrite was attempted."""
 
 
 class CitationVerification(BaseModel):

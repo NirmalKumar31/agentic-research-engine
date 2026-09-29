@@ -23,6 +23,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Annotated, Any, TypedDict
 
+from agentic_research.answer_contract import AnswerContract
 from agentic_research.config import RunBudget, Settings
 from agentic_research.evidence.dedup import Candidate
 from agentic_research.llm.router import ModelRouter
@@ -118,6 +119,13 @@ class ResearchState(TypedDict, total=False):
 
     # --- planning (single writer each) --------------------------------
     analysis: QueryAnalysis | None
+    contract: AnswerContract | None
+    """What an answer to this question must contain.
+
+    Built before retrieval, from the question alone. Selection,
+    publication and the report's limitations all read it, so that a
+    claim can be judged against what was asked rather than only
+    against its own evidence."""
     plan: ResearchPlan | None
     sub_questions: Annotated[list[SubQuestion], merge_sub_questions]
 
