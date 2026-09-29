@@ -104,7 +104,11 @@ class TestTheLiveBlueprint:
     def test_traffic_is_shaped_for_one_small_instance(self, env: dict[str, str]) -> None:
         assert env["DEMO_MAX_CONCURRENT_RUNS"] == "1"
         assert env["DEMO_RUNS_PER_HOUR"] == "2"
-        assert env["DEMO_PROVIDER_REQUESTS_PER_DAY"] == "150"
+        # Read rather than hardcoded. This asserts the shape of the
+        # traffic -- one run at a time, a low per-client rate, a hard
+        # wall clock -- not the operator's chosen daily budget, which
+        # is derived and asserted where the derivation lives.
+        assert int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"]) >= 30
         assert env["DEMO_MAX_RUNTIME_SECONDS"] == "240"
 
     def test_nothing_is_persisted(self, env: dict[str, str]) -> None:
@@ -112,7 +116,7 @@ class TestTheLiveBlueprint:
         assert env["CHECKPOINT_BACKEND"] == "memory"
 
     def test_the_daily_cap_derives_from_the_budget(self, env: dict[str, str]) -> None:
-        """150 provider requests a day at 30 per run affords five.
+        """240 provider requests a day at 30 per run affords eight.
 
         Divided by MAX_PROVIDER_REQUESTS, not MAX_CLOUD_CALLS: the
         budget is spent in HTTP requests, and a structured-output repair
@@ -124,7 +128,7 @@ class TestTheLiveBlueprint:
         budget = int(env["DEMO_PROVIDER_REQUESTS_PER_DAY"])
         per_run = int(env["MAX_PROVIDER_REQUESTS"])
         affordable = runs_affordable(budget, per_run)
-        assert affordable == 5
+        assert affordable == 8
         assert affordable * per_run <= budget
 
     def test_the_budget_is_not_presented_as_a_provider_quota(self) -> None:

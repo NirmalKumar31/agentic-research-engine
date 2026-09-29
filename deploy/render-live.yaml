@@ -183,13 +183,35 @@ services:
       # per-day request allowance this could be derived from. Naming it
       # after the provider made it sound discovered.
       #
-      # 150 with MAX_PROVIDER_REQUESTS=30 admits five runs a day
-      # (150 // 30). At the per-run estimated ceiling of $0.05 that is
-      # $0.25/day worst case, so a $5 project cap covers about 20
-      # worst-case days -- not a month. Tavily credits and Hugging Face
+      # 240 with MAX_PROVIDER_REQUESTS=30 admits eight runs a day
+      # (240 // 30). Raised from 150 (five) on 2026-09-29, once four
+      # hosted runs had been measured.
+      #
+      # WHAT A RUN ACTUALLY COSTS. Those four used 14, 12, 13 and 13
+      # provider requests and $0.0085, $0.0093, $0.0081 and $0.0085 --
+      # roughly a fifth of the $0.05 per-run ceiling the budget is
+      # sized against. Eight runs is therefore about $0.07/day at the
+      # measured rate and $0.40/day at the reserved worst case.
+      #
+      # WHY NOT LOWER MAX_PROVIDER_REQUESTS INSTEAD. Deriving the cap
+      # from a tighter per-run ceiling would buy the same runs for a
+      # smaller budget -- 150 // 20 is seven. It is not done, because
+      # that number is also the hard ceiling a single run is cut off
+      # at, and a run truncated mid-flight is worse than one fewer run
+      # a day. 30 stays as roughly twice the observed maximum.
+      #
+      # WHY MORE RUNS AT ALL. Quota is reserved before dispatch and is
+      # not refunded when a run fails, deliberately -- a refund path is
+      # how a broken loop spends a whole budget. On 2026-09-29 two of
+      # five admissions produced nothing (one crashed at the coverage
+      # critique, one was killed by a redeploy mid-wake), so debugging
+      # spends the allowance about twice as fast as it reads.
+      #
+      # The $5 project cap remains the financial backstop: about 590
+      # runs at the measured rate. Tavily credits and Hugging Face
       # endpoint uptime are billed separately and bounded separately.
       - key: DEMO_PROVIDER_REQUESTS_PER_DAY
-        value: "150"
+        value: "240"
 
       # --- run shape ---
       - key: MAX_RESEARCH_ROUNDS

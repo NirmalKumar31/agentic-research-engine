@@ -19,6 +19,31 @@ evaluation, and nothing here says the engine answers questions well.**
 > and editing it to match today's deployment would make it a
 > description rather than a record.
 
+## Daily admissions raised 2026-09-29
+
+| | |
+| --- | --- |
+| Daily admissions | **8** = 240 // 30 |
+| Previously | 5 = 150 // 30 |
+| Cost at the measured rate | ~$0.07/day |
+| Cost at the reserved worst case | $0.40/day |
+
+Raised once four hosted runs had been measured. They used 14, 12, 13
+and 13 provider requests and $0.0085, $0.0093, $0.0081 and $0.0085 --
+roughly a fifth of the $0.05 per-run ceiling the budget is sized
+against. The $5 project cap is about 590 runs at that rate.
+
+`MAX_PROVIDER_REQUESTS` stays at 30. Lowering it would buy the same
+number of runs from a smaller budget, and it is also the ceiling a
+single run is cut off at: a run truncated mid-flight is worse than
+one fewer run a day.
+
+Quota is reserved before dispatch and is not refunded when a run
+fails, deliberately -- a refund path is how a broken loop spends a
+whole budget. Two of the five admissions on 2026-09-29 produced
+nothing, so debugging spends the allowance about twice as fast as it
+reads. That is the reason for the increase.
+
 ## Configuration verified 2026-09-29 (v1.2.1)
 
 The public demo serving v1.2.1 at `3cc8f926`, checked with

@@ -2,6 +2,28 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+- Daily admissions raised from **5 to 8** (`DEMO_PROVIDER_REQUESTS_PER_DAY`
+  150 -> 240, still `// MAX_PROVIDER_REQUESTS`).
+
+  Raised once four hosted runs had been measured rather than guessed
+  at. They used 14, 12, 13 and 13 provider requests and cost $0.0085,
+  $0.0093, $0.0081 and $0.0085 — roughly a fifth of the $0.05 per-run
+  ceiling the budget is sized against. Eight runs is ~$0.07/day
+  measured, $0.40/day at the reserved worst case, against a $5 project
+  cap worth about 590 runs.
+
+  `MAX_PROVIDER_REQUESTS` stays at 30. Deriving the cap from a tighter
+  per-run ceiling would buy the same runs from a smaller budget, but
+  that number is also where a single run is cut off, and a run
+  truncated mid-flight is worse than one fewer run a day.
+
+  Quota is reserved before dispatch and not refunded on failure,
+  deliberately — a refund path is how a broken loop spends a whole
+  budget. Two of five admissions on 2026-09-29 produced nothing, so
+  debugging spends the allowance about twice as fast as it reads.
+
 ## v1.6.0 — 2026-09-29
 
 The synthesiser is told which slot the answer turns on.
