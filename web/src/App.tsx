@@ -210,12 +210,17 @@ export default function App() {
           </div>
           <p className="ask__experimental notice notice--withheld">
             <strong>Live research is experimental.</strong> It is a fail-closed
-            integration, not a general research assistant. Every measured run so
-            far has published between zero and three claims: the verification
-            gates behave correctly and refuse what the evidence does not carry,
-            but the synthesiser writes few claims that both answer the question
-            and survive them. A run may publish nothing and say so — that is the
-            design working, not a fault.{" "}
+            {/* No maintained numbers. A hard-coded count went stale first
+                ("eight measured runs"), then the range it was replaced with
+                did too — runs have published from zero to seven. State the
+                properties that hold instead, so the copy cannot drift out
+                of date without anyone noticing. */}
+            integration, not a general research assistant. It publishes only
+            claims that a cited quote independently supports, so a run may
+            publish little, or nothing, and say so — that is the design working,
+            not a fault. Expect a short, heavily-qualified answer rather than an
+            essay, and read the limitations it prints: they name what it could
+            not establish.{" "}
             <strong>
               The recorded runs below are the better demonstration.
             </strong>

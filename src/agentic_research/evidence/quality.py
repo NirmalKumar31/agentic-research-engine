@@ -72,6 +72,19 @@ _EXACT_DOMAIN_TYPES: dict[str, SourceType] = {
     "tensorflow.org": SourceType.OFFICIAL_DOCS,
     "huggingface.co": SourceType.OFFICIAL_DOCS,
     "medium.com": SourceType.BLOG,
+    # Medium publications on their own domains. These classified as
+    # `other` (0.50) -- *above* a blog (0.45) -- so three of them were
+    # selected for a comparison while the blog penalty never applied.
+    "towardsai.net": SourceType.BLOG,
+    "plainenglish.io": SourceType.BLOG,
+    "betterprogramming.pub": SourceType.BLOG,
+    "levelup.gitconnected.com": SourceType.BLOG,
+    "itnext.io": SourceType.BLOG,
+    # Tutorial and course sites are deliberately NOT promoted to
+    # REFERENCE. That tier (0.70) is for reviewed, accountable
+    # encyclopaedic sources, and rating variable-quality tutorial
+    # content above a vendor's own page would be guessing at quality
+    # rather than classifying provenance. They stay `other`.
     "substack.com": SourceType.BLOG,
     "dev.to": SourceType.BLOG,
     "hashnode.dev": SourceType.BLOG,
@@ -95,6 +108,18 @@ _EXACT_DOMAIN_TYPES: dict[str, SourceType] = {
 # Host prefixes that indicate first-party documentation: docs.stripe.com is
 # Stripe's own documentation, and the subdomain is the evidence of that.
 _DOCS_PREFIXES = ("docs.", "developer.", "developers.", "api.", "learn.", "platform.")
+
+# First-party documentation that lives on its own domain rather than a
+# `docs.` subdomain. `python.langchain.com` is LangChain's own
+# documentation and classified as `other`, so for a question *about*
+# LangChain the official docs ranked no higher than a Medium post.
+_DOCS_SUFFIXES = (
+    ".readthedocs.io",
+    ".github.io",
+    ".js.org",
+    ".netlify.app",
+)
+_DOCS_HOST_HINTS = ("docs", "documentation", "reference")
 
 # A /docs/ path says the publisher documents *its own* product. It says
 # nothing about authority over the subject being researched: a vendor page
@@ -156,7 +181,10 @@ def classify_source(url: str, domain: str) -> SourceType:
         if host == known or host.endswith("." + known):
             return source_type
 
-    if host.startswith(_DOCS_PREFIXES):
+    if host.startswith(_DOCS_PREFIXES) or host.endswith(_DOCS_SUFFIXES):
+        return SourceType.OFFICIAL_DOCS
+    # A host whose own label says documentation, wherever it sits.
+    if any(part in _DOCS_HOST_HINTS for part in host.split(".")):
         return SourceType.OFFICIAL_DOCS
 
     for suffix, source_type in _SUFFIX_TYPES:
