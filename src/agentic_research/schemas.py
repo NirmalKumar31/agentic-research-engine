@@ -120,7 +120,17 @@ class PlanOut(BaseModel):
 class QueryOut(BaseModel):
     sub_question_id: str = Field(description="The SQ id this query serves, e.g. SQ2")
     text: str = Field(
-        description="A web search query. Keywords, not a sentence. No quotes or operators."
+        description=(
+            "A web search query in the question's own vocabulary. Short keywords, "
+            "not a sentence, and not a stack of specialist terms. No quotes or operators"
+        )
+    )
+    rationale: str = Field(
+        default="",
+        description=(
+            "In a few words, what part of the answer this query is meant to supply "
+            "and why it is phrased this way"
+        ),
     )
 
 
