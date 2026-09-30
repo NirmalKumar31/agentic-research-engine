@@ -28,7 +28,19 @@ class AnalysisOut(BaseModel):
     )
     intent: str = Field(description="What the user is trying to accomplish, one sentence")
     entities: list[str] = Field(
-        default_factory=list, description="Key technologies, organisations or concepts named"
+        default_factory=list,
+        description=(
+            "Key technologies, organisations or concepts named, including the setting "
+            "the question is about. Context for retrieval, not the sides of a comparison"
+        ),
+    )
+    comparison_subjects: list[str] = Field(
+        default_factory=list,
+        description=(
+            "For a comparison only: exactly the things being compared with each other. "
+            "Never the domain or setting they operate in. For 'how does X differ from Y "
+            "for Z', this is X and Y; Z belongs in entities"
+        ),
     )
     constraints: list[str] = Field(
         default_factory=list,

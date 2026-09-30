@@ -157,6 +157,12 @@ class ResearchState(TypedDict, total=False):
     report: ResearchReport | None
     verification: dict[str, Any] | None
     answer_coverage: dict[str, Any] | None
+    retrieval_diagnostics: dict[str, Any] | None
+    """Which sub-questions got a source, and why candidates were dropped.
+
+    A gap with no diagnosis is indistinguishable from a gap caused by a
+    fetch failure, an off-topic page or an empty candidate pool, and the
+    three call for different fixes."""
     """How much of the contract the published claims filled.
 
     Carried rather than recomputed at the API boundary: the absent
@@ -261,6 +267,7 @@ def initial_state(
         report=None,
         verification=None,
         answer_coverage=None,
+        retrieval_diagnostics=None,
         final_markdown="",
         errors=[],
         stage_timings=[],

@@ -1,0 +1,3 @@
+FAILED tests/unit/test_vnext_retrieval_policy.py::TestSelectionPrefersAuthorityAtComparableRelevance::test_every_subquestion_gets_a_source_before_any_gets_two
+FAILED tests/unit/test_vnext_retrieval_policy.py::TestSelectionPrefersAuthorityAtComparableRelevance::test_selection_explains_what_it_dropped
+8 failed, 1 passed in 1.14s

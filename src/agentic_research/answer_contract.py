@@ -185,12 +185,50 @@ class AnswerContract:
     question: str
     question_type: QuestionType
     entities: tuple[str, ...] = ()
+    """Every concept the question names, including the setting.
+
+    Useful for retrieval and for reporting a subject no source covers.
+    Deliberately *not* the sides of a comparison: the analyst's entity
+    list is described to it as technologies, organisations or concepts,
+    and treating each one as a thing to be contrasted is what made a
+    correctly answered comparison report itself unanswered."""
+    comparison_subjects: tuple[str, ...] = ()
+    """The explicit sides of a comparison; empty for every other shape.
+
+    Read from the question's wording rather than accepted from the
+    model, so a setting ("for language models") cannot become a side."""
+    shape_source: str = "model"
+    """How ``question_type`` was decided: ``model``, ``wording`` or
+    ``corrected-from-wording``. Recorded because an override that
+    leaves no trace cannot be audited."""
     dimensions: tuple[str, ...] = ()
     constraints: tuple[str, ...] = ()
     ambiguities: tuple[str, ...] = ()
     usable: bool = True
     unusable_reason: str = ""
     required_slots: tuple[AnswerSlot, ...] = field(default_factory=tuple)
+
+    @property
+    def context_entities(self) -> tuple[str, ...]:
+        """Entities that are not sides of the comparison.
+
+        The separation the coverage rule needs: these may steer
+        retrieval and must never create an unanswered slot."""
+        sides = {s.lower() for s in self.comparison_subjects}
+        return tuple(e for e in self.entities if e.lower() not in sides)
+
+    @property
+    def subjects_to_span(self) -> tuple[str, ...]:
+        """The subjects a published answer must speak about.
+
+        For a comparison that is its declared sides and nothing else.
+        For every other shape there is no spanning requirement, so this
+        is empty rather than "all the entities" -- a definition question
+        does not become unanswered because a context noun went
+        unmentioned."""
+        if self.question_type is QuestionType.COMPARISON:
+            return self.comparison_subjects or self.entities
+        return ()
 
     @property
     def core_slots(self) -> tuple[AnswerSlot, ...]:
@@ -208,6 +246,8 @@ class AnswerContract:
             "question": self.question,
             "question_type": str(self.question_type),
             "entities": list(self.entities),
+            "comparison_subjects": list(self.comparison_subjects),
+            "shape_source": self.shape_source,
             "dimensions": list(self.dimensions),
             "constraints": list(self.constraints),
             "ambiguities": list(self.ambiguities),
@@ -242,6 +282,30 @@ def unusable(question: str, reason: str) -> AnswerContract:
     )
 
 
+def _validated_sides(
+    comparison_subjects: list[str] | tuple[str, ...],
+    entities: list[str] | tuple[str, ...],
+) -> tuple[str, ...]:
+    """The comparison's sides: distinct, non-empty, order preserved.
+
+    Falls back to ``entities`` only when no sides were supplied, which
+    is what a caller predating the split does. Once sides are supplied
+    they are authoritative -- an entity that is not a side must not be
+    able to re-enter through the back door and make the comparison
+    unanswerable again.
+    """
+    source = comparison_subjects if any(str(s).strip() for s in comparison_subjects) else entities
+    out: list[str] = []
+    for raw in source:
+        subject = str(raw).strip()
+        if not subject:
+            continue
+        if subject.lower() in {s.lower() for s in out}:
+            continue
+        out.append(subject)
+    return tuple(out)
+
+
 def build_contract(
     question: str,
     question_type: QuestionType | str,
@@ -251,6 +315,8 @@ def build_contract(
     constraints: list[str] | tuple[str, ...] = (),
     ambiguities: list[str] | tuple[str, ...] = (),
     parts: list[str] | tuple[str, ...] = (),
+    comparison_subjects: list[str] | tuple[str, ...] = (),
+    shape_source: str = "model",
 ) -> AnswerContract:
     """Assemble a contract, refusing rather than guessing.
 
@@ -271,10 +337,15 @@ def build_contract(
     # A comparison needs two sides. With fewer, there is nothing to
     # contrast and the contract would be satisfiable by a definition --
     # which is the defect being fixed.
-    if qtype is QuestionType.COMPARISON and len(tuple(entities)) < 2:
+    # The sides, not every concept named. `comparison_subjects` is read
+    # from the question's wording; falling back to `entities` keeps a
+    # caller that predates the split working, and is the only reason
+    # the fallback exists.
+    sides = _validated_sides(comparison_subjects, entities)
+    if qtype is QuestionType.COMPARISON and len(sides) < 2:
         return unusable(
             question,
-            f"a comparison needs at least two subjects; only {len(tuple(entities))} was identified",
+            f"a comparison needs at least two subjects; only {len(sides)} was identified",
         )
 
     # Named dimensions become their own slots. The canonical set fixes
@@ -308,6 +379,8 @@ def build_contract(
         question=question,
         question_type=qtype,
         entities=tuple(entities),
+        comparison_subjects=sides if qtype is QuestionType.COMPARISON else (),
+        shape_source=shape_source,
         dimensions=tuple(dimensions),
         constraints=tuple(constraints),
         ambiguities=tuple(ambiguities),

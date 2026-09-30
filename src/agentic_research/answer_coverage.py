@@ -146,7 +146,11 @@ class AnswerCoverage:
     def _core_sentence(self) -> str:
         qtype = self.contract.question_type
         if qtype is QuestionType.COMPARISON:
-            subjects = " and ".join(self.contract.entities) or "the subjects"
+            subjects = (
+                " and ".join(self.contract.subjects_to_span)
+                or " and ".join(self.contract.entities)
+                or "the subjects"
+            )
             return (
                 f"Nothing published states how {subjects} differ; what survived "
                 "describes them separately."
@@ -188,10 +192,17 @@ def _spans_every_entity(contract: AnswerContract, claim_texts: Sequence[str]) ->
     claims, now counts -- where before it was reported as not having
     answered at all.
     """
-    if not contract.entities or not claim_texts:
+    # The comparison's declared sides, not every concept the question
+    # named. Asked how retrieval-augmented generation differs from
+    # fine-tuning *for language models*, this required a published claim
+    # to mention "language models" -- a setting, never a side -- and so
+    # reported three correct, cited, relevant claims as not having
+    # answered the question.
+    subjects = contract.subjects_to_span
+    if not subjects or not claim_texts:
         return False
     blob = "\n".join(claim_texts)
-    return all(_mentions(blob, entity) for entity in contract.entities)
+    return all(_mentions(blob, subject) for subject in subjects)
 
 
 def _entities_absent_from(contract: AnswerContract, source_texts: Sequence[str]) -> tuple[str, ...]:
@@ -208,10 +219,14 @@ def _entities_absent_from(contract: AnswerContract, source_texts: Sequence[str])
     entity: a run that retrieved no sources at all has a different
     problem, and reporting it as a false premise would be wrong.
     """
-    if not contract.entities or not source_texts:
+    # Sides first where the question has them: a comparison whose
+    # subject no source covers cannot be answered at all, whereas a
+    # missing context noun is usually harmless.
+    subjects = contract.comparison_subjects or contract.entities
+    if not subjects or not source_texts:
         return ()
     blob = "\n".join(source_texts)
-    return tuple(e for e in contract.entities if not _mentions(blob, e))
+    return tuple(e for e in subjects if not _mentions(blob, e))
 
 
 def assess_coverage(

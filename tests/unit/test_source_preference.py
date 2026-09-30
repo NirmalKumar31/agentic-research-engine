@@ -335,12 +335,26 @@ class TestSelectionPrefersTheBetterPageBeforeFetching:
     def test_the_production_node_uses_this_ordering(self) -> None:
         """Guards against the test above drifting from the real sort.
         The node is the thing that must rank by authority; asserting a
-        reimplementation of it would prove nothing."""
+        reimplementation of it would prove nothing.
+
+        The ordering moved out of the node into
+        ``retrieval/selection.py`` so it could be driven with candidate
+        pools directly, and so the node could allocate across
+        sub-questions before ranking within each. The guard follows it:
+        what must hold is that the node *delegates* to that selector
+        rather than sorting on its own, because a second ordering here
+        is exactly the drift this test exists to catch.
+        """
         import inspect
 
         from agentic_research.graph.nodes import research
+        from agentic_research.retrieval import selection
 
         body = inspect.getsource(research.dedupe_sources)
-        assert "authority_rank_of" in body
-        assert "classify_source" in body
-        assert "candidates.sort" in body
+        assert "select_with_diagnostics" in body
+        # No competing sort left behind in the node.
+        assert "candidates.sort" not in body
+
+        ranking = inspect.getsource(selection.ranking_score)
+        assert "authority_of" in ranking
+        assert "classify_source" in ranking

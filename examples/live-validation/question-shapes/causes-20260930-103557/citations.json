@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "When an LLM lacks a clear signal from training data, it generates a statistically likely continuation that is often confident and wrong.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S2-e3",
+        "resolved": true,
+        "quote": "LLMs predict the next token based on statistical patterns learned during training \u2014 they do not \u201cknow\u201d facts, they approximate them. When the model lacks a clear signal from training data, it generates the most statistically likely continuation \u2014 which is often confident and wrong.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://atlan.com/know/llm-hallucinations",
+        "source_title": "LLM Hallucinations: Why They Happen and How to Reduce Them [2026]"
+      }
+    ]
+  }
+]

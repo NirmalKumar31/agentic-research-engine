@@ -34,6 +34,10 @@ from agentic_research.models import (
     SubQuestion,
 )
 from agentic_research.observability import get_logger
+from agentic_research.question_form import (
+    reconcile_comparison_subjects,
+    shape_from_wording,
+)
 from agentic_research.schemas import AnalysisOut, FollowupsOut, PlanOut, QueriesOut
 
 log = get_logger(__name__)
@@ -61,6 +65,7 @@ async def analyze_query(state: ResearchState) -> ResearchState:
                 normalized_query=out.normalized_query or query,
                 intent=out.intent,
                 entities=out.entities[:12],
+                comparison_subjects=out.comparison_subjects[:6],
                 dimensions=out.dimensions[:8],
                 parts=out.parts[:8],
                 constraints=out.constraints[:8],
@@ -133,6 +138,30 @@ def contract_from_analysis(analysis: QueryAnalysis) -> AnswerContract:
             analysis.normalized_query,
             f"no answer shape is defined for {analysis.output_format.value!r}",
         )
+
+    # The user's own wording outranks the model's reading of it, but
+    # only where the wording is explicit. Two near-identical phrasings
+    # of "the main causes of hallucination" were classified `list` and
+    # `definition`, and "the context window size of GPT-4 Turbo" became
+    # a definition -- a figure checked against a slot asking what the
+    # subject is. The original query is used, not the normalisation:
+    # the normalisation is itself model output and can smooth away the
+    # form being read.
+    wording = shape_from_wording(analysis.original_query or analysis.normalized_query)
+    shape_source = "model"
+    if wording is not None and wording is not question_type:
+        question_type, shape_source = wording, "corrected-from-wording"
+    elif wording is not None:
+        shape_source = "wording"
+
+    # Sides read from the wording. An empty result means the wording
+    # carried no explicit comparison, and the analyst's entities stand
+    # -- refusing a run over a failed parse would be worse than the
+    # defect being fixed.
+    sides = reconcile_comparison_subjects(
+        analysis.original_query or analysis.normalized_query,
+        list(analysis.comparison_subjects) or list(analysis.entities),
+    )
     # A comparison needs its subjects. The analysis names entities; the
     # contract refuses when there are fewer than two, rather than
     # accepting a contrast nothing could fill.
@@ -149,6 +178,8 @@ def contract_from_analysis(analysis: QueryAnalysis) -> AnswerContract:
         analysis.normalized_query,
         question_type,
         entities=analysis.entities,
+        comparison_subjects=sides,
+        shape_source=shape_source,
         dimensions=analysis.dimensions,
         constraints=analysis.constraints,
         parts=analysis.parts,

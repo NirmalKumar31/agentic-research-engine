@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "When an LLM lacks a clear signal from training data, it generates a statistically likely continuation that is often confident and wrong.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It identifies lack of a clear training-data signal as a cause of hallucinations.",
+    "published": true
+  },
+  {
+    "claim": "LLMs hallucinate more about entities without Wikipedia pages than about entities with Wikipedia pages.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes a correlation with Wikipedia coverage, not a cause of hallucinations.",
+    "published": false
+  }
+]

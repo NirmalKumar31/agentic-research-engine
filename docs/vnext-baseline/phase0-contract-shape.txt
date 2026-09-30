@@ -1,0 +1,490 @@
+FFFFFFFFFFFFF.FF                                                         [100%]
+=================================== FAILURES ===================================
+_ TestAContextNounIsNotAComparisonSide.test_exactly_two_subjects_are_contrasted _
+
+self = <test_vnext_contract_and_shape.TestAContextNounIsNotAComparisonSide object at 0x10e97b3b0>
+
+    def test_exactly_two_subjects_are_contrasted(self) -> None:
+        contract = self._contract()
+        assert contract.usable
+>       assert contract.comparison_subjects == (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "retrieval-augmented generation",
+            "fine-tuning",
+        )
+E       AttributeError: 'AnswerContract' object has no attribute 'comparison_subjects'
+
+tests/unit/test_vnext_contract_and_shape.py:69: AttributeError
+_ TestAContextNounIsNotAComparisonSide.test_the_context_noun_is_kept_but_not_as_a_side _
+
+self = <test_vnext_contract_and_shape.TestAContextNounIsNotAComparisonSide object at 0x10e97b740>
+
+    def test_the_context_noun_is_kept_but_not_as_a_side(self) -> None:
+        """Dropped entirely it would stop helping retrieval; kept as a
+        side it makes the comparison unanswerable."""
+        contract = self._contract()
+        assert "language models" in contract.entities
+>       assert "language models" not in contract.comparison_subjects
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'AnswerContract' object has no attribute 'comparison_subjects'
+
+tests/unit/test_vnext_contract_and_shape.py:79: AttributeError
+_ TestAContextNounIsNotAComparisonSide.test_one_claim_per_real_side_answers_the_comparison _
+
+self = <test_vnext_contract_and_shape.TestAContextNounIsNotAComparisonSide object at 0x10e97b0b0>
+
+    def test_one_claim_per_real_side_answers_the_comparison(self) -> None:
+        from agentic_research.answer_coverage import assess_coverage
+    
+        contract = self._contract()
+        coverage = assess_coverage(
+            contract,
+            ["dimension", "dimension"],
+            claim_texts=[
+                "Keeping a fine-tuning approach current requires retraining.",
+                "Retrieval-augmented generation retrieves passages at query time.",
+            ],
+        )
+>       assert coverage.answered, coverage.limitations()
+E       AssertionError: ['This research did not answer the question. Nothing published states how retrieval-augmented generation and fine-tuni...one being a kind of the other.', 'More than one published claim fills the dimension slot; they may repeat each other.']
+E       assert False
+E        +  where False = AnswerCoverage(contract=AnswerContract(question='How does retrieval-augmented generation differ from fine-tuning for l...False, satisfied_by=()))), satisfied=('dimension',), duplicates=('dimension',), quality_by_slot={}, absent_entities=()).answered
+
+tests/unit/test_vnext_contract_and_shape.py:93: AssertionError
+_ TestAContextNounIsNotAComparisonSide.test_a_genuine_three_way_comparison_still_needs_three _
+
+self = <test_vnext_contract_and_shape.TestAContextNounIsNotAComparisonSide object at 0x10e9f00b0>
+
+    def test_a_genuine_three_way_comparison_still_needs_three(self) -> None:
+        q = "How do Postgres, MySQL and SQLite differ?"
+        contract = contract_from_analysis(
+            analysis(
+                original_query=q,
+                normalized_query=q,
+                output_format=OutputFormat.COMPARISON,
+                entities=["Postgres", "MySQL", "SQLite"],
+            )
+        )
+>       assert contract.comparison_subjects == ("Postgres", "MySQL", "SQLite")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'AnswerContract' object has no attribute 'comparison_subjects'
+
+tests/unit/test_vnext_contract_and_shape.py:105: AttributeError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[What are the main causes of hallucination in large language models?-list] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0530>
+question = 'What are the main causes of hallucination in large language models?'
+expected = <QuestionType.LIST: 'list'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.LIST: 'list'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='What are the main causes of hallucination in large language models?', question_type=<Question...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[What causes hallucinations in large language models?-list] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f08f0>
+question = 'What causes hallucinations in large language models?'
+expected = <QuestionType.LIST: 'list'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.LIST: 'list'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='What causes hallucinations in large language models?', question_type=<QuestionType.DEFINITION...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[What are the main reasons LLMs hallucinate?-list] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0980>
+question = 'What are the main reasons LLMs hallucinate?'
+expected = <QuestionType.LIST: 'list'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.LIST: 'list'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='What are the main reasons LLMs hallucinate?', question_type=<QuestionType.DEFINITION: 'defini...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[What are the risk factors for overfitting?-list] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0a10>
+question = 'What are the risk factors for overfitting?'
+expected = <QuestionType.LIST: 'list'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.LIST: 'list'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='What are the risk factors for overfitting?', question_type=<QuestionType.DEFINITION: 'definit...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[What types of regularisation prevent overfitting?-list] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0aa0>
+question = 'What types of regularisation prevent overfitting?'
+expected = <QuestionType.LIST: 'list'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.LIST: 'list'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='What types of regularisation prevent overfitting?', question_type=<QuestionType.DEFINITION: '...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[What is the context window size of GPT-4 Turbo?-numeric] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0b30>
+question = 'What is the context window size of GPT-4 Turbo?'
+expected = <QuestionType.NUMERIC: 'numeric'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.NUMERIC: 'numeric'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='What is the context window size of GPT-4 Turbo?', question_type=<QuestionType.DEFINITION: 'de...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[How many parameters does Llama 3 have?-numeric] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0bc0>
+question = 'How many parameters does Llama 3 have?'
+expected = <QuestionType.NUMERIC: 'numeric'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.NUMERIC: 'numeric'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='How many parameters does Llama 3 have?', question_type=<QuestionType.DEFINITION: 'definition'...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[How do I fine-tune a language model?-procedural] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0c50>
+question = 'How do I fine-tune a language model?'
+expected = <QuestionType.PROCEDURAL: 'procedural'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.PROCEDURAL: 'procedural'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='How do I fine-tune a language model?', question_type=<QuestionType.DEFINITION: 'definition'>,...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_explicit_wording_decides_the_shape[When was GPT-4 released?-temporal] _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f0ce0>
+question = 'When was GPT-4 released?'
+expected = <QuestionType.TEMPORAL: 'temporal'>
+
+    @pytest.mark.parametrize(
+        "question,expected",
+        [
+            ("What are the main causes of hallucination in large language models?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.LIST),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
+            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What types of regularisation prevent overfitting?", QuestionType.LIST),
+            ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
+            ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),
+            ("How do I fine-tune a language model?", QuestionType.PROCEDURAL),
+            ("When was GPT-4 released?", QuestionType.TEMPORAL),
+            ("What is retrieval-augmented generation?", QuestionType.DEFINITION),
+        ],
+    )
+    def test_explicit_wording_decides_the_shape(
+        self, question: str, expected: QuestionType
+    ) -> None:
+        """Every case is given the *wrong* model label on purpose: if the
+        override does not fire, the model's label survives and the test
+        fails."""
+        contract = contract_from_analysis(
+            analysis(
+                original_query=question,
+                normalized_query=question,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["subject"],
+            )
+        )
+>       assert contract.question_type is expected
+E       AssertionError: assert <QuestionType.DEFINITION: 'definition'> is <QuestionType.TEMPORAL: 'temporal'>
+E        +  where <QuestionType.DEFINITION: 'definition'> = AnswerContract(question='When was GPT-4 released?', question_type=<QuestionType.DEFINITION: 'definition'>, entities=('...ot(name='distinguishing_property', description='What separates it from adjacent things', core=False, satisfied_by=()))).question_type
+
+tests/unit/test_vnext_contract_and_shape.py:146: AssertionError
+_ TestShapeIsStableAcrossWording.test_a_corrected_shape_records_where_it_came_from _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f10a0>
+
+    def test_a_corrected_shape_records_where_it_came_from(self) -> None:
+        """An override that leaves no trace is unauditable."""
+        q = "What are the main causes of overfitting?"
+        contract = contract_from_analysis(
+            analysis(
+                original_query=q,
+                normalized_query=q,
+                output_format=OutputFormat.OVERVIEW,
+                entities=["overfitting"],
+            )
+        )
+>       assert contract.shape_source == "corrected-from-wording"
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'AnswerContract' object has no attribute 'shape_source'
+
+tests/unit/test_vnext_contract_and_shape.py:159: AttributeError
+_ TestShapeIsStableAcrossWording.test_an_unopinionated_question_keeps_the_model_shape _
+
+self = <test_vnext_contract_and_shape.TestShapeIsStableAcrossWording object at 0x10e9f1400>
+
+    def test_an_unopinionated_question_keeps_the_model_shape(self) -> None:
+        """The override must not fire on wording it cannot read."""
+        q = "Tell me about vector databases in production."
+        contract = contract_from_analysis(
+            analysis(
+                original_query=q,
+                normalized_query=q,
+                output_format=OutputFormat.DECISION_SUPPORT,
+                entities=["vector databases"],
+            )
+        )
+        assert contract.question_type is QuestionType.RECOMMENDATION
+>       assert contract.shape_source == "model"
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'AnswerContract' object has no attribute 'shape_source'
+
+tests/unit/test_vnext_contract_and_shape.py:173: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestAContextNounIsNotAComparisonSide::test_exactly_two_subjects_are_contrasted
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestAContextNounIsNotAComparisonSide::test_the_context_noun_is_kept_but_not_as_a_side
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestAContextNounIsNotAComparisonSide::test_one_claim_per_real_side_answers_the_comparison
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestAContextNounIsNotAComparisonSide::test_a_genuine_three_way_comparison_still_needs_three
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[What are the main causes of hallucination in large language models?-list]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[What causes hallucinations in large language models?-list]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[What are the main reasons LLMs hallucinate?-list]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[What are the risk factors for overfitting?-list]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[What types of regularisation prevent overfitting?-list]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[What is the context window size of GPT-4 Turbo?-numeric]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[How many parameters does Llama 3 have?-numeric]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[How do I fine-tune a language model?-procedural]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_explicit_wording_decides_the_shape[When was GPT-4 released?-temporal]
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_a_corrected_shape_records_where_it_came_from
+FAILED tests/unit/test_vnext_contract_and_shape.py::TestShapeIsStableAcrossWording::test_an_unopinionated_question_keeps_the_model_shape
+15 failed, 1 passed in 1.00s

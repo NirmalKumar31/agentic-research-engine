@@ -1,0 +1,9 @@
+[
+  {
+    "original": "Hallucinations arise from training-data limitations, knowledge cutoffs, ambiguous prompts, and retrieval context that is stale, conflicting, or ungoverned.",
+    "rewritten": "Hallucinations can arise from training-data limitations.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "still unsupported: every cited quote failed a deterministic guard: modality"
+  }
+]

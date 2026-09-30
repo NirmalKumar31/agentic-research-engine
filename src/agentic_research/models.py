@@ -58,8 +58,23 @@ class SourceType(StrEnum):
     does not, and scoring them alike overstates the second."""
     NEWS = "news"
     VENDOR = "vendor"
+    REFERENCE = "reference"
+    """An encyclopaedic or educational reference: Wikipedia, Britannica.
+
+    Distinct from OTHER because it was OTHER, which carries the same
+    base quality as an unrecognised SEO page -- while being the best
+    available source for exactly the explanatory questions that
+    failed. Not PRIMARY: a reference summarises primary sources."""
     BLOG = "blog"
     FORUM = "forum"
+    SOCIAL = "social"
+    """A social post: X, LinkedIn, Bluesky, a video platform.
+
+    Added because these fell through to OTHER, whose base quality
+    (0.50) is *above* a blog's (0.45) and whose authority is SECONDARY.
+    An unclassified tweet therefore outranked a Medium post, and a live
+    run selected a tweet over primary sources. Ranks below every other
+    class: a post is where a reader finds the source, not the source."""
     OTHER = "other"
 
 
@@ -176,6 +191,10 @@ class QueryAnalysis(BaseModel):
     normalized_query: str = Field(description="Ambiguity resolved, made self-contained")
     intent: str
     entities: list[str] = Field(default_factory=list)
+    comparison_subjects: list[str] = Field(
+        default_factory=list,
+        description="For a comparison, exactly the sides being contrasted; never the setting",
+    )
     dimensions: list[str] = Field(
         default_factory=list,
         description="For a comparison, the axes the question asks the subjects to be compared on",
