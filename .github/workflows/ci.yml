@@ -7,7 +7,14 @@ on:
     # a green local run gets mistaken for a verified one -- which is
     # exactly what happened to feat/live-research, whose prefix was
     # missing from this list while the comment above claimed otherwise.
-    branches: [main, "feat/*", "fix/*", "verifier-*", "release/*"]
+    #
+    # It happened again, to quality/*. An allowlist of prefixes has to be
+    # edited every time a new convention appears, and the failure is
+    # silent: the push succeeds, no run starts, and nothing says why.
+    # So this is now a *denylist* -- every branch builds except the
+    # throwaway prefixes -- which fails in the safe direction: a new
+    # convention gets CI it did not ask for rather than none at all.
+    branches-ignore: ["wip/**", "scratch/**", "tmp/**", "dependabot/**"]
   pull_request:
 
 # Cancel superseded runs on the same branch rather than paying for both.
