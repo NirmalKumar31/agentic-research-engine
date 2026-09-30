@@ -26,6 +26,8 @@ pools are written to reproduce the shape of the pool that failed.
 
 from __future__ import annotations
 
+import pytest
+
 from agentic_research.evidence.dedup import Candidate
 from agentic_research.models import DiscoveryRef, SourceType
 
@@ -125,6 +127,41 @@ class TestSelectionPrefersAuthorityAtComparableRelevance:
         ]
         chosen = select_candidates(pool, limit=1, explanatory=True)
         assert [c.domain for c in chosen] == ["arxiv.org"]
+
+    def test_authority_alone_decides_between_two_unpenalised_classes(self) -> None:
+        """Non-vacuity for the authority bonus itself.
+
+        Mutation testing found that the tweet case above is decided by
+        the social penalty, so removing the authority term entirely
+        left every retrieval test passing. Here neither candidate is
+        penalised -- a paper against a wire service -- so the bonus is
+        the only thing that can reorder them, and the news source has
+        the *higher* provider relevance.
+        """
+        from agentic_research.retrieval.selection import select_candidates
+
+        pool = [
+            candidate("https://www.reuters.com/tech/a", score=0.90),
+            candidate("https://arxiv.org/abs/1234", score=0.84),
+        ]
+        chosen = select_candidates(pool, limit=1, explanatory=True)
+        assert [c.domain for c in chosen] == ["arxiv.org"]
+
+    def test_the_adjustment_cannot_overturn_a_wide_relevance_gap(self) -> None:
+        """The cap, stated as a property: bonus 0.15 plus penalty 0.20
+        means a gap wider than 0.35 is decisive whatever the classes."""
+        from agentic_research.retrieval.selection import (
+            DECIDING_RELEVANCE_GAP,
+            select_candidates,
+        )
+
+        assert pytest.approx(0.35) == DECIDING_RELEVANCE_GAP
+        pool = [
+            candidate("https://x.com/a/status/1", score=0.99),
+            candidate("https://arxiv.org/abs/1234", score=0.99 - DECIDING_RELEVANCE_GAP - 0.01),
+        ]
+        chosen = select_candidates(pool, limit=1, explanatory=True)
+        assert [c.domain for c in chosen] == ["x.com"]
 
     def test_relevance_still_wins_when_the_gap_is_large(self) -> None:
         """Authority must not become a veto: a primary source that the

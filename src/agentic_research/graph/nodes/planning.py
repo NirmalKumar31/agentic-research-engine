@@ -149,6 +149,16 @@ def contract_from_analysis(analysis: QueryAnalysis) -> AnswerContract:
     # form being read.
     wording = shape_from_wording(analysis.original_query or analysis.normalized_query)
     shape_source = "model"
+
+    # A named multi-part decomposition is explicit information the
+    # wording reader does not have. "What is RAG, and how much does it
+    # cost to run?" contains an explicit numeric form, so the reader
+    # returns `numeric` and cannot see the question has two halves.
+    # Overriding a model that correctly identified both would make the
+    # answer worse, which is the opposite of the point.
+    named_parts = [part for part in analysis.parts if part.strip()]
+    if question_type is QuestionType.SYNTHESIS and named_parts:
+        wording = None
     if wording is not None and wording is not question_type:
         question_type, shape_source = wording, "corrected-from-wording"
     elif wording is not None:

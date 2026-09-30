@@ -210,11 +210,11 @@ export default function App() {
           </div>
           <p className="ask__experimental notice notice--withheld">
             <strong>Live research is experimental.</strong> It is a fail-closed
-            integration, not a general research assistant. Eight measured runs
-            published between zero and three claims: the verification gates
-            behave correctly and refuse what the evidence does not carry, but
-            the synthesiser writes few claims that both answer the question and
-            survive them. A run may publish nothing and say so — that is the
+            integration, not a general research assistant. Every measured run so
+            far has published between zero and three claims: the verification
+            gates behave correctly and refuse what the evidence does not carry,
+            but the synthesiser writes few claims that both answer the question
+            and survive them. A run may publish nothing and say so — that is the
             design working, not a fault.{" "}
             <strong>
               The recorded runs below are the better demonstration.

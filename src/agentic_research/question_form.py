@@ -44,6 +44,8 @@ _SPLIT_CONNECTIVES: tuple[str, ...] = (
     " differ from ",
     " compared with ",
     " compared to ",
+    " compare with ",
+    " compare to ",
     " versus ",
     " vs. ",
     " vs ",
@@ -51,6 +53,13 @@ _SPLIT_CONNECTIVES: tuple[str, ...] = (
 
 # "the difference between A and B" puts both on one side of the phrase.
 _BETWEEN = re.compile(r"\bdifferences?\s+between\s+(?P<rest>.+)", re.IGNORECASE)
+
+# "between A and B" in any phrasing. Looser than _BETWEEN and tried
+# after it, because "what types of difference are there between X and
+# Y" separates "difference" from "between" and the strict pattern
+# misses it. Safe to be loose only because `_accept` rejects sides that
+# name nothing.
+_LOOSE_BETWEEN = re.compile(r"\bbetween\s+(?P<rest>.+)", re.IGNORECASE)
 
 # "How do A, B and C differ?" -- the subjects precede a trailing verb.
 _TRAILING_DIFFER = re.compile(
@@ -86,6 +95,57 @@ _CONTEXT_PREPOSITIONS: tuple[str, ...] = (
 
 _SUBJECT_SEPARATORS = re.compile(r",\s*and\s+|\s+and\s+|,\s*", re.IGNORECASE)
 
+# A connective can appear in a sentence that compares nothing: "what
+# does versus mean in legal citations" splits into "does" and "mean".
+# A side has to name something, so a candidate consisting only of
+# function words is rejected and the question is not read as a
+# comparison at all.
+_NOT_A_SUBJECT = frozenset(
+    {
+        "does",
+        "do",
+        "did",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "mean",
+        "means",
+        "meaning",
+        "it",
+        "this",
+        "that",
+        "they",
+        "them",
+        # Articles are deliberately absent: they are already removed as
+        # leading noise, and keeping them here rejected a subject
+        # literally named "A". Short names are real -- Go, R, C -- and a
+        # stoplist that eats them is worse than one that lets a bare
+        # article through, which pair-building and the relevance judge
+        # would reject anyway.
+        "one",
+        "ones",
+        "thing",
+        "things",
+        "what",
+        "which",
+        "who",
+        "how",
+        "why",
+        "when",
+        "where",
+        "there",
+        "here",
+    }
+)
+
+
+def _names_something(text: str) -> bool:
+    tokens = [t for t in re.split(r"[^\w-]+", text.lower()) if t]
+    return any(t not in _NOT_A_SUBJECT for t in tokens)
+
 
 def _strip_context(text: str) -> str:
     """Drop the trailing setting, keeping the subject that precedes it."""
@@ -114,6 +174,23 @@ def _split_subjects(text: str) -> list[str]:
     return out
 
 
+def _accept(sides: list[str]) -> tuple[str, ...]:
+    """Distinct, subject-like sides, or nothing.
+
+    Deduplicated across both halves of the connective, not only within
+    each: "how does RAG differ from RAG" produced the same subject
+    twice and read as a two-way comparison.
+    """
+    distinct: list[str] = []
+    for side in sides:
+        if side.lower() in {d.lower() for d in distinct}:
+            continue
+        distinct.append(side)
+    if len(distinct) < 2 or not all(_names_something(d) for d in distinct):
+        return ()
+    return tuple(distinct)
+
+
 def comparison_sides(question: str) -> tuple[str, ...]:
     """The things the question puts on either side of a comparison.
 
@@ -139,23 +216,30 @@ def comparison_sides(question: str) -> tuple[str, ...]:
             continue
         left = _clean(text[:index])
         right = _strip_context(_clean(text[index + len(connective) :]))
-        sides = _split_subjects(left) + _split_subjects(right)
-        if len(sides) >= 2:
-            return tuple(sides)
+        accepted = _accept(_split_subjects(left) + _split_subjects(right))
+        if accepted:
+            return accepted
 
     # 2. "difference between A and B": both sides after one phrase.
     match = _BETWEEN.search(text)
     if match:
-        sides = _split_subjects(_strip_context(_clean(match.group("rest"))))
-        if len(sides) >= 2:
-            return tuple(sides)
+        accepted = _accept(_split_subjects(_strip_context(_clean(match.group("rest")))))
+        if accepted:
+            return accepted
 
-    # 3. "How do A, B and C differ?": subjects before a trailing verb.
+    # 3. "between A and B" anywhere in the question.
+    match = _LOOSE_BETWEEN.search(text)
+    if match:
+        accepted = _accept(_split_subjects(_strip_context(_clean(match.group("rest")))))
+        if accepted:
+            return accepted
+
+    # 4. "How do A, B and C differ?": subjects before a trailing verb.
     match = _TRAILING_DIFFER.match(text)
     if match:
-        sides = _split_subjects(_strip_context(_clean(match.group("subjects"))))
-        if len(sides) >= 2:
-            return tuple(sides)
+        accepted = _accept(_split_subjects(_strip_context(_clean(match.group("subjects")))))
+        if accepted:
+            return accepted
 
     return ()
 
@@ -221,6 +305,14 @@ _SHAPE_PATTERNS: tuple[tuple[QuestionType, re.Pattern[str]], ...] = (
         re.compile(
             r"\bhow (?:do|can|would|should)\s+(?:i|we|you|one)\b"
             r"|\bhow to\b|\bsteps?\s+(?:to|for)\b|\bwalk me through\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        QuestionType.RECOMMENDATION,
+        re.compile(
+            r"^\s*should\s+(?:i|we|you|one)\b|\bwhich\s+should\b"
+            r"|\bis it worth\b|\bshould (?:i|we) (?:use|adopt|choose|pick)\b",
             re.IGNORECASE,
         ),
     ),
