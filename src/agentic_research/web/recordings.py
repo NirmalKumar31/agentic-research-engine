@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from agentic_research.observability import get_logger
+from agentic_research.retrieval.manifest import with_fetch_outcomes
 from agentic_research.runner import RunResult
 
 log = get_logger(__name__)
@@ -440,7 +441,7 @@ def _index() -> dict[str, dict[str, Any]]:
 # Only additive nullable keys belong here. A key whose absence changes
 # how the payload should be *read* is a real schema change and must bump
 # RECORDING_SCHEMA_VERSION instead.
-_ADDITIVE_RESULT_KEYS = ("answer_coverage",)
+_ADDITIVE_RESULT_KEYS = ("answer_coverage", "retrieval_manifest")
 
 
 def _backfill_additive_keys(payload: dict[str, Any]) -> None:
@@ -448,7 +449,11 @@ def _backfill_additive_keys(payload: dict[str, Any]) -> None:
     if not isinstance(result, dict):
         return
     for key in _ADDITIVE_RESULT_KEYS:
-        result.setdefault(key, None)
+        # A list-valued key backfills to an empty list, not None: a
+        # client iterating it must not have to special-case an older
+        # recording, and "no manifest was recorded" and "the run
+        # searched nothing" read the same to a reader either way.
+        result.setdefault(key, [] if key.endswith("manifest") else None)
 
 
 def available() -> list[RecordingSummary]:
@@ -607,6 +612,13 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
         # Read from state rather than reassessed here: two assessments
         # of the same run that can disagree is worse than one.
         "answer_coverage": state.get("answer_coverage"),
+        # Which queries were issued, which candidates they produced, and
+        # why each was or was not read. Fetch outcomes are merged in
+        # here because they are only known after the fetch stage.
+        "retrieval_manifest": [
+            with_fetch_outcomes(dict(entry), sources)
+            for entry in state.get("retrieval_manifest", []) or []
+        ],
         "metrics": result.metrics.model_dump(mode="json"),
         "markdown": result.markdown,
     }

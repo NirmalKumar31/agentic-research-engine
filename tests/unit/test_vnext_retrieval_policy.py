@@ -307,3 +307,65 @@ class TestACandidateServingSeveralSubQuestions:
         # One page, allocated to both, on topic for exactly one.
         assert lexically_plausible(capacity_sq, extracted)
         assert not lexically_plausible(leakage_sq, extracted)
+
+
+class TestOnceEveryoneIsRepresentedQualityDecides:
+    """Breadth is a coverage argument; depth is a quality one.
+
+    The depth pass used to rotate by sub-question, and the synthetic
+    manifest example showed what that cost: with every sub-question
+    already represented, rotation took SQ1's second-best candidate --
+    a tweet at 0.71 -- ahead of SQ2's second-best, a reference at 0.87.
+    A social source displacing a more relevant accountable one is
+    exactly what the authority adjustment exists to prevent, so it
+    cannot be reintroduced by the allocation order.
+    """
+
+    def test_the_spare_slot_goes_to_the_best_remaining_candidate(self) -> None:
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        pool = [
+            # Serves both SQ1 and SQ2, so one fetch represents both.
+            candidate("https://arxiv.org/abs/1", score=0.84, sub_questions=("SQ1", "SQ2")),
+            candidate("https://x.com/a/status/1", score=0.91, sub_questions=("SQ1",)),
+            candidate("https://en.wikipedia.org/wiki/X", score=0.79, sub_questions=("SQ2",)),
+        ]
+        result = select_with_diagnostics(
+            pool, limit=2, explanatory=True, sub_question_order=["SQ1", "SQ2"]
+        )
+        domains = sorted(c.domain for c in result.selected)
+        assert domains == ["arxiv.org", "en.wikipedia.org"], (
+            "the spare slot went to a social source over a better reference"
+        )
+
+    def test_breadth_still_wins_while_a_subquestion_has_nothing(self) -> None:
+        """Non-vacuity in the other direction: a lower-scoring candidate
+        is still taken when it is the only thing serving its
+        sub-question."""
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        pool = [
+            candidate("https://arxiv.org/abs/1", score=0.99, sub_questions=("SQ1",)),
+            candidate("https://arxiv.org/abs/2", score=0.98, sub_questions=("SQ1",)),
+            candidate("https://tiny.example.com/p", score=0.10, sub_questions=("SQ2",)),
+        ]
+        result = select_with_diagnostics(
+            pool, limit=2, explanatory=True, sub_question_order=["SQ1", "SQ2"]
+        )
+        covered = {sq for c in result.selected for sq in c.sub_question_ids}
+        assert covered == {"SQ1", "SQ2"}
+
+    def test_it_stays_deterministic(self) -> None:
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        pool = [
+            candidate("https://a.example.com/1", score=0.80, sub_questions=("SQ1",)),
+            candidate("https://b.example.com/2", score=0.80, sub_questions=("SQ2",)),
+            candidate("https://c.example.com/3", score=0.80, sub_questions=("SQ1",)),
+        ]
+        order = ["SQ1", "SQ2"]
+        first = select_with_diagnostics(pool, limit=3, sub_question_order=order)
+        second = select_with_diagnostics(list(reversed(pool)), limit=3, sub_question_order=order)
+        assert [c.canonical_url for c in first.selected] == [
+            c.canonical_url for c in second.selected
+        ]

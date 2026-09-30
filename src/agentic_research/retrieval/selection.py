@@ -120,14 +120,26 @@ def prefers_accountable_sources(contract: object | None) -> bool:
     return str(question_type) in _ACCOUNTABLE_SHAPES
 
 
+def score_breakdown(candidate: Candidate, *, explanatory: bool) -> tuple[float, float, float]:
+    """Provider relevance, the adjustment applied, and the total.
+
+    Returned as three numbers so the manifest can record the
+    adjustment separately and a reader can recompute the ordering
+    instead of trusting it. A single total cannot be audited: it does
+    not say whether a page ranked highly because it was relevant or
+    because it was accountable.
+    """
+    source_type = classify_source(candidate.url, candidate.domain)
+    provider = float(candidate.best_score or 0.0)
+    adjustment = _AUTHORITY_BONUS.get(authority_of(source_type.value), 0.0)
+    if explanatory:
+        adjustment += _FIRST_PASS_PENALTY.get(source_type, 0.0)
+    return provider, adjustment, provider + adjustment
+
+
 def ranking_score(candidate: Candidate, *, explanatory: bool) -> float:
     """Relevance adjusted by how accountable the source is."""
-    source_type = classify_source(candidate.url, candidate.domain)
-    score = float(candidate.best_score or 0.0)
-    score += _AUTHORITY_BONUS.get(authority_of(source_type.value), 0.0)
-    if explanatory:
-        score += _FIRST_PASS_PENALTY.get(source_type, 0.0)
-    return score
+    return score_breakdown(candidate, explanatory=explanatory)[2]
 
 
 def _sort_key(candidate: Candidate, *, explanatory: bool) -> tuple[float, str]:
@@ -209,20 +221,31 @@ def select_with_diagnostics(
                 claim(candidate)
                 break
 
-    # Then depth, round-robin, so a remaining budget is spread rather
-    # than spent entirely on the first sub-question.
-    progressed = True
-    while len(selected) < limit and progressed:
-        progressed = False
-        for bucket in buckets.values():
-            if len(selected) >= limit:
-                break
-            for candidate in bucket:
-                if candidate.canonical_url in chosen_urls:
-                    continue
-                claim(candidate)
-                progressed = True
-                break
+    # Then depth, best-first across the whole pool rather than rotating
+    # by sub-question.
+    #
+    # Rotating here was wrong and the synthetic manifest showed it: with
+    # every sub-question already represented, the rotation took SQ1's
+    # second-best candidate -- a tweet scoring 0.71 -- ahead of SQ2's
+    # second-best, a reference scoring 0.87. That is precisely a social
+    # source displacing a more relevant accountable one, which the
+    # authority adjustment exists to prevent.
+    #
+    # Breadth is a coverage argument and applies while a sub-question
+    # has nothing. Once all of them do, the only argument left is
+    # quality, so the remaining budget goes to the best candidates in
+    # the pool wherever they sit.
+    remaining = sorted(
+        (c for c in pool if c.canonical_url not in chosen_urls),
+        key=lambda c: _sort_key(c, explanatory=explanatory),
+        reverse=True,
+    )
+    for candidate in remaining:
+        if len(selected) >= limit:
+            break
+        if candidate.canonical_url in chosen_urls:
+            continue
+        claim(candidate)
 
     dropped = tuple(
         _dropped(c, _drop_reason(c, explanatory), explanatory)

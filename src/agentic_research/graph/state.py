@@ -157,6 +157,13 @@ class ResearchState(TypedDict, total=False):
     report: ResearchReport | None
     verification: dict[str, Any] | None
     answer_coverage: dict[str, Any] | None
+    retrieval_manifest: Annotated[list[dict[str, Any]], operator.add]
+    """One bounded, sanitised manifest per search round.
+
+    Appended rather than replaced, so a two-round run keeps both. Its
+    contents are URLs reduced to scheme/host/path, scores, decisions and
+    reasons -- never credentials, headers, raw provider payloads, page
+    bodies or filesystem paths. See retrieval/manifest.py."""
     retrieval_diagnostics: dict[str, Any] | None
     """Which sub-questions got a source, and why candidates were dropped.
 
@@ -267,6 +274,7 @@ def initial_state(
         report=None,
         verification=None,
         answer_coverage=None,
+        retrieval_manifest=[],
         retrieval_diagnostics=None,
         final_markdown="",
         errors=[],

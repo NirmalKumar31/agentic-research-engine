@@ -17,7 +17,7 @@ from __future__ import annotations
 import pytest
 
 from agentic_research.citations.fake_nli import FakeScorer
-from agentic_research.citations.propositions import decompose, is_atomic
+from agentic_research.citations.propositions import decompose
 from agentic_research.citations.semantic import verify_claim
 
 
@@ -62,7 +62,7 @@ class TestOneAssertionStaysWhole:
 
     def test_a_plain_sentence_is_one_assertion(self) -> None:
         assert count("Code review reduces production defects.") == 1
-        assert is_atomic("Code review reduces production defects.")
+        assert len(decompose("Code review reduces production defects.")) <= 1
 
 
 class TestSeparateAssertionsSplit:

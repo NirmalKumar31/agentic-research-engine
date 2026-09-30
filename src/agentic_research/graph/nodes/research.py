@@ -41,6 +41,7 @@ from agentic_research.models import (
     Stance,
 )
 from agentic_research.observability import get_logger
+from agentic_research.retrieval.manifest import build_manifest
 from agentic_research.retrieval.parser import markdown_to_text, truncate, word_count
 from agentic_research.retrieval.selection import (
     prefers_accountable_sources,
@@ -233,6 +234,23 @@ async def dedupe_sources(state: ResearchState) -> ResearchState:
                 for d in selection.dropped
             ],
         },
+        # Every query and every candidate for this round, sanitised and
+        # bounded. The preserved baseline could not show the 38
+        # candidates it discarded -- PERSIST_RUNS=false and the search
+        # stage streamed only counts -- so the question "was there a
+        # better source in the pool?" had no answer. One round per
+        # entry; the reducer appends.
+        "retrieval_manifest": [
+            build_manifest(
+                round_number=state.get("round_number", 1),
+                queries=[q for q in completed if q.round_number == state.get("round_number", 1)]
+                or completed,
+                results=results,
+                candidates=candidates,
+                selection=selection,
+                explanatory=explanatory,
+            ).to_dict()
+        ],
     }
 
 

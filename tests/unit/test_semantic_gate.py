@@ -305,10 +305,10 @@ class TestCompoundClaimFailureClass:
     def test_the_fused_shape_is_detectable_for_the_audit(self) -> None:
         """Not a gate -- a flag, so a compound claim that does publish is
         visible in the release audit instead of silently passing."""
-        from agentic_research.citations.atomicity import looks_compound
+        from agentic_research.citations.atomicity import compound_markers
 
-        assert looks_compound("Pruning cut index memory by 60% while maintaining high recall.")
-        assert not looks_compound("Pruning cut index memory by 60%.")
+        assert compound_markers("Pruning cut index memory by 60% while maintaining high recall.")
+        assert not compound_markers("Pruning cut index memory by 60%.")
 
 
 class TestOneClaimOneSupportContract:

@@ -355,6 +355,12 @@ class TestSelectionPrefersTheBetterPageBeforeFetching:
         # No competing sort left behind in the node.
         assert "candidates.sort" not in body
 
-        ranking = inspect.getsource(selection.ranking_score)
-        assert "authority_of" in ranking
-        assert "classify_source" in ranking
+        # The ordering terms moved into `score_breakdown`, which
+        # returns provider relevance, the adjustment and the total
+        # separately so the retrieval manifest can record the
+        # adjustment and a reader can recompute the order instead of
+        # trusting a single number. `ranking_score` now delegates.
+        breakdown = inspect.getsource(selection.score_breakdown)
+        assert "authority_of" in breakdown
+        assert "classify_source" in breakdown
+        assert "score_breakdown" in inspect.getsource(selection.ranking_score)
