@@ -35,7 +35,15 @@ class DemoLimits:
     max_llm_calls: int = 20
     max_runtime_seconds: float = 240.0
     max_concurrent_runs: int = 2
-    runs_per_ip_per_hour: int = 2
+    runs_per_ip_per_hour: int = 10
+    """Also the hard ceiling configuration may not exceed (``_MAX``).
+
+    Raised from 2 because that was the binding constraint for the
+    *operator*, not for a visitor: the daily allowance below is derived
+    from real provider spend and is the cap that actually protects the
+    account, so a tight hourly limit only stopped the owner from
+    exercising the demo. A visitor still cannot exceed the derived
+    daily total."""
     global_runs_per_day: int = 1
     """Derived from the configured quota rather than written down.
 

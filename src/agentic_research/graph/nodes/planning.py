@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from agentic_research.answer_contract import (
     AnswerContract,
+    QuestionType,
     build_contract,
     type_from_output_format,
     unusable,
@@ -60,6 +61,8 @@ async def analyze_query(state: ResearchState) -> ResearchState:
                 normalized_query=out.normalized_query or query,
                 intent=out.intent,
                 entities=out.entities[:12],
+                dimensions=out.dimensions[:8],
+                parts=out.parts[:8],
                 constraints=out.constraints[:8],
                 output_format=OutputFormat(out.output_format),
                 time_sensitive=out.time_sensitive,
@@ -133,11 +136,22 @@ def contract_from_analysis(analysis: QueryAnalysis) -> AnswerContract:
     # A comparison needs its subjects. The analysis names entities; the
     # contract refuses when there are fewer than two, rather than
     # accepting a contrast nothing could fill.
+    # A multi-part question whose parts were not named cannot be turned
+    # into per-part slots, and an unusable contract refuses *every*
+    # claim. Falling back to the shape this question would have been
+    # given before `synthesis` was reachable is strictly no worse than
+    # that, and keeps a model that picks the label without filling the
+    # field from silencing the whole run.
+    if question_type is QuestionType.SYNTHESIS and not [p for p in analysis.parts if p.strip()]:
+        question_type = QuestionType.DEFINITION
+
     return build_contract(
         analysis.normalized_query,
         question_type,
         entities=analysis.entities,
+        dimensions=analysis.dimensions,
         constraints=analysis.constraints,
+        parts=analysis.parts,
     )
 
 

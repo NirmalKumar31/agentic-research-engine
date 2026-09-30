@@ -1,0 +1,9 @@
+[
+  {
+    "claim": "Next-token prediction rewards fluency and coherence without directly penalizing factual incorrectness.",
+    "stage": "structural",
+    "relevant": false,
+    "reason": "the question asks about Large language models (LLMs), Hallucination and it names none of them, in any wording",
+    "published": false
+  }
+]

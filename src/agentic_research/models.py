@@ -136,11 +136,32 @@ class ClaimKind(StrEnum):
 
 
 class OutputFormat(StrEnum):
+    """The shape of answer a question calls for.
+
+    Every member must appear in ``_OUTPUT_FORMAT_TO_TYPE``, because the
+    answer contract is derived from this label rather than classified a
+    second time. A member with no mapping produces an *unusable*
+    contract, and an unusable contract refuses every claim -- so a
+    missing mapping is not a gap, it is a run that publishes nothing.
+
+    The inverse was the live defect: this enum held five members while
+    ``QuestionType`` defined nine, so causal, numeric, list and
+    multi-part questions were unreachable. They did not fail loudly.
+    They were classified ``overview`` and held to a *definition*
+    contract, whose core slot asks what the subject is -- which is not
+    what "the main causes of X" asks for. A hosted run published 0 of 4
+    claims that way.
+    """
+
     COMPARISON = "comparison"
     OVERVIEW = "overview"
     HOWTO = "howto"
     TIMELINE = "timeline"
     DECISION_SUPPORT = "decision_support"
+    CAUSAL_ANALYSIS = "causal_analysis"
+    METRIC = "metric"
+    LIST = "list"
+    SYNTHESIS = "synthesis"
 
 
 # ---------------------------------------------------------------------------
@@ -155,6 +176,14 @@ class QueryAnalysis(BaseModel):
     normalized_query: str = Field(description="Ambiguity resolved, made self-contained")
     intent: str
     entities: list[str] = Field(default_factory=list)
+    dimensions: list[str] = Field(
+        default_factory=list,
+        description="For a comparison, the axes the question asks the subjects to be compared on",
+    )
+    parts: list[str] = Field(
+        default_factory=list,
+        description="For a multi-part question, each distinct question it asks",
+    )
     constraints: list[str] = Field(default_factory=list)
     output_format: OutputFormat = OutputFormat.OVERVIEW
     time_sensitive: bool = False

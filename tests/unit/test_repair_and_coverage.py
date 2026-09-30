@@ -277,7 +277,14 @@ class TestAComparisonHasTwoHonestAnswers:
             for s in slots
             if s.satisfied_by
         }
-        assert with_alternatives == {("comparison", "direct_contrast")}
+        # An explicit allowlist, so a new alternative has to be added
+        # here on purpose. Each entry exists because the question type
+        # has two honest readings that want different answers -- see
+        # the comments on the slots themselves.
+        assert with_alternatives == {
+            ("comparison", "direct_contrast"),
+            ("causal", "causal_evidence"),
+        }
 
     def test_it_does_not_leak_into_other_question_types(self) -> None:
         """A definition answered by a relationship claim is still
@@ -328,3 +335,88 @@ class TestEveryCorePartMustBeAnswered:
         coverage = assess_coverage(contract, core[:1])
         assert set(coverage.missing_core) == set(core[1:])
         assert coverage.missing_core, "a missing part must be reported, not inferred"
+
+
+class TestAQuestionWhoseSubjectNoSourceMentions:
+    """A false premise reported as a false premise.
+
+    A hosted run asked how two named language models differ,
+    retrieved five sources, and published nothing. That was correct --
+    no source discussed either name -- but the screen said "0 of 5
+    requirements covered", which describes the engine. The reader
+    cannot tell a refusal to invent an answer from a broken run, and
+    those deserve opposite reactions.
+    """
+
+    def _contract(self, entities: tuple[str, ...]):
+        from agentic_research.answer_contract import QuestionType, build_contract
+
+        return build_contract(
+            "How does Foo differ from Bar?",
+            QuestionType.COMPARISON,
+            entities=entities,
+        )
+
+    def test_an_entity_no_source_mentions_is_named(self) -> None:
+        from agentic_research.answer_coverage import assess_coverage
+
+        coverage = assess_coverage(
+            self._contract(("GPT-6 Astra", "GPT-5.5 Sol")),
+            [],
+            source_texts=["A page about retrieval augmented generation."],
+        )
+        assert coverage.absent_entities == ("GPT-6 Astra", "GPT-5.5 Sol")
+        lead = coverage.limitations()[0]
+        assert "No retrieved source mentions" in lead
+        assert "GPT-6 Astra" in lead
+        # The distinction the whole thing exists to draw.
+        assert "not a retrieval failure" in lead
+
+    def test_a_subject_the_sources_do_discuss_is_not_reported_absent(self) -> None:
+        from agentic_research.answer_coverage import assess_coverage
+
+        coverage = assess_coverage(
+            self._contract(("SMOTE", "class weighting")),
+            [],
+            source_texts=["SMOTE oversamples the minority class; class weighting reweights loss."],
+        )
+        assert coverage.absent_entities == ()
+        assert not any("No retrieved source mentions" in g for g in coverage.limitations())
+
+    def test_retrieving_nothing_is_not_reported_as_a_false_premise(self) -> None:
+        """A run with no sources has a different problem, and blaming
+        the question for it would be wrong."""
+        from agentic_research.answer_coverage import assess_coverage
+
+        coverage = assess_coverage(self._contract(("Foo", "Bar")), [], source_texts=[])
+        assert coverage.absent_entities == ()
+
+    def test_the_absence_is_serialised(self) -> None:
+        """Decided and then dropped before anything could read it is
+        this project's most frequent defect; the field has to survive
+        to_dict."""
+        from agentic_research.answer_contract import QuestionType, build_contract
+        from agentic_research.answer_coverage import assess_coverage
+
+        # A definition, not a comparison: a one-subject comparison is
+        # already refused as unusable before entities are ever read,
+        # which is itself correct and was found by this test.
+        contract = build_contract(
+            "What is Nonexistent Model?",
+            QuestionType.DEFINITION,
+            entities=("Nonexistent Model",),
+        )
+        coverage = assess_coverage(contract, [], source_texts=["Unrelated text."])
+        assert coverage.to_dict()["absent_entities"] == ["Nonexistent Model"]
+
+    def test_the_reporting_node_passes_the_sources(self) -> None:
+        """The check is worthless where it is defined if the node that
+        runs it never hands it the sources. Six defects in this project
+        were exactly that, and four of them passed every test."""
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        body = inspect.getsource(reporting.verify_citations)
+        assert "source_texts=" in body
+        assert "usable_sources()" in body

@@ -507,3 +507,68 @@ code, kbd { font-family: var(--mono); font-size: 0.86em; }
   font-size: 0.86rem;
   line-height: 1.5;
 }
+
+/* --- rules recovered from an unimported stylesheet -----------------------
+ *
+ * These four blocks lived in `index.css`, which nothing ever imported:
+ * `main.tsx` imports this file alone. Every rule below was correct and
+ * completely dead, so the features they style have been rendering
+ * unstyled since they shipped -- most visibly the withheld-evidence
+ * fallback, which is the screen a visitor sees whenever the gate
+ * publishes nothing, and the capability chips, which ran together into
+ * "5 sources2 verified claims" because `.card__caps` was never a flex
+ * container.
+ *
+ * `--amber` was referenced there and does not exist in this file; the
+ * warn pair below is the idiom `.notice--coverage` already uses.
+ */
+
+/* Evidence-only fallback: shown when the publication gate withheld every
+   claim. Styled as quotations rather than findings, so a reader cannot
+   mistake a verbatim excerpt for something the system concluded. */
+.notice--withheld {
+  border-left: 3px solid var(--warn);
+  background: var(--warn-soft);
+}
+
+/* The contract panel reuses .notice--withheld for an unanswered
+ * question, so it needs the same padding the coverage notice has --
+ * without it the panel's notice sits flush against the slot list. */
+.contract .notice--withheld {
+  padding: 0.7rem 0.9rem; border-radius: var(--radius);
+  font-size: 0.88rem; margin: 0 0 1.2rem;
+}
+
+.excerpts__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.excerpts__list blockquote {
+  margin: 0 0 0.25rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--line);
+  font-style: italic;
+}
+
+/* Capability chips on the example cards. Derived from the recording's
+   own contents, never asserted by id -- a badge that outlives the thing
+   it describes is a lie the reader cannot detect. */
+.card__caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0.15rem;
+}
+
+.cap {
+  font-size: 0.72rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap;
+}

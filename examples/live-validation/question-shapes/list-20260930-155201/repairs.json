@@ -1,0 +1,16 @@
+[
+  {
+    "original": "Overfitting to specific patterns or noise in training data may produce outputs that seem accurate but are fundamentally incorrect.",
+    "rewritten": "Overfitting to specific patterns or noise in training data may produce outputs that are fundamentally incorrect.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "still irrelevant: the question asks about Large language models (LLMs), Hallucination and it names none of them, in any wording"
+  },
+  {
+    "original": "A model may fabricate post-cutoff facts or events when its knowledge cutoff or lack of live access forces it to infer or guess about outcomes.",
+    "rewritten": "A model fabricates facts or events about outcomes after its knowledge cutoff when its cutoff or lack of live access forces it to infer or guess.",
+    "guard": "wording only: modality",
+    "accepted": false,
+    "reason": "the rewrite states the claim more strongly than the original"
+  }
+]

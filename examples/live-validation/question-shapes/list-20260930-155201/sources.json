@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://mbrenndoerfer.com/writing/rag-motivation-llm-knowledge-limitations",
+    "title": "RAG Motivation: Solving Hallucinations & Knowledge Gaps - Interactive",
+    "domain": "mbrenndoerfer.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.609,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://aclanthology.org/2025.emnlp-main.549",
+    "title": "Bridging External and Parametric Knowledge: Mitigating Hallucination of LLMs with Shared-Private Semantic Synergy in Dual-Stream Knowledge - ACL Anthology",
+    "domain": "aclanthology.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.93,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://wallaroo.ai/llms-navigating-quality-control-for-reducing-hallucinations-and-bias",
+    "title": "LLMs: Navigating Quality Control for Reducing Hallucinations and Bias | Wallaroo.AI",
+    "domain": "wallaroo.ai",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.592,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://vstorm.co/glossary/next-token-prediction",
+    "title": "Next-token prediction: how a language model actually learns | Vstorm Glossary",
+    "domain": "vstorm.co",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.543,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://ijcaonline.org/archives/volume187/number4/impact-of-high-data-quality-on-llm-hallucinations",
+    "title": "Impact of High Data Quality on LLM Hallucinations",
+    "domain": "ijcaonline.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.593,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://champaignmagazine.com/2025/09/18/temporal-hallucination-a-mathematical-framework-for-detection-and-measurement",
+    "title": "Temporal Hallucination: A Mathematical Framework for Detection and Measurement \u2013 Champaign Magazine",
+    "domain": "champaignmagazine.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.585,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

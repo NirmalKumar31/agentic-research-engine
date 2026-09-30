@@ -34,8 +34,36 @@ class AnalysisOut(BaseModel):
         default_factory=list,
         description="Explicit scope limits stated by the user, such as a domain or time period",
     )
-    output_format: Literal["comparison", "overview", "howto", "timeline", "decision_support"] = (
-        Field(description="The shape of answer this question calls for")
+    output_format: Literal[
+        "comparison",
+        "overview",
+        "howto",
+        "timeline",
+        "decision_support",
+        "causal_analysis",
+        "metric",
+        "list",
+        "synthesis",
+    ] = Field(
+        description=(
+            "The shape of answer this question calls for. Choose by what the "
+            "answer must contain, following the selection rules; 'overview' "
+            "only when no other shape fits"
+        )
+    )
+    dimensions: list[str] = Field(
+        default_factory=list,
+        description=(
+            "For a comparison only: the axes the question asks the subjects to be "
+            "compared on, such as cost or latency. Empty when the question names none"
+        ),
+    )
+    parts: list[str] = Field(
+        default_factory=list,
+        description=(
+            "For a multi-part question only: each distinct question asked, rewritten "
+            "to stand alone. Required when output_format is 'synthesis'"
+        ),
     )
     time_sensitive: bool = Field(
         description="True if the correct answer depends on recent developments"

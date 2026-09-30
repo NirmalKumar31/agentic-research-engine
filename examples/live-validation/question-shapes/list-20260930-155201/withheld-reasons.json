@@ -1,0 +1,34 @@
+[
+  {
+    "claim": "LLM hallucinations can include convincing gap-filling based on loosely related training examples, with no guarantee that the generated information matches reality.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity, hedge",
+    "best_entailment": 0.010159,
+    "best_evidence_id": "S1-e3",
+    "guards_passed": false
+  },
+  {
+    "claim": "Next-token prediction rewards fluency and coherence without directly penalizing factual incorrectness.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: the question asks about Large language models (LLMs), Hallucination and it names none of them, in any wording",
+    "best_entailment": 0.998612,
+    "best_evidence_id": "S1-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "Overfitting to specific patterns or noise in training data may produce outputs that seem accurate but are fundamentally incorrect.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.998741,
+    "best_evidence_id": "S3-e1",
+    "guards_passed": false
+  },
+  {
+    "claim": "A model may fabricate post-cutoff facts or events when its knowledge cutoff or lack of live access forces it to infer or guess about outcomes.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: modality",
+    "best_entailment": 0.998328,
+    "best_evidence_id": "S6-e1",
+    "guards_passed": false
+  }
+]

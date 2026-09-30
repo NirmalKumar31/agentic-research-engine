@@ -27,6 +27,15 @@ class AnswerCoverage:
     satisfied: tuple[str, ...]
     duplicates: tuple[str, ...]
     quality_by_slot: dict[str, float]
+    absent_entities: tuple[str, ...] = ()
+    """Subjects the question named that no retrieved source mentions.
+
+    Reported because "0 of 5 requirements covered" describes the
+    engine, and the reader needs to know it describes the *question*.
+    A run asked how two named language models differ, retrieved five
+    sources, and published nothing -- correctly, because no source
+    discussed either name. That is the fail-closed design working, and
+    it was indistinguishable on screen from the engine being broken."""
 
     @property
     def required(self) -> tuple[AnswerSlot, ...]:
@@ -77,6 +86,7 @@ class AnswerCoverage:
             "missing_core_slots": list(self.missing_core),
             "duplicate_slots": list(self.duplicates),
             "answered": self.answered,
+            "absent_entities": list(self.absent_entities),
             "quality_by_slot": dict(self.quality_by_slot),
         }
 
@@ -95,6 +105,21 @@ class AnswerCoverage:
                 f"requirements: {self.contract.unusable_reason}. "
                 "Nothing below should be read as an answer to it."
             ]
+
+        # First, because it is the *reason* for everything after it. A
+        # reader told only that nothing was answered will conclude the
+        # engine failed; a reader told no source mentions the subject
+        # can see that the question was the thing that could not be
+        # answered.
+        if self.absent_entities:
+            named = ", ".join(f"\u201c{e}\u201d" for e in self.absent_entities)
+            out.append(
+                f"No retrieved source mentions {named}. Either no reachable "
+                "source covers it, or the question names something that does "
+                "not exist -- so nothing below should be read as an answer "
+                "about it. This is a refusal to invent one, not a retrieval "
+                "failure."
+            )
 
         if not self.satisfied:
             out.append(
@@ -169,12 +194,33 @@ def _spans_every_entity(contract: AnswerContract, claim_texts: Sequence[str]) ->
     return all(_mentions(blob, entity) for entity in contract.entities)
 
 
+def _entities_absent_from(contract: AnswerContract, source_texts: Sequence[str]) -> tuple[str, ...]:
+    """Subjects the question named that appear in no retrieved source.
+
+    Deliberately checked against the *sources*, not the published
+    claims. A claim can be absent for many reasons -- the synthesiser
+    wrote badly, a guard refused it, the budget ran out. A subject
+    missing from every source it searched is a different and much
+    stronger fact: there was nothing to answer from.
+
+    Reuses `_mentions`, so it inherits the same matching the relevance
+    check uses. An empty source list returns nothing rather than every
+    entity: a run that retrieved no sources at all has a different
+    problem, and reporting it as a false premise would be wrong.
+    """
+    if not contract.entities or not source_texts:
+        return ()
+    blob = "\n".join(source_texts)
+    return tuple(e for e in contract.entities if not _mentions(blob, e))
+
+
 def assess_coverage(
     contract: AnswerContract,
     published_slots: list[str] | tuple[str, ...],
     *,
     quality_by_slot: dict[str, float] | None = None,
     claim_texts: Sequence[str] | None = None,
+    source_texts: Sequence[str] | None = None,
 ) -> AnswerCoverage:
     """How much of the contract the published claims filled.
 
@@ -203,4 +249,5 @@ def assess_coverage(
         satisfied=tuple(sorted(satisfied)),
         duplicates=tuple(sorted(name for name, n in counts.items() if n > 1)),
         quality_by_slot=dict(quality_by_slot or {}),
+        absent_entities=_entities_absent_from(contract, source_texts or ()),
     )

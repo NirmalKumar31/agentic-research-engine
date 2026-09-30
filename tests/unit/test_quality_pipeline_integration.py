@@ -236,3 +236,103 @@ class TestTheJudgementIsAskedAndFailsClosed:
 
         source = inspect.getsource(reporting._judge_relevance)
         assert "return {}" in source
+
+
+class TestEveryAnswerShapeIsReachable:
+    """The defect: `OutputFormat` held five members while
+    `QuestionType` defined nine.
+
+    Nothing failed loudly. Causal, numeric, list and multi-part
+    questions were simply unreachable -- the analyst could not name
+    them, so "what are the main causes of X" was classified `overview`
+    and held to a *definition* contract, whose core slot asks what the
+    subject is. A hosted run published 0 of 4 claims that way, and
+    every claim it withheld was a cause.
+
+    Four of the nine shapes were tested where they were declared and
+    dead where they ran, which is this project's most frequent defect.
+    """
+
+    def test_every_output_format_maps_to_a_question_type(self) -> None:
+        from agentic_research.answer_contract import type_from_output_format
+        from agentic_research.models import OutputFormat
+
+        unmapped = [f for f in OutputFormat if type_from_output_format(f.value) is None]
+        # An unmapped format is not a gap: an unusable contract refuses
+        # every claim, so it is a run that publishes nothing.
+        assert unmapped == []
+
+    def test_every_question_type_is_reachable_from_some_output_format(self) -> None:
+        from agentic_research.answer_contract import (
+            CANONICAL_SLOTS,
+            type_from_output_format,
+        )
+        from agentic_research.models import OutputFormat
+
+        reachable = {type_from_output_format(f.value) for f in OutputFormat}
+        assert set(CANONICAL_SLOTS) == reachable
+
+    def test_the_schema_offers_exactly_the_formats_that_exist(self) -> None:
+        """The analyst can only emit what the schema's Literal allows,
+        so a member missing from it is unreachable however well it is
+        mapped."""
+        import typing
+
+        from agentic_research.models import OutputFormat
+        from agentic_research.schemas import AnalysisOut
+
+        allowed = set(typing.get_args(AnalysisOut.model_fields["output_format"].annotation))
+        assert allowed == {f.value for f in OutputFormat}
+
+    def test_a_multipart_question_without_parts_does_not_silence_the_run(self) -> None:
+        """`synthesis` builds its slots from the named parts, and a
+        contract with none is unusable -- which refuses every claim.
+        Falling back is strictly better than publishing nothing."""
+        from agentic_research.graph.nodes.planning import contract_from_analysis
+        from agentic_research.models import OutputFormat, QueryAnalysis
+
+        contract = contract_from_analysis(
+            QueryAnalysis(
+                original_query="q",
+                normalized_query="What is X and what is Y?",
+                intent="i",
+                output_format=OutputFormat.SYNTHESIS,
+                parts=[],
+            )
+        )
+        assert contract.usable
+
+    def test_named_parts_become_their_own_core_slots(self) -> None:
+        from agentic_research.graph.nodes.planning import contract_from_analysis
+        from agentic_research.models import OutputFormat, QueryAnalysis
+
+        contract = contract_from_analysis(
+            QueryAnalysis(
+                original_query="q",
+                normalized_query="What is X and how much does it cost?",
+                intent="i",
+                output_format=OutputFormat.SYNTHESIS,
+                parts=["What is X?", "How much does X cost?"],
+            )
+        )
+        assert contract.usable
+        assert len(contract.core_slots) == 2
+
+    def test_named_dimensions_reach_the_contract(self) -> None:
+        """`build_contract` turns named dimensions into slots, and the
+        production call site passed none -- so that branch was
+        unreachable outside its own test."""
+        from agentic_research.graph.nodes.planning import contract_from_analysis
+        from agentic_research.models import OutputFormat, QueryAnalysis
+
+        contract = contract_from_analysis(
+            QueryAnalysis(
+                original_query="q",
+                normalized_query="How does A differ from B on latency?",
+                intent="i",
+                entities=["A", "B"],
+                dimensions=["latency"],
+                output_format=OutputFormat.COMPARISON,
+            )
+        )
+        assert "latency" in {s.name for s in contract.required_slots}

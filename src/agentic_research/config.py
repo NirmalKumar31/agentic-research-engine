@@ -402,7 +402,15 @@ class Settings(BaseSettings):
             "local 4B model needs far longer and is not viable for a public demo."
         ),
     )
-    demo_runs_per_hour: int = Field(default=3, ge=1)
+    demo_runs_per_hour: int = Field(
+        default=10,
+        ge=1,
+        description=(
+            "Per-IP hourly cap. Clamped by limits.py's own maximum, so raising "
+            "this above that maximum has no effect; the daily allowance derived "
+            "from provider spend is the cap that bounds cost."
+        ),
+    )
     demo_max_concurrent_runs: int = Field(default=2, ge=1)
     demo_provider_requests_per_day: int = Field(
         default=50,

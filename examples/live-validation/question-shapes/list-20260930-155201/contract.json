@@ -1,0 +1,27 @@
+{
+  "question": "What are the main causes of hallucinations in large language models (LLMs)?",
+  "question_type": "definition",
+  "entities": [
+    "Large language models (LLMs)",
+    "Hallucination"
+  ],
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "definition",
+      "description": "What the subject is",
+      "core": true,
+      "satisfied_by": []
+    },
+    {
+      "name": "distinguishing_property",
+      "description": "What separates it from adjacent things",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

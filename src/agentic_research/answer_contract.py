@@ -105,7 +105,29 @@ CANONICAL_SLOTS: dict[QuestionType, tuple[AnswerSlot, ...]] = {
         ),
     ),
     QuestionType.CAUSAL: (
-        _slot("causal_evidence", "Evidence for the causal link, not merely association"),
+        # A causal question has two honest readings and they want
+        # different answers. "Does X cause Y?" wants evidence of
+        # causation rather than association. "What causes Y?" wants the
+        # drivers -- and for that reading the drivers *are* the answer,
+        # not a partial one.
+        #
+        # `candidate_drivers` therefore discharges the core slot, for
+        # the reason `relationship` discharges `direct_contrast` above:
+        # demanding the stricter reading of a question that did not ask
+        # it makes the engine wrong about itself. A hosted run asked for
+        # the main causes of hallucination in language models, produced
+        # four drivers, and reported that it had not answered.
+        #
+        # The cost, stated rather than hidden: for a genuine "does X
+        # cause Y" question, naming a plausible driver now discharges
+        # the core slot without establishing causation. The relevance
+        # judgement is the backstop, and `limitations` is where the
+        # evidence's limits are meant to land.
+        _slot(
+            "causal_evidence",
+            "Evidence for the causal link, not merely association",
+            satisfied_by=("candidate_drivers",),
+        ),
         _slot("candidate_drivers", "Factors the evidence supports", core=False),
         _slot("limitations", "What the evidence cannot establish about cause", core=False),
     ),
@@ -143,6 +165,10 @@ _OUTPUT_FORMAT_TO_TYPE: dict[str, QuestionType] = {
     "howto": QuestionType.PROCEDURAL,
     "timeline": QuestionType.TEMPORAL,
     "decision_support": QuestionType.RECOMMENDATION,
+    "causal_analysis": QuestionType.CAUSAL,
+    "metric": QuestionType.NUMERIC,
+    "list": QuestionType.LIST,
+    "synthesis": QuestionType.SYNTHESIS,
 }
 
 

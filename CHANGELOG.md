@@ -2,6 +2,73 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+Four of the nine answer shapes were unreachable, a stylesheet was never
+imported, and a run could not say that a question named something that
+does not exist.
+
+**Four answer shapes could not be reached.** `OutputFormat` offered the
+analyst five labels while `QuestionType` defined nine, so causal,
+numeric, list and multi-part questions had no label to be classified
+as. Nothing failed: they were classified `overview` and held to a
+*definition* contract, whose core slot asks what the subject is. A
+hosted run asked for the main causes of hallucination in language
+models, produced four cause claims, and published **0 of 4** — every
+one withheld against requirements the question never had. The analyst
+was also given no guidance for choosing among the labels it did have,
+so `overview` acted as a default rather than as the narrowest shape.
+
+Two call-site gaps in the same area, found while fixing it:
+`contract_from_analysis` passed neither `dimensions` nor `parts`, so
+`build_contract`'s named-dimension branch was unreachable in
+production and tested only where it is declared, and `synthesis` would
+have produced an *unusable* contract — which refuses every claim — for
+any multi-part question. Both fields now reach the contract, and a
+`synthesis` label with no named parts falls back rather than silencing
+the run.
+
+**A causal question has two honest readings.** "Does X cause Y?" wants
+evidence of causation; "What causes Y?" wants the drivers, and for
+that reading the drivers *are* the answer. `candidate_drivers` now
+discharges `causal_evidence`, for the reason `relationship` discharges
+`direct_contrast`. Stated cost: naming a plausible driver discharges
+the core slot of a strict causal question without establishing
+causation, with the relevance judgement as the backstop.
+
+**A question can now say that its subject does not exist.** Asked for
+the difference between GPT-6 Astra and "GPT-5.5 Sol", the engine
+retrieved sources and published nothing. That was correct — the second
+model does not exist, and a comparison requires every named subject to
+be spoken about — but the page reported "0 of 5 requirements covered",
+which describes the engine rather than the question. Coverage now
+checks the contract's entities against the retrieved *sources*, not
+the published claims, and leads the limitations with the subject no
+source mentions. A run that retrieved nothing at all is excluded: that
+is a different problem, and blaming the question for it would be
+wrong.
+
+**A stylesheet was never imported.** `web/src/index.css` held four rule
+blocks and `main.tsx` imports `styles.css` alone, so none of them ever
+reached the bundle. The capability chips ran together into
+"5 sources2 verified claims" because `.card__caps` was never a flex
+container, and the withheld-evidence fallback — the screen a visitor
+sees whenever the gate publishes nothing — had been rendering unstyled
+since it shipped. The rules are merged into the imported stylesheet
+and the orphan is deleted; `--amber`, which it referenced and which
+does not exist, is now the `--warn` pair the adjacent notice uses.
+
+**The hourly run cap was the operator's limit, not a visitor's.**
+`runs_per_ip_per_hour` was 2 and also the maximum configuration could
+request, so `DEMO_RUNS_PER_HOUR` could not raise it. Now 10. The daily
+allowance, derived from real provider spend, is unchanged and remains
+the cap that bounds cost.
+
+Guards added for the class of defect above: every `OutputFormat` maps
+to a `QuestionType`, every `QuestionType` is reachable from some
+`OutputFormat`, and the schema's `Literal` offers exactly the members
+that exist. Each of the three would have failed before this change.
+
 ## v1.8.0 — 2026-09-30
 
 Comparisons can be answered. They could not before, for a structural

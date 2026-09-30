@@ -540,6 +540,12 @@ async def verify_citations(state: ResearchState) -> ResearchState:
                 # which left a comparison's core slot close to
                 # unfillable.
                 claim_texts=[c.text for c in published],
+                # The sources, so a question naming a subject that no
+                # source discusses is reported as such instead of as
+                # an uncovered contract. Title included: a retrieval
+                # that found the subject but could not extract its
+                # body still mentions it.
+                source_texts=[f"{src.title}\n{src.text}" for src in store.usable_sources()],
             )
             gaps = coverage.limitations()
             if gaps:

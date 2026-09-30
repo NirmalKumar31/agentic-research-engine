@@ -30,7 +30,28 @@ well. Do not answer the question. Do not speculate about the answer.
 Mark the question as time sensitive only when a correct answer genuinely \
 depends on recent developments (current prices, latest model releases, \
 evolving regulation). Questions about stable techniques or established theory \
-are not time sensitive, even when they mention modern technology."""
+are not time sensitive, even when they mention modern technology.
+
+Choose `output_format` by what the answer must *contain*, not by the topic. \
+The answer is later checked against the shape you pick, so a wrong shape \
+means a correct answer is judged against requirements the question never had:
+- `comparison`: asks how two or more named things differ
+- `causal_analysis`: asks why something happens, what causes it, or whether \
+one thing causes another
+- `list`: asks which things, or for the members of a set -- including when \
+those members are causes, factors, reasons, risks or examples
+- `metric`: asks for a specific figure, quantity, size or measurement
+- `timeline`: asks when something happened, or for a sequence of dated events
+- `howto`: asks how to do something, as steps
+- `decision_support`: asks which option to choose, or whether to do something
+- `synthesis`: asks several distinct questions at once
+- `overview`: asks what something is. Use this only when none of the above \
+fits -- it is the narrowest shape, not the safe default.
+
+For `comparison`, list in `dimensions` any axes the question names itself \
+(cost, latency, accuracy); leave it empty when it names none. For \
+`synthesis`, `parts` is required: give each distinct question asked, \
+rewritten to stand alone."""
 
 
 def analyst_user(query: str) -> str:
