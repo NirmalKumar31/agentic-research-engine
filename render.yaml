@@ -74,7 +74,7 @@ services:
       # Conservative configured value for the account quota the daily run
       # cap is derived from. Raise only with the provider plan.
       - key: DEMO_PROVIDER_REQUESTS_PER_DAY
-        value: "50"
+        value: "720"
 
       # Run shape.
       - key: MAX_RESEARCH_ROUNDS
