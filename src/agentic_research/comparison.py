@@ -307,3 +307,42 @@ def render_pairs(pairs: Sequence[ComparisonPair]) -> str:
             lines.append(f"| {side.subject} | {cell} {citations}".rstrip() + " |")
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"
+
+
+def pairs_from_payload(payload: object) -> tuple[ComparisonPair, ...]:
+    """Rehydrate contrasts from a serialised coverage assessment.
+
+    State is checkpointed and serialised, so `answer_coverage` is a plain
+    dict by the time a renderer sees it. This reads the pairs back; it does
+    not recompute them, so a report cannot disagree with the coverage that
+    produced it.
+
+    It lives here rather than beside one renderer because there are two.
+    The first version sat in `graph/nodes/reporting.py`, and only that
+    renderer was given the pairs -- so `finalize` rendered the contrast
+    table and `runner._render`, which produces the `markdown` the web
+    result actually carries, did not. A live comparison run found 2
+    complete pairs, reported the question answered, and shipped a report
+    with no table in it. The test written for that fix asserted the one
+    call site it knew about and passed throughout.
+    """
+    if not isinstance(payload, dict):
+        return ()
+    raw = payload.get("comparison_pairs") or []
+    pairs: list[ComparisonPair] = []
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        sides = tuple(
+            SideClaim(
+                subject=str(side.get("subject", "")),
+                text=str(side.get("text", "")),
+                answer_slot=str(side.get("answer_slot", "")),
+                evidence_ids=tuple(side.get("evidence_ids") or ()),
+            )
+            for side in entry.get("sides") or []
+            if isinstance(side, dict)
+        )
+        if sides:
+            pairs.append(ComparisonPair(dimension=str(entry.get("dimension", "")), sides=sides))
+    return tuple(pairs)

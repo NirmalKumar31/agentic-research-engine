@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://arxiv.org/html/2007.08199v7",
+    "title": "Learning from Noisy Labels with Deep Neural Networks: A Survey",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.96,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://www.semanticscholar.org/paper/Training-Deep-Neural-Networks-on-Noisy-Labels-with-Reed-Lee/77e3c48aa10535276e7f570a3af594ba63de7d65",
+    "title": "[PDF] Training Deep Neural Networks on Noisy Labels with Bootstrapping | Semantic Scholar",
+    "domain": "semanticscholar.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.948,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://dl.acm.org/doi/10.1145/3711896.3737376",
+    "title": "Delving into Instance-Dependent Label Noise in Graph Data",
+    "domain": "dl.acm.org",
+    "source_type": "academic",
+    "content_origin": "none",
+    "quality_score": 0.0,
+    "page_count": null,
+    "usable": false,
+    "fetch_status": "http_error"
+  },
+  {
+    "id": "S4",
+    "url": "https://www.sitepoint.com/what-happens-when-ai-learns-from-incorrect-labels-the-hidden-cost-of-noisy-training-data",
+    "title": "What Happens When AI Learns From Incorrect Labels: The Hidden Cost of Noisy Training Data",
+    "domain": "sitepoint.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.609,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://www.geeksforgeeks.org/machine-learning/regularization-by-early-stopping",
+    "title": "Regularization by Early Stopping - GeeksforGeeks",
+    "domain": "geeksforgeeks.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.613,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "http://proceedings.mlr.press/v119/harutyunyan20a/harutyunyan20a.pdf",
+    "title": "Improving Generalization by Controlling Label-Noise ...",
+    "domain": "proceedings.mlr.press",
+    "source_type": "other",
+    "content_origin": "pdf_extract",
+    "quality_score": 0.616,
+    "page_count": 3,
+    "usable": true,
+    "fetch_status": "ok"
+  }
+]

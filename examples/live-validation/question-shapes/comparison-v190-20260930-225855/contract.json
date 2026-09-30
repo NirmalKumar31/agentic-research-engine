@@ -1,0 +1,61 @@
+{
+  "question": "How do retrieval-augmented generation (RAG) and fine-tuning differ as methods for adapting a large language model?",
+  "question_type": "comparison",
+  "entities": [
+    "retrieval-augmented generation (RAG)",
+    "fine-tuning",
+    "large language models"
+  ],
+  "comparison_subjects": [
+    "retrieval-augmented generation (RAG)",
+    "fine-tuning"
+  ],
+  "shape_source": "wording",
+  "dimensions": [
+    "how information is incorporated and updated",
+    "changes to model parameters and training requirements",
+    "inference process and operational trade-offs"
+  ],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "direct_contrast",
+      "description": "An explicit statement of how the subjects differ",
+      "core": true,
+      "satisfied_by": []
+    },
+    {
+      "name": "dimension",
+      "description": "A named dimension along which they differ",
+      "core": false,
+      "satisfied_by": []
+    },
+    {
+      "name": "relationship",
+      "description": "How the subjects relate, such as one being a kind of the other",
+      "core": false,
+      "satisfied_by": []
+    },
+    {
+      "name": "how information is incorporated and updated",
+      "description": "How the subjects differ on how information is incorporated and updated",
+      "core": false,
+      "satisfied_by": []
+    },
+    {
+      "name": "changes to model parameters and training requirements",
+      "description": "How the subjects differ on changes to model parameters and training requirements",
+      "core": false,
+      "satisfied_by": []
+    },
+    {
+      "name": "inference process and operational trade-offs",
+      "description": "How the subjects differ on inference process and operational trade-offs",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

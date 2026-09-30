@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "Stopping training before a model begins memorizing noise in its training data improves generalization.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S5-e1",
+        "resolved": true,
+        "quote": "Stops training before the model begins memorizing noise in the training data, improving generalization.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.geeksforgeeks.org/machine-learning/regularization-by-early-stopping",
+        "source_title": "Regularization by Early Stopping - GeeksforGeeks"
+      }
+    ]
+  }
+]

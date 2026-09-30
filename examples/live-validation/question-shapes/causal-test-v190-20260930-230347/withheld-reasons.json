@@ -1,0 +1,34 @@
+[
+  {
+    "claim": "In the presence of noisy or incorrect labels, networks start to memorize the training labels, which degrades generalization performance.",
+    "verdict": "irrelevant",
+    "reason": "relevance could not be judged: no judgement was returned",
+    "best_entailment": 0.993243,
+    "best_evidence_id": "S6-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "A reported comparison found a significant test-accuracy gap between models trained on clean and noisy data, even when the listed regularization techniques were activated.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.996296,
+    "best_evidence_id": "S1-e1",
+    "guards_passed": false
+  },
+  {
+    "claim": "Test accuracy declines as label-noise rates increase.",
+    "verdict": "unsupported",
+    "reason": "best entailment 0.001 from S4-e1 is below the 0.98 support threshold",
+    "best_entailment": 0.000944,
+    "best_evidence_id": "S4-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "Deep neural networks\u2019 significant number of parameters renders them susceptible to overfitting corrupted labels.",
+    "verdict": "irrelevant",
+    "reason": "relevance could not be judged: no judgement was returned",
+    "best_entailment": 0.995231,
+    "best_evidence_id": "S1-e2",
+    "guards_passed": true
+  }
+]

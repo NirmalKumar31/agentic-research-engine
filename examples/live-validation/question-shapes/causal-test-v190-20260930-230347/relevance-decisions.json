@@ -1,0 +1,23 @@
+[
+  {
+    "claim": "In the presence of noisy or incorrect labels, networks start to memorize the training labels, which degrades generalization performance.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": false
+  },
+  {
+    "claim": "Deep neural networks\u2019 significant number of parameters renders them susceptible to overfitting corrupted labels.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": false
+  },
+  {
+    "claim": "Stopping training before a model begins memorizing noise in its training data improves generalization.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  }
+]

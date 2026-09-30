@@ -1,0 +1,36 @@
+{
+  "question": "Does label noise cause deep neural networks to overfit their training data?",
+  "question_type": "causal",
+  "entities": [
+    "Label noise",
+    "Deep neural networks",
+    "Training data"
+  ],
+  "comparison_subjects": [],
+  "shape_source": "wording",
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "causal_evidence",
+      "description": "Evidence capable of supporting the causal relationship, not association",
+      "core": true,
+      "satisfied_by": []
+    },
+    {
+      "name": "effect_direction",
+      "description": "Which way the relationship runs",
+      "core": false,
+      "satisfied_by": []
+    },
+    {
+      "name": "limitations",
+      "description": "What the evidence cannot establish about cause",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

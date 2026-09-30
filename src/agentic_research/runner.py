@@ -26,6 +26,7 @@ from typing import Any, cast
 from langchain_core.runnables import RunnableConfig
 
 from agentic_research.citations.nli_preflight import check_nli_ready
+from agentic_research.comparison import pairs_from_payload
 from agentic_research.config import Settings
 from agentic_research.environment import capture as capture_environment
 from agentic_research.graph.state import RunContext, initial_state
@@ -343,6 +344,11 @@ def _render(state: dict[str, Any], metrics: RunMetrics) -> str:
         verification,
         metrics,
         evidence=state.get("evidence", []),
+        # The contrast table. This renderer produces the `markdown` the
+        # web result carries, and it was never given the pairs -- so a
+        # live comparison run found two complete contrasts, reported the
+        # question answered, and shipped a report with no table in it.
+        comparison_pairs=pairs_from_payload(state.get("answer_coverage")),
     )
 
 

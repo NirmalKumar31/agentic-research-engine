@@ -499,3 +499,104 @@ class TestUnrelatedFactsAreNotAComparison:
             ],
         )
         assert pairs == ()
+
+
+class TestEveryRendererIsGivenThePairs:
+    """There are two renderers, and only one was given the contrasts.
+
+    `finalize` calls `render_markdown` for `final_markdown`;
+    `runner._render` calls it for the `markdown` the web result actually
+    carries. The first version passed the pairs only to `finalize`, so a
+    live comparison run found two complete contrasts, reported the
+    question answered, and shipped a report with no table in it.
+
+    The test written for that fix asserted the one call site it knew
+    about and passed throughout — the tenth instance in this repository
+    of a value computed correctly and not handed to the thing that
+    needed it. So this enumerates the call sites from the source rather
+    than naming them, and fails when a new one appears unfed.
+    """
+
+    def test_every_render_markdown_call_site_passes_pairs(self) -> None:
+        import pathlib
+        import re
+
+        root = pathlib.Path(__file__).resolve().parents[2] / "src"
+        offenders: list[str] = []
+        for path in root.rglob("*.py"):
+            text = path.read_text()
+            if "render_markdown(" not in text:
+                continue
+            # Each call, with its arguments, up to the closing paren.
+            for match in re.finditer(r"render_markdown\((.*?)\n    \)", text, re.S):
+                call = match.group(0)
+                if "comparison_pairs" not in call:
+                    offenders.append(f"{path.relative_to(root)}: {call.splitlines()[0]}")
+        # `report.py` holds the definition, not a call; `evaluation/ab.py`
+        # renders a frozen corpus that has no coverage assessment, and is
+        # listed here so an unfed *production* call site cannot hide
+        # behind it.
+        allowed = {"agentic_research/evaluation/ab.py"}
+        real = [o for o in offenders if o.split(":")[0] not in allowed]
+        assert real == [], f"render_markdown called without comparison_pairs: {real}"
+
+    def test_both_renderers_produce_the_table(self) -> None:
+        from agentic_research.graph.nodes.reporting import _pairs_from_state
+        from agentic_research.metrics import RunMetrics
+        from agentic_research.models import ResearchReport
+        from agentic_research.report import render_markdown
+        from agentic_research.runner import _render
+
+        pairs = build_comparison_pairs(
+            contract(),
+            [
+                side("Fine-tuning updates model weights.", evidence=("S4-e1",)),
+                side(
+                    "Retrieval-augmented generation retrieves at query time.", evidence=("S3-e1",)
+                ),
+            ],
+        )
+        assert pairs, "fixture must produce a pair or this proves nothing"
+        payload = {"comparison_pairs": [p.to_dict() for p in pairs]}
+        report = ResearchReport(title="T")
+
+        # The finalize path.
+        assert _pairs_from_state({"answer_coverage": payload}) == pairs  # type: ignore[arg-type]
+        direct = render_markdown(report, [], None, comparison_pairs=pairs)
+        assert "## How they differ" in direct
+
+        # The runner path, which produces the markdown the web carries.
+        state = {
+            "report": report,
+            "sources": [],
+            "evidence": [],
+            "verification": None,
+            "answer_coverage": payload,
+        }
+        metrics = RunMetrics(run_id="r", query="q", mode="cloud")
+        assert "## How they differ" in _render(state, metrics)
+
+    def test_the_runner_renders_nothing_when_there_is_no_assessment(self) -> None:
+        from agentic_research.metrics import RunMetrics
+        from agentic_research.models import ResearchReport
+        from agentic_research.runner import _render
+
+        state = {
+            "report": ResearchReport(title="T"),
+            "sources": [],
+            "evidence": [],
+            "verification": None,
+        }
+        markdown = _render(state, RunMetrics(run_id="r", query="q", mode="cloud"))
+        assert "## How they differ" not in markdown
+
+    def test_one_implementation_rehydrates_for_both(self) -> None:
+        """The duplication is what allowed the gap. Both paths must go
+        through the same function."""
+        import inspect
+
+        from agentic_research import runner
+        from agentic_research.graph.nodes import reporting
+
+        assert "pairs_from_payload" in inspect.getsource(runner._render)
+        assert "pairs_from_payload" in inspect.getsource(reporting._pairs_from_state)

@@ -1,0 +1,51 @@
+[
+  {
+    "claim": "RAG can incorporate the latest documents in a few minutes.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  },
+  {
+    "claim": "Fine-tuning can take a few hours to days, depending on the model size.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  },
+  {
+    "claim": "RAG does not modify the underlying LLM.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  },
+  {
+    "claim": "Fine-tuning adjusts an LLM\u2019s weights and parameters.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  },
+  {
+    "claim": "Fine-tuning involves additional rounds of training on a smaller, domain-specific data set.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  },
+  {
+    "claim": "RAG responses provide a reference to the information source.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  },
+  {
+    "claim": "Fine-tuned model responses do not provide a source reference.",
+    "stage": "judged",
+    "relevant": null,
+    "reason": "no judgement was returned",
+    "published": true
+  }
+]

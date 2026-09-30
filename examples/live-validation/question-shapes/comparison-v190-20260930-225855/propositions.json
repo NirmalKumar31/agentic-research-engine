@@ -1,0 +1,14 @@
+[
+  {
+    "claim": "RAG injects new knowledge at inference time, whereas fine-tuning bakes domain expertise into model weights before deployment.",
+    "parts": [
+      {
+        "text": "RAG injects new knowledge at inference time",
+        "supported": false,
+        "best_entailment": 0.675733,
+        "best_evidence_id": "S2-e1"
+      }
+    ],
+    "verdict": "unsupported"
+  }
+]

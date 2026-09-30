@@ -1,0 +1,26 @@
+[
+  {
+    "claim": "RAG injects new knowledge at inference time, whereas fine-tuning bakes domain expertise into model weights before deployment.",
+    "verdict": "unsupported",
+    "reason": "the claim asserts 2 things and 'RAG injects new knowledge at inference time' is not supported: best entailment 0.676 from S2-e1 is below the 0.98 support threshold",
+    "best_entailment": null,
+    "best_evidence_id": null,
+    "guards_passed": null
+  },
+  {
+    "claim": "Fine-tuned model information can become outdated because it is based on static snapshots, and it may require retraining.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.61002,
+    "best_evidence_id": "S4-e6",
+    "guards_passed": false
+  },
+  {
+    "claim": "RAG requires data pipelines, document processing, vector indexing, and search mechanisms.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: attribution, modality",
+    "best_entailment": 0.097422,
+    "best_evidence_id": "S5-e5",
+    "guards_passed": false
+  }
+]

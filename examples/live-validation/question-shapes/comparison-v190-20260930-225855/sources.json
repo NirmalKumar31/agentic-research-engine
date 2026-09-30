@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://www.ibm.com/think/topics/rag-vs-fine-tuning",
+    "title": "RAG vs. Fine-tuning | IBM",
+    "domain": "ibm.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.64,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://www.databricks.com/blog/rag-vs-fine-tuning",
+    "title": "RAG vs Fine Tuning: Enterprise Decisions for AI Models and AI Systems | Databricks Blog",
+    "domain": "databricks.com",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.578,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-vs-fine-tuning.html",
+    "title": "Comparing Retrieval Augmented Generation and fine-tuning - AWS Prescriptive Guidance",
+    "domain": "docs.aws.amazon.com",
+    "source_type": "official_docs",
+    "content_origin": "provider_raw",
+    "quality_score": 0.976,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://www.redhat.com/en/topics/ai/rag-vs-fine-tuning",
+    "title": "RAG vs. fine-tuning",
+    "domain": "redhat.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.636,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://montecarlo.ai/blog-rag-vs-fine-tuning",
+    "title": "RAG Vs. Fine Tuning: Which One Should You Choose?",
+    "domain": "montecarlo.ai",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.618,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://www.oracle.com/artificial-intelligence/generative-ai/retrieval-augmented-generation-rag/rag-fine-tuning",
+    "title": "RAG vs. Fine-Tuning: How to Choose",
+    "domain": "oracle.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.606,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

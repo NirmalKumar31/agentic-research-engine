@@ -1,0 +1,9 @@
+[
+  {
+    "original": "A reported comparison found a significant test-accuracy gap between models trained on clean and noisy data, even when the listed regularization techniques were activated.",
+    "rewritten": "The test-accuracy gap between models trained on clean and noisy data remained significant while all of the aforementioned regularization techniques were activated.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "the rewrite states the claim more strongly than the original"
+  }
+]

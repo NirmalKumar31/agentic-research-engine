@@ -1,0 +1,15 @@
+{
+  "llm_calls": 13,
+  "provider_requests": 13,
+  "input_tokens": 24823,
+  "output_tokens": 12790,
+  "known_cost_usd": 0.008877,
+  "search_credits": 5.0,
+  "model_assignments": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "duration_s": 176.03
+}

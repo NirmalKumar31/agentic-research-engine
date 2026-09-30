@@ -1,0 +1,100 @@
+[
+  {
+    "claim": "RAG can incorporate the latest documents in a few minutes.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e5",
+        "resolved": true,
+        "quote": "RAG can incorporate the latest documents in a few minutes.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-vs-fine-tuning.html",
+        "source_title": "Comparing Retrieval Augmented Generation and fine-tuning - AWS Prescriptive Guidance"
+      }
+    ]
+  },
+  {
+    "claim": "Fine-tuning can take a few hours to days, depending on the model size.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e3",
+        "resolved": true,
+        "quote": "Fine-tuning can take a few hours to days, depending on the size of the model. Therefore, it not be a good solution if your custom documents change frequently.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-vs-fine-tuning.html",
+        "source_title": "Comparing Retrieval Augmented Generation and fine-tuning - AWS Prescriptive Guidance"
+      }
+    ]
+  },
+  {
+    "claim": "RAG does not modify the underlying LLM.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S4-e1",
+        "resolved": true,
+        "quote": "RAG does this without modifying the underlying LLM, while fine-tuning requires adjusting the weights and parameters of an LLM.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.redhat.com/en/topics/ai/rag-vs-fine-tuning",
+        "source_title": "RAG vs. fine-tuning"
+      }
+    ]
+  },
+  {
+    "claim": "Fine-tuning adjusts an LLM\u2019s weights and parameters.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S4-e1",
+        "resolved": true,
+        "quote": "RAG does this without modifying the underlying LLM, while fine-tuning requires adjusting the weights and parameters of an LLM.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.redhat.com/en/topics/ai/rag-vs-fine-tuning",
+        "source_title": "RAG vs. fine-tuning"
+      }
+    ]
+  },
+  {
+    "claim": "Fine-tuning involves additional rounds of training on a smaller, domain-specific data set.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S6-e1",
+        "resolved": true,
+        "quote": "Fine-tuning a generative AI model means taking a general-purpose model, such as Claude 2 from Anthropic, Command from Cohere, or Llama 2 from Meta; giving it additional rounds of training on a smaller, domain-specific data set; and adjusting the model\u2019s parameters based on this training.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.oracle.com/artificial-intelligence/generative-ai/retrieval-augmented-generation-rag/rag-fine-tuning",
+        "source_title": "RAG vs. Fine-Tuning: How to Choose"
+      }
+    ]
+  },
+  {
+    "claim": "RAG responses provide a reference to the information source.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e6",
+        "resolved": true,
+        "quote": "In its response, a RAG model provides a reference to the information source.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-vs-fine-tuning.html",
+        "source_title": "Comparing Retrieval Augmented Generation and fine-tuning - AWS Prescriptive Guidance"
+      }
+    ]
+  },
+  {
+    "claim": "Fine-tuned model responses do not provide a source reference.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e4",
+        "resolved": true,
+        "quote": "Fine-tuned models do not provide a reference to the source in their responses.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-vs-fine-tuning.html",
+        "source_title": "Comparing Retrieval Augmented Generation and fine-tuning - AWS Prescriptive Guidance"
+      }
+    ]
+  }
+]

@@ -120,9 +120,22 @@ attempt with no retry. Evidence:
 `examples/live-validation/question-shapes/overfitting-20260930-221039/` and
 `docs/RELEASE-EVIDENCE-v1.9.0.md`.
 
-**What remains offline-validated only.** The paid run exercised
-`causal_drivers`. Structured comparison and the yes/no `causal` contract are
-verified by tests and mutation testing but by no live run. The breadth-first
+**What remains offline-validated only.** Three authorised paid runs were
+made in total: the `causal_drivers` question above, a structured comparison
+(*"how does retrieval-augmented generation differ from fine-tuning?"* — 2
+subjects, 2 complete pairs on named axes, 7 claims, answered), and a yes/no
+causal test (*"does label noise cause overfitting?"* — correctly **not**
+answered, with the core slot refusing an association claim). So comparison
+and the yes/no contract are now live-validated too.
+
+The comparison run found one more defect: it reported the question answered
+with two complete pairs and shipped a report with **no contrast table**,
+because `runner._render` — the renderer producing the markdown the web
+result carries — was never given the pairs, while `finalize` was. Both now
+share one rehydration function. That fix, and the breadth-first query fix,
+both postdate the runs that revealed them and are structurally verified
+only. Relationship-kind discharge is also CI-verified only: run 2 answered
+by pairs, so the escape hatch was never exercised. The breadth-first
 query fix landed after that run, so it too is structurally tested rather
 than live-validated — its guarantee holds regardless, because the node
 injects missing queries itself rather than relying on the model. One

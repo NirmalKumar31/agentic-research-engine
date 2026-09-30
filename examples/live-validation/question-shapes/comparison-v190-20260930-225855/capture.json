@@ -1,0 +1,11 @@
+{
+  "complete": true,
+  "terminal_event": "result",
+  "started_utc": "2026-09-30T22:58:55Z",
+  "wall_clock_seconds": 176.48,
+  "raw_bytes": 65141,
+  "chunks": 54,
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "How does retrieval-augmented generation differ from fine-tuning?",
+  "method": "raw bytes streamed to disk, timing recorded in a separate index"
+}

@@ -35,6 +35,7 @@ from agentic_research.comparison import (
     ComparisonPair,
     SideClaim,
     dynamically_discharging_slots,
+    pairs_from_payload,
 )
 from agentic_research.config import ModelRole
 from agentic_research.evidence.store import EvidenceStore
@@ -1253,29 +1254,8 @@ async def _check_contradictions(
 
 
 def _pairs_from_state(state: ResearchState) -> tuple[ComparisonPair, ...]:
-    """Rehydrate the contrasts the coverage assessment already found.
-
-    ``answer_coverage`` is a plain dict in state because state is
-    checkpointed and serialised; the renderer wants objects. Rebuilding
-    them here is not a second derivation -- the pairs are read back, not
-    recomputed from the claims.
-    """
-    payload = state.get("answer_coverage") or {}
-    raw = payload.get("comparison_pairs") or []
-    pairs: list[ComparisonPair] = []
-    for entry in raw:
-        sides = tuple(
-            SideClaim(
-                subject=str(side.get("subject", "")),
-                text=str(side.get("text", "")),
-                answer_slot=str(side.get("answer_slot", "")),
-                evidence_ids=tuple(side.get("evidence_ids") or ()),
-            )
-            for side in entry.get("sides") or []
-        )
-        if sides:
-            pairs.append(ComparisonPair(dimension=str(entry.get("dimension", "")), sides=sides))
-    return tuple(pairs)
+    """The contrasts the coverage assessment already found."""
+    return pairs_from_payload(state.get("answer_coverage"))
 
 
 async def finalize(state: ResearchState) -> ResearchState:

@@ -1,0 +1,292 @@
+[
+  {
+    "event": "started",
+    "data": {
+      "run_id": "20260930-230347-f50f28",
+      "query": "Does label noise cause overfitting in deep neural networks?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_waking",
+        "mode": "remote",
+        "detail": "Waking the verifier",
+        "expected_seconds": 90
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "progress",
+      "data": {
+        "event": "verifier_ready",
+        "detail": "Verifier ready"
+      }
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "analyzing_query",
+      "query": "Does label noise cause overfitting in deep neural networks?"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "query_analyzed",
+      "intent": "Determine whether noisy or incorrect training labels causally contribute to overfitting in deep neural networks.",
+      "format": "causal_analysis"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "answer_contract",
+      "question_type": "causal",
+      "required": [
+        "causal_evidence"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "planning"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "plan_generated",
+      "count": 5,
+      "questions": [
+        "In controlled experiments, does adding incorrect labels cause deep neural networks to achieve worse generalization than training on clean labels, and how strong is the causal evidence?",
+        "Through what mechanisms and under what conditions\u2014such as model capacity, training duration, and optimization dynamics\u2014do deep networks memorize noisy labels?",
+        "How do noise type and structure, including noise rate, class-dependent noise, and instance-dependent noise, affect whether networks overfit?",
+        "What evidence distinguishes overfitting to label noise from ordinary generalization error, including training and test performance patterns and memorization measures?",
+        "Which factors or interventions\u2014such as early stopping, regularization, data augmentation, or robust-loss methods\u2014prevent or weaken noise-driven overfitting, and when can it persist despite them?"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "generating_queries",
+      "round": 1,
+      "sub_questions": 5
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "queries_generated",
+      "round": 1,
+      "count": 5,
+      "queries": [
+        "deep neural networks noisy labels generalization clean labels",
+        "deep networks memorize noisy labels training duration capacity",
+        "label noise rate class dependent instance dependent networks",
+        "noisy label memorization training test accuracy",
+        "prevent overfitting noisy labels early stopping regularization"
+      ]
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q2",
+      "query": "deep networks memorize noisy labels training duration capacity",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q3",
+      "query": "label noise rate class dependent instance dependent networks",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q4",
+      "query": "noisy label memorization training test accuracy",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q5",
+      "query": "prevent overfitting noisy labels early stopping regularization",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "search_completed",
+      "query_id": "Q1",
+      "query": "deep neural networks noisy labels generalization clean labels",
+      "results": 8
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_deduplicated",
+      "results": 40,
+      "unique": 37,
+      "avoided": 3,
+      "selected": 6,
+      "starved_sub_questions": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "source_failed",
+      "source_id": "S3",
+      "status": "http_error"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "source_retrieved",
+      "source_id": "S6",
+      "title": "Improving Generalization by Controlling Label-Noise ..."
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "sources_registered",
+      "usable": 5,
+      "duplicates": 0,
+      "extracting": 5
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S2",
+      "items": 1
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S5",
+      "items": 5
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S1",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S4",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "evidence_extracted",
+      "source_id": "S6",
+      "items": 6
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "assessing_coverage",
+      "round": 1
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "coverage_evaluated",
+      "round": 1,
+      "ratio": 0.0,
+      "sufficient": false,
+      "covered": 0,
+      "total": 5,
+      "weak": 5,
+      "missing": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesizing",
+      "evidence": 24
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "synthesized",
+      "sections": 1,
+      "findings": 0
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "verifying_citations"
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "citations_verified",
+      "total": 1,
+      "evidence_integrity": 1.0,
+      "support": {
+        "supported": 1,
+        "partially_supported": 0,
+        "unsupported": 4,
+        "not_checked": 0
+      },
+      "exhaustive": true,
+      "not_checked": 0,
+      "removed": 4,
+      "published": 1
+    }
+  },
+  {
+    "event": "progress",
+    "data": {
+      "event": "completed",
+      "stop_reason": "stopped after round 1"
+    }
+  },
+  {
+    "event": "done",
+    "data": {
+      "run_id": "20260930-230347-f50f28"
+    }
+  }
+]
