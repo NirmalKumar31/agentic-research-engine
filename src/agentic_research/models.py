@@ -504,6 +504,18 @@ class SubQuestionCoverage(BaseModel):
     has_contradiction: bool = False
     verdict: str = Field(default="uncovered", description="covered | weak | uncovered")
     note: str = ""
+    off_topic_items: int = Field(
+        default=0,
+        description="Exact-match items attributed here that do not address this sub-question",
+    )
+    gap_cause: str = Field(
+        default="",
+        description=(
+            "Why this sub-question is not covered: no suitable source found, fetch "
+            "failed, retrieved source was off topic, evidence insufficient, or no "
+            "evidence attributed. Empty when covered"
+        ),
+    )
 
 
 class CoverageAssessment(BaseModel):
