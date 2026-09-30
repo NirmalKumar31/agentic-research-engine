@@ -374,9 +374,25 @@ async def generate_queries(state: ResearchState) -> ResearchState:
 
         valid_ids = {q.id for q in targets}
         seen = {q.text.strip().lower() for q in completed}
-        queries: list[SearchQuery] = []
         next_index = len(completed) + 1
 
+        # Group the proposals by the sub-question each serves, keeping the
+        # model's order within a group.
+        #
+        # This replaces taking the proposals in the order they arrived and
+        # stopping at the budget, which let the model starve sub-questions
+        # it had written nothing for. The live run on 94368bb7 issued six
+        # queries across five sub-questions -- two each for SQ1, SQ2 and
+        # SQ3 and *none* for SQ4 or SQ5 -- so no candidate in the pool was
+        # attributed to either and neither was ever searched. The prompt
+        # permits "one or two queries per sub-question" and nothing
+        # enforced that every sub-question got one first.
+        #
+        # The retrieval manifest made it visible; before that, the run
+        # reported those two as "only limited evidence was found", which
+        # reads as a retrieval outcome rather than as a query that was
+        # never sent.
+        by_sub_question: dict[str, list[tuple[str, str]]] = {q.id: [] for q in targets}
         for sub_question_id, text, rationale in proposed:
             text = text.strip()
             key = text.lower()
@@ -386,18 +402,64 @@ async def generate_queries(state: ResearchState) -> ResearchState:
             # so unknown ids are reassigned rather than trusted.
             owner = sub_question_id if sub_question_id in valid_ids else targets[0].id
             seen.add(key)
-            queries.append(
-                SearchQuery(
-                    id=f"Q{next_index}",
-                    sub_question_id=owner,
-                    text=text,
-                    round_number=round_number,
-                    rationale=rationale.strip(),
+            by_sub_question[owner].append((text, rationale.strip()))
+
+        # A sub-question the model wrote nothing for gets a query from its
+        # own text. Long for a search query, and the prompt discourages
+        # that -- but a sub-question that is never searched cannot be
+        # answered at all, which is the worse of the two.
+        for target in targets:
+            if by_sub_question[target.id]:
+                continue
+            key = target.text.strip().lower()
+            if key and key not in seen:
+                seen.add(key)
+                by_sub_question[target.id].append(
+                    (target.text.strip(), "fallback: no query was written for this sub-question")
                 )
-            )
-            next_index += 1
-            if len(queries) >= remaining_budget:
+
+        # Breadth before depth: every sub-question's first query precedes
+        # any sub-question's second, so trimming to the budget drops
+        # second queries rather than whole sub-questions. Ordered by
+        # planner priority, so a budget too small to cover everything
+        # spends itself on the essential parts.
+        ranked = sorted(targets, key=lambda q: (q.priority, q.id))
+        ordered: list[tuple[str, str, str]] = []
+        depth = 0
+        while True:
+            added = False
+            for target in ranked:
+                group = by_sub_question[target.id]
+                if depth < len(group):
+                    ordered.append((target.id, *group[depth]))
+                    added = True
+            if not added:
                 break
+            depth += 1
+
+        queries = [
+            SearchQuery(
+                id=f"Q{next_index + offset}",
+                sub_question_id=sub_question_id,
+                text=text,
+                round_number=round_number,
+                rationale=rationale,
+            )
+            for offset, (sub_question_id, text, rationale) in enumerate(ordered[:remaining_budget])
+        ]
+
+        unsearched = [t.id for t in ranked if not any(q.sub_question_id == t.id for q in queries)]
+        if unsearched:
+            # Budget genuinely too small to cover every sub-question.
+            # Logged rather than hidden: a gap whose cause is "no query
+            # was issued" needs a different fix from one whose cause is
+            # "the search found nothing".
+            log.warning(
+                "sub_questions_unsearched",
+                ids=unsearched,
+                budget=remaining_budget,
+                sub_questions=len(targets),
+            )
 
         if not queries:
             queries = [

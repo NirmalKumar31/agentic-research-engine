@@ -109,7 +109,14 @@ six pages, so a query that excludes every general explanation has decided \
 the answer before anything is read.
 
 Rules:
-- One or two queries per sub-question.
+- **Cover every sub-question before writing a second query for any of
+them.** A sub-question with no query is never searched, so nothing can
+answer it -- and the engine will report it as "limited evidence found",
+which reads as a retrieval outcome rather than a question nobody asked. A
+live run spent all six queries on the first three of five sub-questions and
+left two unsearched.
+- At most two queries for a sub-question, and only once every other
+sub-question has one.
 - Prefer the question's own vocabulary. Add a technical term only when the \
 sub-question genuinely cannot be searched without it.
 - Keep queries short: three to eight words suits most. Never shorten a \

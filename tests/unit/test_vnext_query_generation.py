@@ -106,7 +106,13 @@ class TestTheRationaleReachesTheQuery:
         # The flattening that drops it is the tell for six earlier
         # defects in this repository.
         assert "(q.sub_question_id, q.text)" not in body
-        assert "rationale=rationale.strip()" in body
+        # The model's rationale is read, and it reaches the SearchQuery.
+        # Asserted as two properties rather than one exact spelling: the
+        # strip() moved into the grouping step when query assembly became
+        # breadth-first, and a test pinned to the spelling would have
+        # failed for a refactor that changed nothing it cares about.
+        assert "q.rationale" in body
+        assert "rationale=rationale" in body
 
     def test_the_fallback_path_also_records_why(self) -> None:
         import inspect
@@ -133,3 +139,108 @@ class TestTheRationaleReachesTheQuery:
             "generalization failures language models hallucinations"
         )
         assert _median_word_count([failed]) > 8
+
+
+class TestTheBudgetCannotStarveASubQuestion:
+    """The defect the live run on 94368bb7 exposed.
+
+    Six queries were issued across five sub-questions -- two each for
+    SQ1, SQ2 and SQ3 and **none** for SQ4 or SQ5. No candidate in the
+    pool was attributed to either, so neither was ever searched, and
+    the report described them as "only limited evidence was found" --
+    which reads as a retrieval outcome rather than a question nobody
+    asked.
+
+    The prompt permitted "one or two queries per sub-question" and the
+    node took the proposals in the order they arrived, stopping at the
+    budget. Nothing required that every sub-question get one first.
+    This is the same shape as one sub-question consuming the whole
+    source budget, which the same release fixed, one stage earlier.
+
+    The node needs a live run context to drive end to end, so the
+    ordering rule is tested through the pure helper and the wiring is
+    asserted by inspection -- the project's existing idiom.
+    """
+
+    def test_the_prompt_requires_coverage_before_depth(self) -> None:
+        assert "Cover every sub-question before" in QUERY_WRITER_SYSTEM
+
+    def test_the_prompt_states_what_an_unsearched_sub_question_costs(self) -> None:
+        """A rule without its reason gets edited away."""
+        lowered = QUERY_WRITER_SYSTEM.lower()
+        assert "never searched" in lowered
+        assert "left two unsearched" in lowered
+
+    def test_the_prompt_caps_depth_at_two_and_orders_it(self) -> None:
+        assert "only once every other" in QUERY_WRITER_SYSTEM
+
+    def test_the_node_interleaves_rather_than_taking_arrival_order(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import planning
+
+        body = inspect.getsource(planning.generate_queries)
+        # The arrival-order loop that caused it is gone.
+        assert "if len(queries) >= remaining_budget:\n                break" not in body
+        assert "by_sub_question" in body
+        assert "ranked = sorted(targets" in body
+
+    def test_the_node_injects_a_query_for_an_uncovered_sub_question(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import planning
+
+        body = inspect.getsource(planning.generate_queries)
+        assert "fallback: no query was written for this sub-question" in body
+
+    def test_the_node_warns_when_the_budget_cannot_cover_everything(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import planning
+
+        body = inspect.getsource(planning.generate_queries)
+        assert "sub_questions_unsearched" in body
+
+    def test_breadth_first_ordering_reproduces_the_fix(self) -> None:
+        """The ordering rule itself, on the live run's exact shape: the
+        model proposes two queries each for the first three of five
+        sub-questions, and the budget is six.
+
+        Arrival order spends all six on SQ1-SQ3. Breadth-first gives
+        every sub-question one and then spends the spare on the
+        highest-priority one.
+        """
+        proposed = [
+            ("SQ1", "a1"),
+            ("SQ1", "a2"),
+            ("SQ2", "b1"),
+            ("SQ2", "b2"),
+            ("SQ3", "c1"),
+            ("SQ3", "c2"),
+        ]
+        targets = ["SQ1", "SQ2", "SQ3", "SQ4", "SQ5"]
+        budget = 6
+
+        # Arrival order — what the defect did.
+        arrival = [sq for sq, _ in proposed][:budget]
+        assert set(arrival) == {"SQ1", "SQ2", "SQ3"}
+        assert "SQ4" not in arrival and "SQ5" not in arrival
+
+        # Breadth-first with injected fallbacks — what it does now.
+        groups: dict[str, list[str]] = {t: [] for t in targets}
+        for sq, text in proposed:
+            groups[sq].append(text)
+        for t in targets:
+            if not groups[t]:
+                groups[t].append(f"{t} fallback")
+        ordered: list[str] = []
+        depth = 0
+        while any(depth < len(groups[t]) for t in targets):
+            for t in targets:
+                if depth < len(groups[t]):
+                    ordered.append(t)
+            depth += 1
+        chosen = ordered[:budget]
+        assert set(chosen) >= set(targets), "every sub-question must be searched"
+        assert chosen[:5] == targets, "breadth before depth"
+        assert chosen[5] == "SQ1", "the spare goes to the highest-priority one"

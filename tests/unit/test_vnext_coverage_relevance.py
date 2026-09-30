@@ -153,6 +153,12 @@ class TestCoverageReportsWhyAGapExists:
         assert coverage.gap_cause == "no evidence attributed"
 
 
+def _query(sub_question_id: str, qid: str = "Q1"):
+    from agentic_research.models import SearchQuery
+
+    return SearchQuery(id=qid, sub_question_id=sub_question_id, text="a query", round_number=1)
+
+
 class TestRetrievalSideCausesAreAttributed:
     """Four causes, four different fixes. A gap with no diagnosis is
     indistinguishable from a gap with a different cause."""
@@ -174,6 +180,7 @@ class TestRetrievalSideCausesAreAttributed:
         out = _attribute_gaps(
             [self._coverage()],
             {  # type: ignore[arg-type]
+                "completed_queries": [_query("SQ1")],
                 "retrieval_diagnostics": {
                     "starved_sub_questions": ["SQ1"],
                     "by_sub_question": {"SQ1": []},
@@ -188,7 +195,11 @@ class TestRetrievalSideCausesAreAttributed:
 
         out = _attribute_gaps(
             [self._coverage(verdict="covered", gap_cause="")],
-            {"retrieval_diagnostics": {}, "sources": []},  # type: ignore[arg-type]
+            {  # type: ignore[arg-type]
+                "completed_queries": [_query("SQ1")],
+                "retrieval_diagnostics": {},
+                "sources": [],
+            },
         )
         assert out[0].gap_cause == ""
 
@@ -207,6 +218,7 @@ class TestRetrievalSideCausesAreAttributed:
         out = _attribute_gaps(
             [self._coverage(evidence_count=0)],
             {  # type: ignore[arg-type]
+                "completed_queries": [_query("SQ1")],
                 "retrieval_diagnostics": {
                     "starved_sub_questions": [],
                     "by_sub_question": {"SQ1": ["https://e.example.com/p"]},
@@ -216,6 +228,48 @@ class TestRetrievalSideCausesAreAttributed:
         )
         assert out[0].gap_cause == "candidate selected but fetch failed"
 
+    def test_a_sub_question_nobody_queried_says_so(self) -> None:
+        """The live run's actual failure, named correctly.
+
+        Six queries were issued across five sub-questions, two each for
+        the first three and none for SQ4 or SQ5. The run reported those
+        two as "no suitable source found", which points at retrieval --
+        but no query was ever sent, so there was never a pool to find a
+        source in. The most upstream cause wins, because it is the one
+        that needs fixing.
+        """
+        from agentic_research.graph.nodes.critique import _attribute_gaps
+
+        out = _attribute_gaps(
+            [self._coverage(sub_question_id="SQ4")],
+            {  # type: ignore[arg-type]
+                "completed_queries": [_query("SQ1"), _query("SQ2", "Q2")],
+                "retrieval_diagnostics": {
+                    "starved_sub_questions": ["SQ4"],
+                    "by_sub_question": {"SQ1": ["u"], "SQ4": []},
+                },
+                "sources": [],
+            },
+        )
+        assert out[0].gap_cause == "no search query was issued for this sub-question"
+
+    def test_a_queried_sub_question_still_blames_retrieval(self) -> None:
+        """Non-vacuity: the new cause must not swallow the old one."""
+        from agentic_research.graph.nodes.critique import _attribute_gaps
+
+        out = _attribute_gaps(
+            [self._coverage(sub_question_id="SQ1")],
+            {  # type: ignore[arg-type]
+                "completed_queries": [_query("SQ1")],
+                "retrieval_diagnostics": {
+                    "starved_sub_questions": ["SQ1"],
+                    "by_sub_question": {"SQ1": []},
+                },
+                "sources": [],
+            },
+        )
+        assert out[0].gap_cause == "no suitable source found"
+
     def test_missing_diagnostics_do_not_invent_a_cause(self) -> None:
         """A run without retrieval diagnostics must not be reported as
         having found no suitable source."""
@@ -223,7 +277,7 @@ class TestRetrievalSideCausesAreAttributed:
 
         out = _attribute_gaps(
             [self._coverage(evidence_count=3, gap_cause="evidence insufficient")],
-            {"sources": []},  # type: ignore[arg-type]
+            {"completed_queries": [_query("SQ1")], "sources": []},  # type: ignore[arg-type]
         )
         assert out[0].gap_cause == "no suitable source found"
 
