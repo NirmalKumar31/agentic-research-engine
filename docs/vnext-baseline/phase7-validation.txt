@@ -1,25 +1,17 @@
-# Phase 7 validation — final, 2026-09-30T18:33Z
+# Validation — 2026-09-30T19:13Z
 branch: quality/vnext-retrieval-and-contract
-head:   c0852ca
-base:   514cddc (main)
 
-Every line below is a real command exit code, not a summary.
+Every line is a real command exit code.
 
-ruff check src tests examples            exit=0  (All checks passed)
-ruff format --check src tests examples   exit=0  (223 files already formatted)
-pytest (CI marker expr)                 2157 passed, 31 skipped, 20 deselected, 1 warning in 27.78s
-pytest -m nli (real DeBERTa checkpoint) exit=0  (task log bed6fa5o9)
-gitleaks git (full history)              exit=0  (233 commits, no leaks found)
-pip-audit --skip-editable                exit=0  (No known vulnerabilities found)
-npm run typecheck                        exit=0
-npm test                                 exit=0  (9 files, 61 tests)
-npm run build                            exit=0
-npm audit --omit=dev --audit-level=high  exit=0
-mutation testing of new guards           8/8 mutants caught
+ruff check src tests examples             exit=0
+ruff format --check                       exit=0
+pytest (CI marker expr) + coverage       TOTAL                                                  7770    756   2070    228    88% 2259 passed, 31 skipped, 20 deselected, 1 warning in 63.70s (0:01:03) 
+pytest -m nli (real DeBERTa checkpoint)  exit=0 (task b1zdkwq27)
+gitleaks git (full history)               exit=0
+pip-audit --skip-editable                 exit=0
+mutation sweep                            14/14 mutants caught
 
-## coverage of new modules
-src/agentic_research/comparison.py               65      1     26      1    98%
-src/agentic_research/evidence/topicality.py      16      0      4      0   100%
-src/agentic_research/question_form.py           102      1     54      5    96%
-src/agentic_research/retrieval/selection.py      84      1     24      2    97%
-TOTAL                                           267      3    108      8    97%
+npm run typecheck                         exit=0
+npm test                                  Tests 66 passed (66)
+npm run build                             exit=0
+npm audit --omit=dev --audit-level=high    exit=0
