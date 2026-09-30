@@ -998,3 +998,51 @@ class TestTheApiSchemaIsNotPublished:
         app = quota_app(_settings(demo_mode=True))
         paths = {getattr(r, "path", None) for r in app.routes}
         assert "/openapi.json" not in paths
+
+
+class TestAdditiveKeysKeepRecordingsReadable:
+    """A nullable key added to the live result must not take the demo
+    down.
+
+    Recordings are skipped wholesale when their schema version does not
+    match, which is right for a change that alters how a payload should
+    be read and wrong for one that only adds a nullable field: bumping
+    the version would have skipped all three demo recordings until each
+    was re-recorded with a paid run. `answer_coverage` was the first
+    such key, and the canonical-shape test caught it.
+    """
+
+    def test_an_older_recording_gains_the_key_as_null(self) -> None:
+        from agentic_research.web.recordings import _backfill_additive_keys
+
+        payload: dict = {"result": {"report": None}}
+        _backfill_additive_keys(payload)
+        assert payload["result"]["answer_coverage"] is None
+
+    def test_a_value_already_present_is_not_overwritten(self) -> None:
+        from agentic_research.web.recordings import _backfill_additive_keys
+
+        coverage = {"answered": True, "absent_entities": [], "satisfied": ["definition"]}
+        payload: dict = {"result": {"answer_coverage": coverage}}
+        _backfill_additive_keys(payload)
+        assert payload["result"]["answer_coverage"] == coverage
+
+    def test_a_malformed_payload_is_left_alone(self) -> None:
+        from agentic_research.web.recordings import _backfill_additive_keys
+
+        payload: dict = {"result": "not a dict"}
+        _backfill_additive_keys(payload)
+        assert payload["result"] == "not a dict"
+
+    def test_every_additive_key_exists_on_a_live_result(self) -> None:
+        """A key listed here but absent from the live serialiser would
+        add a field to recordings that nothing produces."""
+        from test_web_api import sample_result
+
+        from agentic_research.web.recordings import (
+            _ADDITIVE_RESULT_KEYS,
+            serialise_result,
+        )
+
+        live = serialise_result(sample_result())
+        assert set(_ADDITIVE_RESULT_KEYS) <= set(live)

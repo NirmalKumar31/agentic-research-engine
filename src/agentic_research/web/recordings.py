@@ -423,10 +423,32 @@ def _index() -> dict[str, dict[str, Any]]:
             continue
         assert_no_secrets(recording_id, payload)
         assert_no_internal_reasoning(recording_id, payload)
+        _backfill_additive_keys(payload)
         loaded[recording_id] = payload
 
     log.info("recordings_loaded", count=len(loaded), ids=sorted(loaded))
     return loaded
+
+
+# Result keys added after a recording was made, each nullable, with
+# null meaning "this run predates the field" rather than "the field was
+# empty". Backfilled so a recording keeps the same top-level shape as a
+# live run without a schema bump: bumping the version skips every
+# existing recording, which would take the demo down until all three
+# were re-recorded with paid runs.
+#
+# Only additive nullable keys belong here. A key whose absence changes
+# how the payload should be *read* is a real schema change and must bump
+# RECORDING_SCHEMA_VERSION instead.
+_ADDITIVE_RESULT_KEYS = ("answer_coverage",)
+
+
+def _backfill_additive_keys(payload: dict[str, Any]) -> None:
+    result = payload.get("result")
+    if not isinstance(result, dict):
+        return
+    for key in _ADDITIVE_RESULT_KEYS:
+        result.setdefault(key, None)
 
 
 def available() -> list[RecordingSummary]:
@@ -582,6 +604,9 @@ def serialise_result(result: RunResult) -> dict[str, Any]:
         # retrieval and then discarded.
         "contract": None if contract is None else contract.to_dict(),
         "verification": state.get("verification"),
+        # Read from state rather than reassessed here: two assessments
+        # of the same run that can disagree is worse than one.
+        "answer_coverage": state.get("answer_coverage"),
         "metrics": result.metrics.model_dump(mode="json"),
         "markdown": result.markdown,
     }

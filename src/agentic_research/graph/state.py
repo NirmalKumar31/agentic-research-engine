@@ -156,6 +156,13 @@ class ResearchState(TypedDict, total=False):
     # --- output ---------------------------------------------------------
     report: ResearchReport | None
     verification: dict[str, Any] | None
+    answer_coverage: dict[str, Any] | None
+    """How much of the contract the published claims filled.
+
+    Carried rather than recomputed at the API boundary: the absent
+    subjects cannot be derived from the published claims, so a client
+    that re-derived coverage would be missing the one fact that
+    explains why nothing was published."""
     final_markdown: str
 
     # --- diagnostics ------------------------------------------------------
@@ -253,6 +260,7 @@ def initial_state(
         stop_reason="",
         report=None,
         verification=None,
+        answer_coverage=None,
         final_markdown="",
         errors=[],
         stage_timings=[],

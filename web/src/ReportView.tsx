@@ -63,7 +63,8 @@ export function ReportView({
   const citationsBySource = useMemo(() => {
     const counts = new Map<string, number>();
     for (const claim of allClaims) {
-      for (const id of claim.citation_ids) counts.set(id, (counts.get(id) ?? 0) + 1);
+      for (const id of claim.citation_ids)
+        counts.set(id, (counts.get(id) ?? 0) + 1);
     }
     return counts;
   }, [allClaims]);
@@ -103,22 +104,29 @@ export function ReportView({
         <header className="report__head">
           <h2>{report.title}</h2>
           <p className="report__summary-line muted small">
-            {substantive.length} substantive claims · {grounded.length} evidence-linked ·{" "}
-            {result.sources.length} sources · {result.evidence.length} evidence items
+            {substantive.length} substantive claims · {grounded.length}{" "}
+            evidence-linked · {result.sources.length} sources ·{" "}
+            {result.evidence.length} evidence items
           </p>
-          <p className="hint">Select any citation to see the exact passage behind it.</p>
+          <p className="hint">
+            Select any citation to see the exact passage behind it.
+          </p>
         </header>
 
-        <ContractView contract={result.contract} report={report} />
+        <ContractView
+          contract={result.contract}
+          report={report}
+          coverage={result.answer_coverage}
+        />
 
         {coverage && coverage.covered < coverage.total && (
           <p className="notice notice--coverage">
-            <strong>Limited evidence coverage.</strong> Research completed within the
-            demo's one-round limit, but {coverage.total - coverage.covered} of{" "}
-            {coverage.total} research dimensions did not reach the evidence
-            threshold. The claims below are still verified against their own
-            sources; the question is covered less completely than a longer run
-            would manage.
+            <strong>Limited evidence coverage.</strong> Research completed
+            within the demo's one-round limit, but{" "}
+            {coverage.total - coverage.covered} of {coverage.total} research
+            dimensions did not reach the evidence threshold. The claims below
+            are still verified against their own sources; the question is
+            covered less completely than a longer run would manage.
           </p>
         )}
 
@@ -126,17 +134,19 @@ export function ReportView({
           <section className="excerpts">
             <h3>Source excerpts</h3>
             <p className="notice notice--withheld">
-              <strong>No synthesized claim passed evidence verification.</strong> Showing
-              exact source excerpts instead. These are verbatim quotations, not findings —
-              nothing below has been generalised, combined or concluded from.
+              <strong>
+                No synthesized claim passed evidence verification.
+              </strong>{" "}
+              Showing exact source excerpts instead. These are verbatim
+              quotations, not findings — nothing below has been generalised,
+              combined or concluded from.
             </p>
             <ul className="excerpts__list">
               {excerpts.map((item) => (
                 <li key={item.id}>
                   <blockquote>{item.quote}</blockquote>
                   <span className="muted small">
-                    [{item.source_id}]
-                    {item.page ? ` · p. ${item.page}` : ""}
+                    [{item.source_id}]{item.page ? ` · p. ${item.page}` : ""}
                   </span>
                 </li>
               ))}
@@ -174,7 +184,9 @@ export function ReportView({
                 <p>{c.left_summary}</p>
                 <p>{c.right_summary}</p>
                 {!c.auditable && (
-                  <span className="flag flag--warn">not evidenced on both sides</span>
+                  <span className="flag flag--warn">
+                    not evidenced on both sides
+                  </span>
                 )}
               </div>
             ))}
@@ -192,7 +204,11 @@ export function ReportView({
           </section>
         )}
 
-        <button type="button" onClick={download} className="btn btn--ghost btn--small">
+        <button
+          type="button"
+          onClick={download}
+          className="btn btn--ghost btn--small"
+        >
           Download Markdown
         </button>
         <p className="report__disclaimer muted small">
@@ -208,7 +224,8 @@ export function ReportView({
             {result.sources.map((s) => (
               <li key={s.id} className={s.usable ? "" : "source--unusable"}>
                 <a href={s.url} target="_blank" rel="noreferrer noopener">
-                  <code className="chip chip--id">{s.id}</code> {s.title || s.domain}
+                  <code className="chip chip--id">{s.id}</code>{" "}
+                  {s.title || s.domain}
                 </a>
                 <span className="muted small">
                   {s.domain}

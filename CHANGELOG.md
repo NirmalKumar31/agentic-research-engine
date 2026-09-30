@@ -64,6 +64,25 @@ request, so `DEMO_RUNS_PER_HOUR` could not raise it. Now 10. The daily
 allowance, derived from real provider spend, is unchanged and remains
 the cap that bounds cost.
 
+**The absent subject is now shown where the reader is looking.** The
+first fix put it in the report's limitations, but "0 of 5 requirements
+covered" is rendered in the contract panel, and that panel derives slot
+status on the client from the published claims — so it could not know a
+subject was missing from the sources, because the browser never
+receives source text. The engine's own assessment is now carried out
+of the node in `answer_coverage`, through the result payload, to the
+panel, which leads with the absent subject and says an unfilled
+requirement is the correct outcome in that case. `AnswerCoverage.to_dict`
+had no caller in `src/` before this, so it was serialising a value
+nothing read.
+
+Recordings predating the new key are backfilled with null rather than
+skipped. The schema-version gate skips a recording wholesale on
+mismatch, which is right for a change in how a payload should be read
+and wrong for an added nullable field: bumping it would have taken all
+three demo recordings down until each was re-recorded with a paid run.
+The canonical-shape test caught this.
+
 Guards added for the class of defect above: every `OutputFormat` maps
 to a `QuestionType`, every `QuestionType` is reachable from some
 `OutputFormat`, and the schema's `Literal` offers exactly the members

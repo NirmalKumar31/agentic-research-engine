@@ -529,6 +529,7 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         # is missing, by name, rather than leaving a reader to infer it
         # from the absence.
         contract = state.get("contract")
+        coverage = None
         if contract is not None:
             published = report.substantive_claims()
             coverage = assess_coverage(
@@ -587,6 +588,11 @@ async def verify_citations(state: ResearchState) -> ResearchState:
     return {
         "report": report,
         "verification": result.model_dump(mode="json"),
+        # The coverage assessment itself, not just the sentences it
+        # produced. `absent_entities` is a fact about the retrieved
+        # sources and cannot be re-derived from the published claims,
+        # so the client has to be told rather than left to compute it.
+        "answer_coverage": None if coverage is None else coverage.to_dict(),
         "stage_timings": [timing],
         "errors": errors,
     }

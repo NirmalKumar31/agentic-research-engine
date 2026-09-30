@@ -420,3 +420,43 @@ class TestAQuestionWhoseSubjectNoSourceMentions:
         body = inspect.getsource(reporting.verify_citations)
         assert "source_texts=" in body
         assert "usable_sources()" in body
+
+
+class TestTheCoverageAssessmentReachesTheClient:
+    """Carried out of the node, into the payload, to the page.
+
+    `AnswerCoverage.to_dict` existed and was called by nothing in
+    `src/` -- it serialised a value no consumer ever read, which is
+    this project's most frequent defect and the reason
+    `absent_entities` is checked all the way to the boundary here
+    rather than only where it is computed.
+    """
+
+    def test_the_node_returns_the_assessment(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        body = inspect.getsource(reporting.verify_citations)
+        assert '"answer_coverage"' in body
+        assert "coverage.to_dict()" in body
+
+    def test_the_payload_reads_it_from_state(self) -> None:
+        """Read rather than reassessed: two assessments of one run that
+        can disagree is worse than one."""
+        import inspect
+
+        from agentic_research.web import recordings
+
+        body = inspect.getsource(recordings)
+        assert '"answer_coverage": state.get("answer_coverage")' in body
+
+    def test_state_declares_the_key(self) -> None:
+        from agentic_research.graph.state import ResearchState
+
+        assert "answer_coverage" in ResearchState.__annotations__
+
+    def test_a_fresh_state_initialises_it(self) -> None:
+        from agentic_research.graph.state import initial_state
+
+        assert initial_state("r1", "q")["answer_coverage"] is None

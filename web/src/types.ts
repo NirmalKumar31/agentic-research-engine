@@ -126,7 +126,12 @@ export interface Verification {
   contradictions_total?: number;
   contradictions_auditable?: number;
   unused_source_ids?: string[];
-  issues?: { type: string; severity: string; detail: string; claim_text: string }[];
+  issues?: {
+    type: string;
+    severity: string;
+    detail: string;
+    claim_text: string;
+  }[];
 }
 
 export interface Metrics {
@@ -157,11 +162,30 @@ export interface Metrics {
   stop_reason: string;
 }
 
+/**
+ * The engine's own coverage assessment.
+ *
+ * `contract.ts` derives slot status on the client on purpose, so the
+ * page and the report's limitations cannot disagree. This is the part
+ * that *cannot* be derived there: whether a subject the question named
+ * appears in any retrieved source is a fact about the sources, and the
+ * client never receives their text.
+ *
+ * Null for recordings made before the assessment was carried.
+ */
+export interface AnswerCoverage {
+  satisfied: string[];
+  answered: boolean;
+  /** Subjects no retrieved source mentions. Usually empty. */
+  absent_entities: string[];
+}
+
 export interface RunResult {
   run_id: string;
   report: Report | null;
   plan: Plan | null;
   contract: Contract | null;
+  answer_coverage: AnswerCoverage | null;
   evidence: Evidence[];
   sources: Source[];
   verification: Verification | null;
