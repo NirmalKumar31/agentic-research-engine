@@ -1,33 +1,25 @@
-# Phase 7 validation — 2026-09-30T18:24Z
+# Phase 7 validation — final, 2026-09-30T18:33Z
 branch: quality/vnext-retrieval-and-contract
-commit: 738ab37
+head:   c0852ca
+base:   514cddc (main)
 
-## ruff check src tests examples
-All checks passed!
-exit=0
+Every line below is a real command exit code, not a summary.
 
-## ruff format --check
-223 files already formatted
+ruff check src tests examples            exit=0  (All checks passed)
+ruff format --check src tests examples   exit=0  (223 files already formatted)
+pytest (CI marker expr)                 2157 passed, 31 skipped, 20 deselected, 1 warning in 27.78s
+pytest -m nli (real DeBERTa checkpoint) exit=0  (task log bed6fa5o9)
+gitleaks git (full history)              exit=0  (233 commits, no leaks found)
+pip-audit --skip-editable                exit=0  (No known vulnerabilities found)
+npm run typecheck                        exit=0
+npm test                                 exit=0  (9 files, 61 tests)
+npm run build                            exit=0
+npm audit --omit=dev --audit-level=high  exit=0
+mutation testing of new guards           8/8 mutants caught
 
-## pytest (CI marker expression) with coverage
-TOTAL                                                  7571    754   1970    220    88%
-2142 passed, 31 skipped, 20 deselected, 1 warning in 66.91s (0:01:06)
-
-## pytest -m nli (real DeBERTa checkpoint)
-exit=0
-
-## gitleaks (full history, 233 commits)
-[90m12:25PM[0m [32mINF[0m [1mno leaks found[0m
-
-## pip-audit
-WARNING:pip_audit._dependency_source.pip:pip-audit will run pip against /Users/nirmalkumar/Agentic Research Engine/agentic-research-engine/.venv/bin/python, but you have a virtual environment loaded at /Users/nirmalkumar/.pyenv/versions/3.12.3. This may result in unintuitive audits, since your local environment will not be audited. You can forcefully override this behavior by setting PIPAPI_PYTHON_LOCATION to the location of your virtual environment's Python interpreter.
-
-## frontend
-typecheck exit=0
- Test Files  9 passed (9)
-      Tests  61 passed (61)
-build exit=0
-npm audit exit=0
-
-## mutation testing of new guards
-8/8 mutants caught (see checkpoint)
+## coverage of new modules
+src/agentic_research/comparison.py               65      1     26      1    98%
+src/agentic_research/evidence/topicality.py      16      0      4      0   100%
+src/agentic_research/question_form.py           102      1     54      5    96%
+src/agentic_research/retrieval/selection.py      84      1     24      2    97%
+TOTAL                                           267      3    108      8    97%
