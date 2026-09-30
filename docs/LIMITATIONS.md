@@ -228,6 +228,32 @@ passed verification. Those excerpts are quotations, not findings:
 `final_published_claims` stays 0 and they are counted separately in
 `evidence_only_excerpts`. Nothing generalises, joins or interprets them.
 
+### Live research is experimental and fail-closed
+
+Measured across eight live runs on a deployment, committed with their
+raw streams under `examples/live-validation/`. Published claims: **0,
+0, 0, 1, 1, 2, 3 and 1.**
+
+The verification design works end to end and every refusal inspected
+across those runs was the correct refusal. The reports are too thin to
+use as research. One to three cited sentences is a starting point.
+
+The bottleneck is measured and it is not the gates. Across 24
+generated claims, **58% were refused on synthesis quality** (38%
+irrelevant, 21% guard failures) and **17% on evidence** being below
+threshold. The synthesiser writes few claims that both answer the
+question and survive verification.
+
+Six fixes were made upstream of the gates over those runs, each real
+and each tested, and the published count moved between zero and three
+throughout. That is the honest shape of the result: the defects were
+genuine, and fixing them did not turn the engine into a research
+assistant.
+
+**So the recorded runs are the demonstration and the live path is an
+integration test that visitors can run.** The interface says so where
+a visitor is about to use it, rather than only here.
+
 ### The relevance judgement is only as good as the critic
 
 Structural relevance is deterministic. The judgement that follows it

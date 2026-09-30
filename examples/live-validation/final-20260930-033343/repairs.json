@@ -1,0 +1,9 @@
+[
+  {
+    "original": "An LLM is a kind of neural network, specifically a transformer-based neural network.",
+    "rewritten": "An LLM is a transformer-based neural network.",
+    "guard": "wording only: atomicity",
+    "accepted": true,
+    "reason": ""
+  }
+]

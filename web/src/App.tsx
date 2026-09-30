@@ -184,6 +184,16 @@ export default function App() {
               )}
             </span>
           </div>
+          <p className="ask__experimental notice notice--withheld">
+            <strong>Live research is experimental.</strong> It is a fail-closed
+            integration, not a general research assistant. Eight measured runs
+            published between zero and three claims: the verification gates
+            behave correctly and refuse what the evidence does not carry, but
+            the synthesiser writes few claims that both answer the question and
+            survive them. A run may publish nothing and say so — that is the
+            design working, not a fault.{" "}
+            <strong>The recorded runs below are the better demonstration.</strong>
+          </p>
           <p className="ask__disclaimer muted small">
             Research aid only. Verify important medical, legal, financial or other
             high-stakes decisions against authoritative primary sources.
@@ -211,7 +221,7 @@ export default function App() {
 
       <section className="examples">
         <div className="examples__head">
-          <h2>{live ? "Or explore a recorded run" : "Recorded demonstrations"}</h2>
+          <h2>{live ? "Recorded runs — the better demonstration" : "Recorded demonstrations"}</h2>
           <span className="muted small">Real executions, replayed from their own events</span>
         </div>
         <div className="cards">

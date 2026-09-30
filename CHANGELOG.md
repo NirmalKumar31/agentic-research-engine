@@ -69,6 +69,39 @@ run. The run that motivated both is committed at
 `examples/live-validation/v161-20260929-191831/`, with the prediction
 it falsified.
 
+## v1.7.0 — 2026-09-30
+
+Live research is described as what it is.
+
+One run at `aeb4b07f` under a decision gate set before it was taken:
+two or more relevant supported findings would end feature work with a
+tag; zero or one would stop the patching and reposition the live path.
+**It published one.**
+
+Both fixes under test behaved as designed and neither moved the
+published count. The contract bound held the report to five claims
+where the unbounded run wrote thirteen; a `direct_contrast` claim was
+attempted for the first time and refused on atomicity; the report
+carried no false "did not answer the question".
+
+So the product now says what eight measured runs show:
+
+- The interface tells a visitor, where they are about to use it, that
+  live research is **experimental and fail-closed** — a run may
+  publish nothing and that is the design working.
+- The recorded runs are labelled **the better demonstration**, and the
+  README says to start with them.
+- The README gains "What live research does and does not do", with the
+  eight runs' published counts and the measured bottleneck: 58% of
+  claims refused on synthesis quality, 17% on evidence.
+
+No behaviour changed. What changed is that the claim matches the
+measurement.
+
+The run is committed at
+`examples/live-validation/final-20260930-033343/` with the gate it was
+taken under, and there were no retries.
+
 ## v1.6.1 — 2026-09-29
 
 Deployment and evidence. No change to research behaviour.

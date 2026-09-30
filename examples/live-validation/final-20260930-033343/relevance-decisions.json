@@ -1,0 +1,23 @@
+[
+  {
+    "claim": "An LLM is a kind of neural network, specifically a transformer-based neural network.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It states that an LLM is a kind of neural network, explaining their relationship and that an LLM is a more specific type.",
+    "published": true
+  },
+  {
+    "claim": "Neural networks are used for tasks including image classification, natural language processing, and time-series prediction.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes tasks neural networks are used for, not how LLMs differ from or relate to neural networks.",
+    "published": false
+  },
+  {
+    "claim": "During training, an artificial neural network adjusts the weights between neurons to reduce the difference between desired and actual outputs.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes how neural networks are trained, without contrasting them with LLMs or explaining their relationship.",
+    "published": false
+  }
+]

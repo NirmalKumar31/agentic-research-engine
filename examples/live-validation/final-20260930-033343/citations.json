@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "An LLM is a transformer-based neural network.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S2-e3",
+        "resolved": true,
+        "quote": "A large language model (LLM) is a transformer-based neural network trained on massive text corpora to predict the next token given a context.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.ml4devs.com/what-is/llm-large-language-models",
+        "source_title": "Large Language Model (LLM): What It Is and How It Works"
+      }
+    ]
+  }
+]

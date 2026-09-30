@@ -270,6 +270,11 @@ spends nothing.
 **Live demo:** <https://agentic-research-engine-live.onrender.com> — a free
 instance, so the first request wakes it and takes about a minute.
 
+**Start with the recorded runs.** They are the better demonstration and
+cost nothing to explore. Live research on the demo is an **experimental,
+fail-closed integration, not a general research assistant** — see
+[what live research does and does not do](#what-live-research-does-and-does-not-do).
+
 The interface shows the answer contract beside the report: which parts
 of the question the run was required to fill, and which it did. That
 panel appears on a live run. The three recorded runs predate contracts
@@ -478,7 +483,38 @@ declared a slot on every claim, so the behaviour that had made local
 mode publish nothing was never reached. Unit tests and two local runs
 cover it; this run is silent on it.
 
-### Six hosted runs, and what each one found
+## What live research does and does not do
+
+Measured across eight live runs on a deployment, each committed with its
+raw stream under [`examples/live-validation/`](examples/live-validation/).
+
+**What it does.** Completes in about 150s of a 240s ceiling for roughly
+$0.009. Grounds the question in a contract before retrieving anything.
+Refuses what the evidence does not carry, and says when it has not
+answered. Every claim it publishes resolves to an exact-normalised quote
+at a live URL. Across those eight runs, **every refusal inspected was the
+correct refusal.**
+
+**What it does not do.** Produce a full report. The eight runs published
+**0, 0, 0, 1, 1, 2, 3 and — once — 0 from thirteen generated claims.**
+One to three cited sentences is a starting point, not an answer.
+
+The bottleneck is measured and it is not the verification machinery:
+across 24 generated claims, **58% were refused on synthesis quality**
+(38% irrelevant, 21% guard failures) and 17% on evidence being below
+threshold. The synthesiser writes few claims that both answer the
+question and survive the gates.
+
+**So live research is an experimental, fail-closed integration.** It
+demonstrates that the provenance and verification design works end to
+end on a deployment. It is not a research assistant you would use
+instead of reading the sources, and the interface says so where a
+visitor is about to use it.
+
+The recorded runs are the demonstration. The
+[adversarial set](examples/quality-eval/) is the measurement.
+
+### Eight hosted runs, and what each one found
 
 Every run is committed with its raw stream, derived artifacts and a
 written review, under
@@ -492,6 +528,8 @@ written review, under
 | v1.4.1 | 0 of 3 | two of three claims were about the evidence, not the subject |
 | v1.5.0 | 0 of 3 | meta-claims gone; no slot marked required |
 | v1.6.0 | 1 of 5 | a contrast is not atomic |
+| v1.6.1 | 0 of 13 | removing the claim bound made the report worse |
+| v1.6.1+ | 1 of 5 | the bound and the judge fixed; output unchanged |
 
 **Every refusal inspected across all six was the correct refusal.**
 What was wrong each time was upstream — what the synthesiser was

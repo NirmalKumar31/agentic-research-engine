@@ -1,0 +1,14 @@
+[
+  {
+    "claim": "A neural network is a computational model made of interconnected artificial neurons, while an LLM is a transformer-based neural network trained on text to predict the next token from context.",
+    "parts": [
+      {
+        "text": "A neural network is a computational model made of interconnected artificial neurons",
+        "supported": false,
+        "best_entailment": 0.869163,
+        "best_evidence_id": "S1-e1"
+      }
+    ],
+    "verdict": "unsupported"
+  }
+]

@@ -1,0 +1,93 @@
+{
+  "run_id": "20260930-033343-044165",
+  "started_utc": "2026-09-30T03:33:43Z",
+  "wall_clock_seconds": 142.46,
+  "engine_duration_seconds": 141.97,
+  "executed_by": "deployed public HTTP/SSE endpoint",
+  "is_hosted_acceptance": true,
+  "is_research_quality_evaluation": false,
+  "deployed_commit": "aeb4b07f",
+  "version": "1.6.1",
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "How does a large language model differ from a neural network?",
+  "why_this_run": "The owner's decision gate: one post-reset run, no retries. Two or more relevant supported findings would tag the release and end feature work; zero or one would stop the patching and reposition live research as an experimental fail-closed integration.",
+  "gate_outcome": {
+    "published": 1,
+    "generated": 5,
+    "branch_taken": "0-1 findings -- stop patching, reposition",
+    "note": "One published claim. Both fixes under test behaved as intended -- the contract bound held the report to five claims where the unbounded run wrote thirteen, a direct_contrast claim was attempted, and the report carries no 'did not answer the question' limitation. Neither moved the published count."
+  },
+  "what_published": {
+    "claim": "An LLM is a transformer-based neural network.",
+    "slot": "relationship",
+    "quote_match": "exact_normalized",
+    "note": "Resolves to a live URL. Read against the question it is an answer: it locates one subject inside the other."
+  },
+  "why_the_rest_were_withheld": {
+    "direct_contrast": "asserted two things; refused by the atomicity guard, which is the structural tension recorded in the v1.6.0 review",
+    "dimension_x2": "judged irrelevant -- described neural networks without contrasting them",
+    "dimension_modality": "every cited quote failed the modality guard",
+    "note": "Each refusal inspected and correct."
+  },
+  "outcome": {
+    "completed": true,
+    "errors_recorded": 0,
+    "published_claims": 1,
+    "generated_claims": 5
+  },
+  "public_limits_in_force": {
+    "max_research_rounds": 1,
+    "max_sources": 6,
+    "max_search_queries": 6,
+    "max_llm_calls": 20,
+    "max_provider_requests": 30,
+    "demo_max_runtime_seconds": 240,
+    "global_runs_per_day": 8
+  },
+  "models": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted"
+  },
+  "quota": {
+    "store": "the public demo's own",
+    "namespace": "",
+    "daily_admissions": 8
+  },
+  "capture": {
+    "method": "raw bytes streamed to disk, timing recorded in a separate index",
+    "raw_bytes": 37726,
+    "chunks": 49,
+    "events": 33,
+    "complete": true,
+    "tool": "examples/live-validation/tools/acceptance.py",
+    "retries": "none -- the gate allowed one attempt and one was taken"
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.006774,
+    "openai_reserved_upper_bound_usd": 0.029425,
+    "reservation_was_sufficient": true,
+    "openai_cost_is_complete": false,
+    "openai_dashboard_charge_usd": "not reconciled; readable from the provider dashboard for 2026-09-30",
+    "tavily_credits": 4.0,
+    "tavily_usd": "not measured; free-tier key",
+    "huggingface_billed_usd": "not measured; billed per hour of endpoint uptime, not per request",
+    "total_cross_provider_cost_complete": false
+  },
+  "provider_usage": {
+    "llm_calls": 14,
+    "provider_requests": 14,
+    "provider_request_ceiling": 30,
+    "input_tokens": 21442,
+    "output_tokens": 9260
+  }
+}

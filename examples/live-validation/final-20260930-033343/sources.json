@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://www.quantinuum.com/glossary-item/artificial-neural-network",
+    "title": "Quantinuum | Artificial Neural Network",
+    "domain": "quantinuum.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.552,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://www.ml4devs.com/what-is/llm-large-language-models",
+    "title": "Large Language Model (LLM): What It Is and How It Works",
+    "domain": "ml4devs.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.601,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11244877",
+    "title": "Scale matters: Large language models with billions (rather than millions) of parameters better match neural representations of natural language",
+    "domain": "pmc.ncbi.nlm.nih.gov",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.95,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://sebastianraschka.com/faq/docs/next-token-prediction.html",
+    "title": "How does next-token prediction train a large language model?",
+    "domain": "sebastianraschka.com",
+    "source_type": "vendor",
+    "content_origin": "provider_raw",
+    "quality_score": 0.641,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://openreview.net/forum?id=hLGJ1qZPdu&noteId=G4Z3sZgze4",
+    "title": "On the Generalization Ability of Next-Token-Prediction ...",
+    "domain": "openreview.net",
+    "source_type": "academic",
+    "content_origin": "html_fetch",
+    "quality_score": 0.662,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "ok"
+  },
+  {
+    "id": "S6",
+    "url": "https://developers.google.com/machine-learning/crash-course/llm/transformers",
+    "title": "LLMs: What's a large language model? \u00a0|\u00a0 Machine Learning \u00a0|\u00a0 Google for Developers",
+    "domain": "developers.google.com",
+    "source_type": "official_docs",
+    "content_origin": "provider_raw",
+    "quality_score": 0.916,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

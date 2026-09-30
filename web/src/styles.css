@@ -496,3 +496,14 @@ code, kbd { font-family: var(--mono); font-size: 0.86em; }
   padding: 0.7rem 0.9rem; border-radius: var(--radius);
   font-size: 0.88rem; margin: 0 0 1.2rem;
 }
+
+/* The live path is experimental and the page has to say so where a
+ * visitor is about to use it, not only in the README. Same treatment
+ * as a withheld notice: this is a caveat, not an error. */
+.ask__experimental {
+  margin: 0.9rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
