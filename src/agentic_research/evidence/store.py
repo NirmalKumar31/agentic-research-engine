@@ -10,11 +10,12 @@ view costs microseconds and removes the whole class of problem.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 
 from agentic_research.citations.guards import authority_rank_of
-from agentic_research.evidence.topicality import is_topical
+from agentic_research.evidence.topicality import lexically_plausible
 from agentic_research.models import (
     EvidenceItem,
     QuoteMatch,
@@ -207,7 +208,13 @@ class EvidenceStore:
     def domains(self) -> list[str]:
         return [s.domain or domain_of(s.url) for s in self.usable_sources()]
 
-    def coverage_for(self, sub_question: SubQuestion) -> SubQuestionCoverage:
+    def coverage_for(
+        self,
+        sub_question: SubQuestion,
+        *,
+        aliases: Sequence[frozenset[str]] = (),
+        topic_terms: frozenset[str] = frozenset(),
+    ) -> SubQuestionCoverage:
         """Count-based coverage for one sub-question.
 
         Deliberately arithmetic. Asking a model "is this covered, 0 to 1"
@@ -231,23 +238,35 @@ class EvidenceStore:
         """
         items = self.for_sub_question(sub_question.id)
         verified = [e for e in items if e.quote_verified]
-        topical = [e for e in verified if is_topical(sub_question.text, f"{e.claim} {e.quote}")]
-        off_topic = len(verified) - len(topical)
-        distinct_sources = len({e.source_id for e in topical})
+        # A lower bound, not a relevance judgement. See
+        # evidence/topicality.py: a negative here means nothing
+        # retrieved discusses this sub-question's terms, which is a real
+        # finding about retrieval; a positive means only that the item
+        # is not obviously about something else.
+        plausible = [
+            e
+            for e in verified
+            if lexically_plausible(sub_question.text, f"{e.claim} {e.quote}", aliases=aliases or ())
+        ]
+        implausible = len(verified) - len(plausible)
+        distinct_sources = len({e.source_id for e in plausible})
         has_contradiction = any(e.stance is Stance.CONTRADICTS for e in items)
 
-        if distinct_sources >= 2 and len(topical) >= 2:
+        if distinct_sources >= 2 and len(plausible) >= 2:
             verdict = "covered"
-            note = f"{len(topical)} on-topic exact-match items across {distinct_sources} sources"
+            note = (
+                f"{len(plausible)} exact-match items across {distinct_sources} sources, "
+                "each discussing this sub-question's terms"
+            )
             cause = ""
-        elif topical:
+        elif plausible:
             verdict = "weak"
-            note = f"only {len(topical)} on-topic item(s) from {distinct_sources} source(s)"
+            note = f"only {len(plausible)} admissible item(s) from {distinct_sources} source(s)"
             cause = "evidence insufficient"
         elif verified:
             verdict = "uncovered"
-            note = f"{len(verified)} exact-match item(s), none on topic for this sub-question"
-            cause = "retrieved source was off topic"
+            note = f"{len(verified)} exact-match item(s), none discussing this sub-question's terms"
+            cause = "retrieved source did not discuss this sub-question"
         else:
             verdict = "uncovered"
             note = "no exact-match evidence"
@@ -260,7 +279,7 @@ class EvidenceStore:
             has_contradiction=has_contradiction,
             verdict=verdict,
             note=note,
-            off_topic_items=off_topic,
+            off_topic_items=implausible,
             gap_cause=cause,
         )
 

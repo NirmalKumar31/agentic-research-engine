@@ -291,7 +291,7 @@ class TestACandidateServingSeveralSubQuestions:
         for only one, and coverage must reflect that rather than the
         allocation.
         """
-        from agentic_research.evidence.topicality import is_topical
+        from agentic_research.evidence.topicality import lexically_plausible
         from agentic_research.retrieval.selection import select_with_diagnostics
 
         shared = candidate("https://a.example.com/1", score=0.9, sub_questions=("SQ1", "SQ2"))
@@ -305,5 +305,5 @@ class TestACandidateServingSeveralSubQuestions:
             "fits random noise in the training set."
         )
         # One page, allocated to both, on topic for exactly one.
-        assert is_topical(capacity_sq, extracted)
-        assert not is_topical(leakage_sq, extracted)
+        assert lexically_plausible(capacity_sq, extracted)
+        assert not lexically_plausible(leakage_sq, extracted)

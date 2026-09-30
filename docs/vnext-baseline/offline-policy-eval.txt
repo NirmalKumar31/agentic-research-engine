@@ -1,0 +1,130 @@
+OFFLINE POLICY EVALUATION — no provider calls, no credentials
+capture: examples/live-validation/question-shapes/causes-20260930-103557
+
+==========================================================================
+1. QUERIES — recorded verbatim from the hallucination run
+==========================================================================
+6 queries issued. Word counts:
+
+  Q1 (13 words) LLM hallucinations training data quality noisy labels conflicting sources stale knowledge corpus contamination
+  Q2 (11 words) language model factual errors contradictory pretraining documents data curation knowledge cutoff
+  Q3 (11 words) autoregressive next token prediction objective fluent text factuality hallucination language models
+  Q4 (11 words) RLHF helpfulness pressure overconfidence unsupported claims hallucination calibration large language models
+  Q5 (12 words) parametric knowledge long tail facts factual recall generalization failures language models hallucinations
+  Q6 (11 words) LLM knowledge boundaries closed world evaluation rare facts memorization retrieval hallucination
+
+  median words: 11.0   min: 11   max: 13
+  the new prompt asks for three to eight words
+
+What changed in the prompt (inspectable, no model needed):
+  instruction removed : 'specific technical terms an authoritative page' -> True
+  asks for the question's own words      -> True
+  bounds length                          -> True
+  protects names from that bound         -> True
+  protects versions                      -> True
+  carries the failure that motivated it  -> True
+
+  NOT EVALUABLE OFFLINE: the queries the new prompt produces.
+  That needs a model call, which is the paid run this precedes.
+
+==========================================================================
+2. SOURCE CLASSIFICATION — before/after on the real domains
+==========================================================================
+domain                           was        now         quality  authority
+--------------------------------------------------------------------------
+x.com                            other      social         0.20  aggregator  <-- changed
+prachub.com                      other      other          0.50  secondary
+emergentmind.com                 other      other          0.50  secondary
+codefinity.com                   other      other          0.50  secondary
+aiweeklybriefing.substack.com    blog       blog           0.45  aggregator
+arxiv.org                        academic   academic       0.85  primary
+vstorm.co                        other      other          0.50  secondary
+atlan.com                        other      other          0.50  secondary
+mdpi.com                         other      other          0.50  secondary
+en.wikipedia.org                 other      reference      0.70  secondary  <-- changed
+
+==========================================================================
+3. SELECTION — new ranking on the real domain set
+==========================================================================
+ASSUMPTION, stated: provider relevance scores are not in the
+serialised payload, so every candidate is scored equally at 0.80.
+That isolates the policy change; it is not the real pool.
+
+domain                           class        old key  new score
+--------------------------------------------------------------------------
+arxiv.org                        academic         0.8       0.95
+prachub.com                      other            0.8       0.88
+emergentmind.com                 other            0.8       0.88
+codefinity.com                   other            0.8       0.88
+aiweeklybriefing.substack.com    blog             0.8       0.72
+x.com                            social           0.8       0.60
+
+Old key banded relevance to tenths and used authority only to break
+ties inside a band, so at equal scores the order was the URL. Six of
+six candidates sat in one band, which is how a tweet was read.
+
+New top three: ['arxiv.org', 'prachub.com', 'emergentmind.com']
+x.com now ranks: 6 of 6
+
+==========================================================================
+4. COVERAGE — old rule vs new, on the real extracted quotes
+==========================================================================
+Old rule: an exact-match quote counted toward the sub-question it was
+filed under, whatever it was about. New rule: it must also discuss
+that sub-question's own terms.
+
+The run's actual quote-to-sub-question attribution was not recorded,
+so this measures every quote against every sub-question: how many of
+the 10 preserved excerpts each sub-question would admit.
+
+sub-question  old  new  admitted quotes  discriminating terms
+--------------------------------------------------------------------------
+SQ1       10    8  ########         ['amount', 'capacity', 'data', 'model', 'relative']
+SQ2       10    5  #####            ['small', 'training']
+SQ3       10    2  ##               ['fit', 'patterns']
+SQ4       10    6  ######           ['model', 'training']
+SQ5       10    1  #                ['test']
+--------------------------------------------------------------------------
+total    50   22
+
+  The new rule refuses 28 of 50 quote/sub-question pairings (56%).
+  The old rule refused none: an exact quote counted wherever it was filed.
+
+  MEASURED LIMITS, not claims:
+   - the double-descent excerpts share nothing with the capacity or
+     leakage sub-questions and are refused, which is the false positive
+     that mattered;
+   - SQ5 (data leakage) still admits a quote about cross-validation as a
+     prevention technique, because both say 'validation' in different
+     senses. A lexical bound cannot separate those, and this one does
+     not pretend to: the consequence is SQ5 reported 'weak' rather than
+     'uncovered', which is a smaller error than counting it covered.
+
+==========================================================================
+5. SSE LIFECYCLE — the duplicate start, in the recorded baseline
+==========================================================================
+  transport 'started' events      : 1
+  runner 'started' forwarded      : 1
+  visible to the page in baseline : 2
+  after the fix: exactly one, asserted by test_web_api against a
+  stream that injects the runner's own start event
+
+==========================================================================
+6. WHAT THIS EVALUATION CANNOT SHOW
+==========================================================================
+  The 38 discarded candidates. PERSIST_RUNS=false and the search stage
+    does not stream its pool, so only the 6 selected pages survive. Whether
+    the new policy would have chosen better pages FROM THE SAME POOL is
+    therefore unanswerable offline -- the pool is gone.
+  
+  Provider relevance scores. Not in the serialised payload, so section 3
+    assumes equal relevance. A real pool has a spread, and the cap on the
+    authority adjustment (0.35) means a wide spread still decides.
+  
+  The queries the new prompt produces. Needs a model call.
+  
+  Whether Tavily returns suitable pages for a plainer query. This is the
+    open question, and it is the one the paid run exists to answer. If the
+    candidate pool genuinely lacks good explanatory sources for this
+    question, no prompt fix can manufacture them.
+

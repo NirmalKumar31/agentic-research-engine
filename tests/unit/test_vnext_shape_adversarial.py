@@ -259,3 +259,108 @@ class TestPrecedenceIsDeliberate:
         assert shape_from_wording("What is the current price of GPT-4 Turbo?") is (
             QuestionType.NUMERIC
         )
+
+
+class TestSmallWordingChangesDoNotChangeAnExplicitShape:
+    """Paired invariance. The live defect was not a wrong shape; it was
+    two phrasings of one question getting different shapes, so identical
+    questions were held to different requirements.
+
+    Each pair differs only in something that carries no meaning.
+    """
+
+    PAIRS: list[tuple[str, str]] = [
+        # Punctuation.
+        (
+            "What are the main causes of overfitting?",
+            "What are the main causes of overfitting",
+        ),
+        ("How does RAG differ from fine-tuning?", "How does RAG differ from fine-tuning."),
+        ("When was GPT-4 released?", "When was GPT-4 released???"),
+        # Capitalisation.
+        (
+            "What are the main causes of overfitting?",
+            "WHAT ARE THE MAIN CAUSES OF OVERFITTING?",
+        ),
+        ("How do I fine-tune a model?", "how do i fine-tune a model?"),
+        ("Does smoking cause lung cancer?", "does smoking cause lung cancer?"),
+        # Leading and trailing whitespace.
+        (
+            "What is the context window size of GPT-4 Turbo?",
+            "   What is the context window size of GPT-4 Turbo?  ",
+        ),
+        # Acronym expansion, both directions.
+        (
+            "How does RAG differ from fine-tuning?",
+            "How does retrieval-augmented generation differ from fine-tuning?",
+        ),
+        (
+            "What causes hallucination in LLMs?",
+            "What causes hallucination in large language models?",
+        ),
+        # Small, meaning-preserving wording changes.
+        (
+            "What are the main causes of overfitting?",
+            "What are the principal causes of overfitting?",
+        ),
+        ("What causes overfitting?", "What causes overfitting in practice?"),
+        ("How many parameters does Llama 3 have?", "How many parameters has Llama 3 got?"),
+        (
+            "How does Postgres differ from MySQL?",
+            "How does Postgres differ from MySQL for analytics?",
+        ),
+    ]
+
+    @pytest.mark.parametrize("left,right", PAIRS, ids=[left[:38] for left, _ in PAIRS])
+    def test_the_pair_reads_as_one_shape(self, left: str, right: str) -> None:
+        assert shape_from_wording(left) == shape_from_wording(right), (
+            f"{left!r} and {right!r} were read as different shapes"
+        )
+
+    @pytest.mark.parametrize("left,right", PAIRS, ids=[left[:38] for left, _ in PAIRS])
+    def test_the_pair_reads_as_an_explicit_shape(self, left: str, right: str) -> None:
+        """Non-vacuity: a pair that both read as None would satisfy the
+        test above while proving nothing."""
+        assert shape_from_wording(left) is not None, left
+
+    def test_comparison_sides_survive_the_same_changes(self) -> None:
+        expected = ("Postgres", "MySQL")
+        for question in [
+            "How does Postgres differ from MySQL?",
+            "how does postgres differ from mysql?",
+            "How does Postgres differ from MySQL",
+            "  How does Postgres differ from MySQL for analytics?  ",
+            "What is the difference between Postgres and MySQL?",
+        ]:
+            sides = comparison_sides(question)
+            assert len(sides) == 2, question
+            assert {s.lower() for s in sides} == {e.lower() for e in expected}, question
+
+
+class TestTheDocumentedClaimsMatchTheCode:
+    """The checkpoint once said eight shapes were deterministic. This
+    pins what is actually claimed, so the document and the code cannot
+    drift."""
+
+    def test_the_shapes_the_document_lists_are_the_shapes_that_fire(self) -> None:
+        import pathlib
+        import re
+
+        doc = pathlib.Path("docs/ANSWER-SHAPES.md").read_text()
+        table = re.findall(r"^\| `([a-z_]+)` \| ", doc, re.M)
+        deterministic = set(table)
+        # Every shape the document lists must be reachable from wording.
+        reached = {
+            shape
+            for shape in (shape_from_wording(q) for qs in EQUIVALENCE_CLASSES.values() for q in qs)
+            if shape is not None
+        }
+        assert {str(s) for s in reached} <= deterministic
+
+    def test_the_document_states_what_is_model_decided(self) -> None:
+        import pathlib
+
+        doc = pathlib.Path("docs/ANSWER-SHAPES.md").read_text()
+        assert "remains model-decided" in doc or "What remains model-decided" in doc
+        assert "synthesis" in doc
+        assert "unusable" in doc
