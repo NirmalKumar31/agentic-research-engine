@@ -69,6 +69,60 @@ run. The run that motivated both is committed at
 `examples/live-validation/v161-20260929-191831/`, with the prediction
 it falsified.
 
+## Unreleased
+
+Comparisons can be answered. They could not before, for a structural
+reason that took nine runs and four attempts to locate correctly.
+
+Asked how a large language model differs from a neural network, the
+engine produced exactly **one** `direct_contrast` claim across nine
+hosted runs, and the atomicity guard refused it — rightly: a contrast
+asserts two things and every other guard reasons about "the sentence
+that supports this claim".
+
+So the synthesiser did the only thing available and wrote claims about
+each subject, declaring `dimension`. **The relevance judge then
+refused each one** for "describing neural networks, not how LLMs
+differ" — applying the *report's* question to a single claim, which no
+atomic claim can answer. Comparisons published nothing, and the cause
+was a gate enforcing a report-level question at the claim level.
+
+Two changes, at the two levels the question lives at.
+
+**Claim level.** The judge no longer vetoes a claim that structurally
+fills an *optional* part of the answer. It keeps full authority over
+core slots and over claims declaring no slot or an unrecognised one.
+A prompt change asking it to judge against the listed parts was tried
+first, in v1.6.1, and **measurably failed** — the very next run
+refused three `dimension` claims with the same reasoning — so the
+authority is narrowed in code rather than requested in a prompt.
+
+**Report level.** `assess_coverage` will not call a comparison
+answered unless the published claims *between them* speak about every
+subject the question named.
+
+That second gate is what still stops the original defect, and the
+defect was always report-level: five supported, cited claims about one
+of two subjects, published as an answer to how they differ. A
+one-sided report now publishes its claims and states plainly that it
+did not answer. An off-topic claim does not get through either — the
+structural check still requires the claim or its evidence to mention
+one of the contract's subjects.
+
+**Honest about reach.** Replayed against all ten captured runs, the
+coverage half changes nothing: every run that published claims had
+already answered by another route, and the rest published nothing. Its
+effect depends on the claim-level narrowing, which no captured run
+exercised. Unverified on the hosted path.
+
+Also recorded: the narrowing was initially tested only where the
+predicate is defined, and removing it from the production path broke
+no test. That is the seventh instance in this project of something
+tested where it is declared rather than where it is used. It is now
+driven through `_check_entailment` with a scripted judge.
+
+No change on the frozen adversarial set.
+
 ## v1.7.1 — 2026-09-30
 
 Retracts an over-general claim v1.7.0 published about its own engine.

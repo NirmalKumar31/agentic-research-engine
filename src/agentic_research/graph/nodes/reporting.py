@@ -530,9 +530,16 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         # from the absence.
         contract = state.get("contract")
         if contract is not None:
+            published = report.substantive_claims()
             coverage = assess_coverage(
                 contract,
-                [c.answer_slot for c in report.substantive_claims() if c.answer_slot],
+                [c.answer_slot for c in published if c.answer_slot],
+                # The texts, so a comparison can be discharged by one
+                # atomic claim per subject. A contrast in a single claim
+                # asserts two things and the atomicity guard refuses it,
+                # which left a comparison's core slot close to
+                # unfillable.
+                claim_texts=[c.text for c in published],
             )
             gaps = coverage.limitations()
             if gaps:
@@ -794,6 +801,42 @@ async def _check_entailment(
             record.relevance = RelevanceRecord(stage="judged", relevant=answers, reason=why)
             if answers is True:
                 continue
+
+            # The judge decides *core* slots. It does not veto a claim
+            # that structurally fills an optional part of the answer.
+            #
+            # It was vetoing them, and that is why comparisons produced
+            # nothing. Asked how two things differ, the synthesiser
+            # writes claims about each of them and declares `dimension`;
+            # the judge then refused each one for "describing neural
+            # networks, not how LLMs differ" -- applying the *report's*
+            # question to a single claim, which no single atomic claim
+            # can answer, because a contrast asserts two things and the
+            # atomicity guard refuses those. Nine runs produced one
+            # `direct_contrast` claim and it was refused on atomicity.
+            #
+            # A prompt change telling the judge to ask whether a claim
+            # fills a listed part was tried first and measurably did not
+            # work: the run after it refused three `dimension` claims
+            # with the same reasoning. So the authority is narrowed in
+            # code rather than requested in a prompt.
+            #
+            # What still stops the original defect -- five supported
+            # claims about one of two subjects, published as an answer
+            # to how they differ -- is that it was never a claim-level
+            # problem. It is a *report*-level one, and `assess_coverage`
+            # refuses to call such a report answered, because the
+            # published claims must between them speak about every
+            # subject the question named. A one-sided report now
+            # publishes its claims and states that it did not answer.
+            #
+            # An off-topic claim does not get through either: the
+            # structural check ahead of this requires the claim or its
+            # evidence to mention one of the contract's subjects, and a
+            # claim about a different named subject is refused there.
+            if not _discharges_a_core_slot(contract, claim.answer_slot):
+                continue
+
             reason = (
                 f"does not answer the question: {why}"
                 if answers is False
@@ -820,6 +863,27 @@ async def _check_entailment(
     result.not_checked_claims = max(0, result.checkable_claims - result.checked_claims)
     errors += await _check_contradictions(report, store, result, state, verdicts, scorer)
     return errors, verdicts
+
+
+def _discharges_a_core_slot(contract: AnswerContract, slot: str | None) -> bool:
+    """Whether this claim's slot is one the answer turns on.
+
+    A core slot, or one the contract lets stand in for a core slot --
+    `relationship` discharging `direct_contrast`, for instance. Claims
+    declaring an optional part are judged and recorded, and a negative
+    judgement does not withhold them; the report's coverage is what
+    decides whether the optional parts added up to an answer.
+
+    A claim declaring no slot, or a slot this contract never asked
+    for, is treated as core. That is the conservative direction:
+    nothing is known about what the claim was for, so the judge's
+    verdict stands. The structural check ahead of this already refuses
+    an unknown slot, but narrowing an authority should not depend on
+    another gate having caught the case first.
+    """
+    if not slot or not contract.has_slot(slot):
+        return True
+    return any(slot == core.name or slot in core.satisfied_by for core in contract.core_slots)
 
 
 def _propositions_supported(

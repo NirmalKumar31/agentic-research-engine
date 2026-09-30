@@ -14,9 +14,11 @@ material as the answer is the failure this exists to prevent.
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from agentic_research.answer_contract import AnswerContract, AnswerSlot, QuestionType
+from agentic_research.citations.relevance import _mentions
 
 
 @dataclass(frozen=True)
@@ -139,21 +141,66 @@ class AnswerCoverage:
         return f"The required {missing} was not established."
 
 
+def _spans_every_entity(contract: AnswerContract, claim_texts: Sequence[str]) -> bool:
+    """Whether the published claims, between them, speak about each
+    subject the question named.
+
+    Not whether any single claim contrasts them. A contrast asserts two
+    things and the atomicity guard refuses compound claims, because
+    every other guard reasons about "the sentence that supports this
+    claim" and a fused claim hands it two. So a comparison's core slot
+    was close to unfillable: nine hosted runs produced exactly one
+    `direct_contrast` claim and it was refused on atomicity.
+
+    What a reader can compare is two atomic claims, one about each
+    subject. That is what this checks.
+
+    It is deliberately stronger than the defect the contract was built
+    to stop. That defect was five supported claims about *one* of two
+    subjects, published as an answer to how they differ; covering one
+    subject still fails here, because every entity must be spoken
+    about. What changes is that covering both, in separate verifiable
+    claims, now counts -- where before it was reported as not having
+    answered at all.
+    """
+    if not contract.entities or not claim_texts:
+        return False
+    blob = "\n".join(claim_texts)
+    return all(_mentions(blob, entity) for entity in contract.entities)
+
+
 def assess_coverage(
     contract: AnswerContract,
     published_slots: list[str] | tuple[str, ...],
     *,
     quality_by_slot: dict[str, float] | None = None,
+    claim_texts: Sequence[str] | None = None,
 ) -> AnswerCoverage:
     """How much of the contract the published claims filled.
 
     A slot only counts when the contract asked for it: a claim
     declaring something the question never required satisfies nothing.
+
+    ``claim_texts`` lets a comparison's core slot be discharged by
+    claims that between them speak about every subject named -- see
+    :func:`_spans_every_entity`. Omitting it only loses that route;
+    every other rule is unchanged.
     """
     counts = Counter(name for name in published_slots if contract.has_slot(name))
+    satisfied = set(counts)
+
+    # A comparison answered by one atomic claim per subject.
+    if (
+        contract.question_type is QuestionType.COMPARISON
+        and "direct_contrast" not in satisfied
+        and satisfied
+        and _spans_every_entity(contract, claim_texts or ())
+    ):
+        satisfied.add("direct_contrast")
+
     return AnswerCoverage(
         contract=contract,
-        satisfied=tuple(sorted(counts)),
+        satisfied=tuple(sorted(satisfied)),
         duplicates=tuple(sorted(name for name, n in counts.items() if n > 1)),
         quality_by_slot=dict(quality_by_slot or {}),
     )
