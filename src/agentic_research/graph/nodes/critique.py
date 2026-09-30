@@ -55,6 +55,10 @@ def _attribute_gaps(
     both are different from "the source loaded and was about something
     else" -- which is the one `coverage_for` can see for itself.
     """
+    # Which sub-questions were actually searched. A gap for one that was
+    # never queried is a planning or budget failure, not a retrieval one,
+    # and the two need different fixes.
+    queried = {q.sub_question_id for q in state.get("completed_queries", []) or []}
     diagnostics = state.get("retrieval_diagnostics") or {}
     starved = set(diagnostics.get("starved_sub_questions") or ())
     by_sub_question = diagnostics.get("by_sub_question") or {}
@@ -70,7 +74,13 @@ def _attribute_gaps(
             continue
         cause = coverage.gap_cause
         sq_id = coverage.sub_question_id
-        if sq_id in starved or not by_sub_question.get(sq_id):
+        if sq_id not in queried:
+            # The most upstream cause there is, and the one this run
+            # reported as "no suitable source found" -- which is wrong
+            # and points at retrieval. No query was issued, so there was
+            # never a pool to find a source in.
+            cause = "no search query was issued for this sub-question"
+        elif sq_id in starved or not by_sub_question.get(sq_id):
             cause = "no suitable source found"
         elif failed_fetches and coverage.evidence_count == 0:
             # A source was chosen for this sub-question and did not
