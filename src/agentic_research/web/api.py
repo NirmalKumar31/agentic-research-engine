@@ -823,6 +823,18 @@ async def _event_stream(
 
             if event.get("event") == "result":
                 yield _sse("result", _serialise_result(event["result"]))
+            elif event.get("event") == "started":
+                # Already announced above, before the graph was even
+                # constructed. Forwarding the runner's own lifecycle
+                # event as progress too made the page show "Starting
+                # research" twice, which reads as a restart.
+                #
+                # Suppressed here rather than in the runner: a CLI or
+                # library caller has no transport-level start event, so
+                # for them the runner's `started` is the only one there
+                # is and removing it would lose the run id and the
+                # model assignments it carries.
+                continue
             else:
                 yield _sse("progress", event)
     except ProviderRateLimited:

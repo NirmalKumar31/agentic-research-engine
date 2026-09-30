@@ -1,0 +1,123 @@
+{
+  "round": 1,
+  "explanatory_policy": true,
+  "queries": [
+    {
+      "query_id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "overfitting causes machine learning",
+      "rationale": "plain overview query for the causes sub-question",
+      "round": 1,
+      "results": 2
+    },
+    {
+      "query_id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "overfitting small training dataset",
+      "rationale": "narrows to dataset size without specialist terms",
+      "round": 1,
+      "results": 1
+    },
+    {
+      "query_id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "data leakage validation set overfitting",
+      "rationale": "names the leakage mechanism the question asks about",
+      "round": 1,
+      "results": 2
+    }
+  ],
+  "candidates": [
+    {
+      "url": "https://arxiv.org/abs/2211.11074",
+      "domain": "arxiv.org",
+      "source_type": "academic",
+      "authority": "primary",
+      "provider_score": 0.84,
+      "authority_adjustment": 0.15,
+      "ranking_score": 0.99,
+      "sub_question_ids": [
+        "SQ1",
+        "SQ2"
+      ],
+      "selected": true,
+      "reason": "selected for its highest-ranked sub-question",
+      "fetch_outcome": "ok (html_fetch)"
+    },
+    {
+      "url": "https://x.com/someone/status/1",
+      "domain": "x.com",
+      "source_type": "social",
+      "authority": "aggregator",
+      "provider_score": 0.91,
+      "authority_adjustment": -0.2,
+      "ranking_score": 0.71,
+      "sub_question_ids": [
+        "SQ1"
+      ],
+      "selected": false,
+      "reason": "deprioritised as social for a question with a stable, documented answer (authority-adjusted below the fetch budget)",
+      "fetch_outcome": "not fetched"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Overfitting",
+      "domain": "en.wikipedia.org",
+      "source_type": "reference",
+      "authority": "secondary",
+      "provider_score": 0.79,
+      "authority_adjustment": 0.08,
+      "ranking_score": 0.87,
+      "sub_question_ids": [
+        "SQ2"
+      ],
+      "selected": true,
+      "reason": "selected for its highest-ranked sub-question",
+      "fetch_outcome": "http_error (none)"
+    },
+    {
+      "url": "https://internal.example.com/p",
+      "domain": "internal.example.com",
+      "source_type": "other",
+      "authority": "secondary",
+      "provider_score": 0.88,
+      "authority_adjustment": 0.08,
+      "ranking_score": 0.96,
+      "sub_question_ids": [
+        "SQ3"
+      ],
+      "selected": true,
+      "reason": "selected for its highest-ranked sub-question",
+      "fetch_outcome": "not fetched"
+    },
+    {
+      "url": "https://aiweeklybriefing.substack.com/p/x",
+      "domain": "aiweeklybriefing.substack.com",
+      "source_type": "blog",
+      "authority": "aggregator",
+      "provider_score": 0.76,
+      "authority_adjustment": -0.08,
+      "ranking_score": 0.68,
+      "sub_question_ids": [
+        "SQ3"
+      ],
+      "selected": false,
+      "reason": "deprioritised as blog for a question with a stable, documented answer (authority-adjusted below the fetch budget)",
+      "fetch_outcome": "not fetched"
+    }
+  ],
+  "selected_count": 3,
+  "dropped_count": 2,
+  "truncated": 0,
+  "by_sub_question": {
+    "SQ1": [
+      "https://arxiv.org/abs/2211.11074"
+    ],
+    "SQ2": [
+      "https://arxiv.org/abs/2211.11074",
+      "https://en.wikipedia.org/wiki/Overfitting"
+    ],
+    "SQ3": [
+      "https://internal.example.com/p"
+    ]
+  }
+}

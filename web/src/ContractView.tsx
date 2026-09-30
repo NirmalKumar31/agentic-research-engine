@@ -38,8 +38,8 @@ export function ContractView({
     );
   }
 
-  const statuses = slotStatuses(contract, report);
-  const isAnswered = answered(contract, report);
+  const statuses = slotStatuses(contract, report, coverage);
+  const isAnswered = answered(contract, report, coverage);
   const missingCore = statuses.filter((s) => s.core && !s.filled);
   // Subjects no retrieved source mentions. This is why an unfilled
   // contract may be the correct outcome rather than a failure, and it

@@ -16,10 +16,8 @@ from __future__ import annotations
 
 from langgraph.types import Overwrite
 
-from agentic_research.citations.guards import authority_rank_of
 from agentic_research.config import ModelRole
 from agentic_research.evidence.dedup import (
-    Candidate,
     dedupe_by_content,
     dedupe_search_results,
 )
@@ -43,7 +41,12 @@ from agentic_research.models import (
     Stance,
 )
 from agentic_research.observability import get_logger
+from agentic_research.retrieval.manifest import build_manifest
 from agentic_research.retrieval.parser import markdown_to_text, truncate, word_count
+from agentic_research.retrieval.selection import (
+    prefers_accountable_sources,
+    select_with_diagnostics,
+)
 from agentic_research.retrieval.urls import looks_like_pdf_url
 from agentic_research.schemas import ExtractionOut
 
@@ -133,38 +136,30 @@ async def dedupe_sources(state: ResearchState) -> ResearchState:
             results, query_to_sub_question, known_canonical_urls=known
         )
 
-        # Best-first, so the per-round and total source caps keep the most
-        # promising pages rather than an arbitrary prefix.
-        #
-        # "Promising" is relevance *and* what kind of page it is. Sorting
-        # on the provider's score alone decides what the engine will ever
-        # read, and it reads six pages: a local run on this question
-        # selected five blogs and a sixth blog, so no later preference
-        # for better sources had anything to prefer. The kind of a page
-        # is knowable from its URL before it is fetched, which is what
-        # makes this decidable here at all.
-        #
-        # Banded, like the two orderings downstream. The provider's
-        # score is the only signal that a page is about the question,
-        # and an authoritative page about the wrong subject is worse
-        # than a blog about the right one -- so relevance decides
-        # first, in tenths, and authority only settles pages the
-        # provider rated alike.
-        def _rank(candidate: Candidate) -> tuple[float, int, str]:
-            return (
-                round(candidate.best_score or 0.0, 1),
-                authority_rank_of(classify_source(candidate.url, candidate.domain).value),
-                # Stable last resort, so the same results always select
-                # the same pages.
-                candidate.canonical_url,
-            )
-
-        candidates.sort(key=_rank, reverse=True)
+        # Allocated across sub-questions, then ranked within each by
+        # relevance *and* accountability. See retrieval/selection.py for
+        # the two defects this replaces: a banded global sort never
+        # consulted authority across bands, and a global top-N let one
+        # sub-question consume the entire fetch budget while four others
+        # received no source at all.
+        contract = state.get("contract")
+        explanatory = prefers_accountable_sources(contract)
+        # Planner order is priority order, so a higher-priority
+        # sub-question is served first when the budget cannot cover all.
+        sub_question_order = [
+            q.id for q in sorted(state.get("sub_questions", []), key=lambda q: q.priority)
+        ]
 
         room_total = max(0, context.budget.max_sources - len(existing_sources))
         limit = min(context.budget.max_sources_per_round, room_total)
-        selected = candidates[:limit]
-        dropped = len(candidates) - len(selected)
+        selection = select_with_diagnostics(
+            candidates,
+            limit=limit,
+            explanatory=explanatory,
+            sub_question_order=sub_question_order,
+        )
+        selected = list(selection.selected)
+        dropped = len(selection.dropped)
 
         next_index = len(existing_sources) + 1
         stubs: list[SourceDocument] = []
@@ -193,6 +188,14 @@ async def dedupe_sources(state: ResearchState) -> ResearchState:
         fetches_avoided=dedup_stats.fetches_avoided,
         selected=len(selected),
         dropped_over_budget=dropped,
+        explanatory_policy=explanatory,
+        by_sub_question={k: len(v) for k, v in selection.by_sub_question.items()},
+        sub_questions_with_no_source=list(selection.sub_questions_with_no_source),
+        # Why a page was not read, not merely that it was not. A
+        # deprioritised tweet and a page ranked one place below the
+        # budget are different diagnoses and were indistinguishable.
+        dropped_reasons=sorted({d.reason for d in selection.dropped}),
+        selected_classes=sorted({classify_source(c.url, c.domain).value for c in selected}),
     )
     emit(
         "sources_deduplicated",
@@ -200,6 +203,7 @@ async def dedupe_sources(state: ResearchState) -> ResearchState:
         unique=dedup_stats.unique_out,
         avoided=dedup_stats.fetches_avoided,
         selected=len(selected),
+        starved_sub_questions=len(selection.sub_questions_with_no_source),
     )
     return {
         "sources": stubs,
@@ -215,6 +219,38 @@ async def dedupe_sources(state: ResearchState) -> ResearchState:
             "fetches_avoided": dedup_stats.fetches_avoided,
             "dropped_over_budget": dropped,
         },
+        # Kept in state so the report can say which answer slots were
+        # never given a source to answer from.
+        "retrieval_diagnostics": {
+            "by_sub_question": dict(selection.by_sub_question),
+            "starved_sub_questions": list(selection.sub_questions_with_no_source),
+            "dropped": [
+                {
+                    "domain": d.domain,
+                    "source_type": d.source_type,
+                    "relevance": d.relevance,
+                    "reason": d.reason,
+                }
+                for d in selection.dropped
+            ],
+        },
+        # Every query and every candidate for this round, sanitised and
+        # bounded. The preserved baseline could not show the 38
+        # candidates it discarded -- PERSIST_RUNS=false and the search
+        # stage streamed only counts -- so the question "was there a
+        # better source in the pool?" had no answer. One round per
+        # entry; the reducer appends.
+        "retrieval_manifest": [
+            build_manifest(
+                round_number=state.get("round_number", 1),
+                queries=[q for q in completed if q.round_number == state.get("round_number", 1)]
+                or completed,
+                results=results,
+                candidates=candidates,
+                selection=selection,
+                explanatory=explanatory,
+            ).to_dict()
+        ],
     }
 
 

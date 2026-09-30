@@ -36,8 +36,11 @@ Choose `output_format` by what the answer must *contain*, not by the topic. \
 The answer is later checked against the shape you pick, so a wrong shape \
 means a correct answer is judged against requirements the question never had:
 - `comparison`: asks how two or more named things differ
-- `causal_analysis`: asks why something happens, what causes it, or whether \
-one thing causes another
+- `causal_analysis`: asks whether one specific thing causes another -- a \
+yes/no causal test, such as "does X cause Y" or "did X lead to Y"
+- `causal_drivers`: asks what causes something, or why it happens, where the \
+answer is the set of contributing factors rather than a verdict on one \
+proposed cause
 - `list`: asks which things, or for the members of a set -- including when \
 those members are causes, factors, reasons, risks or examples
 - `metric`: asks for a specific figure, quantity, size or measurement
@@ -48,10 +51,15 @@ those members are causes, factors, reasons, risks or examples
 - `overview`: asks what something is. Use this only when none of the above \
 fits -- it is the narrowest shape, not the safe default.
 
-For `comparison`, list in `dimensions` any axes the question names itself \
-(cost, latency, accuracy); leave it empty when it names none. For \
-`synthesis`, `parts` is required: give each distinct question asked, \
-rewritten to stand alone."""
+For `comparison`, `dimensions` is where the axes go, and it matters more \
+than it looks. Name the two or three axes on which these subjects should \
+actually be compared -- how knowledge is updated, cost, latency, accuracy, \
+operational complexity -- whether or not the question states them. A \
+comparison counts as answered only when claims about each subject meet on \
+a *named* axis, so a comparison with no dimensions cannot be completed: \
+two true facts about two subjects are not a contrast unless they are about \
+the same thing. For `synthesis`, `parts` is required: give each distinct \
+question asked, rewritten to stand alone."""
 
 
 def analyst_user(query: str) -> str:
@@ -85,25 +93,100 @@ def planner_user(analysis_block: str) -> str:
 QUERY_WRITER_SYSTEM = """\
 You turn research sub-questions into web search queries.
 
-Write queries the way an experienced researcher would type them: specific \
-keywords and distinguishing terms, not a natural-language sentence and not a \
-single broad word.
+Write what a knowledgeable person would actually type. Keep the words the \
+question itself uses: they are the words pages answering it also use.
+
+The failure to avoid, because an earlier version of this prompt caused it. \
+Asked for the main causes of overfitting in machine learning, it produced:
+
+    parametric knowledge long tail facts factual recall generalization failures
+
+Only research papers contain that combination of terms, so only research \
+papers came back -- on double descent and frozen overparameterization, \
+neither of which answers the question. Every additional specialist term \
+narrows the results to documents written for specialists. The engine reads \
+six pages, so a query that excludes every general explanation has decided \
+the answer before anything is read.
 
 Rules:
 - One or two queries per sub-question.
+- Prefer the question's own vocabulary. Add a technical term only when the \
+sub-question genuinely cannot be searched without it.
+- Keep queries short: three to eight words suits most. Never shorten a \
+proper name, a version number, a date or a quoted phrase to fit -- those \
+carry the meaning and dropping them changes the question.
 - Do not use quotation marks, boolean operators or site: filters.
 - Each query must be meaningfully different from every query already issued, \
 which is listed below. Rewording an earlier query wastes a search.
-- Include the specific technical terms an authoritative page would use."""
+- For every query, name the part of the answer it is meant to supply and say \
+in a few words why it is phrased that way."""
 
 
-def query_writer_user(sub_questions_block: str, previous_queries: list[str]) -> str:
+# What a good first query looks like for each answer shape. A causes
+# question and a comparison do not want the same query, and sending the
+# same style for both is how a broad explanatory question ended up
+# searched as a literature review.
+_QUERY_STYLE_BY_SHAPE: dict[str, str] = {
+    "list": (
+        "This question asks for members of a set. Include at least one plain, "
+        "general query that names the subject and what is being asked of it, "
+        "such as 'overfitting causes machine learning'. A reader-level "
+        "explanation is a better first source here than a specialist paper."
+    ),
+    "causal": (
+        "This question tests one proposed cause. Search for evidence about "
+        "that specific relationship, not for a list of contributing factors: "
+        "a plausible driver is not an answer to whether X causes Y."
+    ),
+    "causal_drivers": (
+        "This question asks why something happens. Include at least one plain, "
+        "general query naming the subject and the effect, before any query "
+        "about a specific mechanism."
+    ),
+    "definition": (
+        "This question asks what something is. A plain 'what is X' phrasing, "
+        "or the subject's name with a word like overview or explained, will "
+        "reach the pages that actually define it."
+    ),
+    "comparison": (
+        "This question compares named subjects. Include at least one query "
+        "naming both subjects together, since pages that compare them "
+        "directly are the ones worth reading."
+    ),
+    "numeric": (
+        "This question asks for a figure. Name the quantity and the subject "
+        "together, and include units or a version where the question does."
+    ),
+    "procedural": (
+        "This question asks how to do something. Name the task as someone attempting it would."
+    ),
+    "temporal": (
+        "This question is about when. Keep any date, version or time reference the question gives."
+    ),
+}
+
+
+def query_writer_user(
+    sub_questions_block: str,
+    previous_queries: list[str],
+    *,
+    question: str = "",
+    answer_shape: str = "",
+) -> str:
     previous = "\n".join(f"- {q}" for q in previous_queries) if previous_queries else "(none yet)"
-    return (
-        f"Sub-questions:\n{sub_questions_block}\n\n"
-        f"Queries already issued in this run:\n{previous}\n\n"
-        "Write search queries for the sub-questions listed above."
-    )
+    parts = []
+    if question:
+        # The original wording, so the query writer can reuse it rather
+        # than reconstruct the topic from sub-questions that have
+        # already been rephrased once.
+        parts.append(f"The user asked:\n{question}")
+    style = _QUERY_STYLE_BY_SHAPE.get(answer_shape)
+    if style:
+        parts.append(f"Shape of answer required: {answer_shape}. {style}")
+    parts.append(f"Sub-questions:\n{sub_questions_block}")
+    parts.append(f"Queries already issued in this run:\n{previous}")
+    parts.append("Write search queries for the sub-questions listed above.")
+    return "\n\n".join(parts)
 
 
 EXTRACTOR_SYSTEM = """\

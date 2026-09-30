@@ -1,4 +1,4 @@
-import type { Claim, Contract, Report } from "./types";
+import type { AnswerCoverage, Claim, Contract, Report } from "./types";
 
 /**
  * Which parts of the answer the published report actually filled.
@@ -44,13 +44,38 @@ export function declaredSlots(report: Report): string[] {
     .filter((slot) => slot.length > 0);
 }
 
-export function slotStatuses(contract: Contract, report: Report): SlotStatus[] {
+export function slotStatuses(
+  contract: Contract,
+  report: Report,
+  coverage?: AnswerCoverage | null,
+): SlotStatus[] {
   const declared = new Set(declaredSlots(report));
+  // Slots the engine satisfied by a route the client cannot re-derive.
+  //
+  // A comparison is answered when claims about each subject meet on a
+  // named axis, or when a relationship claim establishes there is no
+  // contrast to find — one subject being a kind of the other. Both
+  // depend on what the claims assert, not on which slot they declared,
+  // so neither is visible from the contract. Recomputing without them
+  // renders "this report does not answer the question" above a report
+  // saying the opposite, which this interface has shipped once.
+  const engineSatisfied = new Set(coverage?.satisfied_slots ?? []);
   return contract.required_slots.map((slot) => {
     if (declared.has(slot.name)) {
       return { ...slot, filled: true, filledBy: null };
     }
-    const alternative = (slot.satisfied_by ?? []).find((name) => declared.has(name));
+    if (engineSatisfied.has(slot.name)) {
+      return {
+        name: slot.name,
+        description: slot.description,
+        core: slot.core,
+        filled: true,
+        filledBy: coverage?.relationship_discharge || "verified side claims",
+      };
+    }
+    const alternative = (slot.satisfied_by ?? []).find((name) =>
+      declared.has(name),
+    );
     return {
       name: slot.name,
       description: slot.description,
@@ -68,8 +93,12 @@ export function slotStatuses(contract: Contract, report: Report): SlotStatus[] {
  * that published two definitions has answered nothing, and a
  * multi-part question answered in one part of three is not answered.
  */
-export function answered(contract: Contract, report: Report): boolean {
-  const statuses = slotStatuses(contract, report);
+export function answered(
+  contract: Contract,
+  report: Report,
+  coverage?: AnswerCoverage | null,
+): boolean {
+  const statuses = slotStatuses(contract, report, coverage);
   const core = statuses.filter((s) => s.core);
   return core.length > 0 && core.every((s) => s.filled);
 }

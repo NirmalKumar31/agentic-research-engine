@@ -244,14 +244,57 @@ class TestAComparisonHasTwoHonestAnswers:
     )
 
     def test_a_relationship_answers_a_comparison(self) -> None:
-        """The exact slots the acceptance run published."""
-        coverage = assess_coverage(self.CONTRACT, ["relationship", "dimension", "dimension"])
+        """The exact slots the acceptance run published -- and now the
+        claim text too.
+
+        A relationship only answers a comparison when it is the kind
+        that explains why a contrast is inappropriate. Slot names alone
+        can no longer establish that: "both are used with language
+        models" declares `relationship` and explains nothing.
+        """
+        from agentic_research.comparison import SideClaim
+
+        coverage = assess_coverage(
+            self.CONTRACT,
+            ["relationship", "dimension", "dimension"],
+            claims=[
+                SideClaim(
+                    subject="",
+                    text=(
+                        "A large language model (LLM) is a kind of neural network trained on text."
+                    ),
+                    answer_slot="relationship",
+                )
+            ],
+        )
         assert coverage.answered
         assert coverage.missing_core == ()
+        assert coverage.relationship_discharge == "subtype"
+
+    def test_a_vague_relationship_does_not_answer_it(self) -> None:
+        """The escape hatch the audit flagged, closed."""
+        from agentic_research.comparison import SideClaim
+
+        coverage = assess_coverage(
+            self.CONTRACT,
+            ["relationship"],
+            claims=[
+                SideClaim(
+                    subject="",
+                    text=(
+                        "A large language model (LLM) and a neural network are both "
+                        "widely used in industry."
+                    ),
+                    answer_slot="relationship",
+                )
+            ],
+        )
+        assert not coverage.answered
+        assert coverage.relationship_discharge == ""
 
     def test_a_direct_contrast_still_answers_it(self) -> None:
         """Non-vacuity in the other direction: the original slot was
-        not replaced, only given an alternative."""
+        not replaced, only given a route around it."""
         coverage = assess_coverage(self.CONTRACT, ["direct_contrast"])
         assert coverage.answered
 
@@ -277,14 +320,25 @@ class TestAComparisonHasTwoHonestAnswers:
             for s in slots
             if s.satisfied_by
         }
-        # An explicit allowlist, so a new alternative has to be added
-        # here on purpose. Each entry exists because the question type
-        # has two honest readings that want different answers -- see
-        # the comments on the slots themselves.
-        assert with_alternatives == {
-            ("comparison", "direct_contrast"),
-            ("causal", "causal_evidence"),
-        }
+        # Empty, and that is the point now. Both entries this once held
+        # were semantic shortcuts the audit rejected:
+        #
+        # `causal_evidence` accepted `candidate_drivers`, so naming a
+        # plausible driver answered "does X cause Y" -- the
+        # association-for-causation substitution the verification layer
+        # exists to refuse. Driver-seeking questions now have their own
+        # contract (`causal_drivers`) where drivers are the answer.
+        #
+        # `direct_contrast` accepted `relationship`, so any relationship
+        # claim discharged a comparison, including "both are used with
+        # language models". Whether a relationship explains away a
+        # contrast depends on its *kind*, which a slot name cannot
+        # express; it is decided at coverage time by
+        # `comparison.discharges_contrast`.
+        #
+        # A static alternative is a claim that one slot's name always
+        # implies another's satisfaction. Neither case was ever that.
+        assert with_alternatives == set()
 
     def test_it_does_not_leak_into_other_question_types(self) -> None:
         """A definition answered by a relationship claim is still

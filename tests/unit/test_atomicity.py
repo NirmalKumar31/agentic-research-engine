@@ -7,8 +7,6 @@ import pytest
 from agentic_research.citations.atomicity import (
     compound_markers,
     compound_propositions,
-    is_atomic,
-    looks_compound,
     sentence_count,
 )
 
@@ -26,7 +24,7 @@ from agentic_research.citations.atomicity import (
     ],
 )
 def test_fused_propositions_are_flagged(text: str) -> None:
-    assert looks_compound(text), compound_markers(text)
+    assert compound_markers(text), compound_markers(text)
 
 
 @pytest.mark.parametrize(
@@ -42,7 +40,7 @@ def test_fused_propositions_are_flagged(text: str) -> None:
 def test_single_propositions_and_noun_lists_are_not_flagged(text: str) -> None:
     """A bare "and" joining noun phrases is not a compound claim.
     Flagging it would fire on almost every real sentence."""
-    assert not looks_compound(text), compound_markers(text)
+    assert not compound_markers(text), compound_markers(text)
 
 
 def test_markers_are_reported_for_the_audit() -> None:
@@ -54,7 +52,7 @@ def test_markers_are_reported_for_the_audit() -> None:
 
 def test_empty_input_is_safe() -> None:
     assert compound_markers("") == []
-    assert not looks_compound("")
+    assert not compound_markers("")
 
 
 class TestSentenceCounting:
@@ -80,7 +78,7 @@ class TestSentenceCounting:
         ],
     )
     def test_single_sentence_claims_are_atomic(self, text: str) -> None:
-        assert is_atomic(text), sentence_count(text)
+        assert not compound_propositions(text), sentence_count(text)
 
     @pytest.mark.parametrize(
         "text",
@@ -91,7 +89,7 @@ class TestSentenceCounting:
         ],
     )
     def test_multi_sentence_claims_are_not_atomic(self, text: str) -> None:
-        assert not is_atomic(text)
+        assert compound_propositions(text)
         assert sentence_count(text) == 2
 
     def test_abbreviations_do_not_split_a_sentence(self) -> None:
@@ -102,7 +100,7 @@ class TestSentenceCounting:
 
     def test_empty_text_counts_as_nothing(self) -> None:
         assert sentence_count("") == 0
-        assert is_atomic("")
+        assert not compound_propositions("")
 
 
 class TestPropositionAtomicity:
@@ -135,7 +133,7 @@ class TestPropositionAtomicity:
         ],
     )
     def test_two_assertions_are_refused(self, case: str, text: str) -> None:
-        assert not is_atomic(text), f"{case}: {compound_propositions(text)}"
+        assert compound_propositions(text), f"{case}: {compound_propositions(text)}"
 
     @pytest.mark.parametrize(
         ("case", "text"),
@@ -152,7 +150,7 @@ class TestPropositionAtomicity:
     def test_enumeration_inside_one_assertion_survives(self, case: str, text: str) -> None:
         """One predicate shared across a list is still one claim.
         Rejecting every comma would withhold most real sentences."""
-        assert is_atomic(text), f"{case}: {compound_propositions(text)}"
+        assert not compound_propositions(text), f"{case}: {compound_propositions(text)}"
 
     @pytest.mark.parametrize(
         "text",
@@ -164,18 +162,20 @@ class TestPropositionAtomicity:
         ],
     )
     def test_ordinary_single_claims_survive(self, text: str) -> None:
-        assert is_atomic(text), compound_propositions(text)
+        assert not compound_propositions(text), compound_propositions(text)
 
     def test_ed_nouns_are_not_read_as_predicates(self) -> None:
         """ "at sub-10ms speed" is not an assertion. Without this the
         -ed heuristic withholds a perfectly atomic claim."""
-        assert is_atomic("At high speed, the index stays small.")
-        assert is_atomic("A hundred queries per second, sustained.")
+        assert not compound_propositions("At high speed, the index stays small.")
+        assert not compound_propositions("A hundred queries per second, sustained.")
 
     def test_the_historical_fusion_is_refused(self) -> None:
         """E9: the transformation that produced the development set's
         only false positive must not be publishable as one claim."""
-        assert not is_atomic("Quantization cut memory 75% while maintaining high recall accuracy.")
+        assert compound_propositions(
+            "Quantization cut memory 75% while maintaining high recall accuracy."
+        )
 
     def test_the_known_comma_spliced_published_claim_is_now_refused(self) -> None:
         """E8: a real claim from the previous audit. It passed the
@@ -185,12 +185,12 @@ class TestPropositionAtomicity:
             "32-bit floats to 8-bit integers cuts memory 75% while maintaining high accuracy."
         )
         assert sentence_count(claim) == 1
-        assert not is_atomic(claim)
+        assert compound_propositions(claim)
 
     def test_reasons_are_reported_for_the_audit(self) -> None:
         reasons = compound_propositions("X was faster but less accurate.")
         assert any("contrastive" in r for r in reasons)
 
     def test_empty_and_whitespace_are_safe(self) -> None:
-        assert is_atomic("")
+        assert not compound_propositions("")
         assert compound_propositions("   ") == []

@@ -1,0 +1,27 @@
+{
+  "question": "What are the main causes of hallucinations in large language models?",
+  "question_type": "list",
+  "entities": [
+    "large language models",
+    "hallucination"
+  ],
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "items",
+      "description": "The members asked for",
+      "core": true,
+      "satisfied_by": []
+    },
+    {
+      "name": "completeness",
+      "description": "Whether the list is exhaustive",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

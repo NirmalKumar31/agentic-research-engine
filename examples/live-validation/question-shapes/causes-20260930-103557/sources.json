@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://vstorm.co/glossary/next-token-prediction",
+    "title": "Next-token prediction: how a language model actually learns | Vstorm Glossary",
+    "domain": "vstorm.co",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.554,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://atlan.com/know/llm-hallucinations",
+    "title": "LLM Hallucinations: Why They Happen and How to Reduce Them [2026]",
+    "domain": "atlan.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.602,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://arxiv.org/html/2407.17468v1",
+    "title": "WildHallucinations: Evaluating Long-form Factuality in LLMs with Real-World Entity Queries",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.931,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://arxiv.org/html/2403.12958v2",
+    "title": "Dated Data: Tracing Knowledge Cutoffs in Large Language Models",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.933,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://x.com/cwolferesearch/status/1669811217148289026",
+    "title": "Cameron R. Wolfe, Ph.D. on X: \"Next-token prediction is the workhorse behind all modern advancements in large language models (LLMs) due to its use in training these models over unlabeled text. But, how exactly does this next-token prediction (or language modeling) objective work? Let\u2019s take a deep\u2026 / X",
+    "domain": "x.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.599,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://www.mdpi.com/2227-7390/13/5/856",
+    "title": "Hallucination Mitigation for Retrieval-Augmented Large Language Models: A Review",
+    "domain": "mdpi.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.59,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

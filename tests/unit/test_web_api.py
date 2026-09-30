@@ -298,6 +298,42 @@ class TestStreaming:
         # Real node events, not invented UI milestones.
         assert any(p.get("event") == "plan_generated" for p in progress)
 
+    def test_exactly_one_visible_start_reaches_the_browser(self, patched_stream) -> None:
+        """This endpoint announces the run before the graph is built,
+        and the runner announces it again for its own callers. Both
+        were forwarded, so the page showed "Starting research" twice --
+        which reads as a restart, on the one screen where a visitor is
+        already waiting and cannot tell a slow run from a stuck one.
+        """
+        patched_stream(
+            [
+                {"event": "started", "run_id": "r1", "query": "q", "models": {}},
+                {"event": "plan_generated", "count": 1, "questions": ["a"]},
+            ]
+        )
+        with TestClient(demo_app()) as client:
+            body = client.post("/api/research", json={"query": "a genuine research question"}).text
+
+        events = read_sse(body)
+        names = [name for name, _ in events]
+        assert names.count("started") == 1
+        # And not smuggled through as a progress event either, which is
+        # what the page actually renders.
+        progress = [p for n, p in events if n == "progress"]
+        assert not any(p.get("event") == "started" for p in progress)
+        assert any(p.get("event") == "plan_generated" for p in progress)
+
+    def test_the_runner_still_announces_its_own_start(self) -> None:
+        """Suppression belongs to the web transport alone. A CLI or
+        library caller has no transport-level start, so for them the
+        runner's event is the only one there is -- and it carries the
+        run id and the model assignments."""
+        import inspect
+
+        from agentic_research import runner
+
+        assert '"event": "started"' in inspect.getsource(runner.stream_research)
+
     def test_result_carries_claim_to_evidence_provenance(self, patched_stream) -> None:
         """The differentiator the UI is built around: a claim must arrive
         with the evidence ids that support it."""

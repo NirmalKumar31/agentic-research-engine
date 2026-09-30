@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import UTC, datetime
 
+from agentic_research.comparison import ComparisonPair, render_pairs
 from agentic_research.evidence.store import EvidenceStore
 from agentic_research.metrics import RunMetrics
 from agentic_research.models import (
@@ -32,8 +33,15 @@ def render_markdown(
     verification: CitationVerification | None,
     metrics: RunMetrics | None = None,
     evidence: Sequence[EvidenceItem] | None = None,
+    comparison_pairs: Sequence[ComparisonPair] = (),
 ) -> str:
-    """Render the report, its sources, and an honest verification footer."""
+    """Render the report, its sources, and an honest verification footer.
+
+    ``comparison_pairs`` are complete contrasts assembled from verified
+    side claims. They are rendered as a table rather than prose because
+    a sentence joining two claims would be new text no quote was
+    checked against -- see :mod:`agentic_research.comparison`.
+    """
     store = EvidenceStore(sources, list(evidence or []))
     cited = report.cited_ids()
     lines: list[str] = [f"# {report.title}", ""]
@@ -61,6 +69,17 @@ def render_markdown(
         for claim in section.claims:
             lines.append(_claim_text(claim, store))
             lines.append("")
+
+    if comparison_pairs:
+        lines += [
+            "## How they differ",
+            "",
+            "_Each cell is a published claim with its own verified evidence. "
+            "The comparison is the arrangement; no sentence here was written "
+            "to join them._",
+            "",
+            render_pairs(comparison_pairs),
+        ]
 
     if _needs_evidence_fallback(report, verification):
         lines += _evidence_only_section(store)

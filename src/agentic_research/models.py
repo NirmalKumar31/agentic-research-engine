@@ -58,8 +58,23 @@ class SourceType(StrEnum):
     does not, and scoring them alike overstates the second."""
     NEWS = "news"
     VENDOR = "vendor"
+    REFERENCE = "reference"
+    """An encyclopaedic or educational reference: Wikipedia, Britannica.
+
+    Distinct from OTHER because it was OTHER, which carries the same
+    base quality as an unrecognised SEO page -- while being the best
+    available source for exactly the explanatory questions that
+    failed. Not PRIMARY: a reference summarises primary sources."""
     BLOG = "blog"
     FORUM = "forum"
+    SOCIAL = "social"
+    """A social post: X, LinkedIn, Bluesky, a video platform.
+
+    Added because these fell through to OTHER, whose base quality
+    (0.50) is *above* a blog's (0.45) and whose authority is SECONDARY.
+    An unclassified tweet therefore outranked a Medium post, and a live
+    run selected a tweet over primary sources. Ranks below every other
+    class: a post is where a reader finds the source, not the source."""
     OTHER = "other"
 
 
@@ -159,6 +174,18 @@ class OutputFormat(StrEnum):
     TIMELINE = "timeline"
     DECISION_SUPPORT = "decision_support"
     CAUSAL_ANALYSIS = "causal_analysis"
+    """A yes/no causal test: "does X cause Y?"
+
+    Distinct from CAUSAL_DRIVERS because the two want different
+    evidence and it is not safe to let one stand for the other. Asked
+    whether X causes Y, naming a plausible driver is not an answer --
+    that is the association-for-causation substitution the whole
+    verification layer exists to refuse."""
+    CAUSAL_DRIVERS = "causal_drivers"
+    """A driver-seeking question: "what causes X?", "why does X happen?"
+
+    Here the drivers *are* the answer, and demanding evidence of
+    established causation would make the question unanswerable."""
     METRIC = "metric"
     LIST = "list"
     SYNTHESIS = "synthesis"
@@ -176,6 +203,10 @@ class QueryAnalysis(BaseModel):
     normalized_query: str = Field(description="Ambiguity resolved, made self-contained")
     intent: str
     entities: list[str] = Field(default_factory=list)
+    comparison_subjects: list[str] = Field(
+        default_factory=list,
+        description="For a comparison, exactly the sides being contrasted; never the setting",
+    )
     dimensions: list[str] = Field(
         default_factory=list,
         description="For a comparison, the axes the question asks the subjects to be compared on",
@@ -485,6 +516,18 @@ class SubQuestionCoverage(BaseModel):
     has_contradiction: bool = False
     verdict: str = Field(default="uncovered", description="covered | weak | uncovered")
     note: str = ""
+    off_topic_items: int = Field(
+        default=0,
+        description="Exact-match items attributed here that do not address this sub-question",
+    )
+    gap_cause: str = Field(
+        default="",
+        description=(
+            "Why this sub-question is not covered: no suitable source found, fetch "
+            "failed, retrieved source was off topic, evidence insufficient, or no "
+            "evidence attributed. Empty when covered"
+        ),
+    )
 
 
 class CoverageAssessment(BaseModel):

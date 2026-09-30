@@ -34,6 +34,10 @@ from agentic_research.models import (
     SubQuestion,
 )
 from agentic_research.observability import get_logger
+from agentic_research.question_form import (
+    reconcile_comparison_subjects,
+    shape_from_wording,
+)
 from agentic_research.schemas import AnalysisOut, FollowupsOut, PlanOut, QueriesOut
 
 log = get_logger(__name__)
@@ -61,6 +65,7 @@ async def analyze_query(state: ResearchState) -> ResearchState:
                 normalized_query=out.normalized_query or query,
                 intent=out.intent,
                 entities=out.entities[:12],
+                comparison_subjects=out.comparison_subjects[:6],
                 dimensions=out.dimensions[:8],
                 parts=out.parts[:8],
                 constraints=out.constraints[:8],
@@ -133,6 +138,40 @@ def contract_from_analysis(analysis: QueryAnalysis) -> AnswerContract:
             analysis.normalized_query,
             f"no answer shape is defined for {analysis.output_format.value!r}",
         )
+
+    # The user's own wording outranks the model's reading of it, but
+    # only where the wording is explicit. Two near-identical phrasings
+    # of "the main causes of hallucination" were classified `list` and
+    # `definition`, and "the context window size of GPT-4 Turbo" became
+    # a definition -- a figure checked against a slot asking what the
+    # subject is. The original query is used, not the normalisation:
+    # the normalisation is itself model output and can smooth away the
+    # form being read.
+    wording = shape_from_wording(analysis.original_query or analysis.normalized_query)
+    shape_source = "model"
+
+    # A named multi-part decomposition is explicit information the
+    # wording reader does not have. "What is RAG, and how much does it
+    # cost to run?" contains an explicit numeric form, so the reader
+    # returns `numeric` and cannot see the question has two halves.
+    # Overriding a model that correctly identified both would make the
+    # answer worse, which is the opposite of the point.
+    named_parts = [part for part in analysis.parts if part.strip()]
+    if question_type is QuestionType.SYNTHESIS and named_parts:
+        wording = None
+    if wording is not None and wording is not question_type:
+        question_type, shape_source = wording, "corrected-from-wording"
+    elif wording is not None:
+        shape_source = "wording"
+
+    # Sides read from the wording. An empty result means the wording
+    # carried no explicit comparison, and the analyst's entities stand
+    # -- refusing a run over a failed parse would be worse than the
+    # defect being fixed.
+    sides = reconcile_comparison_subjects(
+        analysis.original_query or analysis.normalized_query,
+        list(analysis.comparison_subjects) or list(analysis.entities),
+    )
     # A comparison needs its subjects. The analysis names entities; the
     # contract refuses when there are fewer than two, rather than
     # accepting a contrast nothing could fill.
@@ -149,6 +188,8 @@ def contract_from_analysis(analysis: QueryAnalysis) -> AnswerContract:
         analysis.normalized_query,
         question_type,
         entities=analysis.entities,
+        comparison_subjects=sides,
+        shape_source=shape_source,
         dimensions=analysis.dimensions,
         constraints=analysis.constraints,
         parts=analysis.parts,
@@ -241,6 +282,22 @@ def _sub_question_block(sub_questions: list[SubQuestion]) -> str:
     return "\n".join(f"{q.id}: {q.text}" for q in sub_questions)
 
 
+def _median_word_count(texts: list[str]) -> float:
+    """Query length, logged because it is the measurable symptom.
+
+    The queries that failed averaged eleven words of stacked jargon.
+    A number in the log makes the regression visible without having to
+    read six query strings and judge them by eye.
+    """
+    if not texts:
+        return 0.0
+    counts = sorted(len(t.split()) for t in texts)
+    middle = len(counts) // 2
+    if len(counts) % 2:
+        return float(counts[middle])
+    return (counts[middle - 1] + counts[middle]) / 2
+
+
 async def generate_queries(state: ResearchState) -> ResearchState:
     """Write this round's search queries.
 
@@ -275,12 +332,34 @@ async def generate_queries(state: ResearchState) -> ResearchState:
     with stage("generate_queries") as timing:
         errors = []
         try:
+            contract = state.get("contract")
+            analysis = state.get("analysis")
             out = await context.router.get(ModelRole.RESEARCHER).structured(
                 QueriesOut,
                 QUERY_WRITER_SYSTEM,
-                query_writer_user(_sub_question_block(targets), [q.text for q in completed]),
+                query_writer_user(
+                    _sub_question_block(targets),
+                    [q.text for q in completed],
+                    # The user's own wording, and the shape the answer
+                    # must take. A causes question and a comparison do
+                    # not want the same query style, and sending one
+                    # style for every shape is how a broad explanatory
+                    # question was searched as a literature review.
+                    question=(
+                        getattr(analysis, "original_query", "") or getattr(contract, "question", "")
+                    ),
+                    answer_shape=(
+                        str(contract.question_type)
+                        if contract is not None and contract.usable
+                        else ""
+                    ),
+                ),
             )
-            proposed = [(q.sub_question_id, q.text) for q in out.queries]
+            # The rationale travels with the query. Flattening to
+            # `(id, text)` here is how six earlier values were computed
+            # and then dropped before anything could read them --
+            # `SearchQuery.rationale` has existed unpopulated all along.
+            proposed = [(q.sub_question_id, q.text, q.rationale) for q in out.queries]
         except Exception as exc:
             log.warning(
                 "query_generation_failed_using_text",
@@ -288,7 +367,9 @@ async def generate_queries(state: ResearchState) -> ResearchState:
                 error=str(exc)[:200],
             )
             # The sub-question text is a serviceable query on its own.
-            proposed = [(q.id, q.text) for q in targets]
+            proposed = [
+                (q.id, q.text, "fallback: the sub-question text, used verbatim") for q in targets
+            ]
             errors = [error_from("generate_queries", exc, "using sub-question text")]
 
         valid_ids = {q.id for q in targets}
@@ -296,7 +377,7 @@ async def generate_queries(state: ResearchState) -> ResearchState:
         queries: list[SearchQuery] = []
         next_index = len(completed) + 1
 
-        for sub_question_id, text in proposed:
+        for sub_question_id, text, rationale in proposed:
             text = text.strip()
             key = text.lower()
             if not text or key in seen:
@@ -311,6 +392,7 @@ async def generate_queries(state: ResearchState) -> ResearchState:
                     sub_question_id=owner,
                     text=text,
                     round_number=round_number,
+                    rationale=rationale.strip(),
                 )
             )
             next_index += 1
@@ -328,7 +410,20 @@ async def generate_queries(state: ResearchState) -> ResearchState:
                 for i, q in enumerate(targets[:remaining_budget])
             ]
 
-    log.info("queries_generated", round=round_number, count=len(queries))
+    log.info(
+        "queries_generated",
+        round=round_number,
+        count=len(queries),
+        # Query, the sub-question it serves, and why it was phrased that
+        # way. A query alone cannot be judged: the overfitting run's
+        # queries looked plausible until you saw which part of the
+        # answer each was supposed to supply.
+        queries=[
+            {"id": q.id, "text": q.text, "for": q.sub_question_id, "why": q.rationale}
+            for q in queries
+        ],
+        median_query_words=_median_word_count([q.text for q in queries]),
+    )
     emit(
         "queries_generated",
         round=round_number,

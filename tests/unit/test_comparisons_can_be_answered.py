@@ -31,12 +31,20 @@ from __future__ import annotations
 
 from agentic_research.answer_contract import QuestionType, build_contract
 from agentic_research.answer_coverage import assess_coverage
+from agentic_research.comparison import SideClaim
 from agentic_research.graph.nodes.reporting import _discharges_a_core_slot
 
 COMPARISON = build_contract(
     "How does a large language model differ from a neural network?",
     QuestionType.COMPARISON,
     entities=("large language model", "neural network"),
+    comparison_subjects=("large language model", "neural network"),
+    # A named axis. The generic `dimension` slot cannot complete a
+    # contrast any more: two claims declaring it may address entirely
+    # different properties, and counting that as a comparison was the
+    # shortcut the audit rejected. The analyst is now asked to propose
+    # axes for every comparison, so a named slot is the normal case.
+    dimensions=("input_domain",),
 )
 DEFINITION = build_contract(
     "What is a vector database?", QuestionType.DEFINITION, entities=("vector database",)
@@ -77,15 +85,50 @@ class TestWhoTheJudgeMayVeto:
 
 class TestTheReportLevelGateIsWhatStopsTheOriginalDefect:
     def test_one_claim_per_subject_answers_a_comparison(self) -> None:
+        """Slot and text together now: a contrast is assembled from one
+        verified claim per subject *within a dimension*, so which
+        dimension each claim was declared against is part of the
+        question being asked."""
         coverage = assess_coverage(
             COMPARISON,
-            ["dimension", "dimension"],
-            claim_texts=[
-                "Large language models predict token sequences from text.",
-                "Neural networks classify images into categories.",
+            ["input_domain", "input_domain"],
+            claims=[
+                SideClaim(
+                    subject="",
+                    text="Large language models predict token sequences from text.",
+                    answer_slot="input_domain",
+                ),
+                SideClaim(
+                    subject="",
+                    text="Neural networks classify images into categories.",
+                    answer_slot="input_domain",
+                ),
             ],
         )
         assert coverage.answered
+        assert coverage.comparison_pairs
+
+    def test_two_claims_on_different_slots_are_not_a_contrast(self) -> None:
+        """Mentioning both subjects is not comparing them. One claim
+        about what a thing is and another about how it relates are both
+        true and address no common axis."""
+        coverage = assess_coverage(
+            COMPARISON,
+            ["dimension", "relationship"],
+            claims=[
+                SideClaim(
+                    subject="",
+                    text="Large language models predict token sequences from text.",
+                    answer_slot="dimension",
+                ),
+                SideClaim(
+                    subject="",
+                    text="Neural networks are a broader family than language models.",
+                    answer_slot="relationship",
+                ),
+            ],
+        )
+        assert not coverage.comparison_pairs
 
     def test_five_claims_about_one_subject_still_do_not(self) -> None:
         """The v1.1.x failure verbatim: supported, cited claims about

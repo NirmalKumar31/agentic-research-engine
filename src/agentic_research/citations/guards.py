@@ -247,9 +247,11 @@ _AUTHORITY_BY_TYPE: dict[str, SourceAuthority] = {
     "government": SourceAuthority.PRIMARY,
     "news": SourceAuthority.SECONDARY,
     "vendor": SourceAuthority.SECONDARY,
+    "reference": SourceAuthority.SECONDARY,
     "other": SourceAuthority.SECONDARY,
     "blog": SourceAuthority.AGGREGATOR,
     "forum": SourceAuthority.AGGREGATOR,
+    "social": SourceAuthority.AGGREGATOR,
 }
 
 

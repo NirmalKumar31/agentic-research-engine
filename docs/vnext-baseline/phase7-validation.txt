@@ -1,0 +1,40 @@
+# Full credential-free matrix — 2026-09-30T19:48Z
+branch: quality/vnext-retrieval-and-contract
+
+Every line is a real command exit code or a count from its output.
+
+## static
+ruff check src tests examples             exit=0
+ruff format --check src tests examples    exit=0
+mypy                                     exit=0
+mypy examples                            exit=0
+git diff --check (whole tree)             exit=0
+
+## tests
+pytest (CI marker expr) + coverage       TOTAL                                                  7875    762   2090    232    89% 2300 passed, 31 skipped, 20 deselected, 1 warning in 62.67s (0:01:02)
+pytest -m nli (real DeBERTa checkpoint)  exit=0 (task b25ctvwvz)
+vNext suites + offline-analysis APIs     286 passed
+artifact/replay/checksum suites          121 passed
+preserved capture checksums              exit=0 (14 files)
+mutation sweep                            20/20 mutants caught
+
+## packaging
+python -m build (wheel + sdist)           exit=0
+pip install <wheel> in clean venv         exit=0
+agentic-research --help in that venv      exit=0
+
+## security
+gitleaks git (full history)               exit=0
+gitleaks over docs/vnext-baseline         exit=0
+pip-audit --skip-editable                 exit=0
+
+## frontend
+npm run typecheck                         exit=0
+npm test                                  66 passed (9 files)
+npm run build                             exit=0
+npm audit --omit=dev --audit-level=high    exit=0
+
+## not run locally
+py3.11 pytest        only 3.12 available locally; CI runs both
+web image health     CI job only (docker)
+CLI in container     CI job only (docker)

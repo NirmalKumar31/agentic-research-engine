@@ -128,15 +128,29 @@ def _default_extraction(user: str) -> ExtractionOut:
 
     A fake that always tagged the first sub-question would leave the others
     permanently uncovered and make the loop look like it never converges.
+
+    Each claim restates the sub-question it is filed under, because a
+    real extractor does: it is answering that sub-question, in its
+    terms. The fake previously produced claims with no vocabulary in
+    common with the sub-question they were attributed to, which passed
+    while coverage counted exact quotes and failed once coverage began
+    requiring evidence to be about the sub-question it is credited
+    toward -- the unrealism, not the rule, was the problem.
     """
     listed = re.findall(r"\b(SQ\d+):", user) or ["SQ1"]
+    texts = dict(re.findall(r"\b(SQ\d+):\s*([^\n]+)", user))
     first = listed[0]
     second = listed[1 % len(listed)]
+
+    def restated(sub_question_id: str, finding: str) -> str:
+        subject = texts.get(sub_question_id, "").strip().rstrip("?")
+        return f"{subject}: {finding}" if subject else finding
+
     return ExtractionOut(
         evidence=[
             EvidenceOut(
                 sub_question_id=first,
-                claim="Fraud datasets are severely imbalanced.",
+                claim=restated(first, "fraud datasets are severely imbalanced"),
                 # Copied verbatim from PAGE_TEXT so quote verification passes.
                 quote="Fraud detection datasets are severely imbalanced, with positive "
                 "cases under one percent of all recorded transactions",
@@ -145,7 +159,7 @@ def _default_extraction(user: str) -> ExtractionOut:
             ),
             EvidenceOut(
                 sub_question_id=second,
-                claim="Precision-recall curves beat ROC AUC here.",
+                claim=restated(second, "precision-recall curves beat ROC AUC"),
                 quote="precision-recall curves are a more informative evaluation than "
                 "ROC AUC under heavy imbalance",
                 stance="supports",

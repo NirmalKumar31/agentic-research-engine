@@ -1,0 +1,26 @@
+[
+  {
+    "claim": "Hallucinations arise from training-data limitations, knowledge cutoffs, ambiguous prompts, and retrieval context that is stale, conflicting, or ungoverned.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.995379,
+    "best_evidence_id": "S2-e1",
+    "guards_passed": false
+  },
+  {
+    "claim": "Training-data gaps, including post-cutoff unknowns and underrepresentation of rare or specialized topics, are a root cause of hallucinations.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.000201,
+    "best_evidence_id": "S2-e5",
+    "guards_passed": false
+  },
+  {
+    "claim": "LLMs hallucinate more about entities without Wikipedia pages than about entities with Wikipedia pages.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: It describes a correlation with Wikipedia coverage, not a cause of hallucinations.",
+    "best_entailment": 0.997367,
+    "best_evidence_id": "S3-e1",
+    "guards_passed": true
+  }
+]

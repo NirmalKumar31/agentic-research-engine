@@ -174,10 +174,22 @@ export interface Metrics {
  * Null for recordings made before the assessment was carried.
  */
 export interface AnswerCoverage {
-  satisfied: string[];
+  satisfied_slots: string[];
   answered: boolean;
   /** Subjects no retrieved source mentions. Usually empty. */
   absent_entities: string[];
+  /**
+   * The relationship kind that stood in for a contrast, if one did.
+   *
+   * A comparison can be answered by finding there is no contrast to
+   * find — one subject being a kind of the other. The contract cannot
+   * say so, because it depends on what the claim asserts rather than
+   * which slot it declared, so the fact travels here. Without it the
+   * panel recomputes "unanswered" and renders that above a report
+   * saying the opposite, which is a contradiction this interface has
+   * shipped once before.
+   */
+  relationship_discharge: string;
 }
 
 export interface RunResult {

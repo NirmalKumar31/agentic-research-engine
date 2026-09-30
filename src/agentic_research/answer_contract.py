@@ -31,6 +31,7 @@ class QuestionType(StrEnum):
     DEFINITION = "definition"
     COMPARISON = "comparison"
     CAUSAL = "causal"
+    CAUSAL_DRIVERS = "causal_drivers"
     NUMERIC = "numeric"
     TEMPORAL = "temporal"
     PROCEDURAL = "procedural"
@@ -78,25 +79,22 @@ CANONICAL_SLOTS: dict[QuestionType, tuple[AnswerSlot, ...]] = {
         # The slot the live failure was missing. Definitions of each
         # side, however well supported, do not fill it.
         #
-        # `relationship` discharges it because a comparison has two
-        # honest answers. Hosted acceptance asked how a large language
-        # model differs from a neural network, found and published that
-        # one is a subset of the other, and then reported that it had
-        # not answered -- because a subset is not a contrast. It was
-        # the answer. When one subject is a category containing the
-        # other there is no contrast to find, and demanding one makes
-        # the engine wrong about itself.
+        # `relationship` used to be a declared alternative here, and the
+        # comment justifying it admitted the cost: for a genuine
+        # comparison of two unrelated subjects, a vague relationship
+        # claim discharged the core slot too. That is now decided at
+        # coverage time by the *kind* of relationship rather than by its
+        # slot name -- see `comparison.discharges_contrast`. Only a
+        # relationship that explains why a contrast is inappropriate
+        # (one subject is a subtype of, equivalent to, or a component
+        # of the other) may stand in for one. "Both are used with
+        # language models" may not.
         #
-        # The cost, stated rather than hidden: for a genuine comparison
-        # of two unrelated subjects, a vague relationship claim now
-        # discharges the core slot too. The relevance judgement is the
-        # backstop there -- a claim that does not help answer how they
-        # differ is withheld before coverage ever sees its slot.
-        _slot(
-            "direct_contrast",
-            "An explicit statement of how the subjects differ",
-            satisfied_by=("relationship",),
-        ),
+        # There is deliberately no static `satisfied_by` on this slot.
+        # A name cannot express "only when the claim says a particular
+        # kind of thing", and encoding it as one let every relationship
+        # claim through.
+        _slot("direct_contrast", "An explicit statement of how the subjects differ"),
         _slot("dimension", "A named dimension along which they differ", core=False),
         _slot(
             "relationship",
@@ -105,31 +103,49 @@ CANONICAL_SLOTS: dict[QuestionType, tuple[AnswerSlot, ...]] = {
         ),
     ),
     QuestionType.CAUSAL: (
-        # A causal question has two honest readings and they want
-        # different answers. "Does X cause Y?" wants evidence of
-        # causation rather than association. "What causes Y?" wants the
-        # drivers -- and for that reading the drivers *are* the answer,
-        # not a partial one.
+        # A yes/no causal test: "does X cause Y?"
         #
-        # `candidate_drivers` therefore discharges the core slot, for
-        # the reason `relationship` discharges `direct_contrast` above:
-        # demanding the stricter reading of a question that did not ask
-        # it makes the engine wrong about itself. A hosted run asked for
-        # the main causes of hallucination in language models, produced
-        # four drivers, and reported that it had not answered.
+        # `candidate_drivers` used to discharge this slot, and the
+        # comment justifying it admitted the cost: for a genuine causal
+        # test, naming a plausible driver discharged the core slot
+        # without establishing causation, with the relevance judgement
+        # as the only backstop. That is the association-for-causation
+        # substitution this project's entire verification layer exists
+        # to refuse, and leaving a model as its only guard was not
+        # defensible. The alternative is removed.
         #
-        # The cost, stated rather than hidden: for a genuine "does X
-        # cause Y" question, naming a plausible driver now discharges
-        # the core slot without establishing causation. The relevance
-        # judgement is the backstop, and `limitations` is where the
-        # evidence's limits are meant to land.
+        # The question it was protecting -- "what causes X?" -- is a
+        # different shape and now has its own contract below, where the
+        # drivers are the answer rather than a substitute for one.
         _slot(
             "causal_evidence",
-            "Evidence for the causal link, not merely association",
-            satisfied_by=("candidate_drivers",),
+            "Evidence capable of supporting the causal relationship, not association",
         ),
-        _slot("candidate_drivers", "Factors the evidence supports", core=False),
+        _slot("effect_direction", "Which way the relationship runs", core=False),
         _slot("limitations", "What the evidence cannot establish about cause", core=False),
+    ),
+    QuestionType.CAUSAL_DRIVERS: (
+        # "What causes X?", "why does X happen?", "what factors
+        # contribute to X?" -- the drivers are the answer.
+        #
+        # `causation_limits` is deliberately non-core, which is a
+        # stated deviation from "limitations about whether causation was
+        # established are required". Making it core would mean a run
+        # publishes nothing unless it also publishes a claim about the
+        # limits of its own evidence, and no measured run has ever done
+        # that -- the requirement would make every driver question
+        # unanswerable, which is worse than the gap it closes. What
+        # actually stops a driver being reported as a cause is
+        # `causal_guard`, which refuses a claim asserting causation from
+        # associational evidence, and the coverage narrative, which
+        # names this slot as unestablished when it is empty.
+        _slot("candidate_drivers", "Factors the evidence supports as contributing"),
+        _slot("mechanism", "How a driver produces the effect", core=False),
+        _slot(
+            "causation_limits",
+            "Whether the evidence establishes causation or only association",
+            core=False,
+        ),
     ),
     QuestionType.NUMERIC: (
         _slot("measured_value", "The figure asked for, with its units"),
@@ -166,6 +182,7 @@ _OUTPUT_FORMAT_TO_TYPE: dict[str, QuestionType] = {
     "timeline": QuestionType.TEMPORAL,
     "decision_support": QuestionType.RECOMMENDATION,
     "causal_analysis": QuestionType.CAUSAL,
+    "causal_drivers": QuestionType.CAUSAL_DRIVERS,
     "metric": QuestionType.NUMERIC,
     "list": QuestionType.LIST,
     "synthesis": QuestionType.SYNTHESIS,
@@ -185,12 +202,50 @@ class AnswerContract:
     question: str
     question_type: QuestionType
     entities: tuple[str, ...] = ()
+    """Every concept the question names, including the setting.
+
+    Useful for retrieval and for reporting a subject no source covers.
+    Deliberately *not* the sides of a comparison: the analyst's entity
+    list is described to it as technologies, organisations or concepts,
+    and treating each one as a thing to be contrasted is what made a
+    correctly answered comparison report itself unanswered."""
+    comparison_subjects: tuple[str, ...] = ()
+    """The explicit sides of a comparison; empty for every other shape.
+
+    Read from the question's wording rather than accepted from the
+    model, so a setting ("for language models") cannot become a side."""
+    shape_source: str = "model"
+    """How ``question_type`` was decided: ``model``, ``wording`` or
+    ``corrected-from-wording``. Recorded because an override that
+    leaves no trace cannot be audited."""
     dimensions: tuple[str, ...] = ()
     constraints: tuple[str, ...] = ()
     ambiguities: tuple[str, ...] = ()
     usable: bool = True
     unusable_reason: str = ""
     required_slots: tuple[AnswerSlot, ...] = field(default_factory=tuple)
+
+    @property
+    def context_entities(self) -> tuple[str, ...]:
+        """Entities that are not sides of the comparison.
+
+        The separation the coverage rule needs: these may steer
+        retrieval and must never create an unanswered slot."""
+        sides = {s.lower() for s in self.comparison_subjects}
+        return tuple(e for e in self.entities if e.lower() not in sides)
+
+    @property
+    def subjects_to_span(self) -> tuple[str, ...]:
+        """The subjects a published answer must speak about.
+
+        For a comparison that is its declared sides and nothing else.
+        For every other shape there is no spanning requirement, so this
+        is empty rather than "all the entities" -- a definition question
+        does not become unanswered because a context noun went
+        unmentioned."""
+        if self.question_type is QuestionType.COMPARISON:
+            return self.comparison_subjects or self.entities
+        return ()
 
     @property
     def core_slots(self) -> tuple[AnswerSlot, ...]:
@@ -208,6 +263,8 @@ class AnswerContract:
             "question": self.question,
             "question_type": str(self.question_type),
             "entities": list(self.entities),
+            "comparison_subjects": list(self.comparison_subjects),
+            "shape_source": self.shape_source,
             "dimensions": list(self.dimensions),
             "constraints": list(self.constraints),
             "ambiguities": list(self.ambiguities),
@@ -242,6 +299,30 @@ def unusable(question: str, reason: str) -> AnswerContract:
     )
 
 
+def _validated_sides(
+    comparison_subjects: list[str] | tuple[str, ...],
+    entities: list[str] | tuple[str, ...],
+) -> tuple[str, ...]:
+    """The comparison's sides: distinct, non-empty, order preserved.
+
+    Falls back to ``entities`` only when no sides were supplied, which
+    is what a caller predating the split does. Once sides are supplied
+    they are authoritative -- an entity that is not a side must not be
+    able to re-enter through the back door and make the comparison
+    unanswerable again.
+    """
+    source = comparison_subjects if any(str(s).strip() for s in comparison_subjects) else entities
+    out: list[str] = []
+    for raw in source:
+        subject = str(raw).strip()
+        if not subject:
+            continue
+        if subject.lower() in {s.lower() for s in out}:
+            continue
+        out.append(subject)
+    return tuple(out)
+
+
 def build_contract(
     question: str,
     question_type: QuestionType | str,
@@ -251,6 +332,8 @@ def build_contract(
     constraints: list[str] | tuple[str, ...] = (),
     ambiguities: list[str] | tuple[str, ...] = (),
     parts: list[str] | tuple[str, ...] = (),
+    comparison_subjects: list[str] | tuple[str, ...] = (),
+    shape_source: str = "model",
 ) -> AnswerContract:
     """Assemble a contract, refusing rather than guessing.
 
@@ -271,21 +354,35 @@ def build_contract(
     # A comparison needs two sides. With fewer, there is nothing to
     # contrast and the contract would be satisfiable by a definition --
     # which is the defect being fixed.
-    if qtype is QuestionType.COMPARISON and len(tuple(entities)) < 2:
+    # The sides, not every concept named. `comparison_subjects` is read
+    # from the question's wording; falling back to `entities` keeps a
+    # caller that predates the split working, and is the only reason
+    # the fallback exists.
+    sides = _validated_sides(comparison_subjects, entities)
+    if qtype is QuestionType.COMPARISON and len(sides) < 2:
         return unusable(
             question,
-            f"a comparison needs at least two subjects; only {len(tuple(entities))} was identified",
+            f"a comparison needs at least two subjects; only {len(sides)} was identified",
         )
 
     # Named dimensions become their own slots. The canonical set fixes
     # that a comparison needs a contrast; which dimensions matter is
     # subject matter, and comes from the question.
     if qtype is QuestionType.COMPARISON:
-        named = [d for d in dimensions if d.strip()]
-        if named:
-            # The generic placeholder only earns its place when the
-            # question named no dimensions of its own.
-            slots = [s for s in slots if s.name != "dimension"]
+        # The generic `dimension` slot is kept even when named axes
+        # exist, which reverses an earlier decision to drop it.
+        #
+        # It was dropped because a placeholder alongside real axes
+        # looked redundant. It is not: a claim that contributes to the
+        # comparison without sitting on a named axis needs somewhere to
+        # declare itself, and with no such slot the structural
+        # relevance check refuses it as an unknown slot -- so naming
+        # axes would *reduce* what a comparison can publish.
+        #
+        # It cannot complete a contrast on its own; only a named axis
+        # can, because two claims declaring the generic slot may
+        # address entirely different properties. Keeping it costs
+        # nothing and losing it costs claims.
         slots += [
             _slot(d, f"How the subjects differ on {d.replace('_', ' ')}", core=False)
             for d in dimensions
@@ -308,6 +405,8 @@ def build_contract(
         question=question,
         question_type=qtype,
         entities=tuple(entities),
+        comparison_subjects=sides if qtype is QuestionType.COMPARISON else (),
+        shape_source=shape_source,
         dimensions=tuple(dimensions),
         constraints=tuple(constraints),
         ambiguities=tuple(ambiguities),

@@ -272,8 +272,3 @@ def decompose(claim_text: str) -> list[Proposition]:
 
     cleaned = [p.strip(" ,;.") for p in parts if p.strip(" ,;.")]
     return [Proposition(text=p, index=i) for i, p in enumerate(cleaned)]
-
-
-def is_atomic(claim_text: str) -> bool:
-    """Whether the claim asserts exactly one thing."""
-    return len(decompose(claim_text)) <= 1

@@ -28,7 +28,19 @@ class AnalysisOut(BaseModel):
     )
     intent: str = Field(description="What the user is trying to accomplish, one sentence")
     entities: list[str] = Field(
-        default_factory=list, description="Key technologies, organisations or concepts named"
+        default_factory=list,
+        description=(
+            "Key technologies, organisations or concepts named, including the setting "
+            "the question is about. Context for retrieval, not the sides of a comparison"
+        ),
+    )
+    comparison_subjects: list[str] = Field(
+        default_factory=list,
+        description=(
+            "For a comparison only: exactly the things being compared with each other. "
+            "Never the domain or setting they operate in. For 'how does X differ from Y "
+            "for Z', this is X and Y; Z belongs in entities"
+        ),
     )
     constraints: list[str] = Field(
         default_factory=list,
@@ -41,6 +53,7 @@ class AnalysisOut(BaseModel):
         "timeline",
         "decision_support",
         "causal_analysis",
+        "causal_drivers",
         "metric",
         "list",
         "synthesis",
@@ -108,7 +121,17 @@ class PlanOut(BaseModel):
 class QueryOut(BaseModel):
     sub_question_id: str = Field(description="The SQ id this query serves, e.g. SQ2")
     text: str = Field(
-        description="A web search query. Keywords, not a sentence. No quotes or operators."
+        description=(
+            "A web search query in the question's own vocabulary. Short keywords, "
+            "not a sentence, and not a stack of specialist terms. No quotes or operators"
+        )
+    )
+    rationale: str = Field(
+        default="",
+        description=(
+            "In a few words, what part of the answer this query is meant to supply "
+            "and why it is phrased this way"
+        ),
     )
 
 

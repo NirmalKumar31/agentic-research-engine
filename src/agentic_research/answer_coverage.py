@@ -13,12 +13,19 @@ material as the answer is the failure this exists to prevent.
 
 from __future__ import annotations
 
+import re
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from agentic_research.answer_contract import AnswerContract, AnswerSlot, QuestionType
 from agentic_research.citations.relevance import _mentions
+from agentic_research.comparison import (
+    ComparisonPair,
+    SideClaim,
+    build_comparison_pairs,
+    discharges_contrast,
+)
 
 
 @dataclass(frozen=True)
@@ -27,6 +34,17 @@ class AnswerCoverage:
     satisfied: tuple[str, ...]
     duplicates: tuple[str, ...]
     quality_by_slot: dict[str, float]
+    relationship_discharge: str = ""
+    """The relationship kind that stood in for a contrast, if one did.
+
+    Recorded because "answered" then rests on a different fact from
+    usual -- not that the engine found a contrast, but that it found
+    there was none to find -- and a reader is entitled to see which."""
+    comparison_pairs: tuple[ComparisonPair, ...] = ()
+    """Complete contrasts assembled from verified side claims.
+
+    The evidence that a comparison was answered, and the thing the
+    report renders side by side. Empty for every non-comparison."""
     absent_entities: tuple[str, ...] = ()
     """Subjects the question named that no retrieved source mentions.
 
@@ -87,6 +105,8 @@ class AnswerCoverage:
             "duplicate_slots": list(self.duplicates),
             "answered": self.answered,
             "absent_entities": list(self.absent_entities),
+            "comparison_pairs": [p.to_dict() for p in self.comparison_pairs],
+            "relationship_discharge": self.relationship_discharge,
             "quality_by_slot": dict(self.quality_by_slot),
         }
 
@@ -146,7 +166,11 @@ class AnswerCoverage:
     def _core_sentence(self) -> str:
         qtype = self.contract.question_type
         if qtype is QuestionType.COMPARISON:
-            subjects = " and ".join(self.contract.entities) or "the subjects"
+            subjects = (
+                " and ".join(self.contract.subjects_to_span)
+                or " and ".join(self.contract.entities)
+                or "the subjects"
+            )
             return (
                 f"Nothing published states how {subjects} differ; what survived "
                 "describes them separately."
@@ -188,10 +212,89 @@ def _spans_every_entity(contract: AnswerContract, claim_texts: Sequence[str]) ->
     claims, now counts -- where before it was reported as not having
     answered at all.
     """
-    if not contract.entities or not claim_texts:
+    # The comparison's declared sides, not every concept the question
+    # named. Asked how retrieval-augmented generation differs from
+    # fine-tuning *for language models*, this required a published claim
+    # to mention "language models" -- a setting, never a side -- and so
+    # reported three correct, cited, relevant claims as not having
+    # answered the question.
+    subjects = contract.subjects_to_span
+    if not subjects or not claim_texts:
         return False
     blob = "\n".join(claim_texts)
-    return all(_mentions(blob, entity) for entity in contract.entities)
+    return all(_mentions(blob, subject) for subject in subjects)
+
+
+# Language that reports a relationship without asserting direction or
+# production. A claim built only from these may be true, supported and
+# relevant, and it still does not answer "does X cause Y".
+_ASSOCIATION_ONLY = re.compile(
+    r"\b(?:associated with|association between|correlat(?:ed|ion)|linked to|"
+    r"link between|related to|relationship between|co-?occur|accompan(?:y|ies|ied)|"
+    r"observed (?:alongside|together)|predicts?|predictive of)\b",
+    re.IGNORECASE,
+)
+
+# Language that asserts one thing produces another.
+_STATES_CAUSATION = re.compile(
+    r"\b(?:causes?|caused|causing|leads? to|led to|results? in|resulted in|"
+    r"produces?|produced|drives?|driven by|because|due to|"
+    r"responsible for|gives? rise to|induces?|triggers?)\b",
+    re.IGNORECASE,
+)
+
+
+# Sentences that report the absence or uncertainty of a finding. These
+# often contain the strongest causal vocabulary in the whole report --
+# "it is unclear whether X causes Y" names causation in order to deny
+# it -- so they must be checked before the causal patterns rather than
+# after.
+_UNRESOLVED = re.compile(
+    r"\b(?:unclear|unknown|uncertain|not established|does not establish|"
+    r"cannot be determined|no evidence|insufficient evidence|"
+    r"remains? to be|has not been shown|inconclusive|disputed|"
+    r"whether or not)\b",
+    re.IGNORECASE,
+)
+
+
+def states_causation(text: str) -> bool:
+    """Whether a claim asserts causation rather than association.
+
+    Used to admit claims to the `causal_evidence` slot of a yes/no
+    causal question. `causal_guard` already refuses a claim that asserts
+    causation its quote does not carry; this is the other direction --
+    a claim asserting only association passes every guard, because it
+    over-claims nothing, and could still satisfy the core slot of "does
+    X cause Y?".
+
+    Deliberately conservative in three ways, each because the failure
+    mode is a reader being misled rather than a claim being lost:
+
+    * association language alone is refused even when causal words also
+      appear, because "X is associated with Y, which may cause Z" is
+      not evidence that X causes Y;
+    * a sentence reporting that causation is unclear or unestablished is
+      refused, even though it contains the strongest causal vocabulary
+      in the report -- it names causation to deny it;
+    * anything unrecognised is refused rather than admitted.
+    """
+    if not text or not text.strip():
+        return False
+    # Checked first: a sentence denying a causal finding contains the
+    # causal vocabulary precisely in order to deny it.
+    if _UNRESOLVED.search(text):
+        return False
+    if _ASSOCIATION_ONLY.search(text):
+        return False
+    return bool(_STATES_CAUSATION.search(text))
+
+
+# Slots whose satisfaction needs more than a claim declaring them.
+# Keyed by slot name; each test receives the claim text.
+_SLOT_ADMISSION: dict[str, Callable[[str], bool]] = {
+    "causal_evidence": states_causation,
+}
 
 
 def _entities_absent_from(contract: AnswerContract, source_texts: Sequence[str]) -> tuple[str, ...]:
@@ -208,10 +311,14 @@ def _entities_absent_from(contract: AnswerContract, source_texts: Sequence[str])
     entity: a run that retrieved no sources at all has a different
     problem, and reporting it as a false premise would be wrong.
     """
-    if not contract.entities or not source_texts:
+    # Sides first where the question has them: a comparison whose
+    # subject no source covers cannot be answered at all, whereas a
+    # missing context noun is usually harmless.
+    subjects = contract.comparison_subjects or contract.entities
+    if not subjects or not source_texts:
         return ()
     blob = "\n".join(source_texts)
-    return tuple(e for e in contract.entities if not _mentions(blob, e))
+    return tuple(e for e in subjects if not _mentions(blob, e))
 
 
 def assess_coverage(
@@ -219,6 +326,7 @@ def assess_coverage(
     published_slots: list[str] | tuple[str, ...],
     *,
     quality_by_slot: dict[str, float] | None = None,
+    claims: Sequence[SideClaim] | None = None,
     claim_texts: Sequence[str] | None = None,
     source_texts: Sequence[str] | None = None,
 ) -> AnswerCoverage:
@@ -227,22 +335,66 @@ def assess_coverage(
     A slot only counts when the contract asked for it: a claim
     declaring something the question never required satisfies nothing.
 
-    ``claim_texts`` lets a comparison's core slot be discharged by
-    claims that between them speak about every subject named -- see
-    :func:`_spans_every_entity`. Omitting it only loses that route;
-    every other rule is unchanged.
+    ``claims`` carries each published claim with the slot it declared,
+    so a comparison's core slot can be discharged by verified side
+    assertions assembled into a pair. The slot and the text must travel
+    together: the two were previously passed as separate lists built
+    with *different* filters, which nothing indexed together yet and
+    which no longer holds once they are paired.
+
+    ``claim_texts`` remains for callers that only have the texts. It
+    cannot discharge a contrast on its own, because a contrast now
+    requires knowing which dimension each claim was declared against.
     """
+    if claims is None and claim_texts:
+        claims = [SideClaim(subject="", text=t, answer_slot="") for t in claim_texts]
     counts = Counter(name for name in published_slots if contract.has_slot(name))
     satisfied = set(counts)
 
-    # A comparison answered by one atomic claim per subject.
-    if (
-        contract.question_type is QuestionType.COMPARISON
-        and "direct_contrast" not in satisfied
-        and satisfied
-        and _spans_every_entity(contract, claim_texts or ())
-    ):
+    # Some slots need more than a claim pointing at them. A claim
+    # declaring `causal_evidence` while asserting only association is
+    # true, supported, relevant -- and not an answer to whether X
+    # causes Y. Without the texts the admission test cannot run, so the
+    # slot keeps the old behaviour rather than being refused for a
+    # reason the caller could not supply.
+    if claims:
+        by_slot: dict[str, list[str]] = {}
+        for claim in claims:
+            if claim.answer_slot:
+                by_slot.setdefault(claim.answer_slot, []).append(claim.text)
+        for slot, admits in _SLOT_ADMISSION.items():
+            if slot in satisfied and slot in by_slot:
+                satisfied = (
+                    satisfied - {slot}
+                    if not any(admits(text) for text in by_slot[slot])
+                    else satisfied
+                )
+
+    # A comparison answered by one verified atomic claim per subject,
+    # assembled into a structured pair rather than a fused sentence.
+    #
+    # Stronger than the rule it replaces. `_spans_every_entity` pooled
+    # every published claim and asked only whether the subjects were
+    # mentioned somewhere between them, so two claims about different
+    # things satisfied the contrast. A pair requires a verified claim
+    # per subject *within one dimension*.
+    pairs = build_comparison_pairs(contract, list(claims or ()))
+    if pairs and "direct_contrast" not in satisfied:
         satisfied.add("direct_contrast")
+
+    # A relationship may stand in for a contrast, but only when it is
+    # the kind that explains why a contrast is inappropriate -- one
+    # subject being a kind of, equivalent to, or a component of the
+    # other. This used to be a static `satisfied_by` on the slot, which
+    # could not express "only for certain claims" and so admitted every
+    # relationship claim, including "both are used with language
+    # models".
+    discharged, kind = discharges_contrast(contract, list(claims or ()))
+    if discharged and "direct_contrast" not in satisfied:
+        satisfied.add("direct_contrast")
+        relationship_discharge = kind
+    else:
+        relationship_discharge = ""
 
     return AnswerCoverage(
         contract=contract,
@@ -250,4 +402,6 @@ def assess_coverage(
         duplicates=tuple(sorted(name for name, n in counts.items() if n > 1)),
         quality_by_slot=dict(quality_by_slot or {}),
         absent_entities=_entities_absent_from(contract, source_texts or ()),
+        comparison_pairs=pairs,
+        relationship_discharge=relationship_discharge,
     )

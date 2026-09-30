@@ -8,6 +8,7 @@ import {
   type ExampleSummary,
 } from "./api";
 import { capabilitiesFor, themeFor } from "./badges";
+import { roundsLabel } from "./config";
 import { HeroDiagram } from "./HeroDiagram";
 import { advance, emptyPipeline, humanise, STAGES } from "./pipelineState";
 import { Pipeline } from "./Pipeline";
@@ -26,7 +27,10 @@ export default function App() {
   const [showRaw, setShowRaw] = useState(false);
   const [pipeline, setPipeline] = useState(emptyPipeline);
   const [result, setResult] = useState<RunResult | null>(null);
-  const [error, setError] = useState<{ message: string; capacity: boolean } | null>(null);
+  const [error, setError] = useState<{
+    message: string;
+    capacity: boolean;
+  } | null>(null);
   const [running, setRunning] = useState(false);
   const [isRecorded, setIsRecorded] = useState(false);
 
@@ -83,7 +87,10 @@ export default function App() {
       await replayExample(example.id, handlers, controller.signal);
     } catch (exc) {
       if ((exc as Error).name !== "AbortError")
-        setError({ message: "Could not load that recording.", capacity: false });
+        setError({
+          message: "Could not load that recording.",
+          capacity: false,
+        });
       setRunning(false);
     }
   };
@@ -97,7 +104,10 @@ export default function App() {
       await runResearch(trimmed, handlers, controller.signal);
     } catch (exc) {
       if ((exc as Error).name !== "AbortError")
-        setError({ message: "Lost connection to the server.", capacity: false });
+        setError({
+          message: "Lost connection to the server.",
+          capacity: false,
+        });
       setRunning(false);
     }
   };
@@ -107,9 +117,13 @@ export default function App() {
     setRunning(false);
   };
 
-  const showPipeline = running || pipeline.queries.length > 0 || feed.length > 0;
+  const showPipeline =
+    running || pipeline.queries.length > 0 || feed.length > 0;
   const statusBadge = useMemo(
-    () => (isRecorded ? { label: "Recorded", cls: "badge--recorded" } : { label: "Live", cls: "badge--live" }),
+    () =>
+      isRecorded
+        ? { label: "Recorded", cls: "badge--recorded" }
+        : { label: "Live", cls: "badge--live" },
     [isRecorded],
   );
 
@@ -136,8 +150,9 @@ export default function App() {
         <div className="hero__copy">
           <h1>Research that shows its work.</h1>
           <p className="hero__sub">
-            Multi-stage agentic research with evidence-level provenance. Published claims
-            link to the source passages that passed evidence verification.
+            Multi-stage agentic research with evidence-level provenance.
+            Published claims link to the source passages that passed evidence
+            verification.
           </p>
         </div>
         <HeroDiagram />
@@ -161,9 +176,18 @@ export default function App() {
           />
           <div className="ask__row">
             <span className="muted small">
-              Live demo · 1 research round · up to {config?.max_sources ?? 6} sources
+              {/* Derived from the server, never written here. "1 research
+                  round" was hard-coded while the round limit lived in
+                  configuration, so the page would have kept claiming one
+                  round after the limit changed -- a promise the engine
+                  had stopped keeping. */}
+              Live demo · {roundsLabel(config)} · up to{" "}
+              {config?.max_sources ?? 6} sources
               {remaining < 60 && (
-                <span className={tooLong ? "over" : ""}> · {remaining} characters left</span>
+                <span className={tooLong ? "over" : ""}>
+                  {" "}
+                  · {remaining} characters left
+                </span>
               )}
             </span>
             <span className="ask__actions">
@@ -186,26 +210,29 @@ export default function App() {
           </div>
           <p className="ask__experimental notice notice--withheld">
             <strong>Live research is experimental.</strong> It is a fail-closed
-            integration, not a general research assistant. Eight measured runs
-            published between zero and three claims: the verification gates
-            behave correctly and refuse what the evidence does not carry, but
-            the synthesiser writes few claims that both answer the question and
-            survive them. A run may publish nothing and say so — that is the
+            integration, not a general research assistant. Every measured run so
+            far has published between zero and three claims: the verification
+            gates behave correctly and refuse what the evidence does not carry,
+            but the synthesiser writes few claims that both answer the question
+            and survive them. A run may publish nothing and say so — that is the
             design working, not a fault.{" "}
-            <strong>The recorded runs below are the better demonstration.</strong>
+            <strong>
+              The recorded runs below are the better demonstration.
+            </strong>
           </p>
           <p className="ask__disclaimer muted small">
-            Research aid only. Verify important medical, legal, financial or other
-            high-stakes decisions against authoritative primary sources.
+            Research aid only. Verify important medical, legal, financial or
+            other high-stakes decisions against authoritative primary sources.
           </p>
         </section>
       ) : (
         <section className="notice">
           <p>
-            <strong>Live research is off on this instance.</strong> The daily run cap is held
-            in process memory, and a host that sleeps when idle resets it on every cold start,
-            so it cannot bound an API quota. Rather than add a database whose only job is
-            letting strangers spend the budget, this site replays real recorded runs.{" "}
+            <strong>Live research is off on this instance.</strong> The daily
+            run cap is held in process memory, and a host that sleeps when idle
+            resets it on every cold start, so it cannot bound an API quota.
+            Rather than add a database whose only job is letting strangers spend
+            the budget, this site replays real recorded runs.{" "}
             <a
               href="https://github.com/NirmalKumar31/agentic-research-engine#usage"
               target="_blank"
@@ -213,16 +240,23 @@ export default function App() {
             >
               Run it yourself
             </a>{" "}
-            for live research — the models can run locally on Ollama with no paid LLM usage,
-            though live web research still needs a search provider configured.
+            for live research — the models can run locally on Ollama with no
+            paid LLM usage, though live web research still needs a search
+            provider configured.
           </p>
         </section>
       )}
 
       <section className="examples">
         <div className="examples__head">
-          <h2>{live ? "Recorded runs — the better demonstration" : "Recorded demonstrations"}</h2>
-          <span className="muted small">Real executions, replayed from their own events</span>
+          <h2>
+            {live
+              ? "Recorded runs — the better demonstration"
+              : "Recorded demonstrations"}
+          </h2>
+          <span className="muted small">
+            Real executions, replayed from their own events
+          </span>
         </div>
         <div className="cards">
           {examples.map((example) => (
@@ -246,7 +280,8 @@ export default function App() {
                 ))}
               </span>
               <span className="card__facts muted small">
-                {example.citable_evidence} citable evidence · {Math.round(example.duration_s)}s
+                {example.citable_evidence} citable evidence ·{" "}
+                {Math.round(example.duration_s)}s
               </span>
             </button>
           ))}
@@ -254,7 +289,10 @@ export default function App() {
       </section>
 
       {error && (
-        <div className={`alert ${error.capacity ? "alert--capacity" : ""}`} role="alert">
+        <div
+          className={`alert ${error.capacity ? "alert--capacity" : ""}`}
+          role="alert"
+        >
           {error.message}
         </div>
       )}
@@ -287,7 +325,8 @@ export default function App() {
                 onClick={() => setShowRaw(!showRaw)}
                 aria-expanded={showRaw}
               >
-                {showRaw ? "Hide" : "Show"} technical events ({rawEvents.length})
+                {showRaw ? "Hide" : "Show"} technical events ({rawEvents.length}
+                )
               </button>
               {showRaw && (
                 <ol className="feed__raw">
@@ -303,7 +342,9 @@ export default function App() {
         </section>
       )}
 
-      {result && <ReportView result={result} coverage={pipeline.counts.coverage} />}
+      {result && (
+        <ReportView result={result} coverage={pipeline.counts.coverage} />
+      )}
 
       <section id="how" className="how">
         <h2>How it works</h2>
@@ -323,22 +364,25 @@ export default function App() {
           <div>
             <h3>Evidence-level provenance</h3>
             <p className="muted">
-              Claims point to the exact supporting passage, not merely a URL. The model picks
-              evidence ids; the engine derives citations from them.
+              Claims point to the exact supporting passage, not merely a URL.
+              The model picks evidence ids; the engine derives citations from
+              them.
             </p>
           </div>
           <div>
             <h3>Bounded agentic research</h3>
             <p className="muted">
-              Parallel search and iterative coverage assessment, under hard request, token and
-              spend ceilings checked before each call is dispatched.
+              Parallel search and iterative coverage assessment, under hard
+              request, token and spend ceilings checked before each call is
+              dispatched.
             </p>
           </div>
           <div>
             <h3>Honest verification</h3>
             <p className="muted">
-              A quote that could not be matched to its source cannot ground a citation. Dropped
-              references are reported rather than quietly removed.
+              A quote that could not be matched to its source cannot ground a
+              citation. Dropped references are reported rather than quietly
+              removed.
             </p>
           </div>
         </div>
@@ -369,7 +413,8 @@ export default function App() {
           </a>
         </nav>
         <p className="muted small">
-          Verifies faithfulness to retrieved evidence, not truth about the world.
+          Verifies faithfulness to retrieved evidence, not truth about the
+          world.
         </p>
       </footer>
     </div>

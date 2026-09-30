@@ -1,0 +1,11 @@
+{
+  "complete": true,
+  "terminal_event": "result",
+  "started_utc": "2026-09-30T16:35:58Z",
+  "wall_clock_seconds": 144.35,
+  "raw_bytes": 36281,
+  "chunks": 48,
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "What are the main causes of hallucination in large language models?",
+  "method": "raw bytes streamed to disk, timing recorded in a separate index"
+}

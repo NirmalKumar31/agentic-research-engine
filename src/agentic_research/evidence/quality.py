@@ -53,12 +53,32 @@ _EXACT_DOMAIN_TYPES: dict[str, SourceType] = {
     "reddit.com": SourceType.FORUM,
     "news.ycombinator.com": SourceType.FORUM,
     "quora.com": SourceType.FORUM,
+    # Social platforms, classified rather than left neutral. Each of
+    # these was OTHER, which outranks BLOG on base quality.
+    "x.com": SourceType.SOCIAL,
+    "twitter.com": SourceType.SOCIAL,
+    "linkedin.com": SourceType.SOCIAL,
+    "facebook.com": SourceType.SOCIAL,
+    "threads.net": SourceType.SOCIAL,
+    "bsky.app": SourceType.SOCIAL,
+    "mastodon.social": SourceType.SOCIAL,
+    "t.me": SourceType.SOCIAL,
+    "tiktok.com": SourceType.SOCIAL,
+    "youtube.com": SourceType.SOCIAL,
+    "youtu.be": SourceType.SOCIAL,
+    # First-party documentation that carries no docs. subdomain.
+    "scikit-learn.org": SourceType.OFFICIAL_DOCS,
+    "pytorch.org": SourceType.OFFICIAL_DOCS,
+    "tensorflow.org": SourceType.OFFICIAL_DOCS,
+    "huggingface.co": SourceType.OFFICIAL_DOCS,
     "medium.com": SourceType.BLOG,
     "substack.com": SourceType.BLOG,
     "dev.to": SourceType.BLOG,
     "hashnode.dev": SourceType.BLOG,
     "towardsdatascience.com": SourceType.BLOG,
-    "wikipedia.org": SourceType.OTHER,
+    "wikipedia.org": SourceType.REFERENCE,
+    "britannica.com": SourceType.REFERENCE,
+    "encyclopedia.com": SourceType.REFERENCE,
     "reuters.com": SourceType.NEWS,
     "apnews.com": SourceType.NEWS,
     "bbc.com": SourceType.NEWS,
@@ -96,10 +116,26 @@ _TYPE_BASE: dict[SourceType, float] = {
     SourceType.GOVERNMENT: 0.80,
     SourceType.NEWS: 0.60,
     SourceType.VENDOR: 0.55,
+    # Above a blog and below a primary source: a reference is reviewed
+    # and accountable, and it is still an account of something else.
+    SourceType.REFERENCE: 0.70,
     SourceType.BLOG: 0.45,
     SourceType.FORUM: 0.35,
     SourceType.OTHER: 0.50,
+    # Lowest by construction. Kept strictly below FORUM so that no
+    # rounding or tie can let a post displace a reviewed source.
+    SourceType.SOCIAL: 0.20,
 }
+
+
+def base_quality_for(source_type: SourceType) -> float:
+    """The base quality prior for a document kind.
+
+    Public so the ordering can be asserted directly. A table that is
+    only reachable through a scoring function cannot be tested for the
+    property that matters here -- that social ranks below everything.
+    """
+    return _TYPE_BASE.get(source_type, 0.5)
 
 
 def classify_source(url: str, domain: str) -> SourceType:

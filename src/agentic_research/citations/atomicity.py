@@ -47,16 +47,26 @@ _CLAUSAL = re.compile(r",\s+(?:while|whereas|but|although|though)\s+", re.IGNORE
 
 
 def compound_markers(text: str) -> list[str]:
-    """Joiners suggesting more than one proposition, in order of appearance."""
+    """Joiners suggesting more than one proposition, in order of appearance.
+
+    **Not the production atomicity guard.** That is
+    :func:`compound_propositions`, which splits on a new subject and a
+    finite verb rather than on conjunctions, and which
+    ``citations/guards.py`` calls.
+
+    Retained as an offline-analysis API with one real consumer:
+    ``examples/release-audit/build_audit.py`` records the markers found
+    in each judged claim, so an audit can show *why* a claim reads as
+    compound even where the proposition splitter did not refuse it. A
+    marker list explains that to a reader; a boolean does not, which is
+    why the one-line wrapper beside this (``looks_compound``) had no
+    consumer and was removed.
+    """
     lowered = (text or "").lower()
     found = [m for m in _MARKERS if m in lowered]
     if _CLAUSAL.search(text or ""):
         found.append("clausal 'while'/'but'")
     return sorted(set(found), key=lowered.find)
-
-
-def looks_compound(text: str) -> bool:
-    return bool(compound_markers(text))
 
 
 # Abbreviations whose full stop does not end a sentence. Without these a
@@ -369,13 +379,3 @@ def compound_propositions(text: str) -> list[str]:
     if sentence_count(text) > 1:
         reasons.append(f"{sentence_count(text)} sentences")
     return reasons
-
-
-def is_atomic(text: str) -> bool:
-    """One independently verifiable proposition.
-
-    The publication contract says a claim is verified against a single
-    quote. That is only honest if the claim asserts a single thing, so
-    this is enforced rather than documented.
-    """
-    return not compound_propositions(text)

@@ -346,6 +346,19 @@ def assess_relevance(
     means it was not obtained, and that withholds: an unanswered
     relevance question is not a "yes", and defaulting it to one would
     make the parameter a decoration rather than a gate.
+
+    **Not the production relevance path.** The graph calls
+    :func:`deterministic_relevance` and applies the batched judgement
+    itself, because it narrows the judge's authority by slot -- a veto
+    applies to a claim filling a core requirement and not to one
+    filling an optional part -- and that narrowing cannot be expressed
+    through this signature.
+
+    Retained as the offline-evaluation API, with one real consumer:
+    ``examples/quality-eval/run_eval.py`` scores a frozen claim set
+    against a contract with a scripted judgement, where composing both
+    halves in one call is what is wanted and no slot-level authority
+    applies.
     """
     structural = deterministic_relevance(
         claim_text, declared_slot, contract, evidence_text=evidence_text

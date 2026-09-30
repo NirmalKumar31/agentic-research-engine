@@ -31,6 +31,11 @@ from agentic_research.citations.verifier import (
     resolve_report,
     verify_structure,
 )
+from agentic_research.comparison import (
+    ComparisonPair,
+    SideClaim,
+    dynamically_discharging_slots,
+)
 from agentic_research.config import ModelRole
 from agentic_research.evidence.store import EvidenceStore
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
@@ -535,12 +540,21 @@ async def verify_citations(state: ResearchState) -> ResearchState:
             coverage = assess_coverage(
                 contract,
                 [c.answer_slot for c in published if c.answer_slot],
-                # The texts, so a comparison can be discharged by one
-                # atomic claim per subject. A contrast in a single claim
-                # asserts two things and the atomicity guard refuses it,
-                # which left a comparison's core slot close to
-                # unfillable.
-                claim_texts=[c.text for c in published],
+                # Slot and text together, per claim. A contrast is now
+                # assembled from one verified atomic claim per subject
+                # within a single dimension, which needs to know which
+                # dimension each claim was declared against -- and the
+                # two were previously passed as separate lists built
+                # with different filters, so they were not aligned.
+                claims=[
+                    SideClaim(
+                        subject="",
+                        text=c.text,
+                        answer_slot=c.answer_slot or "",
+                        evidence_ids=tuple(c.evidence_ids),
+                    )
+                    for c in published
+                ],
                 # The sources, so a question naming a subject that no
                 # source discusses is reported as such instead of as
                 # an uncovered contract. Title included: a retrieval
@@ -895,7 +909,16 @@ def _discharges_a_core_slot(contract: AnswerContract, slot: str | None) -> bool:
     """
     if not slot or not contract.has_slot(slot):
         return True
-    return any(slot == core.name or slot in core.satisfied_by for core in contract.core_slots)
+    if any(slot == core.name or slot in core.satisfied_by for core in contract.core_slots):
+        return True
+    # Slots that can discharge a core slot without saying so in the
+    # contract. `relationship` no longer declares a static
+    # `satisfied_by`, because whether it answers a comparison depends
+    # on the kind of relationship it asserts -- but it can still be
+    # the whole answer, so the judge keeps authority over it. Reading
+    # only `satisfied_by` silently removed that authority when the
+    # static alternative was dropped.
+    return slot in dynamically_discharging_slots(contract)
 
 
 def _propositions_supported(
@@ -1229,6 +1252,32 @@ async def _check_contradictions(
     return errors
 
 
+def _pairs_from_state(state: ResearchState) -> tuple[ComparisonPair, ...]:
+    """Rehydrate the contrasts the coverage assessment already found.
+
+    ``answer_coverage`` is a plain dict in state because state is
+    checkpointed and serialised; the renderer wants objects. Rebuilding
+    them here is not a second derivation -- the pairs are read back, not
+    recomputed from the claims.
+    """
+    payload = state.get("answer_coverage") or {}
+    raw = payload.get("comparison_pairs") or []
+    pairs: list[ComparisonPair] = []
+    for entry in raw:
+        sides = tuple(
+            SideClaim(
+                subject=str(side.get("subject", "")),
+                text=str(side.get("text", "")),
+                answer_slot=str(side.get("answer_slot", "")),
+                evidence_ids=tuple(side.get("evidence_ids") or ()),
+            )
+            for side in entry.get("sides") or []
+        )
+        if sides:
+            pairs.append(ComparisonPair(dimension=str(entry.get("dimension", "")), sides=sides))
+    return tuple(pairs)
+
+
 async def finalize(state: ResearchState) -> ResearchState:
     """Render the final markdown and record why research stopped."""
     from agentic_research.graph.routing import stop_reason_for
@@ -1244,7 +1293,14 @@ async def finalize(state: ResearchState) -> ResearchState:
         CitationVerification.model_validate(raw_verification) if raw_verification else None
     )
     markdown = render_markdown(
-        report, state.get("sources", []), verification, evidence=state.get("evidence", [])
+        report,
+        state.get("sources", []),
+        verification,
+        evidence=state.get("evidence", []),
+        # Rebuilt from the assessment carried in state rather than
+        # reassessed here: two derivations of one run that can disagree
+        # is the defect this project keeps producing.
+        comparison_pairs=_pairs_from_state(state),
     )
     reason = stop_reason_for(state)
 
