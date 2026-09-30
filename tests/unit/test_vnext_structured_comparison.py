@@ -124,7 +124,7 @@ class TestAPairNeedsEverySubjectOnOneDimension:
                 side("B is written in Go.", slot="dimension"),
             ],
         )
-        assert [p.dimension for p in pairs][0] == "latency"
+        assert next(p.dimension for p in pairs) == "latency"
 
 
 class TestTheContrastIsRenderedNotAsserted:
