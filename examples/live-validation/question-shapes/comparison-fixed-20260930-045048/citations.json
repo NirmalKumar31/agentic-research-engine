@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "The described LLM training approach teaches the model to predict the next text token, using the actual next token as the target.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S6-e4",
+        "resolved": true,
+        "quote": "The training technique we\u2019ll use is called self-supervised learning. Unlike traditional supervised learning, which requires manually labeled data, self-supervised learning leverages the inherent structure of the text itself. When we input a sequence of text, the model learns to predict the next token, and the actual next token in the text serves as the ground truth.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://machinelearningmastery.com/building-a-decoder-only-transformer-model-for-text-generation",
+        "source_title": "Building a Decoder-Only Transformer Model Like Llama-2 and Llama-3 - MachineLearningMastery.com"
+      }
+    ]
+  }
+]

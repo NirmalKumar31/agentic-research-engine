@@ -1,0 +1,23 @@
+[
+  {
+    "claim": "Today's LLMs are simplified transformer models called decoder-only models.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes an LLM\u2019s architecture but does not contrast it with a neural network or state their relationship.",
+    "published": false
+  },
+  {
+    "claim": "The described LLM training approach teaches the model to predict the next text token, using the actual next token as the target.",
+    "stage": "judged",
+    "relevant": false,
+    "reason": "It describes an LLM training objective but does not contrast it with neural networks or explain how they relate.",
+    "published": true
+  },
+  {
+    "claim": "A decoder-only model uses causal self-attention, so each position only sees prior tokens.",
+    "stage": "structural",
+    "relevant": false,
+    "reason": "the question asks about large language model (LLM), neural network and it names none of them, in any wording",
+    "published": false
+  }
+]

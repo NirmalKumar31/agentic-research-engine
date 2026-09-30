@@ -28,7 +28,7 @@ deployment.
 | **definition** | What is retrieval-augmented generation? | **2 of 3** | $0.009275 | 119s |
 | **numeric** (read as definition) | What is the context window size of GPT-4 Turbo? | **1 of 1** | $0.005784 | 52s |
 | **procedural** | How do you fine-tune a language model using LoRA? | 1 of 4 | $0.010065 | 96s |
-| **comparison** (hypernym, ×8 runs) | How does an LLM differ from a neural network? | 0–3, mostly 0–1 | ~$0.009 | ~150s |
+| **comparison** (hypernym, ×10 runs) | How does an LLM differ from a neural network? | 0–3, mostly 0–1 | ~$0.009 | ~150s |
 
 ### The definition run produced a usable answer
 
@@ -48,6 +48,41 @@ limitation. The single refusal was correct — it asserted three things.
 
 Entailed at 0.9975 by a quote that says exactly that. One claim, one
 question, correct.
+
+## The comparison fix: mechanism verified, outcome unchanged
+
+`comparison-fixed-20260930-045048/` — the run that tested letting a
+comparison be answered by one claim per subject.
+
+**The mechanism works.** A `dimension` claim published with
+`judge=False` recorded against it. Nine prior runs could not do that:
+the judge vetoed every `dimension` claim for "describing neural
+networks, not how LLMs differ", which is the report's question applied
+to a single claim.
+
+```
+slot=dimension  pub=True  judge=False  stage=judged
+```
+
+**The outcome did not improve.** 1 published of 5, and coverage
+correctly reports *"This research did not answer the question"* —
+because the one published claim speaks about LLMs only, and a
+comparison is answered when the claims between them cover both
+subjects.
+
+So the remaining blocker is not a gate. It is that the synthesiser
+writes one-sided claims for this question, and the gates are right to
+refuse to call that an answer.
+
+**Ten runs on this question have published 0, 0, 0, 1, 1, 2, 3, 0, 1,
+1.** Five separate fixes were made to the comparison path — the
+`relationship` alternative, serialising `answer_slot`, marking the
+required slot, a prompt asking the judge to judge against the listed
+parts, and finally narrowing the judge in code. Each was a real defect
+and each is tested. **None of them moved this number.**
+
+That is the finding, and it is why the work stopped rather than
+continuing to a sixth attempt.
 
 ## The correction this forces
 

@@ -1,0 +1,9 @@
+[
+  {
+    "original": "At generation time, the decoder produces text one token at a time, conditioning each new token on all previously generated tokens.",
+    "rewritten": "At generation time, the decoder produces text one token at a time.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "still irrelevant: the question asks about large language model (LLM), neural network and it names none of them, in any wording"
+  }
+]

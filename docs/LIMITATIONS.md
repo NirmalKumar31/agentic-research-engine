@@ -250,6 +250,29 @@ definitional and lookup questions do well, comparisons and procedures
 do not, and one question per shape is coverage rather than a
 benchmark.
 
+### Comparisons: five fixes, no movement
+
+Ten runs on one comparison question published 0, 0, 0, 1, 1, 2, 3, 0,
+1, 1. Five separate defects were found and fixed on that path — the
+`relationship` alternative for a hypernym pair, serialising
+`answer_slot`, marking the required slot to the synthesiser, a prompt
+asking the judge to judge against the listed parts, and narrowing the
+judge's authority in code so it cannot veto an optional-slot claim.
+
+Each was a real defect. Each is tested. The last was verified firing
+on the hosted path — a `dimension` claim published with a negative
+judgement recorded against it, which no earlier run could do.
+
+**None of them moved the published count.** After all five, the
+synthesiser still writes claims about one of the two subjects, and the
+report-level gate is right to refuse to call that an answer to how
+they differ.
+
+So the constraint on this shape is not a gate and is not a wiring
+defect. It is what the synthesiser writes, and changing that is a
+different kind of work than the five fixes above — one that needs an
+evaluation harness rather than another patch and another paid run.
+
 The bottleneck is measured and it is not the gates. Across 24
 generated claims, **58% were refused on synthesis quality** (38%
 irrelevant, 21% guard failures) and **17% on evidence** being below

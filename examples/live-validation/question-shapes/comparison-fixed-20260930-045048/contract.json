@@ -1,0 +1,35 @@
+{
+  "question": "What are the conceptual and technical differences between a large language model (LLM) and a neural network?",
+  "question_type": "comparison",
+  "entities": [
+    "large language model (LLM)",
+    "neural network"
+  ],
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "direct_contrast",
+      "description": "An explicit statement of how the subjects differ",
+      "core": true,
+      "satisfied_by": [
+        "relationship"
+      ]
+    },
+    {
+      "name": "dimension",
+      "description": "A named dimension along which they differ",
+      "core": false,
+      "satisfied_by": []
+    },
+    {
+      "name": "relationship",
+      "description": "How the subjects relate, such as one being a kind of the other",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

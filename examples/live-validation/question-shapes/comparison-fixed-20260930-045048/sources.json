@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://zeroentropy.dev/concepts/decoder-only-model",
+    "title": "Decoder-only model: the architecture every modern LLM uses",
+    "domain": "zeroentropy.dev",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.631,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://cameronrwolfe.substack.com/p/decoder-only-transformers-the-workhorse",
+    "title": "Decoder-Only Transformers: The Workhorse of Generative LLMs",
+    "domain": "cameronrwolfe.substack.com",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.573,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://arxiv.org/html/2305.05352v6",
+    "title": "A Taxonomy of Foundation Model based Systems through the Lens of Software Architecture",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.96,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://us.ovhcloud.com/learn/what-is-large-language-model",
+    "title": "What is a Large Language Model (LLM)?",
+    "domain": "us.ovhcloud.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.6,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://mbrenndoerfer.com/writing/decoder-architecture-causal-masking-autoregressive-transformers",
+    "title": "Decoder Architecture: Causal Masking - Interactive",
+    "domain": "mbrenndoerfer.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.605,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://machinelearningmastery.com/building-a-decoder-only-transformer-model-for-text-generation",
+    "title": "Building a Decoder-Only Transformer Model Like Llama-2 and Llama-3 - MachineLearningMastery.com",
+    "domain": "machinelearningmastery.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.603,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]
