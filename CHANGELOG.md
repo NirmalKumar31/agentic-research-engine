@@ -2,7 +2,135 @@
 
 Notable changes per release. Dates are UTC.
 
-## Unreleased
+## v1.9.0 — 2026-09-30
+
+A quality release driven by hosted failures. Every defect below was
+reproduced from a real run before it was fixed, and each is pinned by a
+regression test. One paid run validated the result end to end.
+
+**Answer-shape contracts are stable across wording.** The shape a run is
+held to came only from the model, so two phrasings of one question got
+different contracts: "the main causes of hallucination" was read as `list`
+once and `definition` on a near-identical earlier phrasing, and "the context
+window size of GPT-4 Turbo" became a `definition` — a figure checked against
+a slot asking what the subject is. Explicit question wording now overrides
+the model's label and `shape_source` records which decided. The override is
+deliberately narrow: it returns nothing for anything that is not an
+unambiguous question form, so the model's reading stands everywhere else.
+`docs/ANSWER-SHAPES.md` states exactly which forms are corrected, which stay
+model-decided, and every fallback.
+
+**Comparison subjects are separated from context.** The analyst's `entities`
+field is described to it as the concepts a question names — including the
+setting — and coverage treated every one as a side to be contrasted. Asked
+how retrieval-augmented generation differs from fine-tuning *for language
+models*, a run published three supported, cited, relevant claims and then
+reported that it had not answered, because nothing mentioned "language
+models". `comparison_subjects` is now read from the question's wording, so a
+setting cannot become a side.
+
+**Yes/no causal questions have their own contract.** `candidate_drivers` used
+to discharge `causal_evidence`, and the comment justifying it admitted the
+alternative was unsafe for "does X cause Y?" with a relevance model as the
+only backstop — the association-for-causation substitution the verification
+layer exists to refuse. There are now two shapes with no route between them:
+`causal` for a yes/no test, whose contract contains no drivers slot at all,
+and `causal_drivers` for "what causes X?", where the drivers are the answer.
+Association language, mixed sentences, and sentences that name causation in
+order to deny it are all refused.
+
+**Comparisons are answered by structure, not by new prose.** A contrast
+asserts two things and the atomicity guard refuses compound claims —
+correctly. Across nine runs the synthesiser produced one `direct_contrast`
+claim and atomicity refused it. Rather than weaken the guard or let repair
+delete the unsupported half, a comparison is now assembled from verified
+side claims meeting on a *named* axis and rendered as a table that says no
+sentence was written to join the cells. `relationship` may stand in only
+when its kind explains why a contrast is inappropriate; "both are used with
+language models" no longer qualifies. No canonical slot declares a static
+alternative any more.
+
+**Query generation is shorter and more direct.** The prompt instructed the
+model to "include the specific technical terms an authoritative page would
+use", with no length bound. It obeyed, producing eleven-word jargon stacks
+that only research papers matched — so a question about the causes of
+overfitting was searched as a literature review and read a tweet, a
+newsletter and two papers on double descent. The instruction is gone; the
+prompt asks for the question's own vocabulary, bounds length, and protects
+proper names, versions and dates from that bound. Query style now depends on
+the answer shape. Measured on the paid run: median query length fell from 11
+words to 5.
+
+**Retrieval candidates are preserved.** A run read six pages from 44
+candidates and the other 38 were unrecoverable — `PERSIST_RUNS=false`, and
+the search stage streamed only counts — so "was there a better source in the
+pool?" could not be answered. Each round now records a bounded, sanitised
+manifest of every query and every candidate with its score, class,
+authority, the adjustment separately from the total, every sub-question it
+serves, the decision, the reason and the fetch outcome. URLs are reduced to
+scheme, host and path; no credentials, headers, raw payloads, page bodies or
+filesystem paths.
+
+**Source selection is authority-aware and allocated by slot.** Selection
+sorted by relevance banded to tenths and consulted authority only within a
+band, so a tweet at 0.87 beat a primary source at 0.84 and the authority
+term never applied; and a global top-N let one sub-question consume every
+slot. Selection now allocates across sub-questions for representation, then
+goes best-first. The adjustment is capped so a relevance gap wider than 0.35
+cannot be overturned by source class. `SourceType.SOCIAL` and `REFERENCE`
+were added because social posts fell through to `other`, whose base quality
+is *above* a blog's.
+
+**Coverage requires relevance, not just an exact quote.** `quote_verified`
+is a provenance property, and coverage treated it as sufficient: two
+exact-match quotes across two sources marked a sub-question covered,
+whatever they were about. An item must now also discuss the sub-question's
+terms. The check is an explicitly bounded negative prefilter, and the four
+levels are named so they cannot be confused — `lexically_plausible`,
+`evidence_relevant`, `claim_relevant`, `slot_satisfied`. Aliases are derived
+from the question's own text, never a global synonym table.
+
+**The duplicate start event is gone.** The endpoint announced a run before
+the graph was built and the runner announced it again; both were forwarded,
+so the page showed "Starting research" twice, which reads as a restart.
+Suppressed in the web transport only — a CLI caller has no transport-level
+start.
+
+**Every sub-question gets a query before any gets a second.** Found by the
+paid run: the model proposed two queries each for the first three of five
+sub-questions and none for the other two, and assembly stopped in arrival
+order, so two sub-questions were never searched. Assembly is now
+breadth-first in planner priority order, a sub-question the model omits gets
+a query from its own text, and a budget genuinely too small names and logs
+what it could not cover.
+
+**Gaps carry explicit causes.** A gap now distinguishes no query issued, no
+suitable source found, a selected candidate whose fetch failed, a retrieved
+source that did not discuss the sub-question, and insufficient evidence.
+Five causes need five different fixes, and they were previously
+indistinguishable.
+
+**Paid validation.** One authorised run on `94368bb7` re-asked the question
+that had published nothing: *"What are the main causes of overfitting in
+machine learning?"* It published **5 claims of 6 generated** and reported the
+question answered, against a baseline of 0 of 1 and 1-of-5 coverage. 147.5s
+of 240, $0.008809 of a $0.05 ceiling, 14 of 30 provider requests, 6 of 8
+Tavily credits, all 41 candidates preserved, one visible start event, one
+attempt with no retry. Evidence:
+`examples/live-validation/question-shapes/overfitting-20260930-221039/` and
+`docs/RELEASE-EVIDENCE-v1.9.0.md`.
+
+**What remains offline-validated only.** The paid run exercised
+`causal_drivers`. Structured comparison and the yes/no `causal` contract are
+verified by tests and mutation testing but by no live run. The breadth-first
+query fix landed after that run, so it too is structurally tested rather
+than live-validated — its guarantee holds regardless, because the node
+injects missing queries itself rather than relying on the model. One
+successful live question shows the path works, not that research quality is
+general.
+
+### Also in this release
+
 
 Four of the nine answer shapes were unreachable, a stylesheet was never
 imported, and a run could not say that a question named something that
