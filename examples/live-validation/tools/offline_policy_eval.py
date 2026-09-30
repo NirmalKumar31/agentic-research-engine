@@ -149,7 +149,9 @@ def recorded_events() -> list[dict]:
 def section_queries() -> None:
     rule("1. QUERIES — recorded verbatim from the hallucination run")
     events = recorded_events()
-    queries = next((e["queries"] for e in events if e.get("event") == "queries_generated"), [])
+    queries: list[str] = next(
+        (e["queries"] for e in events if e.get("event") == "queries_generated"), []
+    )
     print(f"{len(queries)} queries issued. Word counts:\n")
     for i, query in enumerate(queries, 1):
         print(f"  Q{i} ({len(query.split()):2d} words) {query}")

@@ -5,6 +5,8 @@ Every line is a real command exit code.
 
 ruff check src tests examples             exit=0
 ruff format --check                       exit=0
+mypy                                      exit=0
+mypy examples                             exit=0
 pytest (CI marker expr) + coverage       TOTAL                                                  7770    756   2070    228    88% 2259 passed, 31 skipped, 20 deselected, 1 warning in 63.70s (0:01:03) 
 pytest -m nli (real DeBERTa checkpoint)  exit=0 (task b1zdkwq27)
 gitleaks git (full history)               exit=0

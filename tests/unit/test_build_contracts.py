@@ -88,11 +88,32 @@ class TestTheWorkflowCanReadThePin:
         assert len(NLI_DEFAULT_REVISION) == 40
 
 
-def test_the_workflow_builds_this_branch_prefix() -> None:
+def test_the_workflow_builds_every_branch_by_default() -> None:
     """A branch pushed for review with no matching prefix carries no
     remote status, and a green local run gets mistaken for a verified
-    one -- which is how the two failures above reached a push."""
+    one -- which is how the two failures above reached a push.
+
+    It then happened a third time, to `quality/*`. This test passed
+    throughout, because it checked that three known prefixes were on
+    the allowlist rather than that the branch being pushed was -- and
+    the prefix it could not have known about was the one that broke.
+
+    An allowlist cannot be tested for the case it is missing. So the
+    trigger is now a denylist, and this asserts that shape: every
+    branch builds except throwaway prefixes, which fails in the safe
+    direction when a new convention appears.
+    """
     spec = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
-    branches = spec[True]["push"]["branches"]
-    for prefix in ("main", "feat/*", "release/*"):
-        assert prefix in branches
+    push = spec[True]["push"]
+    assert "branches" not in push, (
+        "an allowlist of prefixes cannot cover a convention nobody has "
+        "invented yet; three branches have already been pushed without CI"
+    )
+    ignored = push["branches-ignore"]
+    assert ignored, "an empty ignore list is indistinguishable from no trigger at all"
+    for throwaway in ("wip/**", "scratch/**", "tmp/**"):
+        assert throwaway in ignored
+    # Non-vacuity: the prefixes that have historically been used for real
+    # work must not be ignored.
+    for real in ("main", "feat/**", "fix/**", "quality/**", "release/**"):
+        assert real not in ignored
