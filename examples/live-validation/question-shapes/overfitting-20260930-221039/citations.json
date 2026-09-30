@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "Overfitting often arises when a model is excessively complex relative to the size and diversity of its training data.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e1",
+        "resolved": true,
+        "quote": "Overfitting often arises when a model is excessively complex relative to the size and diversity of the training data. Complex models, such as deep neural networks with numerous layers and parameters, can capture intricate patterns in the data, including noise and outliers. While this may improve training accuracy, it hampers the model's ability to generalize.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.lenovo.com/us/en/knowledgebase/understanding-overfitting-in-machine-learning-causes-impacts-and-solutions",
+        "source_title": "Understanding Overfitting in Machine Learning: Causes, Impacts, and Solutions | Lenovo US"
+      }
+    ]
+  },
+  {
+    "claim": "Overfitting can occur when the training data is imbalanced.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e3",
+        "resolved": true,
+        "quote": "Overfitting can occur when the training data is imbalanced, meaning certain classes are overrepresented while others are underrepresented. The model may perform well on the dominant class but fail to generalize to underrepresented classes.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.lenovo.com/us/en/knowledgebase/understanding-overfitting-in-machine-learning-causes-impacts-and-solutions",
+        "source_title": "Understanding Overfitting in Machine Learning: Causes, Impacts, and Solutions | Lenovo US"
+      }
+    ]
+  },
+  {
+    "claim": "Without regularization, models are free to fit training data too closely, increasing the risk of overfitting.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e4",
+        "resolved": true,
+        "quote": "Without regularization, models are free to fit the training data too closely, increasing the risk of overfitting.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.lenovo.com/us/en/knowledgebase/understanding-overfitting-in-machine-learning-causes-impacts-and-solutions",
+        "source_title": "Understanding Overfitting in Machine Learning: Causes, Impacts, and Solutions | Lenovo US"
+      }
+    ]
+  },
+  {
+    "claim": "Training a model for too many epochs can lead to overfitting.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S3-e5",
+        "resolved": true,
+        "quote": "Training a model for too many epochs can lead to overfitting. As the model continues to learn, it starts capturing noise and irrelevant details in the training data, which reduces its ability to generalize.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.lenovo.com/us/en/knowledgebase/understanding-overfitting-in-machine-learning-causes-impacts-and-solutions",
+        "source_title": "Understanding Overfitting in Machine Learning: Causes, Impacts, and Solutions | Lenovo US"
+      }
+    ]
+  },
+  {
+    "claim": "Too many features can potentially magnify noise and result in overfitting.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S4-e4",
+        "resolved": true,
+        "quote": "The more attributes or features your model scrutinizes, the higher its complexity is likely to be. Too many features can potentially magnify noise and result in overfitting.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://www.geeksforgeeks.org/machine-learning/model-complexity-overfitting-in-machine-learning",
+        "source_title": "Model Complexity & Overfitting in Machine Learning - GeeksforGeeks"
+      }
+    ]
+  }
+]

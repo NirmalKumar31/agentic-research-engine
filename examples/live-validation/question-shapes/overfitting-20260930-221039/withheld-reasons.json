@@ -1,0 +1,10 @@
+[
+  {
+    "claim": "When a training dataset is too small, a model may memorize specific details rather than identify generalizable patterns, leading to overfitting.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.998508,
+    "best_evidence_id": "S3-e2",
+    "guards_passed": false
+  }
+]

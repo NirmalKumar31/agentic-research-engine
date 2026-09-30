@@ -1,0 +1,94 @@
+{
+  "run_id": "20260930-221039-d298f1",
+  "started_utc": "2026-09-30T22:10:39Z",
+  "wall_clock_seconds": 148.07,
+  "engine_duration_seconds": 147.48,
+  "executed_by": "deployed public HTTP/SSE endpoint",
+  "is_hosted_acceptance": true,
+  "is_research_quality_evaluation": true,
+  "deployed_commit": "94368bb7",
+  "version": "1.8.0",
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "What are the main causes of overfitting in machine learning?",
+  "why_this_run": "The one authorised paid validation of the vNext quality release. It re-asks the exact question that produced 0 published claims and 1-of-5 coverage on b16ad010, to establish empirically whether the corrected query generation and selection policy make Tavily adequate for a broad explanatory question.",
+  "baseline_compared_against": "the hosted overfitting run on b16ad010, transcribed in docs/vnext-baseline/offline-policy-eval.txt",
+  "what_it_verified": {
+    "query_generation": "Median query length fell from 11 words of stacked jargon to 5. Q1 was 'causes of overfitting in machine learning' -- the question's own vocabulary. Every query carries the sub-question it serves and why it was phrased that way.",
+    "source_selection": "Six of 41 candidates selected, led by developers.google.com (official_docs, twice). Facebook (0.62), LinkedIn (0.36) and four Reddit/StackExchange threads were all dropped despite provider relevance above several selected pages. The baseline read a tweet.",
+    "answer_shape": "Read as causal_drivers with shape_source 'wording' -- the deterministic override fired. The baseline classified the same question as a definition and held it to a slot asking what the subject is.",
+    "coverage_admission": "2 of 5 sub-questions covered, 3 weak, 0 missing, against 1 of 5 in the baseline.",
+    "publication": "5 claims published, all declaring candidate_drivers, all supported and relevant. The baseline published 0 of 1 generated.",
+    "sse_lifecycle": "Exactly one visible 'started' event. The baseline stream carried two.",
+    "retrieval_observability": "All 41 candidates recorded with scores, classes, authority adjustment, sub-question associations, decisions, reasons and fetch outcomes. The baseline lost 38 candidates permanently."
+  },
+  "what_it_found": {
+    "the_query_writer_starved_two_sub_questions": "Six queries were issued across five sub-questions: two each for SQ1, SQ2 and SQ3, and NONE for SQ4 or SQ5. No candidate in the pool is attributed to either, so neither was ever searched. The prompt permits 'one or two queries per sub-question' against a six-query budget without requiring that every sub-question be covered first -- the same defect class as one sub-question consuming the source budget, but one stage earlier. Invisible before this manifest existed; found on its first live run. Not fixed here.",
+    "a_limitation_sentence_reads_awkwardly": "'The evidence did not establish whether the evidence establishes causation or only association' -- the causation_limits slot description is interpolated into a sentence that already says 'the evidence'. Cosmetic."
+  },
+  "outcome": {
+    "completed": true,
+    "errors_recorded": 0,
+    "published_claims": 5,
+    "generated_claims": 6,
+    "withheld_claims": 1,
+    "withheld_reasons": ["every cited quote failed a deterministic guard: atomicity"],
+    "answered": true,
+    "coverage": "2 of 5 sub-questions covered, 3 weak, 0 missing"
+  },
+  "public_limits_in_force": {
+    "max_research_rounds": 1,
+    "max_sources": 6,
+    "max_search_queries": 6,
+    "max_llm_calls": 20,
+    "max_provider_requests": 30,
+    "demo_max_runtime_seconds": 240,
+    "global_runs_per_day": 24
+  },
+  "models": {
+    "planner": "openai:gpt-6-luna",
+    "researcher": "openai:gpt-6-luna",
+    "critic": "openai:gpt-6-luna",
+    "synthesizer": "openai:gpt-6-luna"
+  },
+  "verifier": {
+    "mode": "remote",
+    "dialect": "hf",
+    "repository": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "support_threshold": 0.98,
+    "endpoint": "private; URL deliberately omitted"
+  },
+  "quota": {
+    "store": "the public demo's own",
+    "namespace": ""
+  },
+  "capture": {
+    "method": "raw bytes streamed to disk, timing recorded in a separate index",
+    "raw_bytes": 61788,
+    "chunks": 54,
+    "events": 33,
+    "complete": true,
+    "terminal_event": "result",
+    "tool": "examples/live-validation/tools/acceptance.py"
+  },
+  "cost": {
+    "openai_engine_calculated_usd": 0.008809,
+    "openai_cost_ceiling_usd": 0.05,
+    "openai_cost_is_complete": false,
+    "openai_dashboard_charge_usd": "not reconciled; readable from the provider dashboard for 2026-09-30",
+    "tavily_credits": 6.0,
+    "tavily_credit_ceiling": 8,
+    "tavily_usd": "not measured; free-tier key",
+    "total_cross_provider_cost_complete": false
+  },
+  "provider_usage": {
+    "llm_calls": 14,
+    "llm_call_ceiling": 20,
+    "provider_requests": 14,
+    "provider_request_ceiling": 30,
+    "input_tokens": 25662,
+    "input_token_ceiling": 120000,
+    "output_tokens": 12485,
+    "output_token_ceiling": 20000
+  }
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://developers.google.com/machine-learning/crash-course/overfitting/overfitting",
+    "title": "Overfitting \u00a0|\u00a0 Machine Learning \u00a0|\u00a0 Google for Developers",
+    "domain": "developers.google.com",
+    "source_type": "official_docs",
+    "content_origin": "provider_raw",
+    "quality_score": 0.981,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://www.geeksforgeeks.org/machine-learning/underfitting-and-overfitting-in-machine-learning",
+    "title": "Underfitting and Overfitting in ML - GeeksforGeeks",
+    "domain": "geeksforgeeks.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.628,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://www.lenovo.com/us/en/knowledgebase/understanding-overfitting-in-machine-learning-causes-impacts-and-solutions",
+    "title": "Understanding Overfitting in Machine Learning: Causes, Impacts, and Solutions | Lenovo US",
+    "domain": "lenovo.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.636,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://www.geeksforgeeks.org/machine-learning/model-complexity-overfitting-in-machine-learning",
+    "title": "Model Complexity & Overfitting in Machine Learning - GeeksforGeeks",
+    "domain": "geeksforgeeks.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.633,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://developers.google.com/machine-learning/crash-course/overfitting/model-complexity",
+    "title": "Overfitting: Model complexity \u00a0|\u00a0 Machine Learning \u00a0|\u00a0 Google for Developers",
+    "domain": "developers.google.com",
+    "source_type": "official_docs",
+    "content_origin": "provider_raw",
+    "quality_score": 0.969,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://towardsai.com/p/l/overfitting-causes-and-remedies",
+    "title": "Overfitting: Causes and Remedies | Towards AI",
+    "domain": "towardsai.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.629,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "original": "When a training dataset is too small, a model may memorize specific details rather than identify generalizable patterns, leading to overfitting.",
+    "rewritten": "When the training dataset is too small, a model may struggle to identify generalizable patterns.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "still unsupported: every cited quote failed a deterministic guard: atomicity"
+  },
+  {
+    "original": "Overfitting can occur when the training data is imbalanced, with some classes overrepresented and others underrepresented.",
+    "rewritten": "Overfitting can occur when the training data is imbalanced.",
+    "guard": "wording only: atomicity",
+    "accepted": true,
+    "reason": ""
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "question": "What are the main factors that cause machine-learning models to overfit?",
+  "question_type": "causal_drivers",
+  "entities": [
+    "Machine learning",
+    "Overfitting",
+    "Model generalization"
+  ],
+  "comparison_subjects": [],
+  "shape_source": "wording",
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "candidate_drivers",
+      "description": "Factors the evidence supports as contributing",
+      "core": true,
+      "satisfied_by": []
+    },
+    {
+      "name": "mechanism",
+      "description": "How a driver produces the effect",
+      "core": false,
+      "satisfied_by": []
+    },
+    {
+      "name": "causation_limits",
+      "description": "Whether the evidence establishes causation or only association",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

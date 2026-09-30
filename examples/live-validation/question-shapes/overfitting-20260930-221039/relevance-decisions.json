@@ -1,0 +1,37 @@
+[
+  {
+    "claim": "Overfitting often arises when a model is excessively complex relative to the size and diversity of its training data.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It identifies excessive model complexity relative to the training data as a contributing factor.",
+    "published": true
+  },
+  {
+    "claim": "Overfitting can occur when the training data is imbalanced, with some classes overrepresented and others underrepresented.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It identifies imbalanced training data as a condition under which overfitting can occur.",
+    "published": true
+  },
+  {
+    "claim": "Without regularization, models are free to fit training data too closely, increasing the risk of overfitting.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It identifies lack of regularization as a contributing factor and explains how it can increase overfitting.",
+    "published": true
+  },
+  {
+    "claim": "Training a model for too many epochs can lead to overfitting.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It identifies training for too many epochs as a contributing factor.",
+    "published": true
+  },
+  {
+    "claim": "Too many features can potentially magnify noise and result in overfitting.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It identifies having too many features as a contributing factor and describes how they can magnify noise.",
+    "published": true
+  }
+]
