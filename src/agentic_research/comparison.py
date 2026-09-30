@@ -35,8 +35,10 @@ contrast is reported as unfilled.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass
+from enum import StrEnum
 
 from agentic_research.answer_contract import AnswerContract, QuestionType
 from agentic_research.citations.relevance import _mentions
@@ -95,9 +97,134 @@ class ComparisonPair:
 
 
 # Slots that describe the comparison as a whole rather than one axis of
-# it. A claim declaring one of these is not a side assertion on a
-# dimension, so it cannot combine with another to form a pair.
-_NON_DIMENSION_SLOTS = frozenset({"direct_contrast", "relationship"})
+# it, plus the generic placeholder.
+#
+# `dimension` is excluded because it names no axis. Two claims declaring
+# it may address entirely different properties -- "LLMs predict tokens"
+# and "neural networks classify images" are about task and mechanism --
+# and counting that as a contrast is the shortcut the audit flagged. A
+# pair now requires a slot that names the axis, which exists whenever
+# the analysis proposed dimensions for the comparison. A claim
+# declaring the generic slot still publishes; it just cannot complete
+# the contrast on its own.
+_NON_DIMENSION_SLOTS = frozenset({"direct_contrast", "relationship", "dimension"})
+
+
+class RelationshipKind(StrEnum):
+    """What kind of relationship a claim asserts between the subjects.
+
+    Only some kinds explain why a direct contrast is inappropriate.
+    Asked how a large language model differs from a neural network, the
+    honest answer is that one is a kind of the other -- there is no
+    contrast to find, and demanding one makes the engine wrong about
+    itself. "Both are used in industry" explains nothing and must not
+    stand in for a comparison.
+    """
+
+    SUBTYPE = "subtype"
+    EQUIVALENCE = "equivalence"
+    COMPONENT = "component"
+    DEPENDENCY = "dependency"
+    GENERAL = "general"
+
+
+# Ordered: the first pattern to match decides, so the more specific
+# readings are tried before the looser ones.
+_RELATIONSHIP_PATTERNS: tuple[tuple[RelationshipKind, re.Pattern[str]], ...] = (
+    (
+        RelationshipKind.SUBTYPE,
+        re.compile(
+            r"\b(?:is|are|as)\s+(?:a|an|one)?\s*"
+            r"(?:kind|type|form|subset|subclass|subtype|category|instance|example|"
+            r"variety|species)\s+of\b"
+            r"|\bis a specialis(?:ed|ation)\b|\bfalls under\b|\bbelongs to the\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        RelationshipKind.EQUIVALENCE,
+        re.compile(
+            r"\b(?:is|are)\s+(?:the same as|equivalent to|identical to|"
+            r"synonymous with|another name for|the same thing as)\b"
+            r"|\brefer to the same\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        RelationshipKind.COMPONENT,
+        re.compile(
+            r"\b(?:is|are)\s+(?:a|an|one)?\s*"
+            r"(?:component|part|member|element|ingredient|stage|step|layer)\s+of\b"
+            r"|\bconsists? of\b|\bis composed of\b|\bcontains\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        RelationshipKind.DEPENDENCY,
+        re.compile(
+            r"\b(?:depends? on|requires?|relies on|is built on|is based on|"
+            r"is implemented (?:with|using)|uses)\b",
+            re.IGNORECASE,
+        ),
+    ),
+)
+
+# Kinds that resolve why a direct contrast is inappropriate.
+#
+# DEPENDENCY is excluded deliberately. "RAG uses a language model" is a
+# true relationship and it does not answer how RAG differs from
+# fine-tuning -- two things can depend on each other and still need
+# contrasting. Only containment and identity remove the contrast.
+_DISCHARGING_KINDS = frozenset(
+    {RelationshipKind.SUBTYPE, RelationshipKind.EQUIVALENCE, RelationshipKind.COMPONENT}
+)
+
+
+def dynamically_discharging_slots(contract: AnswerContract) -> frozenset[str]:
+    """Slots that can discharge a core slot without declaring it.
+
+    The contract cannot express "this slot answers the question when
+    the claim asserts a particular kind of thing", so these routes live
+    in code. Anything reasoning about which slots the answer turns on
+    -- the relevance judge's authority, for one -- has to consult this
+    as well as `satisfied_by`, or dropping a static alternative
+    silently narrows that reasoning.
+    """
+    if contract.question_type is QuestionType.COMPARISON:
+        return frozenset({"relationship"})
+    return frozenset()
+
+
+def relationship_kind(text: str) -> RelationshipKind:
+    """Classify a relationship claim. Unrecognised wording is GENERAL."""
+    for kind, pattern in _RELATIONSHIP_PATTERNS:
+        if pattern.search(text or ""):
+            return kind
+    return RelationshipKind.GENERAL
+
+
+def discharges_contrast(contract: AnswerContract, claims: Sequence[SideClaim]) -> tuple[bool, str]:
+    """Whether a relationship claim removes the need for a contrast.
+
+    Requires all three of: the claim declares `relationship`; its kind
+    is one that explains away the contrast; and it speaks about every
+    comparison subject. A subtype claim about only one of two subjects
+    establishes nothing about the pair.
+    """
+    if contract.question_type is not QuestionType.COMPARISON:
+        return False, ""
+    subjects = contract.subjects_to_span
+    if len(subjects) < 2:
+        return False, ""
+    for claim in claims:
+        if claim.answer_slot != "relationship":
+            continue
+        kind = relationship_kind(claim.text)
+        if kind not in _DISCHARGING_KINDS:
+            continue
+        if all(_mentions(claim.text, subject) for subject in subjects):
+            return True, kind.value
+    return False, ""
 
 
 def build_comparison_pairs(

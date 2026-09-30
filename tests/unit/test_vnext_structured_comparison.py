@@ -35,10 +35,18 @@ def contract():
         QuestionType.COMPARISON,
         entities=["retrieval-augmented generation", "fine-tuning", "language models"],
         comparison_subjects=["retrieval-augmented generation", "fine-tuning"],
+        # A named axis, which the analyst now proposes for every
+        # comparison. The generic `dimension` slot cannot complete a
+        # contrast: two claims declaring it may address different
+        # properties, which is not a comparison of anything.
+        dimensions=["knowledge_update"],
     )
 
 
-def side(text: str, slot: str = "dimension", evidence: tuple[str, ...] = ()) -> SideClaim:
+AXIS = "knowledge_update"
+
+
+def side(text: str, slot: str = AXIS, evidence: tuple[str, ...] = ()) -> SideClaim:
     return SideClaim(subject="", text=text, answer_slot=slot, evidence_ids=evidence)
 
 
@@ -162,7 +170,7 @@ class TestCoverageUsesPairsForTheCoreSlot:
     def test_a_complete_pair_answers_the_question(self) -> None:
         coverage = assess_coverage(
             contract(),
-            ["dimension", "dimension"],
+            [AXIS, AXIS],
             claims=[
                 side("Fine-tuning updates model weights."),
                 side("RAG retrieves passages at query time."),
@@ -174,7 +182,7 @@ class TestCoverageUsesPairsForTheCoreSlot:
     def test_an_incomplete_pair_does_not(self) -> None:
         coverage = assess_coverage(
             contract(),
-            ["dimension"],
+            [AXIS],
             claims=[side("RAG retrieves passages at query time.")],
         )
         assert not coverage.answered
@@ -182,7 +190,7 @@ class TestCoverageUsesPairsForTheCoreSlot:
     def test_the_pairs_are_serialised_for_the_client(self) -> None:
         coverage = assess_coverage(
             contract(),
-            ["dimension", "dimension"],
+            [AXIS, AXIS],
             claims=[
                 side("Fine-tuning updates model weights.", evidence=("S4-e1",)),
                 side("RAG retrieves passages at query time.", evidence=("S3-e2",)),
@@ -190,7 +198,7 @@ class TestCoverageUsesPairsForTheCoreSlot:
         )
         payload = coverage.to_dict()["comparison_pairs"]
         assert isinstance(payload, list) and len(payload) == 1
-        assert payload[0]["dimension"] == "dimension"
+        assert payload[0]["dimension"] == AXIS
         assert len(payload[0]["sides"]) == 2
 
     def test_the_reporting_node_passes_slots_with_texts(self) -> None:
@@ -339,3 +347,155 @@ class TestThePairsReachTheRenderedReport:
 
         source = inspect.getsource(reporting)
         assert "comparison_pairs=_pairs_from_state(state)" in source
+
+
+class TestTheRelationshipEscapeHatchIsNarrowed:
+    """`relationship` used to discharge `direct_contrast` statically.
+
+    The comment justifying it admitted the cost: for a genuine
+    comparison of two unrelated subjects, a vague relationship claim
+    discharged the core slot too. A slot name cannot express "only when
+    the claim asserts a particular kind of thing", so the decision
+    moved to coverage time and reads the claim.
+    """
+
+    def _llm_contract(self):
+        return build_contract(
+            "How does a large language model differ from a neural network?",
+            QuestionType.COMPARISON,
+            entities=["large language model", "neural network"],
+            comparison_subjects=["large language model", "neural network"],
+        )
+
+    def test_a_subtype_relation_answers_the_comparison(self) -> None:
+        """The case this exists to keep. Asked how an LLM differs from a
+        neural network, the honest answer is that one is a kind of the
+        other -- there is no contrast to find, and demanding one makes
+        the engine wrong about itself."""
+        from agentic_research.answer_coverage import assess_coverage
+
+        coverage = assess_coverage(
+            self._llm_contract(),
+            ["relationship"],
+            claims=[
+                side(
+                    "A large language model is a kind of neural network trained on text.",
+                    slot="relationship",
+                )
+            ],
+        )
+        assert coverage.answered
+        assert coverage.relationship_discharge == "subtype"
+
+    def test_a_relationship_mentioning_both_without_explaining_does_not(self) -> None:
+        from agentic_research.answer_coverage import assess_coverage
+
+        coverage = assess_coverage(
+            self._llm_contract(),
+            ["relationship"],
+            claims=[
+                side(
+                    "A large language model and a neural network are both widely "
+                    "used in production systems.",
+                    slot="relationship",
+                )
+            ],
+        )
+        assert not coverage.answered
+        assert coverage.relationship_discharge == ""
+
+    def test_a_dependency_relation_does_not_discharge(self) -> None:
+        """Two things can depend on one another and still need
+        contrasting. Only containment and identity remove the
+        contrast."""
+        from agentic_research.answer_coverage import assess_coverage
+        from agentic_research.comparison import RelationshipKind, relationship_kind
+
+        text = "Retrieval-augmented generation uses a large language model."
+        assert relationship_kind(text) is RelationshipKind.DEPENDENCY
+        coverage = assess_coverage(
+            build_contract(
+                "How does retrieval-augmented generation differ from a large language model?",
+                QuestionType.COMPARISON,
+                entities=["retrieval-augmented generation", "large language model"],
+                comparison_subjects=[
+                    "retrieval-augmented generation",
+                    "large language model",
+                ],
+            ),
+            ["relationship"],
+            claims=[side(text, slot="relationship")],
+        )
+        assert not coverage.answered
+
+    def test_a_subtype_claim_about_one_subject_only_does_not_discharge(self) -> None:
+        """A subtype claim naming one of two subjects establishes
+        nothing about the pair."""
+        from agentic_research.answer_coverage import assess_coverage
+
+        coverage = assess_coverage(
+            self._llm_contract(),
+            ["relationship"],
+            claims=[
+                side("A large language model is a kind of statistical model.", slot="relationship")
+            ],
+        )
+        assert not coverage.answered
+
+
+class TestUnrelatedFactsAreNotAComparison:
+    def test_two_true_descriptions_on_the_generic_slot_do_not_pair(self) -> None:
+        """The shortcut the audit rejected. Both claims are true, both
+        mention their subject, and they address different properties --
+        task versus input domain -- so there is no axis on which they
+        meet."""
+        pairs = build_comparison_pairs(
+            contract(),
+            [
+                side("Fine-tuning updates model weights.", slot="dimension"),
+                side("Retrieval-augmented generation reduces hallucination.", slot="dimension"),
+            ],
+        )
+        assert pairs == ()
+
+    def test_the_same_two_claims_pair_on_a_named_axis(self) -> None:
+        """Non-vacuity: the rule is about the axis being named, not
+        about these claims being unusable."""
+        pairs = build_comparison_pairs(
+            contract(),
+            [
+                side("Fine-tuning updates model weights.", slot=AXIS),
+                side("Retrieval-augmented generation retrieves passages at query time.", slot=AXIS),
+            ],
+        )
+        assert len(pairs) == 1
+
+    def test_one_supported_side_and_one_missing_side_do_not_pair(self) -> None:
+        """Only published claims reach this function, so an unsupported
+        half is simply absent -- and an incomplete pair is not a partial
+        contrast, it is not one."""
+        pairs = build_comparison_pairs(
+            contract(),
+            [side("Fine-tuning updates model weights.", slot=AXIS)],
+        )
+        assert pairs == ()
+
+    def test_a_pair_needs_both_sides_on_the_same_axis(self) -> None:
+        """Each side on its own named axis is two half-comparisons."""
+        c = build_contract(
+            RAG,
+            QuestionType.COMPARISON,
+            entities=["retrieval-augmented generation", "fine-tuning"],
+            comparison_subjects=["retrieval-augmented generation", "fine-tuning"],
+            dimensions=["knowledge_update", "cost"],
+        )
+        pairs = build_comparison_pairs(
+            c,
+            [
+                side(
+                    "Fine-tuning requires retraining to update knowledge.", slot="knowledge_update"
+                ),
+                side("Retrieval-augmented generation has a lower upfront cost.", slot="cost"),
+            ],
+        )
+        assert pairs == ()

@@ -58,7 +58,8 @@ class TestQueryStyleDependsOnTheAnswerShape:
         "shape,expected",
         [
             ("list", "reader-level"),
-            ("causal", "why something happens"),
+            ("causal", "tests one proposed cause"),
+            ("causal_drivers", "why something happens"),
             ("definition", "what is X"),
             ("comparison", "both subjects together"),
             ("numeric", "quantity"),

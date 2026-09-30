@@ -31,7 +31,11 @@ from agentic_research.citations.verifier import (
     resolve_report,
     verify_structure,
 )
-from agentic_research.comparison import ComparisonPair, SideClaim
+from agentic_research.comparison import (
+    ComparisonPair,
+    SideClaim,
+    dynamically_discharging_slots,
+)
 from agentic_research.config import ModelRole
 from agentic_research.evidence.store import EvidenceStore
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
@@ -905,7 +909,16 @@ def _discharges_a_core_slot(contract: AnswerContract, slot: str | None) -> bool:
     """
     if not slot or not contract.has_slot(slot):
         return True
-    return any(slot == core.name or slot in core.satisfied_by for core in contract.core_slots)
+    if any(slot == core.name or slot in core.satisfied_by for core in contract.core_slots):
+        return True
+    # Slots that can discharge a core slot without saying so in the
+    # contract. `relationship` no longer declares a static
+    # `satisfied_by`, because whether it answers a comparison depends
+    # on the kind of relationship it asserts -- but it can still be
+    # the whole answer, so the judge keeps authority over it. Reading
+    # only `satisfied_by` silently removed that authority when the
+    # static alternative was dropped.
+    return slot in dynamically_discharging_slots(contract)
 
 
 def _propositions_supported(

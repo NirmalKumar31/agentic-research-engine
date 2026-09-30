@@ -58,12 +58,24 @@ class TestTheShapeOfEachAnswer:
             assert sum(1 for s in slots if s.core) == 1, qtype
 
     def test_named_dimensions_become_their_own_slots(self) -> None:
-        c = build_contract(
-            "a vs b", "comparison", entities=["a", "b"], dimensions=["cost", "latency"]
+        """Named axes are added; the generic placeholder stays.
+
+        Dropping the placeholder once named axes existed meant a claim
+        contributing to the comparison but not sitting on a named axis
+        had no slot to declare, so structural relevance refused it as
+        unknown -- naming axes would have reduced what a comparison
+        could publish. The placeholder cannot complete a contrast; only
+        a named axis can.
+        """
+        contract = build_contract(
+            "How does A differ from B on latency and cost?",
+            QuestionType.COMPARISON,
+            entities=("A", "B"),
+            dimensions=("latency", "cost"),
         )
-        assert c.has_slot("cost")
-        assert c.has_slot("latency")
-        assert not c.has_slot("dimension"), "the placeholder should give way to real ones"
+        names = {s.name for s in contract.required_slots}
+        assert {"latency", "cost"} <= names
+        assert "dimension" in names
 
     def test_the_placeholder_survives_when_no_dimension_is_named(self) -> None:
         c = build_contract("a vs b", "comparison", entities=["a", "b"])
@@ -159,22 +171,51 @@ class TestTheSerialisedContractCarriesItsAlternatives:
     """A client that cannot see `satisfied_by` computes the wrong answer.
 
     The hosted v1.2.1 run published a claim filling `relationship`,
-    which discharges the comparison's `direct_contrast` requirement.
-    The engine's own limitations therefore did not say the question was
-    unanswered. The payload omitted `satisfied_by`, so the interface
+    which then discharged the comparison's `direct_contrast`
+    requirement. The payload omitted `satisfied_by`, so the interface
     recomputed coverage, found the core slot unfilled, and would have
     rendered "this report does not answer the question" directly above
     a report saying the opposite.
+
+    No canonical slot declares an alternative any more -- both cases
+    that did were semantic shortcuts, and whether a relationship
+    explains away a contrast now depends on its kind, which a slot name
+    cannot express. The serialisation is still exercised here, because
+    the field remains part of the payload contract and a client must be
+    able to read it; it is simply no longer populated from the
+    canonical table.
     """
 
-    def test_satisfied_by_is_serialised(self) -> None:
-        contract = build_contract(
-            "How does a large language model differ from a neural network?",
-            QuestionType.COMPARISON,
-            entities=("large language model", "neural network"),
+    def test_satisfied_by_is_serialised_when_a_slot_declares_one(self) -> None:
+        from agentic_research.answer_contract import AnswerContract, AnswerSlot
+
+        contract = AnswerContract(
+            question="q",
+            question_type=QuestionType.COMPARISON,
+            required_slots=(
+                AnswerSlot(
+                    name="direct_contrast",
+                    description="d",
+                    satisfied_by=("relationship",),
+                ),
+            ),
         )
         slots = {s["name"]: s for s in contract.to_dict()["required_slots"]}  # type: ignore[union-attr,index]
         assert slots["direct_contrast"]["satisfied_by"] == ["relationship"]
+
+    def test_no_canonical_slot_declares_an_alternative(self) -> None:
+        """The audit's finding, pinned: a static alternative asserts
+        that one slot's name always implies another's satisfaction, and
+        neither case that used it was ever that."""
+        from agentic_research.answer_contract import CANONICAL_SLOTS
+
+        declared = {
+            (str(qt), slot.name)
+            for qt, slots in CANONICAL_SLOTS.items()
+            for slot in slots
+            if slot.satisfied_by
+        }
+        assert declared == set()
 
     def test_a_slot_without_alternatives_serialises_an_empty_list(self) -> None:
         """Present and empty, not absent. A client checking the field
@@ -186,18 +227,39 @@ class TestTheSerialisedContractCarriesItsAlternatives:
         for slot in contract.to_dict()["required_slots"]:  # type: ignore[union-attr]
             assert slot["satisfied_by"] == []
 
-    def test_the_payload_round_trips_the_alternative(self) -> None:
-        """The property that matters: a consumer reading only the dict
-        can reach the same verdict the engine did."""
+    def test_the_payload_round_trips_the_discharge(self) -> None:
+        """The property that matters, unchanged: a consumer reading only
+        the payload reaches the same verdict the engine did.
+
+        What carries it has changed. The contract can no longer say
+        that `relationship` discharges `direct_contrast`, because that
+        depends on the relationship's kind -- so the fact now travels
+        in the coverage assessment instead. If it did not, the client
+        would recompute "unanswered" and render that above a report
+        saying the opposite, which is the v1.2.1 contradiction this
+        class exists to prevent.
+        """
+        from agentic_research.answer_coverage import assess_coverage
+        from agentic_research.comparison import SideClaim
+
         contract = build_contract(
-            "How does X differ from Y?",
+            "How does a large language model differ from a neural network?",
             QuestionType.COMPARISON,
-            entities=("X", "Y"),
+            entities=("large language model", "neural network"),
+            comparison_subjects=("large language model", "neural network"),
         )
-        payload = contract.to_dict()
-        published = {"relationship"}
-        core = [s for s in payload["required_slots"] if s["core"]]  # type: ignore[union-attr]
-        discharged = [
-            s for s in core if s["name"] in published or set(s["satisfied_by"]) & published
-        ]
-        assert len(discharged) == len(core), "a client could not see the alternative"
+        coverage = assess_coverage(
+            contract,
+            ["relationship"],
+            claims=[
+                SideClaim(
+                    subject="",
+                    text=("A large language model is a kind of neural network trained on text."),
+                    answer_slot="relationship",
+                )
+            ],
+        )
+        payload = coverage.to_dict()
+        assert payload["answered"] is True
+        assert payload["relationship_discharge"] == "subtype"
+        assert "direct_contrast" in payload["satisfied_slots"]

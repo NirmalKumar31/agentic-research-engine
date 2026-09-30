@@ -62,6 +62,11 @@ class TestAContextNounIsNotAComparisonSide:
                 normalized_query=RAG_QUESTION,
                 output_format=OutputFormat.COMPARISON,
                 entities=["retrieval-augmented generation", "fine-tuning", "language models"],
+                # A named axis, which the analyst is now asked to
+                # propose for every comparison. Without one the sides
+                # have nowhere to meet, and two true facts about two
+                # subjects are not a contrast.
+                dimensions=["knowledge_update"],
             )
         )
 
@@ -88,17 +93,17 @@ class TestAContextNounIsNotAComparisonSide:
 
         coverage = assess_coverage(
             contract,
-            ["dimension", "dimension"],
+            ["knowledge_update", "knowledge_update"],
             claims=[
                 SideClaim(
                     subject="",
                     text="Keeping a fine-tuning approach current requires retraining.",
-                    answer_slot="dimension",
+                    answer_slot="knowledge_update",
                 ),
                 SideClaim(
                     subject="",
                     text="Retrieval-augmented generation retrieves passages at query time.",
-                    answer_slot="dimension",
+                    answer_slot="knowledge_update",
                 ),
             ],
         )
@@ -138,11 +143,11 @@ class TestShapeIsStableAcrossWording:
         [
             (
                 "What are the main causes of hallucination in large language models?",
-                QuestionType.LIST,
+                QuestionType.CAUSAL_DRIVERS,
             ),
-            ("What causes hallucinations in large language models?", QuestionType.LIST),
-            ("What are the main reasons LLMs hallucinate?", QuestionType.LIST),
-            ("What are the risk factors for overfitting?", QuestionType.LIST),
+            ("What causes hallucinations in large language models?", QuestionType.CAUSAL_DRIVERS),
+            ("What are the main reasons LLMs hallucinate?", QuestionType.CAUSAL_DRIVERS),
+            ("What are the risk factors for overfitting?", QuestionType.CAUSAL_DRIVERS),
             ("What types of regularisation prevent overfitting?", QuestionType.LIST),
             ("What is the context window size of GPT-4 Turbo?", QuestionType.NUMERIC),
             ("How many parameters does Llama 3 have?", QuestionType.NUMERIC),

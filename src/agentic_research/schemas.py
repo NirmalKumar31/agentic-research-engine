@@ -53,6 +53,7 @@ class AnalysisOut(BaseModel):
         "timeline",
         "decision_support",
         "causal_analysis",
+        "causal_drivers",
         "metric",
         "list",
         "synthesis",

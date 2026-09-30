@@ -60,6 +60,9 @@ _FIRST_PASS_PENALTY: dict[SourceType, float] = {
     SourceType.FORUM: -0.08,
 }
 
+# Bucket key for a candidate no query attributed to a sub-question.
+_UNATTRIBUTED = "_unattributed"
+
 _MAX_BONUS = max(_AUTHORITY_BONUS.values())
 _MAX_PENALTY = -min(_FIRST_PASS_PENALTY.values())
 DECIDING_RELEVANCE_GAP = _MAX_BONUS + _MAX_PENALTY
@@ -145,6 +148,23 @@ def select_with_diagnostics(
     sub-question a candidate mentions but the caller did not list is
     still served, appended in first-seen order, so a missing priority
     list degrades to "cover everything" rather than to "cover nothing".
+
+    A candidate surfaced by several sub-questions is **selected once and
+    credited to all of them**. An earlier version of this function put
+    such a candidate in every bucket and then recorded it against
+    whichever bucket happened to claim it first, which produced two
+    wrong outcomes: a sub-question whose query returned the selected
+    page was reported as having no source at all, so critique published
+    a "no suitable source found" gap that was false; and the bucket that
+    lost the race went on to spend another fetch on a sub-question
+    already represented by that same page.
+
+    Allocation is about *fetching*, not about answering. Crediting a
+    shared candidate to two sub-questions says the page was retrieved
+    for both, and nothing more -- whether its extracted evidence
+    actually addresses either is decided later by topicality and
+    coverage, which look at the text rather than at the query that
+    surfaced the URL.
     """
     pool = list(candidates)
     if limit <= 0 or not pool:
@@ -154,11 +174,10 @@ def select_with_diagnostics(
         )
 
     # Bucket by sub-question. A candidate surfaced for several
-    # sub-questions appears in each bucket and is claimed once.
+    # sub-questions appears in each bucket; selection deduplicates.
     buckets: dict[str, list[Candidate]] = {sq: [] for sq in sub_question_order}
     for candidate in pool:
-        ids = candidate.sub_question_ids or ["_unattributed"]
-        for sq in ids:
+        for sq in candidate.sub_question_ids or [_UNATTRIBUTED]:
             buckets.setdefault(sq, []).append(candidate)
     for sq in buckets:
         buckets[sq].sort(key=lambda c: _sort_key(c, explanatory=explanatory), reverse=True)
@@ -167,21 +186,41 @@ def select_with_diagnostics(
     chosen_urls: set[str] = set()
     by_sub_question: dict[str, list[str]] = {sq: [] for sq in buckets}
 
-    # Round-robin: every sub-question takes its best unclaimed candidate
-    # before any takes a second. This is the whole fix for one dimension
-    # consuming the entire budget.
+    def claim(candidate: Candidate) -> None:
+        """Select once, credit every sub-question the candidate serves."""
+        selected.append(candidate)
+        chosen_urls.add(candidate.canonical_url)
+        for sq in candidate.sub_question_ids or [_UNATTRIBUTED]:
+            urls = by_sub_question.setdefault(sq, [])
+            if candidate.canonical_url not in urls:
+                urls.append(candidate.canonical_url)
+
+    # Breadth first: every sub-question gets *representation* before any
+    # gets a second source. A sub-question already credited by a shared
+    # candidate is skipped rather than given a duplicate, which is what
+    # frees the slot for a sub-question that has none.
+    for sq, bucket in buckets.items():
+        if len(selected) >= limit:
+            break
+        if by_sub_question.get(sq):
+            continue
+        for candidate in bucket:
+            if candidate.canonical_url not in chosen_urls:
+                claim(candidate)
+                break
+
+    # Then depth, round-robin, so a remaining budget is spread rather
+    # than spent entirely on the first sub-question.
     progressed = True
     while len(selected) < limit and progressed:
         progressed = False
-        for sq, bucket in buckets.items():
+        for bucket in buckets.values():
             if len(selected) >= limit:
                 break
             for candidate in bucket:
                 if candidate.canonical_url in chosen_urls:
                     continue
-                selected.append(candidate)
-                chosen_urls.add(candidate.canonical_url)
-                by_sub_question[sq].append(candidate.canonical_url)
+                claim(candidate)
                 progressed = True
                 break
 

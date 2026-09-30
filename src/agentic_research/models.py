@@ -174,6 +174,18 @@ class OutputFormat(StrEnum):
     TIMELINE = "timeline"
     DECISION_SUPPORT = "decision_support"
     CAUSAL_ANALYSIS = "causal_analysis"
+    """A yes/no causal test: "does X cause Y?"
+
+    Distinct from CAUSAL_DRIVERS because the two want different
+    evidence and it is not safe to let one stand for the other. Asked
+    whether X causes Y, naming a plausible driver is not an answer --
+    that is the association-for-causation substitution the whole
+    verification layer exists to refuse."""
+    CAUSAL_DRIVERS = "causal_drivers"
+    """A driver-seeking question: "what causes X?", "why does X happen?"
+
+    Here the drivers *are* the answer, and demanding evidence of
+    established causation would make the question unanswerable."""
     METRIC = "metric"
     LIST = "list"
     SYNTHESIS = "synthesis"

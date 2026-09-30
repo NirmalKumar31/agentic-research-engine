@@ -38,6 +38,13 @@ COMPARISON = build_contract(
     "How does a large language model differ from a neural network?",
     QuestionType.COMPARISON,
     entities=("large language model", "neural network"),
+    comparison_subjects=("large language model", "neural network"),
+    # A named axis. The generic `dimension` slot cannot complete a
+    # contrast any more: two claims declaring it may address entirely
+    # different properties, and counting that as a comparison was the
+    # shortcut the audit rejected. The analyst is now asked to propose
+    # axes for every comparison, so a named slot is the normal case.
+    dimensions=("input_domain",),
 )
 DEFINITION = build_contract(
     "What is a vector database?", QuestionType.DEFINITION, entities=("vector database",)
@@ -84,17 +91,17 @@ class TestTheReportLevelGateIsWhatStopsTheOriginalDefect:
         question being asked."""
         coverage = assess_coverage(
             COMPARISON,
-            ["dimension", "dimension"],
+            ["input_domain", "input_domain"],
             claims=[
                 SideClaim(
                     subject="",
                     text="Large language models predict token sequences from text.",
-                    answer_slot="dimension",
+                    answer_slot="input_domain",
                 ),
                 SideClaim(
                     subject="",
                     text="Neural networks classify images into categories.",
-                    answer_slot="dimension",
+                    answer_slot="input_domain",
                 ),
             ],
         )

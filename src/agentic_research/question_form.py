@@ -289,7 +289,34 @@ def reconcile_comparison_subjects(
 # wording that a later pattern would also match: "what is the context
 # window *size of* X" is a figure, and only looks like a definition
 # because it opens with "what is".
+# A yes/no causal test. Checked before everything else that could match
+# it, because "does X cause Y" contains the word "cause" and would
+# otherwise read as a driver-seeking question -- which is exactly the
+# substitution that must not happen: naming a plausible driver is not
+# an answer to whether X causes Y.
+_CAUSAL_TEST = re.compile(
+    r"^\s*(?:does|do|did|can|could|is|are|was|were|will|would)\b"
+    r".*\b(?:cause[sd]?|causing|lead[s]? to|led to|result[s]? in|resulted in"
+    r"|responsible for|contribute[s]? to|contributed to|produce[s]?|drive[s]?)\b",
+    re.IGNORECASE,
+)
+
+# Driver-seeking: the drivers are the answer.
+_CAUSAL_DRIVERS = re.compile(
+    r"^\s*what\s+(?:causes|cause|leads to|drives)\b"
+    r"|\b(?:causes?|reasons?|factors?|drivers?)\s+(?:of|for|behind|that|why)\b"
+    # "what are the main reasons LLMs hallucinate" -- no preposition
+    # follows the noun, so the pattern above misses it.
+    r"|\bwhat\s+(?:are|is)\s+the\s+(?:main\s+|key\s+|principal\s+|primary\s+)?"
+    r"(?:causes?|reasons?|factors?|drivers?)\b"
+    r"|^\s*why\b|\bwhy (?:do|does|did|is|are)\b"
+    r"|\bwhat (?:factors|drivers)\b",
+    re.IGNORECASE,
+)
+
 _SHAPE_PATTERNS: tuple[tuple[QuestionType, re.Pattern[str]], ...] = (
+    (QuestionType.CAUSAL, _CAUSAL_TEST),
+    (QuestionType.CAUSAL_DRIVERS, _CAUSAL_DRIVERS),
     (
         QuestionType.NUMERIC,
         re.compile(
@@ -328,15 +355,15 @@ _SHAPE_PATTERNS: tuple[tuple[QuestionType, re.Pattern[str]], ...] = (
     (
         QuestionType.LIST,
         re.compile(
-            r"\b(?:causes?|reasons?|factors?|risks?|examples?|types?|kinds?|"
-            r"categories|benefits?|drawbacks?|advantages?|disadvantages?|"
-            r"use cases?|components?|stages?)\b",
+            # "causes", "reasons", "factors" and "drivers" are absent on
+            # purpose: those are driver-seeking causal questions, which
+            # want a contract carrying the limits of their own evidence
+            # rather than a bare list of members.
+            r"\b(?:risks?|examples?|types?|kinds?|categories|benefits?|"
+            r"drawbacks?|advantages?|disadvantages?|use cases?|components?|"
+            r"stages?|members?|options?)\b",
             re.IGNORECASE,
         ),
-    ),
-    (
-        QuestionType.CAUSAL,
-        re.compile(r"^\s*why\b|\bwhy (?:do|does|did|is|are)\b", re.IGNORECASE),
     ),
     (
         QuestionType.DEFINITION,

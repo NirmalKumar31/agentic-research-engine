@@ -204,3 +204,106 @@ class TestSelectionPrefersAuthorityAtComparableRelevance:
         assert result.dropped
         reason = result.dropped[0].reason
         assert "social" in reason or "authority" in reason
+
+
+class TestACandidateServingSeveralSubQuestions:
+    """Selected once, credited to every sub-question it serves.
+
+    The earlier version bucketed such a candidate under each
+    sub-question and then recorded it against whichever bucket claimed
+    it first. Two wrong outcomes followed: a sub-question whose own
+    query returned the selected page was reported as having no source,
+    so critique published a false "no suitable source found" gap; and
+    the bucket that lost the race spent another fetch on a
+    sub-question already represented by that same page.
+    """
+
+    def test_one_shared_candidate_credits_both_sub_questions(self) -> None:
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        shared = candidate("https://a.example.com/1", score=0.90, sub_questions=("SQ1", "SQ2"))
+        result = select_with_diagnostics([shared], limit=2, sub_question_order=["SQ1", "SQ2"])
+        assert len(result.selected) == 1, "one page, one fetch"
+        assert result.by_sub_question["SQ1"] == ["https://a.example.com/1"]
+        assert result.by_sub_question["SQ2"] == ["https://a.example.com/1"]
+        assert result.sub_questions_with_no_source == ()
+
+    def test_no_false_starvation_is_reported(self) -> None:
+        """The specific false gap cause: critique would have said no
+        suitable source was found for SQ2."""
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        shared = candidate("https://a.example.com/1", score=0.90, sub_questions=("SQ1", "SQ2"))
+        result = select_with_diagnostics([shared], limit=1, sub_question_order=["SQ1", "SQ2"])
+        assert "SQ2" not in result.sub_questions_with_no_source
+
+    def test_a_shared_candidate_does_not_consume_a_second_slot(self) -> None:
+        """A shared page plus a unique page covers three sub-questions
+        in two fetches. Previously SQ2 would have taken a duplicate and
+        SQ3 would have gone without."""
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        shared = candidate("https://a.example.com/1", score=0.99, sub_questions=("SQ1", "SQ2"))
+        second_for_sq2 = candidate("https://b.example.com/2", score=0.98, sub_questions=("SQ2",))
+        unique = candidate("https://c.example.com/3", score=0.10, sub_questions=("SQ3",))
+        result = select_with_diagnostics(
+            [shared, second_for_sq2, unique],
+            limit=2,
+            sub_question_order=["SQ1", "SQ2", "SQ3"],
+        )
+        domains = sorted(c.domain for c in result.selected)
+        assert domains == ["a.example.com", "c.example.com"]
+        assert result.sub_questions_with_no_source == ()
+
+    def test_planner_priority_still_orders_selection(self) -> None:
+        """Determinism and priority: the first-listed sub-question is
+        served first when the budget cannot cover every one."""
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        first = candidate("https://first.example.com/1", score=0.10, sub_questions=("SQ1",))
+        second = candidate("https://second.example.com/2", score=0.99, sub_questions=("SQ2",))
+        result = select_with_diagnostics(
+            [first, second], limit=1, sub_question_order=["SQ1", "SQ2"]
+        )
+        assert [c.domain for c in result.selected] == ["first.example.com"]
+
+    def test_selection_is_deterministic_under_input_reordering(self) -> None:
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        pool = [
+            candidate("https://a.example.com/1", score=0.90, sub_questions=("SQ1", "SQ2")),
+            candidate("https://b.example.com/2", score=0.50, sub_questions=("SQ3",)),
+            candidate("https://c.example.com/3", score=0.40, sub_questions=("SQ2",)),
+        ]
+        order = ["SQ1", "SQ2", "SQ3"]
+        forward = select_with_diagnostics(pool, limit=2, sub_question_order=order)
+        backward = select_with_diagnostics(list(reversed(pool)), limit=2, sub_question_order=order)
+        assert [c.canonical_url for c in forward.selected] == [
+            c.canonical_url for c in backward.selected
+        ]
+        assert forward.by_sub_question == backward.by_sub_question
+
+    def test_allocation_is_not_evidence_coverage(self) -> None:
+        """Crediting a shared page to two sub-questions says it was
+        retrieved for both and nothing more. Whether its text addresses
+        either is decided by topicality against the extracted quote --
+        so a page allocated to two sub-questions can still be on topic
+        for only one, and coverage must reflect that rather than the
+        allocation.
+        """
+        from agentic_research.evidence.topicality import is_topical
+        from agentic_research.retrieval.selection import select_with_diagnostics
+
+        shared = candidate("https://a.example.com/1", score=0.9, sub_questions=("SQ1", "SQ2"))
+        result = select_with_diagnostics([shared], limit=1, sub_question_order=["SQ1", "SQ2"])
+        assert result.by_sub_question["SQ1"] and result.by_sub_question["SQ2"]
+
+        capacity_sq = "How does excessive model capacity cause overfitting?"
+        leakage_sq = "How does data leakage conceal overfitting in validation splits?"
+        extracted = (
+            "If the capacity is too high relative to the available data, the model "
+            "fits random noise in the training set."
+        )
+        # One page, allocated to both, on topic for exactly one.
+        assert is_topical(capacity_sq, extracted)
+        assert not is_topical(leakage_sq, extracted)

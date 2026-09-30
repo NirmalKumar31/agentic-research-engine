@@ -21,11 +21,23 @@ from agentic_research.question_form import comparison_sides, shape_from_wording
 
 # Near-equivalent phrasings that must land on one shape each.
 EQUIVALENCE_CLASSES: dict[QuestionType, list[str]] = {
-    QuestionType.LIST: [
+    QuestionType.CAUSAL_DRIVERS: [
         "What are the main causes of hallucination in large language models?",
         "What causes hallucinations in large language models?",
         "What are the main reasons LLMs hallucinate?",
         "What are the risk factors for overfitting?",
+        "What factors contribute to overfitting?",
+        "Why do large language models hallucinate?",
+        "Why does overfitting happen?",
+    ],
+    QuestionType.CAUSAL: [
+        "Does smoking cause lung cancer?",
+        "Can overfitting cause poor generalization?",
+        "Did the regulation lead to lower prices?",
+        "Is dropout responsible for better generalization?",
+        "Does more training data result in better accuracy?",
+    ],
+    QuestionType.LIST: [
         "What types of regularisation prevent overfitting?",
         "What are the benefits of retrieval-augmented generation?",
         "What are the drawbacks of fine-tuning?",
@@ -55,10 +67,6 @@ EQUIVALENCE_CLASSES: dict[QuestionType, list[str]] = {
         "What is retrieval-augmented generation?",
         "Define retrieval-augmented generation.",
         "What is the meaning of overfitting?",
-    ],
-    QuestionType.CAUSAL: [
-        "Why do large language models hallucinate?",
-        "Why does overfitting happen?",
     ],
     QuestionType.RECOMMENDATION: [
         "Should we adopt retrieval-augmented generation?",

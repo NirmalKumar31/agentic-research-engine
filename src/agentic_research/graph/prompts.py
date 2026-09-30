@@ -36,8 +36,11 @@ Choose `output_format` by what the answer must *contain*, not by the topic. \
 The answer is later checked against the shape you pick, so a wrong shape \
 means a correct answer is judged against requirements the question never had:
 - `comparison`: asks how two or more named things differ
-- `causal_analysis`: asks why something happens, what causes it, or whether \
-one thing causes another
+- `causal_analysis`: asks whether one specific thing causes another -- a \
+yes/no causal test, such as "does X cause Y" or "did X lead to Y"
+- `causal_drivers`: asks what causes something, or why it happens, where the \
+answer is the set of contributing factors rather than a verdict on one \
+proposed cause
 - `list`: asks which things, or for the members of a set -- including when \
 those members are causes, factors, reasons, risks or examples
 - `metric`: asks for a specific figure, quantity, size or measurement
@@ -48,10 +51,15 @@ those members are causes, factors, reasons, risks or examples
 - `overview`: asks what something is. Use this only when none of the above \
 fits -- it is the narrowest shape, not the safe default.
 
-For `comparison`, list in `dimensions` any axes the question names itself \
-(cost, latency, accuracy); leave it empty when it names none. For \
-`synthesis`, `parts` is required: give each distinct question asked, \
-rewritten to stand alone."""
+For `comparison`, `dimensions` is where the axes go, and it matters more \
+than it looks. Name the two or three axes on which these subjects should \
+actually be compared -- how knowledge is updated, cost, latency, accuracy, \
+operational complexity -- whether or not the question states them. A \
+comparison counts as answered only when claims about each subject meet on \
+a *named* axis, so a comparison with no dimensions cannot be completed: \
+two true facts about two subjects are not a contrast unless they are about \
+the same thing. For `synthesis`, `parts` is required: give each distinct \
+question asked, rewritten to stand alone."""
 
 
 def analyst_user(query: str) -> str:
@@ -126,6 +134,11 @@ _QUERY_STYLE_BY_SHAPE: dict[str, str] = {
         "explanation is a better first source here than a specialist paper."
     ),
     "causal": (
+        "This question tests one proposed cause. Search for evidence about "
+        "that specific relationship, not for a list of contributing factors: "
+        "a plausible driver is not an answer to whether X causes Y."
+    ),
+    "causal_drivers": (
         "This question asks why something happens. Include at least one plain, "
         "general query naming the subject and the effect, before any query "
         "about a specific mechanism."
