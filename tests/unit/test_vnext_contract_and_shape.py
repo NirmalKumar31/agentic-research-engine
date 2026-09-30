@@ -84,15 +84,32 @@ class TestAContextNounIsNotAComparisonSide:
         from agentic_research.answer_coverage import assess_coverage
 
         contract = self._contract()
+        from agentic_research.comparison import SideClaim
+
         coverage = assess_coverage(
             contract,
             ["dimension", "dimension"],
-            claim_texts=[
-                "Keeping a fine-tuning approach current requires retraining.",
-                "Retrieval-augmented generation retrieves passages at query time.",
+            claims=[
+                SideClaim(
+                    subject="",
+                    text="Keeping a fine-tuning approach current requires retraining.",
+                    answer_slot="dimension",
+                ),
+                SideClaim(
+                    subject="",
+                    text="Retrieval-augmented generation retrieves passages at query time.",
+                    answer_slot="dimension",
+                ),
             ],
         )
         assert coverage.answered, coverage.limitations()
+        # The contrast exists as structure, referencing the verified
+        # claims, rather than as a new sentence nothing checked.
+        assert len(coverage.comparison_pairs) == 1
+        assert set(coverage.comparison_pairs[0].subjects) == {
+            "retrieval-augmented generation",
+            "fine-tuning",
+        }
 
     def test_a_genuine_three_way_comparison_still_needs_three(self) -> None:
         q = "How do Postgres, MySQL and SQLite differ?"

@@ -19,6 +19,7 @@ from dataclasses import dataclass
 
 from agentic_research.answer_contract import AnswerContract, AnswerSlot, QuestionType
 from agentic_research.citations.relevance import _mentions
+from agentic_research.comparison import ComparisonPair, SideClaim, build_comparison_pairs
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,11 @@ class AnswerCoverage:
     satisfied: tuple[str, ...]
     duplicates: tuple[str, ...]
     quality_by_slot: dict[str, float]
+    comparison_pairs: tuple[ComparisonPair, ...] = ()
+    """Complete contrasts assembled from verified side claims.
+
+    The evidence that a comparison was answered, and the thing the
+    report renders side by side. Empty for every non-comparison."""
     absent_entities: tuple[str, ...] = ()
     """Subjects the question named that no retrieved source mentions.
 
@@ -87,6 +93,7 @@ class AnswerCoverage:
             "duplicate_slots": list(self.duplicates),
             "answered": self.answered,
             "absent_entities": list(self.absent_entities),
+            "comparison_pairs": [p.to_dict() for p in self.comparison_pairs],
             "quality_by_slot": dict(self.quality_by_slot),
         }
 
@@ -234,6 +241,7 @@ def assess_coverage(
     published_slots: list[str] | tuple[str, ...],
     *,
     quality_by_slot: dict[str, float] | None = None,
+    claims: Sequence[SideClaim] | None = None,
     claim_texts: Sequence[str] | None = None,
     source_texts: Sequence[str] | None = None,
 ) -> AnswerCoverage:
@@ -242,21 +250,32 @@ def assess_coverage(
     A slot only counts when the contract asked for it: a claim
     declaring something the question never required satisfies nothing.
 
-    ``claim_texts`` lets a comparison's core slot be discharged by
-    claims that between them speak about every subject named -- see
-    :func:`_spans_every_entity`. Omitting it only loses that route;
-    every other rule is unchanged.
+    ``claims`` carries each published claim with the slot it declared,
+    so a comparison's core slot can be discharged by verified side
+    assertions assembled into a pair. The slot and the text must travel
+    together: the two were previously passed as separate lists built
+    with *different* filters, which nothing indexed together yet and
+    which no longer holds once they are paired.
+
+    ``claim_texts`` remains for callers that only have the texts. It
+    cannot discharge a contrast on its own, because a contrast now
+    requires knowing which dimension each claim was declared against.
     """
+    if claims is None and claim_texts:
+        claims = [SideClaim(subject="", text=t, answer_slot="") for t in claim_texts]
     counts = Counter(name for name in published_slots if contract.has_slot(name))
     satisfied = set(counts)
 
-    # A comparison answered by one atomic claim per subject.
-    if (
-        contract.question_type is QuestionType.COMPARISON
-        and "direct_contrast" not in satisfied
-        and satisfied
-        and _spans_every_entity(contract, claim_texts or ())
-    ):
+    # A comparison answered by one verified atomic claim per subject,
+    # assembled into a structured pair rather than a fused sentence.
+    #
+    # Stronger than the rule it replaces. `_spans_every_entity` pooled
+    # every published claim and asked only whether the subjects were
+    # mentioned somewhere between them, so two claims about different
+    # things satisfied the contrast. A pair requires a verified claim
+    # per subject *within one dimension*.
+    pairs = build_comparison_pairs(contract, list(claims or ()))
+    if pairs and "direct_contrast" not in satisfied:
         satisfied.add("direct_contrast")
 
     return AnswerCoverage(
@@ -265,4 +284,5 @@ def assess_coverage(
         duplicates=tuple(sorted(name for name, n in counts.items() if n > 1)),
         quality_by_slot=dict(quality_by_slot or {}),
         absent_entities=_entities_absent_from(contract, source_texts or ()),
+        comparison_pairs=pairs,
     )
