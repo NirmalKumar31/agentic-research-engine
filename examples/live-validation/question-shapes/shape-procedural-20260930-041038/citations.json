@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "With QLoRA, the frozen base model is loaded in 4-bit precision using NF4.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S2-e3",
+        "resolved": true,
+        "quote": "Instead of loading the frozen base model at its native 16-bit precision, QLoRA loads it in 4-bit precision using a quantization format called NF4, then trains the LoRA adapter on top of the quantized weights while keeping the adapter\u2019s own math in a higher-precision dtype like bfloat16.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://tech-insider.org/how-to-fine-tune-llm-lora-2026",
+        "source_title": "How to Fine-Tune an LLM With LoRA: 12 Steps [2026]"
+      }
+    ]
+  }
+]

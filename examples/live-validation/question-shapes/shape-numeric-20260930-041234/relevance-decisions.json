@@ -1,0 +1,9 @@
+[
+  {
+    "claim": "GPT-4 Turbo has a context window of 128,000 tokens.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It gives GPT-4 Turbo\u2019s maximum context-window size, the requested distinguishing property.",
+    "published": true
+  }
+]

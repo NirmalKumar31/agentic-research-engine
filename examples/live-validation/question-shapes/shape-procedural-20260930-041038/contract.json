@@ -1,0 +1,28 @@
+{
+  "question": "What are the main steps and practical considerations for fine-tuning a language model with Low-Rank Adaptation (LoRA), including preparing data, configuring and training adapters, and evaluating the result?",
+  "question_type": "procedural",
+  "entities": [
+    "language model",
+    "Low-Rank Adaptation (LoRA)",
+    "LoRA adapters"
+  ],
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "steps",
+      "description": "What to do, in order",
+      "core": true,
+      "satisfied_by": []
+    },
+    {
+      "name": "preconditions",
+      "description": "What must be true before starting",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "claim": "A RAG system has a retriever, a generator, and a knowledge base as its three fundamental components.",
+    "parts": [
+      {
+        "text": "A RAG system has a retriever, a generator",
+        "supported": false,
+        "best_entailment": 0.109231,
+        "best_evidence_id": "S2-e4"
+      }
+    ],
+    "verdict": "unsupported"
+  }
+]

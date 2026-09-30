@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://community.openai.com/t/what-is-the-context-window-of-gpt-4/701256",
+    "title": "What is the context window of gpt 4 - API - OpenAI Developer Community",
+    "domain": "community.openai.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.58,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://www.youtube.com/watch?v=n2dHqVT1eFo",
+    "title": "The Truth about GPT-4 128K Context Window",
+    "domain": "youtube.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.602,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://openai.com/index/new-models-and-developer-products-announced-at-devday",
+    "title": "New models and developer products announced at DevDay | OpenAI",
+    "domain": "openai.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.614,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://community.openai.com/t/what-is-the-context-window-of-the-the-new-gpt-3-5-turbo-model-gpt-3-5-turbo-0125/609532",
+    "title": "What is the context window of the the new GPT 3.5 Turbo model (gpt-3.5-turbo-0125)? - API - OpenAI Developer Community",
+    "domain": "community.openai.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.602,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://community.openai.com/t/what-does-context-window-mean-in-the-documentation/566158",
+    "title": "What does \"CONTEXT WINDOW\" mean in the documentation - API - OpenAI Developer Community",
+    "domain": "community.openai.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.566,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://community.openai.com/t/test-new-128k-window-on-gpt-4-1106-preview/478424",
+    "title": "Test new 128k window on gpt-4-1106-preview - API - OpenAI Developer Community",
+    "domain": "community.openai.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.618,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

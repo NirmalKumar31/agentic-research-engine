@@ -1,0 +1,26 @@
+[
+  {
+    "claim": "Begin by filtering for high-quality examples relevant to the target task, removing duplicates and near-duplicates, balancing class distributions if applicable, and validating data-format consistency.",
+    "verdict": "irrelevant",
+    "reason": "does not answer the question: the question asks about language model, Low-Rank Adaptation (LoRA), LoRA adapters and it names none of them, in any wording",
+    "best_entailment": 0.989196,
+    "best_evidence_id": "S4-e1",
+    "guards_passed": true
+  },
+  {
+    "claim": "Choose the LoRA rank by balancing adaptation capacity against compute and memory costs and the risk of overfitting.",
+    "verdict": "unsupported",
+    "reason": "best entailment 0.011 from S2-e2 is below the 0.98 support threshold",
+    "best_entailment": 0.010852,
+    "best_evidence_id": "S2-e2",
+    "guards_passed": true
+  },
+  {
+    "claim": "Open-Finance-Lab\u2019s FinLoRA benchmark, published in May 2025, found that a LoRA adapter lifted Llama-3.1-8B\u2019s accuracy by 37.69 points over the base model.",
+    "verdict": "unsupported",
+    "reason": "every cited quote failed a deterministic guard: atomicity",
+    "best_entailment": 0.997623,
+    "best_evidence_id": "S2-e6",
+    "guards_passed": false
+  }
+]

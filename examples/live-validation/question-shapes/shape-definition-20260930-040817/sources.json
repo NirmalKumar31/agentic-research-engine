@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://mbrenndoerfer.com/writing/rag-architecture-retriever-generator-design-patterns",
+    "title": "RAG Architecture: Components, Timing & Design Patterns - Interactive",
+    "domain": "mbrenndoerfer.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.626,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://www.kernshell.com/anatomy-of-rag-retriever-generator-and-the-workflow",
+    "title": "Anatomy of RAG: Retriever, Generator and Workflow Explained | 2025 Guide",
+    "domain": "kernshell.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.633,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://searchatlas.com/blog/what-is-rag",
+    "title": "What is RAG (Retrieval-Augmented Generation): How It Works, Architecture & Implementation Guide",
+    "domain": "searchatlas.com",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.584,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://www.databricks.com/blog/rag-workflow",
+    "title": "End-to-End RAG Workflow: How Retrieval Augmented Generation Works | Databricks Blog",
+    "domain": "databricks.com",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.584,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12540348",
+    "title": "MEGA-RAG: a retrieval-augmented generation framework with multi-evidence guided answer refinement for mitigating hallucinations of LLMs in public health",
+    "domain": "pmc.ncbi.nlm.nih.gov",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.958,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://arxiv.org/html/2504.05324v1",
+    "title": "Hybrid Retrieval for Hallucination Mitigation in Large Language Models: A Comparative Analysis",
+    "domain": "arxiv.org",
+    "source_type": "academic",
+    "content_origin": "provider_raw",
+    "quality_score": 0.967,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

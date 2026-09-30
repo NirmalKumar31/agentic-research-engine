@@ -1,0 +1,11 @@
+{
+  "complete": true,
+  "terminal_event": "result",
+  "started_utc": "2026-09-30T04:10:38Z",
+  "wall_clock_seconds": 96.07,
+  "raw_bytes": 46147,
+  "chunks": 48,
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "How do you fine-tune a language model using LoRA?",
+  "method": "raw bytes streamed to disk, timing recorded in a separate index"
+}

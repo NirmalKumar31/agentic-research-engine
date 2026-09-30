@@ -1,0 +1,10 @@
+[
+  {
+    "claim": "A RAG system has a retriever, a generator, and a knowledge base as its three fundamental components.",
+    "verdict": "unsupported",
+    "reason": "the claim asserts 2 things and 'A RAG system has a retriever, a generator' is not supported: best entailment 0.109 from S2-e4 is below the 0.98 support threshold",
+    "best_entailment": null,
+    "best_evidence_id": null,
+    "guards_passed": null
+  }
+]

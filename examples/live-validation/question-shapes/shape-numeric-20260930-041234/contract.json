@@ -1,0 +1,28 @@
+{
+  "question": "What is the maximum context window, in tokens, for OpenAI's GPT-4 Turbo model?",
+  "question_type": "definition",
+  "entities": [
+    "OpenAI",
+    "GPT-4 Turbo",
+    "context window"
+  ],
+  "dimensions": [],
+  "constraints": [],
+  "ambiguities": [],
+  "usable": true,
+  "unusable_reason": "",
+  "required_slots": [
+    {
+      "name": "definition",
+      "description": "What the subject is",
+      "core": true,
+      "satisfied_by": []
+    },
+    {
+      "name": "distinguishing_property",
+      "description": "What separates it from adjacent things",
+      "core": false,
+      "satisfied_by": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "complete": true,
+  "terminal_event": "result",
+  "started_utc": "2026-09-30T04:08:18Z",
+  "wall_clock_seconds": 119.45,
+  "raw_bytes": 42586,
+  "chunks": 49,
+  "service_url": "https://agentic-research-engine-live.onrender.com",
+  "question": "What is retrieval-augmented generation?",
+  "method": "raw bytes streamed to disk, timing recorded in a separate index"
+}

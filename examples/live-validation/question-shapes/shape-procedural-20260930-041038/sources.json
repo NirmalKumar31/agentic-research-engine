@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S1",
+    "url": "https://www.youtube.com/watch?v=cO6Ly7mIziQ",
+    "title": "LoRA & QLoRA Explained Simply | Full Fine-Tuning vs PEFT + Intuition + Practical (Complete Guide)",
+    "domain": "youtube.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.606,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S2",
+    "url": "https://tech-insider.org/how-to-fine-tune-llm-lora-2026",
+    "title": "How to Fine-Tune an LLM With LoRA: 12 Steps [2026]",
+    "domain": "tech-insider.org",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.607,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S3",
+    "url": "https://mbrenndoerfer.com/writing/lora-hyperparameters-rank-alpha-target-modules",
+    "title": "LoRA Hyperparameters: Rank, Alpha & Target Module Selection - Interactive",
+    "domain": "mbrenndoerfer.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.619,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S4",
+    "url": "https://introl.com/blog/fine-tuning-infrastructure-lora-qlora-peft-scale-guide-2025",
+    "title": "Fine-Tuning Infrastructure: LoRA, QLoRA, and PEFT at Scale | Introl Blog",
+    "domain": "introl.com",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.559,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S5",
+    "url": "https://dev.to/aairom/run-big-llms-on-small-gpus-a-hands-on-guide-to-4-bit-quantization-and-qlora-4bi",
+    "title": "Run Big LLMs on Small GPUs: A Hands-On Guide to 4-bit Quantization and QLoRA - DEV Community",
+    "domain": "dev.to",
+    "source_type": "blog",
+    "content_origin": "provider_raw",
+    "quality_score": 0.55,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  },
+  {
+    "id": "S6",
+    "url": "https://mbrenndoerfer.com/writing/qlora-quantized-lora-memory-efficient-fine-tuning",
+    "title": "QLoRA: 4-Bit Quantization for Efficient Fine-Tuning - Interactive",
+    "domain": "mbrenndoerfer.com",
+    "source_type": "other",
+    "content_origin": "provider_raw",
+    "quality_score": 0.598,
+    "page_count": null,
+    "usable": true,
+    "fetch_status": "provider_content"
+  }
+]

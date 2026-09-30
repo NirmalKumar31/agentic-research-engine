@@ -1,0 +1,24 @@
+[
+  {
+    "claim": "GPT-4 Turbo has a context window of 128,000 tokens.",
+    "kind": "factual",
+    "evidence": [
+      {
+        "evidence_id": "S1-e1",
+        "resolved": true,
+        "quote": "GPT-4 also known as GPT-4-0613 (GPT 4 Points GPT-4-0613), has a context window of 8,192 tokens, while GPT-4 turbo (Points GPT-4-0125-preview) has a context window of 128,000 tokens.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://community.openai.com/t/what-is-the-context-window-of-gpt-4/701256",
+        "source_title": "What is the context window of gpt 4 - API - OpenAI Developer Community"
+      },
+      {
+        "evidence_id": "S3-e1",
+        "resolved": true,
+        "quote": "It has a 128k context window so it can fit the equivalent of more than 300 pages of text in a single prompt.",
+        "quote_match": "exact_normalized",
+        "source_url": "https://openai.com/index/new-models-and-developer-products-announced-at-devday",
+        "source_title": "New models and developer products announced at DevDay | OpenAI"
+      }
+    ]
+  }
+]

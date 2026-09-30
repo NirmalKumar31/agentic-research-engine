@@ -1,0 +1,16 @@
+[
+  {
+    "claim": "Retrieval-augmented generation (RAG) is an artificial intelligence framework that combines information retrieval systems with generative large language models.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It defines RAG as a framework combining information retrieval with generative language models.",
+    "published": true
+  },
+  {
+    "claim": "RAG retrieves relevant external documents from a knowledge source and incorporates them into the generation process.",
+    "stage": "judged",
+    "relevant": true,
+    "reason": "It describes RAG\u2019s distinguishing mechanism: retrieving external documents and incorporating them into generation.",
+    "published": true
+  }
+]

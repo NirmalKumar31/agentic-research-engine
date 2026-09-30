@@ -495,24 +495,44 @@ answered. Every claim it publishes resolves to an exact-normalised quote
 at a live URL. Across those eight runs, **every refusal inspected was the
 correct refusal.**
 
-**What it does not do.** Produce a full report. The eight runs published
-**0, 0, 0, 1, 1, 2, 3 and — once — 0 from thirteen generated claims.**
-One to three cited sentences is a starting point, not an answer.
+**What it does not do — and where that depends on the question.** The
+first eight runs all asked the *same* question, and an earlier version
+of this section generalised from them that the reports are "too thin to
+use as research". Four more runs across different question shapes
+contradict that, so it is retracted:
 
-The bottleneck is measured and it is not the verification machinery:
-across 24 generated claims, **58% were refused on synthesis quality**
-(38% irrelevant, 21% guard failures) and 17% on evidence being below
-threshold. The synthesiser writes few claims that both answer the
-question and survive the gates.
+| Shape | Question | Published |
+| --- | --- | --- |
+| definition | What is retrieval-augmented generation? | **2 of 3** |
+| numeric | What is the context window size of GPT-4 Turbo? | **1 of 1** |
+| procedural | How do you fine-tune a model using LoRA? | 1 of 4 |
+| comparison (×8 runs) | How does an LLM differ from a neural network? | 0–3, mostly 0–1 |
 
-**So live research is an experimental, fail-closed integration.** It
-demonstrates that the provenance and verification design works end to
-end on a deployment. It is not a research assistant you would use
-instead of reading the sources, and the interface says so where a
-visitor is about to use it.
+The question those eight runs used is a **hypernym comparison** — the
+engine's worst case by construction. A comparison's core slot is a
+direct contrast, a contrast asserts two things, and the atomicity guard
+refuses compound claims because every other guard reasons about "the
+sentence that supports this claim". The one shape under test was the one
+whose core slot is close to unfillable.
 
-The recorded runs are the demonstration. The
-[adversarial set](examples/quality-eval/) is the measurement.
+On definitional and factual-lookup questions it produces short,
+correct, cited answers in 50–120s for under a cent. It stays weak on
+comparisons and on procedural questions.
+
+The bottleneck on the weak shapes is measured and it is not the
+verification machinery: across 24 generated claims, **58% were refused
+on synthesis quality** (38% irrelevant, 21% guard failures) and 17% on
+evidence below threshold.
+
+**Live research is still labelled experimental and fail-closed**, and
+the interface says so where a visitor is about to use it — one question
+per shape is coverage, not a benchmark, and nothing here licenses a
+claim of general correctness. What it does license is not overstating
+the negative.
+
+The study is at
+[`examples/live-validation/question-shapes/`](examples/live-validation/question-shapes/).
+The [adversarial set](examples/quality-eval/) is the measurement.
 
 ### Eight hosted runs, and what each one found
 

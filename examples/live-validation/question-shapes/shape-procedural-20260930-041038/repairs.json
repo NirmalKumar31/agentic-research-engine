@@ -1,0 +1,16 @@
+[
+  {
+    "original": "With QLoRA, load the frozen base model in 4-bit NF4 precision and train the LoRA adapter on the quantized weights while keeping adapter computation at a higher precision such as bfloat16.",
+    "rewritten": "With QLoRA, the frozen base model is loaded in 4-bit precision using NF4.",
+    "guard": "wording only: atomicity",
+    "accepted": true,
+    "reason": ""
+  },
+  {
+    "original": "Open-Finance-Lab\u2019s FinLoRA benchmark, published in May 2025, found that a LoRA adapter lifted Llama-3.1-8B\u2019s accuracy by 37.69 points over the base model.",
+    "rewritten": "Open-Finance-Lab\u2019s FinLoRA benchmark found that a LoRA adapter lifted Llama-3.1-8B\u2019s accuracy by 37.69 points over the base model.",
+    "guard": "wording only: atomicity",
+    "accepted": false,
+    "reason": "the rewrite states the claim more strongly than the original"
+  }
+]

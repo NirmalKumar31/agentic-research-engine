@@ -42,11 +42,16 @@ HOSTED_EXTRA = {"stream.raw.sse", "stream.index.jsonl", "withheld-reasons.json"}
 # no report and no metrics, so the contract below cannot apply, and a
 # directory pretending otherwise is worse than none.
 #
+# `question-shapes` holds a coverage study -- several runs compared
+# against each other rather than each accepted on its own. Three
+# near-identical acceptance triplets would be boilerplate; one document
+# comparing them is the actual finding.
+#
 # Named explicitly rather than inferred from their contents: a rule like
 # "has metrics.json" would make a run that is missing its metrics
 # vanish from the parametrisation instead of failing, which is the one
 # thing this file exists to catch.
-NOT_A_RUN = {"tools", "failures"}
+NOT_A_RUN = {"tools", "failures", "question-shapes"}
 
 
 def runs() -> list[Path]:

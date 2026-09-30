@@ -235,8 +235,20 @@ raw streams under `examples/live-validation/`. Published claims: **0,
 0, 0, 1, 1, 2, 3 and 1.**
 
 The verification design works end to end and every refusal inspected
-across those runs was the correct refusal. The reports are too thin to
-use as research. One to three cited sentences is a starting point.
+across those runs was the correct refusal.
+
+**Those eight runs all asked the same question**, and it is the
+engine's worst shape: a hypernym comparison, whose core slot is a
+direct contrast that the atomicity guard refuses because a contrast
+asserts two things. Four later runs across other shapes published 2 of
+3 (definition), 1 of 1 (numeric) and 1 of 4 (procedural). A blanket
+statement that the reports are too thin was generalised from one shape
+and is withdrawn; see `examples/live-validation/question-shapes/`.
+
+What holds is narrower: **output quality varies by question shape**,
+definitional and lookup questions do well, comparisons and procedures
+do not, and one question per shape is coverage rather than a
+benchmark.
 
 The bottleneck is measured and it is not the gates. Across 24
 generated claims, **58% were refused on synthesis quality** (38%

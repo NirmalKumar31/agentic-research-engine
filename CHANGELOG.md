@@ -69,6 +69,48 @@ run. The run that motivated both is committed at
 `examples/live-validation/v161-20260929-191831/`, with the prediction
 it falsified.
 
+## v1.7.1 — 2026-09-30
+
+Retracts an over-general claim v1.7.0 published about its own engine.
+
+Every one of the first eight hosted runs asked the **same question**,
+and v1.7.0 generalised from them that the reports are "too thin to use
+as research". That question is a hypernym comparison — the engine's
+worst shape by construction, since a comparison's core slot is a
+direct contrast, a contrast asserts two things, and the atomicity
+guard refuses compound claims. Eight of nine contract shapes had never
+been exercised on a deployment.
+
+Four runs across other shapes:
+
+| Shape | Published | Cost | Time |
+| --- | --- | --- | --- |
+| definition | **2 of 3** | $0.009275 | 119s |
+| numeric | **1 of 1** | $0.005784 | 52s |
+| procedural | 1 of 4 | $0.010065 | 96s |
+| comparison (×8) | 0–3, mostly 0–1 | ~$0.009 | ~150s |
+
+The definition run filled both contract slots with exact-normalised
+quotes and no false limitation. The numeric run answered correctly in
+52 seconds — *"GPT-4 Turbo has a context window of 128,000 tokens"*,
+entailed at 0.9975.
+
+So the blanket negative is withdrawn and replaced with what four runs
+support: **output quality varies by question shape.** Definitional and
+lookup questions do well; comparisons and procedures do not. One
+question per shape is coverage, not a benchmark, and live research
+stays labelled experimental and fail-closed.
+
+**One finding.** The numeric run's published claim cites two quotes.
+One entailed it at 0.9975 and carried it; the other scored 0.0011 and
+failed the guards, and the citation list shows both with nothing
+distinguishing them. The claim is properly supported, but a reader
+clicking the second citation sees a quote the verifier rejected and
+cannot tell. The per-evidence scores are in the audit record and not in
+the presentation. Recorded, not fixed.
+
+Study at `examples/live-validation/question-shapes/`.
+
 ## v1.7.0 — 2026-09-30
 
 Live research is described as what it is.
