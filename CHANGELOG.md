@@ -2,74 +2,7 @@
 
 Notable changes per release. Dates are UTC.
 
-## Unreleased
-
-Two corrections, both from one hosted run that falsified a prediction
-written down before it.
-
-**The claim bound is the contract's, not the call budget's.** v1.6.1
-removed the cap because it priced a per-claim verification cost that
-the NLI classifier had made free. Removing the justification was
-right; removing the cap with it was not:
-
-| | cap of 7 | no cap |
-| --- | --- | --- |
-| Claims generated | 5 | **13** |
-| Published | **1** | **0** |
-
-The cap had a second job nobody had written down. Unbounded, the
-synthesiser wrote thin claims until the evidence ran out, and a larger
-batch of thin claims fared worse at the relevance gate than a smaller
-batch of considered ones. The bound is back as a **quality** bound,
-labelled as one, and tied to the thing that says how much answer was
-asked for: two claims per required part of the contract.
-
-**The relevance judge is asked the contract's question.** It had been
-asked "does this help answer the question?" while being shown a list
-of parts it was not asked about, so it applied its own notion and
-contradicted the contract the report is scored against:
-
-| Run | Claim | Verdict |
-| --- | --- | --- |
-| v1.6.0 | *LLMs are built upon deep neural networks.* | relevant → published |
-| v1.6.1 | *An LLM is a neural network.* | **irrelevant** |
-
-Both declared `relationship`. That slot exists because when one
-subject is a kind of the other there is no contrast to draw and
-saying so *is* the answer. The judge refused a claim for failing a
-test the contract had already excused it from.
-
-It is now asked whether a claim fills one of the listed parts, and
-told to judge each claim on its own rather than as candidates for one
-place. **This is a tightening**: the judge may no longer freelance,
-and a claim filling no listed part still fails. Both the refusal
-clause and the structural checks are asserted by tests.
-
-**The bound is a request, not a ceiling**, and the docstring says so.
-A local run asked for six claims and produced eight; nothing trims
-the surplus. Not enforced deliberately — every claim is gated
-individually and an extra one costs no model call, so exceeding the
-request is untidy rather than unsafe, while truncating a report to a
-count would discard claims before anything had looked at them. What
-the request buys is measured: unbounded, thirteen claims; asked for
-six, eight.
-
-**A local model cannot evaluate the relevance-judge change.** Both
-prompts were run head to head on `qwen2.5:7b-instruct` against the
-two claims a hosted run judged oppositely plus two controls. Every
-claim came back *no* under both, including the one the hosted critic
-published. The local judge is saturated at refusal, so an A/B on it
-would report "no change" whatever the change was. Recorded in
-LIMITATIONS: a prompt change to this gate can only be evaluated on
-the hosted path.
-
-So of the two corrections, the contract bound is verified end to end
-locally and the judge change is not verifiable without one hosted
-run. The run that motivated both is committed at
-`examples/live-validation/v161-20260929-191831/`, with the prediction
-it falsified.
-
-## Unreleased
+## v1.8.0 — 2026-09-30
 
 Comparisons can be answered. They could not before, for a structural
 reason that took nine runs and four attempts to locate correctly.
@@ -166,6 +99,77 @@ the presentation. Recorded, not fixed.
 Study at `examples/live-validation/question-shapes/`.
 
 ## v1.7.0 — 2026-09-30
+
+This release also carried two corrections that were labelled
+Unreleased when they were written and shipped in this tag. They are
+recorded here rather than left under a heading that stopped being
+true, because a changelog that mislabels what shipped is the same
+class of defect as a report that overstates what it verified.
+
+Two corrections, both from one hosted run that falsified a prediction
+written down before it.
+
+**The claim bound is the contract's, not the call budget's.** v1.6.1
+removed the cap because it priced a per-claim verification cost that
+the NLI classifier had made free. Removing the justification was
+right; removing the cap with it was not:
+
+| | cap of 7 | no cap |
+| --- | --- | --- |
+| Claims generated | 5 | **13** |
+| Published | **1** | **0** |
+
+The cap had a second job nobody had written down. Unbounded, the
+synthesiser wrote thin claims until the evidence ran out, and a larger
+batch of thin claims fared worse at the relevance gate than a smaller
+batch of considered ones. The bound is back as a **quality** bound,
+labelled as one, and tied to the thing that says how much answer was
+asked for: two claims per required part of the contract.
+
+**The relevance judge is asked the contract's question.** It had been
+asked "does this help answer the question?" while being shown a list
+of parts it was not asked about, so it applied its own notion and
+contradicted the contract the report is scored against:
+
+| Run | Claim | Verdict |
+| --- | --- | --- |
+| v1.6.0 | *LLMs are built upon deep neural networks.* | relevant → published |
+| v1.6.1 | *An LLM is a neural network.* | **irrelevant** |
+
+Both declared `relationship`. That slot exists because when one
+subject is a kind of the other there is no contrast to draw and
+saying so *is* the answer. The judge refused a claim for failing a
+test the contract had already excused it from.
+
+It is now asked whether a claim fills one of the listed parts, and
+told to judge each claim on its own rather than as candidates for one
+place. **This is a tightening**: the judge may no longer freelance,
+and a claim filling no listed part still fails. Both the refusal
+clause and the structural checks are asserted by tests.
+
+**The bound is a request, not a ceiling**, and the docstring says so.
+A local run asked for six claims and produced eight; nothing trims
+the surplus. Not enforced deliberately — every claim is gated
+individually and an extra one costs no model call, so exceeding the
+request is untidy rather than unsafe, while truncating a report to a
+count would discard claims before anything had looked at them. What
+the request buys is measured: unbounded, thirteen claims; asked for
+six, eight.
+
+**A local model cannot evaluate the relevance-judge change.** Both
+prompts were run head to head on `qwen2.5:7b-instruct` against the
+two claims a hosted run judged oppositely plus two controls. Every
+claim came back *no* under both, including the one the hosted critic
+published. The local judge is saturated at refusal, so an A/B on it
+would report "no change" whatever the change was. Recorded in
+LIMITATIONS: a prompt change to this gate can only be evaluated on
+the hosted path.
+
+So of the two corrections, the contract bound is verified end to end
+locally and the judge change is not verifiable without one hosted
+run. The run that motivated both is committed at
+`examples/live-validation/v161-20260929-191831/`, with the prediction
+it falsified.
 
 Live research is described as what it is.
 
