@@ -460,10 +460,12 @@ def hedge_guard(claim: str, evidence: str) -> GuardResult:
     """A claim may not delete the uncertainty its evidence expressed.
 
     The band-based modality guard catches strengthening -- "may" to
-    "must" -- but cannot catch deletion, because its rule is "claim band
-    must not exceed evidence band" and a claim with no modality sits in
-    band 0, the weakest. So "may" to "must" fails while "may" to nothing
-    passes, and deletion is the more common overclaim of the two. The
+    "must" -- and deliberately abstains on deletion, because its rule is
+    "claim band must not exceed evidence band" and a bare claim sits at
+    :data:`_BARE_ASSERTION`, above every hedge. So "may" to "must" fails
+    there while "may" to nothing is left to this guard, which is the
+    right split: deletion is not repairable by rewording. Deletion is
+    also the more common overclaim of the two. The
     release audit published exactly one unsupported claim and this was
     it, at 0.9946 entailment, so the classifier does not catch it
     either.

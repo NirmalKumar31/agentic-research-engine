@@ -354,8 +354,47 @@ def _is_predicate(token: str) -> bool:
     return len(word) > 4 and word.endswith("ed")
 
 
+# A closed class, so listing it is safe in a way listing nouns or
+# adjectives would not be. A token sitting directly after one of these
+# is that preposition's object: "through stores", "with reads", "for
+# writes". English does not put a finite verb there.
+_PREPOSITIONS = frozenset(
+    {
+        "about", "above", "across", "after", "against", "along", "among", "around", "as", "at",
+        "before", "behind", "below", "beneath", "beside", "between", "beyond", "by", "down",
+        "during", "except", "for", "from", "in", "inside", "into", "near", "of", "off", "on",
+        "onto", "outside", "over", "past", "per", "since", "through", "throughout", "to",
+        "toward", "towards", "under", "underneath", "until", "up", "upon", "via", "with",
+        "within", "without",
+    }
+)
+
+
 def _carries_predicate(segment: str) -> bool:
-    return any(_is_predicate(token) for token in segment.split())
+    """Whether a coordinated segment asserts something of its own.
+
+    Many English words are both a plural noun and a third-person verb --
+    "stores", "reads", "writes", "requires". Judging a segment by
+    whether *any* token looks like a predicate therefore read noun
+    phrases as clauses, and the atomicity guard refused claims that were
+    never compound. One live run lost a true, officially-sourced claim
+    this way: "gives agents short-term memory through checkpointers and
+    long-term memory through stores" was split at "and", and "stores"
+    in the second half -- the object of "through" -- was counted as its
+    verb.
+
+    So a candidate directly preceded by a preposition does not count.
+    The guard still fires on genuinely coordinated clauses, which carry
+    their predicate after a subject rather than after a preposition.
+    """
+    tokens = segment.split()
+    previous = ""
+    for token in tokens:
+        bare = previous.strip(".,;:!?()[]\"'").lower()
+        if _is_predicate(token) and bare not in _PREPOSITIONS:
+            return True
+        previous = token
+    return False
 
 
 def compound_propositions(text: str) -> list[str]:
