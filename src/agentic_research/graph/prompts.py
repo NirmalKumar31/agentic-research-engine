@@ -78,7 +78,12 @@ several times, or splits along terms rather than along substance.
 Rules:
 - Each sub-question must be answerable by its own web research.
 - No sub-question may be answerable by simply rephrasing another.
-- Prefer four to six sub-questions. Use more only for genuinely broad questions.
+- **Prefer two to four sub-questions.** Coverage marks one answered only \
+when two independent sources support it, and a bounded run reads few pages \
+-- so six sub-questions against six sources cannot all be covered, and the \
+report says "only limited evidence was found" about most of them. Three \
+well-served dimensions beat six starved ones. Use more only when the \
+question genuinely cannot be answered in fewer.
 - Include the dimension a naive answer would overlook, such as failure modes, \
 hidden costs, or the conditions under which the obvious answer is wrong.
 - Return only the sub-questions and their priorities. Do not explain your \
@@ -429,6 +434,7 @@ def synthesizer_user(
     gaps_note: str,
     claim_budget: int | None = None,
     answer_slots: Sequence[AnswerSlot] | None = None,
+    comparison_subjects: Sequence[str] = (),
 ) -> str:
     """Build the synthesis prompt, optionally bounded to a claim budget.
 
@@ -474,6 +480,30 @@ def synthesizer_user(
             f"{demand}"
             "A claim filling none of them does not belong in the report, "
             "however well the evidence supports it."
+        )
+
+    # For a comparison, balance across the subjects is the whole answer.
+    #
+    # Without this the model writes about whichever subject the evidence
+    # covers best. A live run on "langchain vs langgraph differences"
+    # published five claims, four of them about LangGraph alone, filled
+    # three named axes, and still reported that it had not answered --
+    # correctly, because no axis carried a claim about both subjects.
+    # Each claim was true, supported and relevant. Together they were
+    # not a comparison.
+    if comparison_subjects and len(comparison_subjects) >= 2:
+        named = ", ".join(comparison_subjects)
+        slots += (
+            f"\n\nThis is a comparison of: {named}.\n"
+            "For every axis you write about, write one claim per subject "
+            "on that axis, so the two sit side by side. A reader compares "
+            "them; you do not need a sentence that does the comparing, and "
+            "a claim asserting something about both at once will be "
+            "refused for asserting two things.\n"
+            "Three claims about one subject and none about the other is "
+            "not a comparison, however well evidenced each one is. If the "
+            "evidence covers only one subject on an axis, write about a "
+            "different axis where it covers both."
         )
 
     gaps = f"\n\nKnown gaps in the evidence:\n{gaps_note}" if gaps_note else ""

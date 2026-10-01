@@ -42,6 +42,7 @@ from enum import StrEnum
 
 from agentic_research.answer_contract import AnswerContract, QuestionType
 from agentic_research.citations.relevance import _mentions
+from agentic_research.evidence.topicality import salient_terms
 
 
 @dataclass(frozen=True)
@@ -203,7 +204,12 @@ def relationship_kind(text: str) -> RelationshipKind:
     return RelationshipKind.GENERAL
 
 
-def discharges_contrast(contract: AnswerContract, claims: Sequence[SideClaim]) -> tuple[bool, str]:
+def discharges_contrast(
+    contract: AnswerContract,
+    claims: Sequence[SideClaim],
+    *,
+    aliases: Sequence[frozenset[str]] = (),
+) -> tuple[bool, str]:
     """Whether a relationship claim removes the need for a contrast.
 
     Requires all three of: the claim declares `relationship`; its kind
@@ -222,14 +228,40 @@ def discharges_contrast(contract: AnswerContract, claims: Sequence[SideClaim]) -
         kind = relationship_kind(claim.text)
         if kind not in _DISCHARGING_KINDS:
             continue
-        if all(_mentions(claim.text, subject) for subject in subjects):
+        if all(_speaks_about(claim.text, subject, aliases) for subject in subjects):
             return True, kind.value
     return False, ""
+
+
+def _speaks_about(text: str, subject: str, aliases: Sequence[frozenset[str]]) -> bool:
+    """Whether a claim speaks about a subject, counting declared aliases.
+
+    Raw mention-matching was too literal. A live comparison of LangChain
+    and LangGraph published "LangGraph's state persists throughout
+    execution, unlike LCEL's linear flow" -- a genuine contrast, where
+    LCEL is LangChain's own expression language. It contains no
+    "LangChain", so it counted as speaking about one subject, no pair
+    formed, and the run reported it had not answered.
+
+    The aliases are the bounded, question-grounded ones the coverage
+    prefilter uses: a parenthetical gloss, the acronym of a multi-word
+    subject, an entity that is an acronym of another. No global synonym
+    table.
+    """
+    if _mentions(text, subject):
+        return True
+    subject_terms = salient_terms(subject)
+    if not subject_terms:
+        return False
+    claim_terms = salient_terms(text)
+    return any(subject_terms & group and claim_terms & group for group in aliases)
 
 
 def build_comparison_pairs(
     contract: AnswerContract,
     claims: Sequence[SideClaim] | Sequence[tuple[str, str]],
+    *,
+    aliases: Sequence[frozenset[str]] = (),
 ) -> tuple[ComparisonPair, ...]:
     """Assemble complete contrasts from published side claims.
 
@@ -263,7 +295,7 @@ def build_comparison_pairs(
         if not slot or slot in _NON_DIMENSION_SLOTS or not contract.has_slot(slot):
             continue
         for subject in subjects:
-            if _mentions(claim.text, subject):
+            if _speaks_about(claim.text, subject, aliases):
                 by_dimension.setdefault(slot, []).append(
                     SideClaim(
                         subject=subject,

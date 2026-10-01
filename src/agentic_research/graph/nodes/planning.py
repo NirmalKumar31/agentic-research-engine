@@ -232,7 +232,16 @@ async def plan_research(state: ResearchState) -> ResearchState:
                 .router.get(ModelRole.PLANNER)
                 .structured(PlanOut, PLANNER_SYSTEM, planner_user(_analysis_block(analysis)))
             )
-            raw = out.sub_questions[:8]
+            # Capped by what the source budget can actually cover.
+            #
+            # Coverage needs two distinct sources per sub-question, so a
+            # run reading six pages can cover at most three. A live run
+            # planned six dimensions for "what types of vector index",
+            # covered two, and reported "only limited evidence was
+            # found" four times -- which reads as a retrieval failure
+            # and was arithmetic.
+            affordable = max(2, ctx().budget.max_sources // 2)
+            raw = out.sub_questions[:affordable]
         except Exception as exc:
             log.warning(
                 "planning_failed_using_single_dimension",

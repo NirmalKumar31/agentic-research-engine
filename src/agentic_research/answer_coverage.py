@@ -327,6 +327,7 @@ def assess_coverage(
     *,
     quality_by_slot: dict[str, float] | None = None,
     claims: Sequence[SideClaim] | None = None,
+    aliases: Sequence[frozenset[str]] = (),
     claim_texts: Sequence[str] | None = None,
     source_texts: Sequence[str] | None = None,
 ) -> AnswerCoverage:
@@ -378,7 +379,7 @@ def assess_coverage(
     # mentioned somewhere between them, so two claims about different
     # things satisfied the contrast. A pair requires a verified claim
     # per subject *within one dimension*.
-    pairs = build_comparison_pairs(contract, list(claims or ()))
+    pairs = build_comparison_pairs(contract, list(claims or ()), aliases=aliases)
     if pairs and "direct_contrast" not in satisfied:
         satisfied.add("direct_contrast")
 
@@ -389,7 +390,7 @@ def assess_coverage(
     # could not express "only for certain claims" and so admitted every
     # relationship claim, including "both are used with language
     # models".
-    discharged, kind = discharges_contrast(contract, list(claims or ()))
+    discharged, kind = discharges_contrast(contract, list(claims or ()), aliases=aliases)
     if discharged and "direct_contrast" not in satisfied:
         satisfied.add("direct_contrast")
         relationship_discharge = kind

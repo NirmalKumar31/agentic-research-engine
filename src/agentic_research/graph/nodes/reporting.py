@@ -39,6 +39,7 @@ from agentic_research.comparison import (
 )
 from agentic_research.config import ModelRole
 from agentic_research.evidence.store import EvidenceStore
+from agentic_research.evidence.topicality import alias_groups
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import (
     RELEVANCE_SYSTEM,
@@ -98,7 +99,9 @@ _CLAIMS_PER_SLOT = 2
 _CLAIMS_WITHOUT_A_CONTRACT = 6
 
 
-async def _claim_budget(contract: AnswerContract | None = None) -> int | None:
+async def _claim_budget(
+    contract: AnswerContract | None = None, sub_questions: int = 0
+) -> int | None:
     """How many claims this report is worth writing, and whether it can
     be written at all.
 
@@ -152,7 +155,36 @@ async def _claim_budget(contract: AnswerContract | None = None) -> int | None:
         return 0
     if contract is None or not contract.usable or not contract.required_slots:
         return _CLAIMS_WITHOUT_A_CONTRACT
-    return _CLAIMS_PER_SLOT * len(contract.required_slots)
+
+    # The larger of what the contract requires and what the question was
+    # actually decomposed into.
+    #
+    # Slot count alone was the wrong quantity. A `list` contract has two
+    # slots whatever it asks for, so "what types of vector index are
+    # used for similarity search" -- which the planner split into six
+    # dimensions -- asked the synthesiser for four claims and published
+    # one. A comparison gains a slot per named axis and so asked for
+    # twelve, and published seven. The budget was tracking the shape of
+    # the contract rather than the size of the question.
+    #
+    # Two per planned sub-question, matching the per-slot rate, because
+    # a sub-question is exactly one thing the run set out to find out.
+    return claims_requested(contract, sub_questions)
+
+
+def claims_requested(contract: AnswerContract, sub_questions: int = 0) -> int:
+    """How many claims this question's size justifies asking for.
+
+    Split out of :func:`_claim_budget` so it can be driven directly. The
+    enclosing function needs a live run context for the call-budget
+    check, so a test of the arithmetic had to reimplement it -- and a
+    test that reimplements what it checks cannot fail when the real
+    thing changes. That is the defect this repository keeps producing,
+    and it was in the test written for this very fix.
+    """
+    from_slots = _CLAIMS_PER_SLOT * len(contract.required_slots)
+    from_plan = _CLAIMS_PER_SLOT * max(0, sub_questions)
+    return max(from_slots, from_plan)
 
 
 async def synthesize_report(state: ResearchState) -> ResearchState:
@@ -188,7 +220,7 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
             )
 
         errors: list[RunError] = []
-        claim_budget = await _claim_budget(contract)
+        claim_budget = await _claim_budget(contract, len(state.get("sub_questions", [])))
         if claim_budget == 0:
             # Not enough budget left to synthesise *and* verify even one
             # claim. Every claim written here would be removed by the
@@ -224,6 +256,12 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
                             contract.required_slots
                             if contract is not None and contract.usable
                             else None
+                        ),
+                        # The sides, so the synthesiser writes one claim
+                        # per subject on each axis instead of whichever
+                        # subject the evidence happens to cover best.
+                        comparison_subjects=(
+                            contract.subjects_to_span if contract is not None else ()
                         ),
                     ),
                 )
@@ -562,6 +600,13 @@ async def verify_citations(state: ResearchState) -> ResearchState:
                 # that found the subject but could not extract its
                 # body still mentions it.
                 source_texts=[f"{src.title}\n{src.text}" for src in store.usable_sources()],
+                # Bounded aliases from this run's own wording, so a
+                # claim naming a subject by its acronym still counts as
+                # speaking about it.
+                aliases=alias_groups(
+                    contract.question,
+                    list(contract.entities) + list(contract.comparison_subjects),
+                ),
             )
             gaps = coverage.limitations()
             if gaps:
