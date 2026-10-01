@@ -7,6 +7,7 @@ artifacts without re-running any model.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from datetime import UTC, datetime
 
@@ -26,6 +27,35 @@ from agentic_research.models import (
 # quotations that nobody reads.
 MAX_EXCERPTS = 12
 
+_WHITESPACE = re.compile(r"\s+")
+
+
+def _dedupe_key(text: str) -> str:
+    """Identity for "the reader has already read this sentence".
+
+    Exact wording after normalising whitespace, case and the trailing
+    period. Deliberately not fuzzy: suppressing a *paraphrase* would hide
+    a claim whose evidence differs, and two claims that merely resemble
+    each other are reported by the coverage assessment instead.
+    """
+    return _WHITESPACE.sub(" ", (text or "").strip().rstrip(".").lower())
+
+
+def _unrendered(claims: Sequence[Claim], already: set[str]) -> list[Claim]:
+    """The claims in order, minus any the reader has already been shown.
+
+    ``already`` is updated, so a claim repeated inside one section is
+    dropped on its second appearance too.
+    """
+    kept: list[Claim] = []
+    for claim in claims:
+        key = _dedupe_key(claim.text)
+        if key in already:
+            continue
+        already.add(key)
+        kept.append(claim)
+    return kept
+
 
 def render_markdown(
     report: ResearchReport,
@@ -44,6 +74,26 @@ def render_markdown(
     """
     store = EvidenceStore(sources, list(evidence or []))
     cited = report.cited_ids()
+
+    # Every claim is rendered once, in the richest place it appears.
+    #
+    # `summary_claims`, `key_findings`, `sections[].claims` and
+    # `comparison_pairs` are four views over one pool of claims, and
+    # nothing used to reconcile them: a live run printed four claims
+    # eight times -- the Summary repeating the first table verbatim and
+    # a section repeating the second -- and the coverage assessment
+    # filed the repetition as a *limitation* rather than suppressing it.
+    #
+    # The table claims the duplicates. It carries the axis label and
+    # attributes each sentence to its subject, so it says strictly more
+    # than the same sentence standing alone, and a pair that lost a cell
+    # to an earlier heading would no longer be a contrast. A heading
+    # left with nothing to show is dropped entirely rather than printed
+    # empty.
+    rendered: set[str] = {
+        _dedupe_key(side.text) for pair in comparison_pairs or () for side in pair.sides
+    }
+
     lines: list[str] = [f"# {report.title}", ""]
     # The question in full, once, under the title. A title is a label and
     # gets shortened; the question is the thing the report answers and
@@ -51,22 +101,27 @@ def render_markdown(
     if metrics is not None and metrics.query:
         lines += [f"**Question:** {metrics.query}", ""]
 
-    if report.summary_claims:
+    summary_claims = _unrendered(report.summary_claims, rendered)
+    if summary_claims:
         lines += ["## Summary", ""]
         # Rendered as prose, but each sentence is a verified Claim carrying
         # its own evidence, not an unchecked blob.
-        lines.append(" ".join(_claim_text(c, store) for c in report.summary_claims))
+        lines.append(" ".join(_claim_text(c, store) for c in summary_claims))
         lines.append("")
 
-    if report.key_findings:
+    key_findings = _unrendered(report.key_findings, rendered)
+    if key_findings:
         lines += ["## Key findings", ""]
-        for claim in report.key_findings:
+        for claim in key_findings:
             lines.append(f"- {_claim_text(claim, store)}")
         lines.append("")
 
     for section in report.sections:
+        section_claims = _unrendered(section.claims, rendered)
+        if not section_claims:
+            continue
         lines += [f"## {section.heading}", ""]
-        for claim in section.claims:
+        for claim in section_claims:
             lines.append(_claim_text(claim, store))
             lines.append("")
 

@@ -28,6 +28,12 @@ from agentic_research.comparison import (
 )
 
 
+# The contract's fallback comparison axis, used when the question named
+# no dimension of its own. `comparison.py` sorts it last for the same
+# reason: a contrast on "latency" says more than one on "dimension".
+_GENERIC_AXIS = "dimension"
+
+
 @dataclass(frozen=True)
 class AnswerCoverage:
     contract: AnswerContract
@@ -150,13 +156,31 @@ class AnswerCoverage:
         elif self.missing_core:
             out.append("This research did not answer the question. " + self._core_sentence())
 
+        # The generic `dimension` slot is a fallback axis, not an extra
+        # requirement. When the question's own named axes carried
+        # complete pairs, reporting the fallback as missing told the
+        # reader "the evidence did not establish a named dimension"
+        # directly above a table of two named dimensions -- a report
+        # contradicting itself in the same document, which costs more
+        # trust than the gap it was describing.
+        named_axes = {p.dimension for p in self.comparison_pairs if p.dimension != _GENERIC_AXIS}
+
         for name in self.missing:
             if name in self.missing_core:
+                continue
+            if name == _GENERIC_AXIS and named_axes:
                 continue
             slot = next(s for s in self.required if s.name == name)
             out.append(f"The evidence did not establish {slot.description.lower()}.")
 
+        # A slot holding two claims is the *expected* shape for one side
+        # of a comparison: one claim per subject, which is what makes the
+        # pair a contrast. Warning that they "may repeat each other"
+        # described the two halves of a working answer as a defect.
+        paired = {p.dimension for p in self.comparison_pairs}
         for name in self.duplicates:
+            if name in paired:
+                continue
             out.append(
                 f"More than one published claim fills the {name} slot; they may repeat each other."
             )
