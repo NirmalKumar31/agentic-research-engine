@@ -3,6 +3,7 @@ import { ContractView } from "./ContractView";
 import { ClaimView } from "./ClaimView";
 import { EvidenceDrawer } from "./EvidenceDrawer";
 import { evidenceOnlyExcerpts } from "./fallback";
+import { RunTelemetry } from "./RunTelemetry";
 import type { Claim, RunResult } from "./types";
 
 /**
@@ -215,6 +216,8 @@ export function ReportView({
           Research aid only. Verify important medical, legal, financial or other
           high-stakes decisions against authoritative primary sources.
         </p>
+
+        <RunTelemetry metrics={result.metrics} />
       </article>
 
       <aside className="rail">

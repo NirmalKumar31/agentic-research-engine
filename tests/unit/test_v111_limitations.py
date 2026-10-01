@@ -40,7 +40,9 @@ def named_pair(dimension: str = AXIS) -> ComparisonPair:
     return ComparisonPair(
         dimension=dimension,
         sides=(
-            SideClaim("LangChain", "LangChain connects LLMs into workflows.", dimension, ("S1-e1",)),
+            SideClaim(
+                "LangChain", "LangChain connects LLMs into workflows.", dimension, ("S1-e1",)
+            ),
             SideClaim("LangGraph", "LangGraph runs graph-based workflows.", dimension, ("S1-e2",)),
         ),
     )

@@ -572,3 +572,122 @@ code, kbd { font-family: var(--mono); font-size: 0.86em; }
   color: var(--muted);
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------------
+   Run telemetry
+
+   Collapsed by default. It answers "what happened behind this run",
+   which a reader should be able to open and audit without it competing
+   with the report for attention.
+   --------------------------------------------------------------------- */
+
+.telemetry {
+  margin-top: 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+.telemetry__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: var(--radius);
+}
+
+.telemetry__summary:hover { background: var(--surface); }
+.telemetry__summary:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+.telemetry[open] .telemetry__summary { border-bottom: 1px solid var(--line); }
+
+.telemetry__preamble { margin: 0.75rem 0.9rem 0; }
+
+.telemetry__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.35rem 1.25rem;
+  padding: 0.5rem 0.9rem 1rem;
+}
+
+.telemetry__group { padding: 0.75rem 0; min-width: 0; }
+.telemetry__group h4 { margin: 0 0 0.3rem; font-size: 0.9rem; }
+.telemetry__group > .muted { margin: 0 0 0.5rem; }
+
+.telemetry__rows { margin: 0; }
+
+.telemetry__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.875rem;
+  min-width: 0;
+}
+
+.telemetry__row:last-child { border-bottom: 0; }
+.telemetry__row dt { color: var(--ink-dim); }
+.telemetry__row dd {
+  margin: 0;
+  text-align: right;
+  font-family: var(--mono);
+  /* Long model ids and commit hashes must wrap rather than widen the
+     grid column and force the page to scroll sideways. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.telemetry__note {
+  display: block;
+  font-family: var(--sans);
+  text-align: right;
+  margin-top: 0.15rem;
+}
+
+/* Stage timings. The bar is decoration over a number that is always
+   present, so it carries aria-hidden and never becomes the only
+   source of the value. */
+.stage-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.9rem 0.5rem;
+}
+
+.stage-bar {
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.2rem 0;
+  font-size: 0.875rem;
+}
+
+.stage-bar__label { color: var(--ink-dim); overflow-wrap: anywhere; }
+
+.stage-bar__track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.stage-bar__fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0.75;
+}
+
+.stage-bar__value { font-family: var(--mono); color: var(--ink); }
+
+@media (max-width: 560px) {
+  .stage-bar { grid-template-columns: 1fr auto; }
+  .stage-bar__track { display: none; }
+  .telemetry__row { font-size: 0.84rem; }
+}

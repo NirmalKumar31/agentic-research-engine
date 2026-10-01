@@ -27,7 +27,6 @@ from agentic_research.comparison import (
     discharges_contrast,
 )
 
-
 # The contract's fallback comparison axis, used when the question named
 # no dimension of its own. `comparison.py` sorts it last for the same
 # reason: a contrast on "latency" says more than one on "dimension".

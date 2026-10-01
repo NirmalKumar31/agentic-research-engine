@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import pytest
 
+from agentic_research.citations.atomicity import compound_propositions
 from agentic_research.citations.guards import (
     _BARE_ASSERTION,
     failed_guards,
@@ -23,7 +24,6 @@ from agentic_research.citations.guards import (
     modality_guard,
     run_guards,
 )
-from agentic_research.citations.atomicity import compound_propositions
 from agentic_research.citations.repair import (
     _BARE_ASSERTION_LEVEL,
     REPAIRABLE_GUARDS,
