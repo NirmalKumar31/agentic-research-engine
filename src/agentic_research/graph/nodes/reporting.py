@@ -169,6 +169,19 @@ async def _claim_budget(
     #
     # Two per planned sub-question, matching the per-slot rate, because
     # a sub-question is exactly one thing the run set out to find out.
+    return claims_requested(contract, sub_questions)
+
+
+def claims_requested(contract: AnswerContract, sub_questions: int = 0) -> int:
+    """How many claims this question's size justifies asking for.
+
+    Split out of :func:`_claim_budget` so it can be driven directly. The
+    enclosing function needs a live run context for the call-budget
+    check, so a test of the arithmetic had to reimplement it -- and a
+    test that reimplements what it checks cannot fail when the real
+    thing changes. That is the defect this repository keeps producing,
+    and it was in the test written for this very fix.
+    """
     from_slots = _CLAIMS_PER_SLOT * len(contract.required_slots)
     from_plan = _CLAIMS_PER_SLOT * max(0, sub_questions)
     return max(from_slots, from_plan)

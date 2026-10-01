@@ -77,16 +77,15 @@ class TestTheClaimBudgetTracksTheQuestionNotTheContract:
     """
 
     def _budget(self, contract, sub_questions: int) -> int:
-        from agentic_research.graph.nodes.reporting import (
-            _CLAIMS_PER_SLOT,
-        )
+        """The real function, not a local copy of its arithmetic.
 
-        # The pure arithmetic the node performs; the node itself needs a
-        # live run context for the call-budget check above it.
-        return max(
-            _CLAIMS_PER_SLOT * len(contract.required_slots),
-            _CLAIMS_PER_SLOT * sub_questions,
-        )
+        The first version of this helper reimplemented the calculation,
+        so a mutation removing the fix from production code left every
+        assertion passing. Caught by the mutation sweep.
+        """
+        from agentic_research.graph.nodes.reporting import claims_requested
+
+        return claims_requested(contract, sub_questions)
 
     def test_a_six_part_list_question_is_no_longer_capped_at_four(self) -> None:
         contract = build_contract(
@@ -123,6 +122,19 @@ def _expected_from_slots(contract) -> int:
     from agentic_research.graph.nodes.reporting import _CLAIMS_PER_SLOT
 
     return _CLAIMS_PER_SLOT * len(contract.required_slots)
+
+
+class TestTheBudgetFunctionIsTheOneProductionCalls:
+    """Non-vacuity for the test above, which once reimplemented it."""
+
+    def test_claim_budget_delegates_to_the_tested_function(self) -> None:
+        import inspect
+
+        from agentic_research.graph.nodes import reporting
+
+        assert "claims_requested(contract, sub_questions)" in inspect.getsource(
+            reporting._claim_budget
+        )
 
 
 class TestAnAliasCountsAsSpeakingAboutASubject:

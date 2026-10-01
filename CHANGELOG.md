@@ -2,6 +2,68 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+Output quality. v1.9.0 fixed *which sources get read* and *what a question
+is held to*, and left the answer thin. Two hosted runs made the reason
+measurable, and none of it was a verification failure — the gates behaved
+exactly as designed on an input that was starved before it reached them.
+
+*"What types of vector index are used for similarity search?"* read six
+accountable sources, extracted 15 evidence items, and published **one**
+claim: "Tree-based indexes are one type of vector index."
+
+*"langchain vs langgraph differences?"* extracted 30 items and published
+five claims, **four of them about LangGraph alone**. It satisfied three
+named axes and still reported that it had not answered — correctly, because
+no axis carried a claim about both subjects. Every claim was true, supported
+and relevant. Together they were not a comparison.
+
+**The synthesiser is now asked for balance.** For a comparison it must write
+one claim per subject on each axis, is told that three claims about one
+subject is not a comparison however well evidenced, and is told what to do
+when the evidence covers only one side — write about a different axis.
+
+**The claim budget tracks the question, not the contract.** It was
+`2 × slots`, and a `list` contract has two slots whatever it asks for — so a
+six-dimension question asked for four claims while a comparison that
+happened to gain three named axes asked for twelve. It is now the larger of
+slot count and planned sub-questions. The arithmetic was also split into
+`claims_requested` so a test can drive the real function: the first test
+written for this fix reimplemented the calculation and passed with the fix
+removed.
+
+**Comparison subjects are matched through the run's own aliases.** A
+published claim read "LangGraph's state persists throughout execution,
+unlike LCEL's linear flow" — a genuine contrast, where LCEL is LangChain's
+own expression language. It contains no "LangChain", so it counted as
+speaking about one subject and no pair formed.
+
+**The planner cannot outrun the source budget.** Coverage needs two distinct
+sources per sub-question, so six dimensions against six sources cannot all
+be covered — which is why a run said "only limited evidence was found" four
+times. That was arithmetic, not retrieval. The planner is now capped at
+`max_sources // 2`.
+
+**Two source-classification gaps.** Medium publications on their own domains
+(`pub.towardsai.net`, `ai.plainenglish.io`) classified as `other` at 0.50 —
+*above* a blog at 0.45 — so three were selected for one comparison while the
+blog penalty never applied. Project documentation on `.github.io` and
+`.readthedocs.io` now reads as official docs. Tutorial and course sites were
+deliberately **not** promoted: that tier is for reviewed encyclopaedic
+sources, and rating variable-quality tutorial content above a vendor's own
+page is guessing at quality rather than classifying provenance.
+
+**The banner carries no maintained numbers.** A hard-coded count went stale,
+and the range that replaced it went stale too once runs published seven
+claims. It now states the properties that hold.
+
+Known and unfixed: `python.langchain.com` classifies as `other`. Generic
+first-party-docs detection on an arbitrary subdomain is not reliably
+solvable, and hard-coding individual product domains to fake it was refused.
+
+8/8 mutation checks caught, each by a named test.
+
 ## v1.9.0 — 2026-09-30
 
 A quality release driven by hosted failures. Every defect below was
