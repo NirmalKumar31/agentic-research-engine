@@ -414,6 +414,11 @@ _PREPOSITIONS = frozenset(
 )
 
 
+# Relative pronouns. Like the prepositions above, a closed class, which
+# is what makes listing them safe.
+_RELATIVE_PRONOUNS = frozenset({"that", "which", "who", "whom", "whose"})
+
+
 def _carries_predicate(segment: str) -> bool:
     """Whether a coordinated segment asserts something of its own.
 
@@ -432,12 +437,28 @@ def _carries_predicate(segment: str) -> bool:
     their predicate after a subject rather than after a preposition.
     """
     tokens = segment.split()
-    previous = ""
-    for token in tokens:
-        bare = previous.strip(".,;:!?()[]\"'").lower()
-        if _is_predicate(token) and bare not in _PREPOSITIONS:
+    for index, token in enumerate(tokens):
+        if not _is_predicate(token):
+            continue
+        if index == 0:
             return True
-        previous = token
+        bare = tokens[index - 1].strip(".,;:!?()[]\"'").lower()
+        if bare in _PREPOSITIONS:
+            continue
+        # A relative pronoun *after* something else introduces a clause
+        # modifying the noun in front of it, so the predicate belongs to
+        # that noun rather than asserting anything of its own. Splitting
+        # the compound noun phrase "a graph of nodes and edges that
+        # supports flexible data flow" at "and" left "edges that
+        # supports ...", and "supports" was read as a second clause's
+        # verb. A live run refused a true claim on it.
+        #
+        # Only when the pronoun is not the segment's first word: "and
+        # that means fewer servers" really is a clause, with "that" as
+        # its subject, and must keep firing the guard.
+        if bare in _RELATIVE_PRONOUNS and index - 1 > 0:
+            continue
+        return True
     return False
 
 
