@@ -4,6 +4,91 @@ Notable changes per release. Dates are UTC.
 
 ## Unreleased
 
+Claim yield, and a run-telemetry panel.
+
+Three hosted v1.10 runs extracted **85 evidence items and cited 8 — 9.4%**,
+publishing **8 of 22** generated claims. The sharpest of them asked *"what
+is speculative decoding in LLM inference?"*, retrieved NVIDIA official docs
+at 0.98 and three papers at 0.96–0.98 — the best source set the engine has
+pulled — and published **two sentences**, with five of six sources never
+cited.
+
+That measurement withdrew the obvious fix. Raising the source ceiling from
+6 to 12 would widen a funnel already discarding nine tenths of what enters
+it, so it was not done. Where the 14 discarded claims died: 7 below the NLI
+threshold, **3 on modality**, **2 on atomicity**, 2 on relevance.
+
+**A bare assertion is no longer the weakest modality.** `modality_band`
+scored text with no modal marker as band 0 — below every hedge — so flat
+evidence was the weakest possible premise and *any* hedged claim exceeded
+it. Three claims were refused for being **more cautious** than their own
+source, among them "SQLite deployment can consist of copying the database
+file" against evidence stating it flatly. The ladder is now hedge 1,
+tendency 2, bare assertion 3, necessity 4.
+
+`repair.py` had already found this and fixed it locally with its own
+`_BARE_ASSERTION_LEVEL = 3`; `guards.py`, which actually gates publication,
+never got the fix. A test now pins the two ladders together, because the
+divergence was the defect rather than the band value.
+
+`modality_guard` still exempts a bare claim, and deliberately. Hedge
+*deletion* belongs to `hedge_guard`, which scopes it to the sentence that
+carries the claim and classifies it unrepairable; reporting it here would
+move it into `REPAIRABLE_GUARDS` and send an overclaim to be reworded
+instead of refused. Removing the exemption regressed two semantic stress
+fixtures.
+
+**A plural noun no longer fakes a compound claim.** "stores", "reads" and
+"writes" are noun and verb both, and a coordinated segment counted as its
+own clause if *any* token looked like a predicate. So "...gives agents
+short-term memory through checkpointers and long-term memory through
+stores" was split at "and" and "stores" — the object of "through" — was
+read as the second clause's verb. A true claim cited to official docs at
+0.92 was refused as compound. A predicate directly after a preposition no
+longer counts. Genuine two-clause and multi-sentence compounds still fire.
+
+**Every claim is rendered once.** `summary_claims`, `key_findings`,
+`sections[].claims` and `comparison_pairs` were four independent passes over
+one claim pool with nothing reconciling them, so four claims printed eight
+times — the Summary repeating the first comparison table verbatim and a
+section repeating the second. The table keeps the duplicate: it carries the
+axis label and attributes each sentence to a subject, so it says strictly
+more, and a pair that lost a cell would stop being a contrast. A heading
+left with nothing is dropped rather than printed empty.
+
+**The Limitations section no longer contradicts the answer above it.** One
+report stated "the evidence did not establish a named dimension along which
+they differ" directly beneath a table of two named dimensions, because the
+contract's generic `dimension` slot is a *fallback* axis and was counted as
+an unmet requirement. It is now silent when a named axis carried a pair, and
+still reported when none did. "More than one published claim fills the X
+slot; they may repeat each other" described the two sides of a working
+contrast as a defect — one claim per subject is what makes a pair a
+contrast. The aim was removing false statements, not shortening the list;
+real gaps still report.
+
+**New: a run-telemetry panel on the report page.** Collapsed by default,
+and assembled only from what the engine measured during the run: wall clock
+and per-stage timing, logical calls against billable provider requests,
+tokens in and out with cache and reasoning detail, estimated cost with the
+engine's own "this is a floor" caveat, temperature, the model bound to each
+role, retrieval and dedup counts, verification rates, the budget ceilings
+the run was held to, and the commit, prompt and schema versions needed to
+reproduce it.
+
+No credential can reach it: `environment.capture` is an explicit allowlist
+that reads no environment variables, asserted by test. Host detail the
+server does collect — platform, processor, CPU count — is deliberately not
+surfaced, also asserted, so broadening that stays a decision rather than a
+drift. A field the server did not send is omitted rather than shown as
+zero, because "0 cached tokens" and "this build did not record them" are
+different facts.
+
+---
+
+Earlier in this same unreleased range, the v1.10 work this measurement was
+taken on top of:
+
 Output quality. v1.9.0 fixed *which sources get read* and *what a question
 is held to*, and left the answer thin. Two hosted runs made the reason
 measurable, and none of it was a verification failure — the gates behaved

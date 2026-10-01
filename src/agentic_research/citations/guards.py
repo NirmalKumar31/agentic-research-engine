@@ -54,7 +54,20 @@ _STRONG = (
     "essential",
     "never",
 )
-_BANDS: tuple[tuple[int, tuple[str, ...]], ...] = ((1, _WEAK), (2, _TENDENCY), (3, _STRONG))
+# A sentence carrying no modal marker asserts its claim flatly, and a flat
+# assertion is *stronger* than "may" -- weaker only than necessity.
+# Scoring it 0 put it below every hedge, so bare evidence became the
+# weakest possible premise and *any* hedged claim failed against it: a
+# claim reporting "SQLite deployment can consist of copying the file"
+# from flat evidence was refused for being more cautious than its source.
+# Three claims died this way in one live run.
+#
+# `repair.py` found this and fixed it locally with its own
+# `_BARE_ASSERTION_LEVEL = 3`; the module that actually gates publication
+# never got the fix. `test_modality_ladders_agree` now holds them together.
+_BARE_ASSERTION = 3
+
+_BANDS: tuple[tuple[int, tuple[str, ...]], ...] = ((1, _WEAK), (2, _TENDENCY), (4, _STRONG))
 
 # "may require" is a hedged necessity, not a necessity: the hedge scopes
 # over the strong verb. Without this the guard fails a claim that copies
@@ -347,17 +360,21 @@ def _phrases(text: str, phrases: tuple[str, ...]) -> list[str]:
 
 
 def modality_band(text: str) -> int:
-    """Strongest unhedged modality band in the text, 0 when none.
+    """Strongest unhedged modality band in the text.
+
+    The ladder is hedge (1), tendency (2), bare assertion (3), necessity
+    (4). Text with no modal marker at all is a bare assertion, not an
+    absence of one -- see :data:`_BARE_ASSERTION`.
 
     Hedged necessities are collapsed to their hedge first, so "may
-    require" reports band 1 and "typically requires" reports band 3.
+    require" reports band 1 rather than band 4.
     """
     lowered = _HEDGED.sub(r"\1\2", (text or "").lower())
     band = 0
     for level, terms in _BANDS:
         if _phrases(lowered, terms):
             band = max(band, level)
-    return band
+    return band or _BARE_ASSERTION
 
 
 def numeric_guard(claim: str, evidence: str) -> GuardResult:
@@ -381,11 +398,23 @@ def numeric_guard(claim: str, evidence: str) -> GuardResult:
 
 
 def modality_guard(claim: str, evidence: str) -> GuardResult:
-    """A claim may not be more certain than its evidence."""
+    """A claim may not be more certain than its evidence.
+
+    This guard owns *strengthening* -- "may" becoming "typically", or
+    "can" becoming "must". It deliberately does not own *deletion* --
+    "may X" becoming "X" -- which :func:`hedge_guard` checks against the
+    single sentence that actually carries the claim, and which is not
+    repairable by rewording. A bare claim is therefore exempted here, so
+    that a deletion is reported once, by the guard that classifies it
+    correctly, rather than being reclassified as repairable wording.
+
+    Hedging *below* the evidence is always safe and is allowed: that is
+    the direction the band fix above restored.
+    """
     claim_band = modality_band(claim)
     evidence_band = modality_band(evidence)
-    if claim_band == 0:
-        return GuardResult("modality", True, "claim asserts no modality")
+    if claim_band == _BARE_ASSERTION:
+        return GuardResult("modality", True, "claim asserts no modality of its own")
     if claim_band > evidence_band:
         return GuardResult(
             "modality",
@@ -431,10 +460,12 @@ def hedge_guard(claim: str, evidence: str) -> GuardResult:
     """A claim may not delete the uncertainty its evidence expressed.
 
     The band-based modality guard catches strengthening -- "may" to
-    "must" -- but cannot catch deletion, because its rule is "claim band
-    must not exceed evidence band" and a claim with no modality sits in
-    band 0, the weakest. So "may" to "must" fails while "may" to nothing
-    passes, and deletion is the more common overclaim of the two. The
+    "must" -- and deliberately abstains on deletion, because its rule is
+    "claim band must not exceed evidence band" and a bare claim sits at
+    :data:`_BARE_ASSERTION`, above every hedge. So "may" to "must" fails
+    there while "may" to nothing is left to this guard, which is the
+    right split: deletion is not repairable by rewording. Deletion is
+    also the more common overclaim of the two. The
     release audit published exactly one unsupported claim and this was
     it, at 0.9946 entailment, so the classifier does not catch it
     either.

@@ -33,19 +33,40 @@ class TestModalityBand:
         assert modality_band("could need extra memory") == 1
 
     def test_bare_necessity_reads_strong(self) -> None:
-        assert modality_band("the system requires 64GB") == 3
-        assert modality_band("this is always necessary") == 3
+        assert modality_band("the system requires 64GB") == 4
+        assert modality_band("this is always necessary") == 4
 
     def test_tendency_sits_between(self) -> None:
-        assert modality_band("typically requires 64GB") == 3
+        # A tendency over a necessity still reads as the necessity:
+        # `_HEDGED` collapses "may require" but deliberately not
+        # "typically require". Unchanged in meaning by the band fix,
+        # only renumbered.
+        assert modality_band("typically requires 64GB") == 4
         assert modality_band("this typically happens") == 2
 
-    def test_absent_modality_is_zero(self) -> None:
-        assert modality_band("the system used 64GB") == 0
+    def test_absent_modality_reads_as_a_bare_assertion(self) -> None:
+        """No marker is a flat assertion, not the absence of one.
+
+        Scoring this 0 ranked it below every hedge, which made flat
+        evidence the weakest possible premise -- see
+        ``test_hedged_claim_against_flat_evidence_passes``.
+        """
+        assert modality_band("the system used 64GB") == 3
+
+    def test_bare_assertion_outranks_every_hedge(self) -> None:
+        """The ordering the fix restored, stated independently of the numbers."""
+        bare = modality_band("the system used 64GB")
+        assert bare > modality_band("the system may use 64GB")
+        assert bare > modality_band("the system can use 64GB")
+        assert bare > modality_band("the system typically uses 64GB")
+        assert bare < modality_band("the system must use 64GB")
 
     def test_substrings_do_not_match(self) -> None:
-        """Word boundaries: "mayor" is not "may", "canvas" is not "can"."""
-        assert modality_band("the mayor visited the canvas factory") == 0
+        """Word boundaries: "mayor" is not "may", "canvas" is not "can".
+
+        Both would read band 1 if they matched; a bare assertion is 3.
+        """
+        assert modality_band("the mayor visited the canvas factory") == 3
 
 
 class TestModalityGuard:
@@ -71,7 +92,42 @@ class TestModalityGuard:
         assert modality_guard("deployments may need 64GB", "deployments require 64GB").passed
 
     def test_unmodalised_claim_abstains(self) -> None:
+        """Deletion is ``hedge_guard``'s question, not this guard's.
+
+        Not an oversight: deletion sits in ``UNREPAIRABLE_GUARDS``, and
+        reporting it here would reclassify it as repairable wording and
+        send it to be reworded instead of refused.
+        """
         assert modality_guard("the deployment used 64GB", self.EVIDENCE).passed
+
+    @pytest.mark.parametrize(
+        ("claim", "evidence"),
+        [
+            # All three wordings are from one live run, where each was
+            # refused for being *more cautious* than its own source.
+            (
+                "SQLite deployment can consist of copying the database file.",
+                "SQLite deployment consists of copying the database file.",
+            ),
+            (
+                "PostgreSQL can take the lead with concurrent writers.",
+                "PostgreSQL takes the lead with concurrent writers.",
+            ),
+            (
+                "SQLite's single-writer limit can become visible on a write-heavy workload.",
+                "SQLite's single-writer limit becomes visible on a write-heavy workload.",
+            ),
+        ],
+    )
+    def test_hedged_claim_against_flat_evidence_passes(self, claim: str, evidence: str) -> None:
+        """Hedging below the evidence is the always-safe direction.
+
+        Flat evidence scored band 0, so it ranked below every hedge and
+        any hedged claim exceeded it. The suite had no case for this
+        pairing, which is why three true claims died unnoticed.
+        """
+        result = modality_guard(claim, evidence)
+        assert result.passed, result.detail
 
 
 class TestNumericGuard:

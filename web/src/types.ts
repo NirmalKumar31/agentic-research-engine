@@ -134,8 +134,48 @@ export interface Verification {
   }[];
 }
 
+/**
+ * The run's own build and configuration record.
+ *
+ * Every field is an explicit allowlist entry on the server
+ * (`environment.capture`), which reads no environment variables at all,
+ * so no credential can reach here. Host details the server does collect
+ * -- platform, processor, cpu count -- are deliberately not surfaced:
+ * they say nothing about the run and this page is public.
+ *
+ * All optional. Recordings were captured by older builds.
+ */
+export interface RunEnvironment {
+  python?: string;
+  packages?: Record<string, string>;
+  provenance?: {
+    engine_version?: string;
+    prompt_version?: string;
+    schema_version?: string;
+    git?: {
+      commit?: string;
+      short_commit?: string;
+      branch?: string | null;
+      dirty?: boolean | null;
+    };
+  };
+  settings?: {
+    llm_mode?: string;
+    llm_temperature?: number;
+    max_research_rounds?: number;
+    max_sources?: number;
+    max_sources_per_round?: number;
+    max_llm_calls?: number;
+    max_parallel_searches?: number;
+    max_parallel_fetches?: number;
+    search_depth?: string;
+  };
+}
+
 export interface Metrics {
   duration_s: number;
+  /** Wall-clock seconds per graph node, summed over rounds. */
+  stage_seconds?: Record<string, number>;
   research_rounds: number;
   search_queries: number;
   unique_sources: number;
@@ -160,6 +200,54 @@ export interface Metrics {
   model_assignments: Record<string, string>;
   mode: string;
   stop_reason: string;
+
+  // Provider accounting. `llm_calls` is logical calls; one can emit
+  // several provider requests through repair and retry, which is why
+  // both are shown rather than one standing in for the other.
+  provider_requests?: number;
+  billable_provider_requests?: number;
+  failed_provider_requests?: number;
+  llm_failed_calls?: number;
+  calls_by_role?: Record<string, number>;
+  calls_by_provider?: Record<string, number>;
+  provider_requests_by_model?: Record<string, number>;
+  structured_repairs?: number;
+  compatibility_retries?: number;
+  transport_retries?: number;
+  rate_limit_refusals?: number;
+
+  // Token detail beyond in/out.
+  cached_input_tokens?: number;
+  cache_write_tokens?: number;
+  reasoning_tokens?: number;
+  unpriced_calls?: number;
+  unpriced_categories?: number;
+
+  // Retrieval.
+  search_credits?: number;
+  search_results?: number;
+  searches_failed?: number;
+  pages_fetched?: number;
+  fetch_failures?: number;
+  fetch_status_breakdown?: Record<string, number>;
+  fetches_avoided?: number;
+  duplicate_urls?: number;
+  content_duplicates?: number;
+  provider_content_reused?: number;
+  domain_concentration?: number;
+
+  // Evidence and verification.
+  citable_evidence?: number;
+  cross_attributed_evidence?: number;
+  citations_total?: number;
+  evidence_refs_total?: number;
+  unused_sources?: number;
+  contradictions_total?: number;
+  partial_support_rate?: number | null;
+
+  errors?: number;
+  error_kinds?: Record<string, number>;
+  environment?: RunEnvironment;
 }
 
 /**
