@@ -542,7 +542,10 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         # not support are removed rather than rewritten; the issues
         # explaining why stay in the record so removal remains auditable.
         published_report, removed = filter_report_by_verification(
-            report, verdicts, off_subject=result.off_subject_claims
+            report,
+            verdicts,
+            off_subject=result.off_subject_claims,
+            mislabelled_contrast=result.mislabelled_contrast_claims,
         )
 
         # 7. Structural totals always describe the published report, even
@@ -767,6 +770,7 @@ async def _check_entailment(
         else ()
     )
     off_subject_claims = 0
+    mislabelled_contrast = 0
     repairable: list[tuple[Claim, SemanticVerdict, list[CitedEvidence], str, ClaimJudgment]] = []
 
     try:
@@ -820,6 +824,24 @@ async def _check_entailment(
                 reason=relevance.reason,
             )
             if not relevance.publishable:
+                # A loss worth counting separately, because its fix is
+                # different from every other refusal here.
+                #
+                # `direct_contrast` is filled by the per-subject claims
+                # the engine pairs, never aimed at directly. A claim
+                # about one subject that declares it is deleted twice
+                # over: it cannot fill the slot it asked for, and the
+                # label stops it counting on the named axis it was
+                # actually about. A hosted run lost two verified claims
+                # -- one defining each subject, a complete pair on
+                # "purpose and abstraction level" -- and then reported
+                # that axis as unestablished in the same report.
+                #
+                # Structural, not a string match on the reason: the
+                # condition is the declared slot, which is data.
+                if (claim.answer_slot or "") == "direct_contrast":
+                    mislabelled_contrast += 1
+                    result.mislabelled_contrast_claims = mislabelled_contrast
                 verdict = replace(
                     verdict,
                     publishable=False,

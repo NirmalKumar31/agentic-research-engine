@@ -4,6 +4,50 @@ Notable changes per release. Dates are UTC.
 
 ## Unreleased
 
+Two self-inflicted losses, found in the first run that answered the
+question.
+
+The v1.13 hosted run on *"langchain vs langgraph differences?"* published
+**two complete pairs and 6 claims at 20.7% yield** — the first time in five
+runs on that question that `direct_contrast` was filled and the report did
+not open by saying it had not answered. It also made two defects legible,
+neither of which is an evidence failure.
+
+**A claim may no longer aim at the contrast slot.** Two verified claims —
+one defining each subject — were deleted for declaring `direct_contrast`
+while naming a single subject. That slot is filled by the per-subject
+claims the engine pairs; it is never a target. The label cost them twice:
+they could not fill the slot they asked for, and carrying it stopped them
+counting on the named axis they were actually about. The same report then
+said *"The evidence did not establish how the subjects differ on purpose
+and abstraction level"* — the axis those two claims were a complete pair
+on. The synthesiser is now told this explicitly, and the loss is counted
+and reported rather than absorbed into the generic exclusion line.
+
+**An uncited source says which kind of uncited it was.** `retrieved, not
+cited` covered two failures needing opposite fixes: a source whose text
+yielded no citable quote is an extraction problem, one that yielded several
+and was passed over is a selection problem. It now reads
+*"retrieved, not cited — 2 citable quotes extracted"* or *"retrieved, no
+citable quote could be extracted"*.
+
+The case that prompted it: **AWS Prescriptive Guidance on LangChain and
+LangGraph, 0.97, official docs** — a third-party authority discussing
+*both* subjects, which first-party documentation structurally cannot, since
+a vendor does not document its competitor. Retrieved, never cited, and
+which of the two failures that was could not be determined from the report.
+
+**A correction to v1.13.** Its off-subject diagnostic returned **zero** on
+this run while six claims still failed at entailment 0.0004–0.0044. The
+quotes were about the right subject and simply did not assert what the
+claims asserted — a semantic mismatch inside one topic, which a lexical
+check cannot see by design. The v1.13 hypothesis, that refused claims cite
+off-subject quotes, was too coarse. The diagnostic is kept because it costs
+nothing and reads zero honestly; it is not evidence of anything on this
+run.
+
+---
+
 Claim-to-evidence binding. The v1.12 retrieval fix worked and moved the
 bottleneck one stage downstream.
 
