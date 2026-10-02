@@ -23,6 +23,7 @@ both must stay out of the report.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final, Literal, Protocol
@@ -372,8 +373,8 @@ def verify_claim(
     else:
         assert best_valid is not None
         reason = (
-            f"best entailment {best_valid.entailment:.3f} from {best_valid.evidence_id} "
-            f"is below the {support_threshold:.2f} support threshold"
+            f"best entailment {_below(best_valid.entailment)} from {best_valid.evidence_id} "
+            f"is below the {_threshold(support_threshold)} support threshold"
         )
 
     return SemanticVerdict(
@@ -388,6 +389,32 @@ def verify_claim(
         best_entailment=(best_valid or best_any).entailment,
         per_evidence=scores,
     )
+
+
+def _below(value: float) -> str:
+    """A sub-threshold score, rendered so it still reads as sub-threshold.
+
+    `f"{0.97951:.3f}"` is `"0.980"`, so a rejected claim reported
+    "best entailment 0.980 ... is below the 0.98 support threshold" --
+    a sentence that looks like the engine cannot compare two floats.
+    It appeared on the near-miss claims, which are exactly the ones a
+    reader scrutinises.
+
+    Truncated rather than rounded: a value below the threshold must
+    never *render* at or above it. Four places keep "how close it came",
+    which is the whole reason the number is printed.
+    """
+    return f"{math.floor(value * 10_000) / 10_000:.4f}"
+
+
+def _threshold(value: float) -> str:
+    """The threshold at its own precision, not forced to two places.
+
+    The other half of the same defect: at `.2f` a threshold of 0.985
+    prints as "0.98", and then a truthful 0.9840 reads as though it
+    were above it.
+    """
+    return f"{value:.4f}".rstrip("0").rstrip(".")
 
 
 def _diagnostic(scores: list[EvidenceScore], best_valid: EvidenceScore | None) -> Verdict:

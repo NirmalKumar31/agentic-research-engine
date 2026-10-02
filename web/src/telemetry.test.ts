@@ -3,6 +3,7 @@ import telemetrySource from "./telemetry.ts?raw";
 import panelSource from "./RunTelemetry.tsx?raw";
 import {
   describeCounts,
+  headlineStats,
   formatSeconds,
   formatUsd,
   stageBreakdown,
@@ -200,5 +201,50 @@ describe("formatting", () => {
 
   it("returns nothing for an absent breakdown", () => {
     expect(describeCounts(undefined)).toBe("");
+  });
+});
+
+
+describe("headline numbers are visible without opening anything", () => {
+  // The panel first shipped entirely collapsed, and the next thing asked
+  // of it was for the numbers it was already carrying. That is a
+  // discoverability answer, not a capability one.
+  it("surfaces duration, calls, tokens, cost and sources", () => {
+    expect(headlineStats(metrics()).map((s) => s.label)).toEqual([
+      "duration",
+      "model calls",
+      "tokens",
+      "cost",
+      "sources read",
+    ]);
+  });
+
+  it("sums input and output into one token figure", () => {
+    const stat = headlineStats(metrics()).find((s) => s.label === "tokens");
+    expect(stat?.value).toBe("31,291");
+  });
+
+  it("marks the cost as a floor when the engine says it is one", () => {
+    const stat = headlineStats(metrics({ cost_is_complete: false })).find(
+      (s) => s.label === "cost",
+    );
+    expect(stat?.note).toBe("floor");
+  });
+
+  it("keeps a zero cost rather than hiding it", () => {
+    // A local run really did cost nothing; that is a fact, not a gap.
+    const stat = headlineStats(metrics({ known_cost_usd: 0 })).find((s) => s.label === "cost");
+    expect(stat?.value).toBe("$0.0000");
+    expect(stat?.note).toBeUndefined();
+  });
+
+  it("the panel renders the headline outside the disclosure", () => {
+    // Asserted on the source: if the strip moved back inside <details>
+    // the feature would silently revert to the thing that was missed.
+    const headlineIndex = panelSource.indexOf("telemetry__headline");
+    const detailsIndex = panelSource.indexOf("<details");
+    expect(headlineIndex).toBeGreaterThan(-1);
+    expect(detailsIndex).toBeGreaterThan(-1);
+    expect(headlineIndex).toBeLessThan(detailsIndex);
   });
 });

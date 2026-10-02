@@ -4,6 +4,69 @@ Notable changes per release. Dates are UTC.
 
 ## Unreleased
 
+Two honesty fixes, a visible telemetry panel, and the retrieval finding
+that now caps the answer.
+
+**Retrieval is the binding constraint, and the evidence is a pair of runs
+on the same question six hours apart.** The first retrieved
+`docs.langchain.com` three times and `reference.langchain.com` once, at
+0.92–0.96. The second retrieved six commentary articles with a quality
+ceiling of 0.64, and the report quoted a blog on LangGraph's state model
+while the first-party documentation was never a candidate. Same prompt,
+same question — so primary sources were being reached by luck. Nothing
+downstream can repair that: authority-adjusted selection can only rank
+what retrieval returned.
+
+This is also the clearest argument yet against raising the source ceiling
+from 6 to 12, which was asked for and again not done. Twelve commentary
+articles is worse than six.
+
+**The query writer is now told to ask the maintainer.** When a subject is
+a named tool, library, framework, service or standard, one of its queries
+should target that maintainer's own material. The counter-rule matters as
+much: a technique, phenomenon or method has no maintainer, so the same
+query spends a search to retrieve nothing.
+
+It is a prompt rule, and the tests prove only that the rule is asked for.
+A deterministic version was built first and withdrawn. Injecting
+"*subject* official documentation" for every entity produced
+"cost-sensitive learning official documentation" on a methods question;
+narrowing it to comparisons, and then to single-token capitalised
+subjects, still fired on `SMOTE` — an algorithm, not a product. Deciding
+in code which subjects have a maintainer is not reliably solvable, which
+is the conclusion this project already reached about first-party-docs
+detection. The model writing the query can judge it, so it is asked to.
+`site:` filters and domain allowlists both remain refused.
+
+**A near miss no longer prints as though it cleared the bar.** A rejected
+claim reported `best entailment 0.980 ... is below the 0.98 support
+threshold`, a sentence that reads as though the engine cannot compare two
+floats — `f"{0.97951:.3f}"` is `"0.980"`. Scores are now truncated rather
+than rounded, so a sub-threshold value can never render at or above the
+threshold, and the threshold prints at its own precision: at two places a
+threshold of 0.985 showed as 0.98 and made a truthful 0.9840 read as
+though it were above it.
+
+**A relative clause is no longer a second proposition.** Splitting the
+compound noun phrase "a graph of nodes and edges that supports flexible
+data flow" at "and" left "edges that supports ...", and `supports` —
+whose subject is the relative pronoun — was counted as a second clause's
+verb, refusing a true claim. A predicate directly after a *mid-segment*
+relative pronoun no longer counts. Restricted to non-initial pronouns, so
+"and that requires a separate service" still fires. Same family as the
+preposition fix in v1.11, which was narrower than the problem.
+
+**The run-telemetry panel leads with its numbers.** It shipped collapsed,
+and the next thing asked of it was for the figures it was already
+carrying — a discoverability answer, not a capability one. Duration,
+model calls, tokens, cost and sources read are now always visible, with
+the full breakdown behind a disclosure. Cost is still marked as a floor
+when the engine says it is one.
+
+---
+
+Earlier in this same unreleased range, the v1.11 work:
+
 Claim yield, and a run-telemetry panel.
 
 Three hosted v1.10 runs extracted **85 evidence items and cited 8 — 9.4%**,

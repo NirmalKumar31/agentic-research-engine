@@ -588,23 +588,47 @@ code, kbd { font-family: var(--mono); font-size: 0.86em; }
   background: var(--surface-2);
 }
 
-.telemetry__summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 0.7rem 0.9rem;
-  cursor: pointer;
-  font-weight: 600;
-  border-radius: var(--radius);
+/* Always visible: the numbers a reader came for. */
+.telemetry__headline { padding: 0.9rem 0.9rem 0.6rem; }
+.telemetry__headline h3 { margin: 0 0 0.15rem; font-size: 1rem; }
+.telemetry__headline > .muted { margin: 0 0 0.75rem; }
+
+.telemetry__stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 0.6rem 1rem;
 }
 
-.telemetry__summary:hover { background: var(--surface); }
-.telemetry__summary:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
-.telemetry[open] .telemetry__summary { border-bottom: 1px solid var(--line); }
+.telemetry__stats li { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
 
-.telemetry__preamble { margin: 0.75rem 0.9rem 0; }
+.telemetry__stat-value {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.telemetry__stat-label { text-transform: lowercase; }
+
+/* The sixty-odd rows behind them. */
+.telemetry__detail { border-top: 1px solid var(--line); margin-top: 0.3rem; }
+
+.telemetry__summary {
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--ink-dim);
+}
+
+.telemetry__summary:hover { background: var(--surface); color: var(--ink); }
+.telemetry__summary:focus-visible { outline: 2px solid var(--accent-line); outline-offset: -2px; }
+.telemetry__detail[open] .telemetry__summary {
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
 
 .telemetry__grid {
   display: grid;
