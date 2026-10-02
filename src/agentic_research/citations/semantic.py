@@ -24,7 +24,6 @@ both must stay out of the report.
 from __future__ import annotations
 
 import math
-
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final, Literal, Protocol

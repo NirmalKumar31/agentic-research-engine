@@ -124,6 +124,22 @@ left two unsearched.
 sub-question has one.
 - Prefer the question's own vocabulary. Add a technical term only when the \
 sub-question genuinely cannot be searched without it.
+- **When a subject is a named tool, library, framework, service or \
+standard -- something with a maintainer who publishes about it -- give one \
+of its queries the maintainer's own material as its target, by pairing the \
+exact name with a word like documentation, reference or specification.** \
+Commentary about a tool is written to rank well and arrives on its own; the \
+tool's own documentation often does not, and it is the better source. Two \
+runs on the same comparison six hours apart show what this costs: one \
+retrieved the subjects' official documentation four times, at the highest \
+quality the engine scores; the other retrieved six commentary articles and \
+the report ended up quoting a blog about behaviour the documentation states \
+directly. Nothing but the query wording differed.
+- Do not do this for a technique, a phenomenon or a method. "Overfitting", \
+"cost-sensitive learning" and "speculative decoding" have no maintainer and \
+no official page, so the query spends a search to retrieve nothing. Judge \
+the subject, not the question's shape -- a comparison of two techniques \
+wants ordinary queries.
 - Keep queries short: three to eight words suits most. Never shorten a \
 proper name, a version number, a date or a quoted phrase to fit -- those \
 carry the meaning and dropping them changes the question.

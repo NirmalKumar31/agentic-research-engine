@@ -121,6 +121,33 @@ function whenNonZero(label: string, n: number | undefined, note?: string): Telem
   return row(label, formatInt(n), note);
 }
 
+/**
+ * The handful of numbers worth seeing without opening anything.
+ *
+ * The panel shipped collapsed, and the first thing asked of it was for
+ * the numbers it already had -- which is a discoverability answer, not a
+ * capability one. These five sit above the fold; everything else stays
+ * behind the disclosure.
+ *
+ * Cost is included even when it is $0.0000, because a local run costing
+ * nothing is a fact a reader wants, not a missing value.
+ */
+export function headlineStats(metrics: Metrics): TelemetryRow[] {
+  const tokens = metrics.input_tokens + metrics.output_tokens;
+  return [
+    { label: "duration", value: formatSeconds(metrics.duration_s) },
+    { label: "model calls", value: formatInt(metrics.llm_calls) },
+    { label: "tokens", value: formatInt(tokens) },
+    {
+      label: "cost",
+      value: formatUsd(metrics.known_cost_usd),
+      ...(metrics.cost_is_complete === false ? { note: "floor" } : {}),
+    },
+    { label: "sources read", value: formatInt(metrics.usable_sources) },
+  ];
+}
+
+
 export function timingGroup(metrics: Metrics): TelemetryGroup {
   const stages = stageBreakdown(metrics);
   const summed = stages.reduce((sum, s) => sum + s.seconds, 0);
