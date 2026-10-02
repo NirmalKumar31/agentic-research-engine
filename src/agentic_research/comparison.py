@@ -257,6 +257,22 @@ def _speaks_about(text: str, subject: str, aliases: Sequence[frozenset[str]]) ->
     return any(subject_terms & group and claim_terms & group for group in aliases)
 
 
+def subjects_mentioned(
+    text: str,
+    subjects: Sequence[str],
+    aliases: Sequence[frozenset[str]] = (),
+) -> tuple[str, ...]:
+    """Which of these subjects the text speaks about, in the given order.
+
+    The public form of :func:`_speaks_about`, so the evidence package can
+    label each quote with the subject it covers. A comparison is
+    assembled from per-subject claims on a shared axis, and the
+    synthesiser could not see which subjects it actually had evidence for
+    on any axis -- it saw a flat list and inferred.
+    """
+    return tuple(s for s in subjects if s and _speaks_about(text, s, aliases))
+
+
 def build_comparison_pairs(
     contract: AnswerContract,
     claims: Sequence[SideClaim] | Sequence[tuple[str, str]],

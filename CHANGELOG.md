@@ -2,6 +2,59 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+Claim-to-evidence binding. The v1.12 retrieval fix worked and moved the
+bottleneck one stage downstream.
+
+That run was the first to retrieve good sources for this question —
+`docs.langchain.com` at 0.98, `reference.langchain.com` at 0.96, two more
+at 0.90, against a previous ceiling of 0.64 — and it published **three
+claims and refused five**. Four of the five cited S1, GeeksforGeeks at
+quality 0.64, the worst source in the set, at entailment **0.0013–0.0064**.
+Those are not near misses: the quote does not carry the claim at all. The
+three official documentation pages were never quoted.
+
+The failed claims were all contrast-shaped, and S1 was the only page whose
+*title* was a comparison. So the analyst reached for the source that looked
+like the answer and attached evidence ids to sentences it had already
+decided to write.
+
+**The refusal now names which failure it was.** "The cited evidence did not
+support them" describes an honest near miss and a retrofitted quote
+identically, and the two need different fixes. A refused claim whose cited
+quote is not even about its own subject now says so, and the count reaches
+the reader: *"Of those, 4 cited a quote that was not about the claim's own
+subject, which points at how the claim was assembled rather than at the
+evidence."*
+
+Diagnosis only, and deliberately incapable of more. It is computed after
+the verdict and cannot withhold anything. A lexical check that could
+withhold a claim would be a sixth deterministic gate, added in the release
+that fixed two of them for refusing true claims — and a claim whose subject
+is a pronoun would fail it while being genuinely entailed. There is a test
+asserting it removes nothing.
+
+**The evidence block says which axis can carry a contrast.** A comparison is
+assembled from one claim per subject on a shared axis, which
+`build_comparison_pairs` already does — but the synthesiser saw a flat list
+and had to infer which axes had both sides. Official documentation is
+single-subject, because a vendor does not document its competitor, so that
+inference failed exactly when retrieval improved.
+
+Each sub-question heading now states the subjects its evidence covers, and
+each item carries the subject it names, like `[LangGraph]` or
+`[LangChain + LangGraph]`. Where only one side is present the block says the
+axis cannot carry a contrast and names the missing subject; where both are,
+it asks for one claim per subject.
+
+**And the synthesiser is told to write from the quote, not to the sentence.**
+
+The binding diagnosis and the subject tagging are deterministic and
+mutation-tested. The two prompt changes are not, and no offline test can be
+— their effect needs a live run.
+
+
 ## v1.12.0 — 2026-10-02
 
 Three merged streams released together, because none of them was tagged on

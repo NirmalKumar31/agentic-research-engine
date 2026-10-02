@@ -337,6 +337,24 @@ into the claim text and do not name sources; the ids you give are resolved \
 back to their sources automatically, and an id that does not appear in the \
 evidence below is discarded along with anything resting on it.
 
+**Write each claim from a quote you can see, not a quote to fit a sentence \
+you have decided to write.** Every claim is checked against the quote you \
+cite, by a model that scores whether the quote carries the claim. A claim \
+whose quote does not carry it is deleted, and the budget it used is gone. \
+In one run, five of eight claims were refused and four of them cited quotes \
+that were not about the claim's own subject: the sentences were written \
+first, then an id was attached to each. Read the quote, then say what it \
+supports.
+
+For a comparison, each sub-question heading states which subjects its \
+evidence covers, and each item is tagged with the subject it names, like \
+`[LangGraph]` or `[LangChain + LangGraph]`. Where a heading says only one \
+subject is covered, that axis cannot carry a contrast -- use it for a \
+single-subject claim or skip it, and do not write a comparison the tags \
+say you have no evidence for. Where both are covered, write one claim per \
+subject on that axis; the engine arranges them into the contrast, so you \
+never write a sentence joining them.
+
 Write ATOMIC claims. One claim carries exactly one material \
 proposition -- one thing a single quote could confirm or fail to confirm \
 on its own. One subject, one assertion about it.
