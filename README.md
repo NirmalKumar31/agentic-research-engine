@@ -12,6 +12,12 @@ existed. Claims are held to a contract built from the question before
 retrieval starts, and one that fills no part of it is withheld with its own
 reason rather than reported as unsupported, which it is not.
 
+> **[How this was built](docs/HOW-THIS-WAS-BUILT.md)** — how the output
+> quality work was diagnosed: which measurement justified each fix, three
+> proposed fixes that were withdrawn when the measurement contradicted
+> them, and two hypotheses that turned out to be wrong. Read it if you want
+> the reasoning rather than the feature list.
+
 ---
 
 ## The problem
@@ -717,7 +723,7 @@ src/agentic_research/
 web/                React + Vite frontend
 tests/              unit (hermetic) · integration (opt-in)
 examples/           attribution experiment, archived artifacts
-docs/               ARCHITECTURE.md · LIMITATIONS.md
+docs/               ARCHITECTURE.md · HOW-THIS-WAS-BUILT.md · LIMITATIONS.md
 ```
 
 ## Technology
