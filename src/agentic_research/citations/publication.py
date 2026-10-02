@@ -171,6 +171,7 @@ def filter_report_by_verification(
     verdicts: dict[ClaimKey, ClaimVerdict],
     *,
     off_subject: int = 0,
+    mislabelled_contrast: int = 0,
 ) -> tuple[ResearchReport, int]:
     """Keep only substantive claims with a supported verdict.
 
@@ -224,6 +225,17 @@ def filter_report_by_verification(
                 f" Of those, {off_subject} cited a quote that was not about the "
                 "claim's own subject, which points at how the claim was assembled "
                 "rather than at the evidence."
+            )
+        if mislabelled_contrast:
+            # Not an evidence failure at all, and the only cause here a
+            # reader can see was self-inflicted: the claims were verified
+            # and were about the question, and were deleted for the slot
+            # they declared.
+            cause += (
+                f" A further {mislabelled_contrast} were verified and then deleted "
+                "for declaring the contrast slot while describing a single subject; "
+                "labelled with the axis they addressed, they could have been "
+                "paired."
             )
         limitations.append(cause)
     if dropped_contradictions:

@@ -876,6 +876,15 @@ class CitationVerification(BaseModel):
     partially_supported_claims: int = 0
     unsupported_claims: int = 0
     off_subject_claims: int = 0
+    mislabelled_contrast_claims: int = 0
+    """Verified claims lost for declaring `direct_contrast` while naming
+    one subject.
+
+    A labelling failure, not an evidence one: the slot can only be filled
+    by a claim naming both subjects, so a single-subject claim wearing it
+    is deleted -- and the label also stops it counting on the named axis
+    it was actually about. A hosted run lost a complete third pair this
+    way and then reported that axis as unestablished."""
     """Refused claims whose cited quote was not about the claim's subject.
 
     A diagnosis, never a gate: computed after the verdict, it cannot

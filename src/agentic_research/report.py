@@ -166,7 +166,24 @@ def render_markdown(
         lines += ["## Sources", ""]
         for source in sorted(usable, key=_source_order):
             date = source.published_date.date().isoformat() if source.published_date else "n.d."
-            used = "" if source.id in cited else " _(retrieved, not cited)_"
+            # "retrieved, not cited" covers two different failures and
+            # named neither. A source whose text yielded no citable quote
+            # is an extraction problem; one that yielded several and was
+            # passed over is a selection problem. They need opposite
+            # fixes, and the live case that prompted this -- AWS
+            # Prescriptive Guidance on LangChain and LangGraph, 0.97,
+            # official docs, discussing *both* subjects where first-party
+            # documentation structurally cannot -- was undiagnosable from
+            # the report alone.
+            used = ""
+            if source.id not in cited:
+                quotes = len([e for e in store.citable_evidence() if e.source_id == source.id])
+                used = (
+                    f" _(retrieved, not cited — {quotes} citable quote"
+                    f"{'s' if quotes != 1 else ''} extracted)_"
+                    if quotes
+                    else " _(retrieved, no citable quote could be extracted)_"
+                )
             lines.append(
                 f"- **[{source.id}]** [{source.title}]({source.url}) — "
                 f"{source.domain}, {source.source_type.value}, {date}, "
