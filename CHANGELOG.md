@@ -2,7 +2,20 @@
 
 Notable changes per release. Dates are UTC.
 
-## Unreleased
+## v1.12.0 — 2026-10-02
+
+Three merged streams released together, because none of them was tagged on
+its own: output quality, claim yield with run telemetry, and retrieval.
+
+The arc is worth stating plainly, since each stage only became visible
+once the one before it was fixed. v1.9.0 answered *which sources get read*
+and left the answer thin. v1.10 found the thinness was **arithmetic** — a
+claim budget that ignored how broad the question was. v1.11 measured the
+result and found **9.4% claim yield**, fixing two guards that were refusing
+true claims. v1.12 found that with those fixed, what now caps the answer is
+**retrieval**: the engine cannot cite documentation it never fetched.
+
+### Retrieval, two honesty fixes, and a visible telemetry panel
 
 Two honesty fixes, a visible telemetry panel, and the retrieval finding
 that now caps the answer.
@@ -63,11 +76,7 @@ model calls, tokens, cost and sources read are now always visible, with
 the full breakdown behind a disclosure. Cost is still marked as a floor
 when the engine says it is one.
 
----
-
-Earlier in this same unreleased range, the v1.11 work:
-
-Claim yield, and a run-telemetry panel.
+### Claim yield, and a run-telemetry panel
 
 Three hosted v1.10 runs extracted **85 evidence items and cited 8 — 9.4%**,
 publishing **8 of 22** generated claims. The sharpest of them asked *"what
@@ -147,10 +156,7 @@ drift. A field the server did not send is omitted rather than shown as
 zero, because "0 cached tokens" and "this build did not record them" are
 different facts.
 
----
-
-Earlier in this same unreleased range, the v1.10 work this measurement was
-taken on top of:
+### Output quality
 
 Output quality. v1.9.0 fixed *which sources get read* and *what a question
 is held to*, and left the answer thin. Two hosted runs made the reason
