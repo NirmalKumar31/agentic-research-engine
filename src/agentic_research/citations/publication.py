@@ -167,7 +167,10 @@ def _contradiction_supported(
 
 
 def filter_report_by_verification(
-    report: ResearchReport, verdicts: dict[ClaimKey, ClaimVerdict]
+    report: ResearchReport,
+    verdicts: dict[ClaimKey, ClaimVerdict],
+    *,
+    off_subject: int = 0,
 ) -> tuple[ResearchReport, int]:
     """Keep only substantive claims with a supported verdict.
 
@@ -203,11 +206,26 @@ def filter_report_by_verification(
 
     limitations = list(report.limitations)
     if removed:
-        limitations.append(
+        # The cause, where the engine can tell which cause it was.
+        #
+        # "the cited evidence did not support them" describes an honest
+        # near miss and a quote retrofitted to a sentence identically. A
+        # hosted run refused five claims; four cited quotes that were not
+        # about the claim's subject at all, at entailment 0.0013-0.0064.
+        # A reader could not tell that from the sentence, and the two
+        # need different fixes.
+        cause = (
             f"{removed} generated claim(s) were excluded because the cited evidence "
             "did not support them, or because verification did not reach them within "
             "this run's budget."
         )
+        if off_subject:
+            cause += (
+                f" Of those, {off_subject} cited a quote that was not about the "
+                "claim's own subject, which points at how the claim was assembled "
+                "rather than at the evidence."
+            )
+        limitations.append(cause)
     if dropped_contradictions:
         limitations.append(
             f"{dropped_contradictions} reported disagreement(s) were excluded because "

@@ -312,6 +312,8 @@ class EvidenceStore:
         min_confidence: float = 0.25,
         max_quote_chars: int = 400,
         citable_only: bool = True,
+        comparison_subjects: Sequence[str] = (),
+        aliases: Sequence[frozenset[str]] = (),
     ) -> EvidencePackage:
         """Render the evidence into the prompt block used for synthesis.
 
@@ -322,6 +324,13 @@ class EvidenceStore:
         could rest entirely on text nobody could find in the page. Diagnostic
         callers pass False to inspect everything that was extracted.
         """
+        # Imported here, not at module scope. `evidence/__init__` imports
+        # this module, and `comparison` imports `evidence.topicality`, so a
+        # top-level import re-enters the half-built package. The same
+        # reason `citations.guards` imports its decomposer inside the
+        # function that uses it.
+        from agentic_research.comparison import subjects_mentioned
+
         lines: list[str] = []
         used_source_ids: list[str] = []
         used_evidence_ids: list[str] = []
@@ -370,6 +379,44 @@ class EvidenceStore:
             kept = kept[:max_items_per_question]
 
             lines.append(f"\n### {sub_question.id}: {sub_question.text}")
+
+            # Which subjects this axis actually has evidence for.
+            #
+            # A comparison is *assembled* from one claim per subject on a
+            # shared axis -- `build_comparison_pairs` does the assembling
+            # -- but the synthesiser saw a flat list and had to infer
+            # which subjects it could contrast. A hosted run retrieved
+            # four first-party documentation pages, each describing one
+            # subject because a vendor does not document its competitor,
+            # and the synthesiser went to the single listicle whose
+            # *title* was a comparison and retrofitted quotes to
+            # sentences it had already written. Five of eight claims were
+            # refused, four citing quotes not about their own subject.
+            #
+            # So the coverage is stated rather than left to be inferred,
+            # and said plainly when only one side is here.
+            if comparison_subjects:
+                present: list[str] = []
+                for item in kept:
+                    for subject in subjects_mentioned(
+                        f"{item.claim} {item.quote}", comparison_subjects, aliases
+                    ):
+                        if subject not in present:
+                            present.append(subject)
+                missing = [s for s in comparison_subjects if s not in present]
+                if not present:
+                    lines.append("  (no evidence here speaks about either subject by name)")
+                elif missing:
+                    lines.append(
+                        f"  evidence here covers {', '.join(present)} only. "
+                        f"Nothing below speaks about {', '.join(missing)}, so this axis "
+                        "cannot carry a contrast -- do not write one."
+                    )
+                else:
+                    lines.append(
+                        f"  evidence here covers {', '.join(present)}. A contrast on "
+                        "this axis is possible: write one claim per subject."
+                    )
             for item in kept:
                 source = self.source(item.source_id)
                 if source is None:
@@ -384,8 +431,17 @@ class EvidenceStore:
                 # The evidence id is what the synthesiser must reference.
                 # Showing the source id here would invite it to cite sources
                 # directly and reintroduce the ambiguity this design removes.
+                # The subject tag goes on the line the synthesiser reads
+                # when choosing an evidence id, not only in the heading
+                # summary: choosing happens per item.
+                tag = ""
+                if comparison_subjects:
+                    covered = subjects_mentioned(
+                        f"{item.claim} {item.quote}", comparison_subjects, aliases
+                    )
+                    tag = f" [{' + '.join(covered)}]" if covered else " [neither subject named]"
                 lines.append(
-                    f'- {item.id} ({item.stance.value}{page}) {item.claim}\n  quote: "{quote}"'
+                    f'- {item.id} ({item.stance.value}{page}){tag} {item.claim}\n  quote: "{quote}"'
                 )
                 included += 1
 

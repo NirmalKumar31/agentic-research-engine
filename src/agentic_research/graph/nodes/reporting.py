@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Sequence
 from dataclasses import replace
 from typing import Any
 
@@ -39,7 +40,7 @@ from agentic_research.comparison import (
 )
 from agentic_research.config import ModelRole
 from agentic_research.evidence.store import EvidenceStore
-from agentic_research.evidence.topicality import alias_groups
+from agentic_research.evidence.topicality import alias_groups, lexically_plausible
 from agentic_research.graph.nodes.common import ctx, emit, error_from, stage
 from agentic_research.graph.prompts import (
     RELEVANCE_SYSTEM,
@@ -208,7 +209,23 @@ async def synthesize_report(state: ResearchState) -> ResearchState:
 
     with stage("synthesize") as timing:
         # citable_only: a claim must never rest on a quote we could not find.
-        package = store.build_package(sub_questions, citable_only=True)
+        # The subjects, so the block says which axis can carry a
+        # contrast instead of leaving the synthesiser to infer it.
+        package = store.build_package(
+            sub_questions,
+            citable_only=True,
+            comparison_subjects=(
+                contract.subjects_to_span if contract is not None and contract.usable else ()
+            ),
+            aliases=(
+                alias_groups(
+                    contract.question,
+                    list(contract.entities) + list(contract.comparison_subjects),
+                )
+                if contract is not None and contract.usable
+                else ()
+            ),
+        )
         gaps: list[str] = _coverage_limitations(coverage, sub_questions)
         if state.get("stop_reason"):
             gaps.append(f"research stopped early: {state['stop_reason']}")
@@ -524,7 +541,9 @@ async def verify_citations(state: ResearchState) -> ResearchState:
         # 6. Publication gate. Claims and contradictions the verifier could
         # not support are removed rather than rewritten; the issues
         # explaining why stay in the record so removal remains auditable.
-        published_report, removed = filter_report_by_verification(report, verdicts)
+        published_report, removed = filter_report_by_verification(
+            report, verdicts, off_subject=result.off_subject_claims
+        )
 
         # 7. Structural totals always describe the published report, even
         # when nothing was removed semantically -- deduplication alone can
@@ -736,6 +755,18 @@ async def _check_entailment(
     # without a handle on the record they were decided nowhere the
     # transcript could see.
     awaiting_judgement: list[tuple[Claim, SemanticVerdict, ClaimJudgment]] = []
+    # The same bounded, question-grounded aliases the coverage prefilter
+    # uses, so a claim naming its subject by acronym is not called
+    # off-subject for it.
+    claim_aliases = (
+        alias_groups(
+            contract.question,
+            list(contract.entities) + list(contract.comparison_subjects),
+        )
+        if contract is not None and contract.usable
+        else ()
+    )
+    off_subject_claims = 0
     repairable: list[tuple[Claim, SemanticVerdict, list[CitedEvidence], str, ClaimJudgment]] = []
 
     try:
@@ -818,6 +849,31 @@ async def _check_entailment(
             else:
                 result.unsupported_claims += 1
         if not verdict.publishable:
+            # Why it failed, not merely that it did.
+            #
+            # A hosted run refused five of eight claims, and four cited
+            # the *worst* source in the set at entailment 0.0013-0.0064 --
+            # not near misses, quotes that do not carry the claim at all --
+            # while three official-docs pages at 0.90-0.98 were never
+            # quoted. The pattern is the analyst writing a sentence and
+            # retrofitting a quote to it, and "the cited evidence did not
+            # support them" describes that identically to an honest near
+            # miss. The two need different fixes, so they read
+            # differently now.
+            #
+            # Diagnosis only, deliberately. It is computed *after* the
+            # verdict and cannot change it. A lexical check that could
+            # withhold a claim would be a sixth deterministic gate, added
+            # in the same release that fixed two of them for refusing
+            # true claims -- and a claim whose subject is a pronoun would
+            # fail it while being genuinely entailed.
+            off_subject = _cites_off_subject(claim.text, pairs, claim_aliases)
+            if off_subject:
+                off_subject_claims += 1
+                result.off_subject_claims = off_subject_claims
+            detail = verdict.reason
+            if off_subject:
+                detail = f"{detail}; the cited quote is not about this claim's subject"
             result.issues.append(
                 CitationIssue(
                     type=(
@@ -828,7 +884,7 @@ async def _check_entailment(
                     severity="warning",
                     claim_text=claim.text[:200],
                     evidence_id=",".join(claim.evidence_ids),
-                    detail=verdict.reason[:200],
+                    detail=detail[:200],
                 )
             )
 
@@ -965,6 +1021,29 @@ def _discharges_a_core_slot(contract: AnswerContract, slot: str | None) -> bool:
     # only `satisfied_by` silently removed that authority when the
     # static alternative was dropped.
     return slot in dynamically_discharging_slots(contract)
+
+
+def _cites_off_subject(
+    claim_text: str,
+    pairs: list[CitedEvidence],
+    aliases: Sequence[frozenset[str]] = (),
+) -> bool:
+    """Whether no cited quote is even on the claim's own subject.
+
+    Reuses the coverage prefilter, pointed at a different pair of texts:
+    there it asks whether retrieved evidence bears on a sub-question,
+    here whether a cited quote bears on the claim resting on it. A
+    **positive** means every quote the claim cited is about something
+    else, which is a finding about how the claim was assembled rather
+    than about the evidence.
+
+    Never consulted before a verdict. See the call site for why.
+    """
+    if not pairs:
+        return False
+    return not any(
+        lexically_plausible(claim_text, f"{item.quote}", aliases=aliases) for item in pairs
+    )
 
 
 def _propositions_supported(

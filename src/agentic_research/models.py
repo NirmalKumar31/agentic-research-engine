@@ -875,6 +875,13 @@ class CitationVerification(BaseModel):
     supported_claims: int = 0
     partially_supported_claims: int = 0
     unsupported_claims: int = 0
+    off_subject_claims: int = 0
+    """Refused claims whose cited quote was not about the claim's subject.
+
+    A diagnosis, never a gate: computed after the verdict, it cannot
+    withhold anything. It separates "the analyst retrofitted a quote to a
+    sentence it had already decided to write" from an honest near miss,
+    because the two need different fixes and read identically otherwise."""
     checked_claims: int = 0
     """Claims actually put through entailment checking."""
     checkable_claims: int = 0
