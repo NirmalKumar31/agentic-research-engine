@@ -21,7 +21,7 @@ was fixed:
 | v1.10 | **Arithmetic** — the claim budget ignored question breadth | A 6-dimension question asked for 4 claims and published 1 |
 | v1.11 | **Two guards refusing true claims** | 3 claims refused for being *more cautious* than their source |
 | v1.12 | **Retrieval** — primary sources reached by luck | Same question 6h apart: 4 official docs, then 0 |
-| v1.13 | **Claim-to-evidence binding** | 4 of 5 refusals cited the worst source at 0.001–0.004 entailment |
+| v1.13 | **Claim-to-evidence binding** | 3 of 5 refusals cited the worst source in the set, at 0.002–0.013 entailment |
 | v1.14 | **A slot label** | 2 verified claims deleted for declaring the wrong slot |
 
 Measured on the same question throughout — *"langchain vs langgraph
@@ -32,7 +32,7 @@ differences?"* — so the before/after is comparable:
 | Published claims | 5 | 4 | 4 | 3 | **6** |
 | Complete comparison pairs | 0 | 2 | 1 | 0 | **2** |
 | Answered the question? | no | partly | yes | **no** | **yes** |
-| Evidence cited / extracted | — | 17% | 14% | 14% | **21%** |
+| Evidence cited / extracted | — | 17% | 12% | 14% | **21%** |
 
 v1.12 went *backwards on the answer* while succeeding at what it set out to
 do. That is the most useful row in the table, and the next section explains
@@ -108,10 +108,10 @@ Result: **4 of 6 sources first-party, ceiling 0.98.**
 ### Fixing retrieval moved the bottleneck, it did not remove it
 
 The run with the best sources the engine had ever retrieved published
-**three claims and refused five**. Four of the five cited the *worst* source
-in the set — a listicle at 0.64 — at entailment **0.0013–0.0064**. Those are
-not near misses; the quote does not carry the claim at all. The three
-official documentation pages were never quoted.
+**three claims and refused five**. Three of the five cited the *worst*
+source in the set — a listicle at 0.64 — at entailment **0.002–0.013**.
+Those are not near misses; the quote does not carry the claim at all. The
+three official documentation pages were never quoted.
 
 All five failures were contrast-shaped, and the listicle was the only page
 whose *title* was a comparison. The analyst was writing the sentence first
@@ -198,10 +198,10 @@ zero from it is not evidence that binding is healthy.
 
 ---
 
-## The defect class this project keeps producing
+## One recurring defect, and the practice that came out of it
 
 A value computed correctly and never handed to the thing that needed it.
-The commit history names each instance. Two examples:
+It appeared often enough to be worth naming. Two examples:
 
 - the comparison pairs were assembled, serialised, and then not passed to
   one of the two renderers — found by a paid run, after a test had asserted
@@ -209,11 +209,21 @@ The commit history names each instance. Two examples:
 - the modality fix existed in the repair module and not in the module that
   gates publication.
 
-The tell is the same every time: a test written where the value is
-*declared* rather than where it *runs*. It recurred inside the fix for
-itself — two mutants survived the tests for the slot-label counter because
-every one of them drove the consumer with the count handed in, never the
-producer.
+The tell is the same every time: **a test written where the value is
+*declared* rather than where it *runs*.** Nothing else distinguishes these
+bugs; they all pass a test suite that looks thorough.
+
+It is a hard habit to break. It recurred inside the fix for itself — two
+mutants survived the tests for the slot-label counter because every one of
+them drove the consumer with the count handed in, never the producer.
+
+So the practice is now explicit: a test exercises the function the
+production path calls, and mutation testing is what proves it. The second
+of those two mutants needed a case that had not been obvious — a one-sided
+claim on a named axis is *publishable*, so it never reaches the counter's
+branch and cannot show the condition does any work. Finding that required
+asking what input would actually reach the line, which is the question the
+original tests had skipped.
 
 ---
 

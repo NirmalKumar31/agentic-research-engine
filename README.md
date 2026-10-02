@@ -12,12 +12,11 @@ existed. Claims are held to a contract built from the question before
 retrieval starts, and one that fills no part of it is withheld with its own
 reason rather than reported as unsupported, which it is not.
 
-> **[How this was built](docs/HOW-THIS-WAS-BUILT.md)** — the output quality
-> work, as a record of which measurement justified each fix, the three
-> proposed fixes that were withdrawn when the measurement said no, and two
-> hypotheses that turned out to be wrong. Probably the most useful ten
-> minutes in this repository if you want to see how it was reasoned about
-> rather than what it does.
+> **[How this was built](docs/HOW-THIS-WAS-BUILT.md)** — how the output
+> quality work was diagnosed: which measurement justified each fix, three
+> proposed fixes that were withdrawn when the measurement contradicted
+> them, and two hypotheses that turned out to be wrong. Read it if you want
+> the reasoning rather than the feature list.
 
 ---
 
