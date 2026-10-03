@@ -2,6 +2,64 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+Selection, and a restatement published twice.
+
+The v1.14 hosted run was the best measured — the question answered, two
+complete comparison pairs, **7 claims at 35% evidence yield** against a
+9.4% baseline. It also named the next bottleneck outright, because the
+source accounting added in that release finally distinguished the two
+kinds of uncited source:
+
+    S3 reference.langchain.com 0.96 — not cited, 2 citable quotes extracted
+    S4 docs.langchain.com      0.96 — not cited, 1 citable quote extracted
+    S6 docs.langchain.com      0.91 — not cited, 2 citable quotes extracted
+
+Five usable quotes from first-party documentation, none cited, while **six
+of seven citations went to the two lowest-quality sources in the set**, at
+0.62 and 0.64. Retrieval had done its job. Extraction had done its job.
+Selection had not.
+
+**The source kind now appears on the line where the evidence id is
+chosen.** `build_package` has ranked by source authority for several
+releases, and a sort is invisible to a model reading a list — it has no
+way to know the order means anything. The classification existed the whole
+time and reached nothing that made a decision. Each item now reads
+`(supports, official docs 0.96)` or `(supports, blog 0.58)`, and the
+synthesiser is told to prefer the more authoritative source **among quotes
+that actually carry the claim** — authority does not override relevance,
+and saying only the first half would trade one failure for another.
+
+The source *id* is still withheld from that line. Showing it would invite
+citing sources directly and reintroduce the ambiguity the design removes;
+the kind of source is a different fact.
+
+**A claim is a duplicate of one it merely rearranges.** The same run
+published both of these, from one source, in one slot:
+
+> LangChain components are the components on which LangGraph's
+> orchestration layer is built.
+> LangGraph is an orchestration layer built on LangChain components.
+
+The engine noticed — it printed *"More than one published claim fills the
+relationship slot; they may repeat each other"* — and published both.
+
+Dedup had been exact-text only, and deliberately so: collapsing claims
+that merely resemble each other is an editorial judgement made by a
+threshold. This does not relax that. The test is **set equality on content
+words within one answer slot** — not "these two are similar", but "these
+two assert with exactly the same words, about the same part of the
+answer". The two sides of a comparison pair are safe by construction,
+since each names a different subject, rather than by a tuned cutoff.
+
+Both changes are mutation-tested. Two mutants survived the first pass: one
+exposed dead code — an explicit possessive strip that the word pattern and
+length filter already handled, now deleted — and one was a badly
+constructed mutant that left the asserted phrase intact, rebuilt and
+caught.
+
+
 ## v1.14.0 — 2026-10-02
 
 Where v1.12.0 released three streams that were chasing a bottleneck, this

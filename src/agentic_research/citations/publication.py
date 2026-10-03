@@ -27,6 +27,7 @@ attempted here.
 
 from __future__ import annotations
 
+import re
 from typing import Literal
 
 from agentic_research.models import Claim, ClaimKind, Contradiction, ResearchReport
@@ -90,6 +91,55 @@ def _normalised(text: str) -> str:
     return " ".join(text.lower().split()).rstrip(".")
 
 
+_WORD = re.compile(r"[a-z0-9]+")
+
+
+def _content_words(text: str) -> frozenset[str]:
+    """The words a claim asserts with, stopwords removed.
+
+    Possessives need no special handling: `[a-z0-9]+` splits
+    "LangGraph's" into "langgraph" and "s", and the length filter drops
+    the "s". An explicit strip was written here first and removed when a
+    mutation survived it -- the mutation was right, the code was dead.
+    """
+    from agentic_research.citations.guards import _STOPWORDS
+
+    return frozenset(w for w in _WORD.findall(text.lower()) if w not in _STOPWORDS and len(w) > 1)
+
+
+def _restates(a: Claim, b: Claim) -> bool:
+    """Whether one claim is the other with its words rearranged.
+
+    Narrower than it sounds, and deliberately not a similarity
+    threshold -- `_normalised` above refuses those for good reason, and
+    this does not relax it. The test is **set equality** on content
+    words within **the same answer slot**: not "these two are similar",
+    but "these two assert with exactly the same words, about the same
+    part of the answer".
+
+    The live case, published twice in one report from one source:
+
+        LangChain components are the components on which LangGraph's
+        orchestration layer is built.
+        LangGraph is an orchestration layer built on LangChain
+        components.
+
+    The engine already noticed -- it printed "More than one published
+    claim fills the relationship slot; they may repeat each other" --
+    and published both anyway.
+
+    The two sides of a comparison pair are safe from this by
+    construction: each names a different subject, so their word sets
+    differ. A slotless claim is never collapsed, because without a slot
+    there is nothing to say the two address the same thing.
+    """
+    slot = (a.answer_slot or "").strip()
+    if not slot or slot != (b.answer_slot or "").strip():
+        return False
+    words = _content_words(a.text)
+    return bool(words) and words == _content_words(b.text)
+
+
 def deduplicate_claims(report: ResearchReport) -> tuple[ResearchReport, int]:
     """Drop repeats of a claim that already appears earlier in the report.
 
@@ -108,6 +158,11 @@ def deduplicate_claims(report: ResearchReport) -> tuple[ResearchReport, int]:
     section.
     """
     seen: set[ClaimKey] = set()
+    # Every substantive claim kept so far, across the whole report. A
+    # restatement is usually in the same section as the thing it
+    # restates, but nothing guarantees that, and the precedence rule
+    # below is report-wide already.
+    kept_claims: list[Claim] = []
     removed = 0
 
     def keep(claims: list[Claim]) -> list[Claim]:
@@ -119,11 +174,16 @@ def deduplicate_claims(report: ResearchReport) -> tuple[ResearchReport, int]:
             if claim.kind is ClaimKind.FRAMING:
                 kept.append(claim)
                 continue
+            # A restatement is a duplicate even though its text differs.
+            if any(_restates(claim, earlier) for earlier in kept_claims):
+                removed += 1
+                continue
             key = (_normalised(claim.text), tuple(claim.evidence_ids))
             if key in seen:
                 removed += 1
                 continue
             seen.add(key)
+            kept_claims.append(claim)
             kept.append(claim)
         return kept
 
