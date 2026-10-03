@@ -150,7 +150,8 @@ authoritative documentation. **Relevance and authority pull in opposite
 directions here, and relevance wins — correctly, because a quote that
 does not support the claim is useless however good its source.**
 
-Six hosted runs of "langchain vs langgraph differences?" show the shape.
+Seven hosted runs of "langchain vs langgraph differences?", one per
+release from v1.9.0 to v1.15, show the shape.
 The most-cited source was a 0.59 blog in one run and a 0.64 listicle in
 another; in the same two runs, first-party documentation scoring 0.89 to
 0.96 supplied **five and five** citable quotes respectively and was never

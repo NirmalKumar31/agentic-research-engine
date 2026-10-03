@@ -12,7 +12,7 @@ says so.
 
 ## The short version
 
-The engine published thin answers. Five releases chased that through five
+The engine published thin answers. Six releases chased that through six
 *different* causes, each of which only became visible once the previous one
 was fixed:
 
@@ -142,8 +142,8 @@ This section is the point of the document.
 ### Raising the source ceiling
 
 Requested twice: 6 sources to 12. Not done, because the measurement
-contradicts it. Across three runs the engine extracted **85 evidence items
-and cited 8**. The sharpest case retrieved NVIDIA official documentation at
+contradicts it. Across three runs on three *different* questions the
+engine extracted **85 evidence items and cited 8**. The sharpest case retrieved NVIDIA official documentation at
 0.98 plus three papers at 0.96–0.98 — the best source set it had ever pulled
 — and published **two sentences**, with five of six sources uncited.
 
