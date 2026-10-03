@@ -12,7 +12,7 @@ says so.
 
 ## The short version
 
-The engine published thin answers. Five releases chased that through five
+The engine published thin answers. Six releases chased that through six
 *different* causes, each of which only became visible once the previous one
 was fixed:
 
@@ -23,20 +23,24 @@ was fixed:
 | v1.12 | **Retrieval** — primary sources reached by luck | Same question 6h apart: 4 official docs, then 0 |
 | v1.13 | **Claim-to-evidence binding** | 3 of 5 refusals cited the worst source in the set, at 0.002–0.013 entailment |
 | v1.14 | **A slot label** | 2 verified claims deleted for declaring the wrong slot |
+| v1.15 | **Selection** — authority never reached the choice | 5 quotes from 0.89–0.96 docs unused; 6 of 7 citations from 0.62/0.64 |
 
 Measured on the same question throughout — *"langchain vs langgraph
 differences?"* — so the before/after is comparable:
 
-| | v1.9.0 | v1.10 | v1.11 | v1.12 | v1.13 |
-| --- | --- | --- | --- | --- | --- |
-| Published claims | 5 | 4 | 4 | 3 | **6** |
-| Complete comparison pairs | 0 | 2 | 1 | 0 | **2** |
-| Answered the question? | no | partly | yes | **no** | **yes** |
-| Evidence cited / extracted | — | 17% | 12% | 14% | **21%** |
+| | v1.9.0 | v1.10 | v1.11 | v1.12 | v1.13 | v1.14 | v1.15 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Published claims | 5 | 4 | 4 | 3 | 6 | **7** | 4 |
+| Complete comparison pairs | 0 | 2 | 1 | 0 | 2 | **2** | 1 |
+| Answered the question? | no | partly | yes | **no** | yes | **yes** | yes |
+| Evidence cited / extracted | — | 17% | 12% | 14% | 21% | **35%** | 15% |
 
-v1.12 went *backwards on the answer* while succeeding at what it set out to
-do. That is the most useful row in the table, and the next section explains
-why.
+Two columns matter more than the peak. **v1.12 went backwards on the
+answer** while succeeding at exactly what it set out to do, which is what
+made the next bottleneck visible. And **v1.15 fell from the v1.14 peak**
+with no change intended to cause that — the point at which run-to-run
+variance exceeded the effect being measured, and the measurement loop
+stopped. Both are explained below.
 
 ---
 
@@ -138,8 +142,8 @@ This section is the point of the document.
 ### Raising the source ceiling
 
 Requested twice: 6 sources to 12. Not done, because the measurement
-contradicts it. Across three runs the engine extracted **85 evidence items
-and cited 8**. The sharpest case retrieved NVIDIA official documentation at
+contradicts it. Across three runs on three *different* questions the
+engine extracted **85 evidence items and cited 8**. The sharpest case retrieved NVIDIA official documentation at
 0.98 plus three papers at 0.96–0.98 — the best source set it had ever pulled
 — and published **two sentences**, with five of six sources uncited.
 
@@ -252,13 +256,46 @@ directions.
 
 ---
 
-## What is not proven
+## What is proven, and what is not
 
-The two most recent releases have not been validated by a live run. Of the
-last four fixes, three were prompt changes: those moved output the most and
-are the ones no test covers. A green CI run says less about them than it
-does about the deterministic work.
+Every deterministic change is mutation-tested: a guard or counter is broken
+deliberately and a named test must fail. That covers the modality ladder,
+the atomicity parsers, the render dedupe, the limitation suppressions, the
+binding diagnostics, the slot-label counter, the source accounting and the
+restatement rule.
 
-The open question is whether a contrast pair now forms on an axis whose two
-claims were previously discarded for carrying the wrong slot label. It needs
-one run to answer, and the pass condition is already written down.
+**The prompt changes are not covered by anything, and three of the last
+four output changes were prompt changes.** One has visible evidence and
+three do not, and the difference is worth being precise about:
+
+* The **query-writer** rule has a mechanism you can see in the metrics: the
+  run issued four searches instead of three, and first-party documentation
+  appeared where the previous run on the same question had none, moving the
+  quality ceiling from 0.64 to 0.98.
+* The **synthesiser** rules — balance across subjects, write from the quote,
+  never aim at the contrast slot, prefer the authoritative source — have no
+  comparable evidence. Reports improved while they were shipped. That is
+  not the same thing.
+
+## Why the measurement loop stopped
+
+The last two columns of the table above bracket the problem. Yield went 35% then 15% across
+two runs whose only deliberate difference was a prompt rule intended to
+*improve* source selection — and each run retrieved a different source set,
+because live search is not reproducible.
+
+**Run-to-run variance had become larger than the effect being measured.**
+Past that point another run does not test a change; it samples noise, and
+reading it as evidence is fitting to that noise. The honest move was to
+stop, which is why the last release shipped with its pass condition
+recorded as failed rather than reinterpreted.
+
+A controlled test is still possible — replay one fixed evidence package
+through the synthesiser with and without the change, holding retrieval
+constant. It was not run here because both outcomes led to the same
+action, which is the test for whether an experiment is worth its cost.
+
+The structural finding underneath is in
+[`LIMITATIONS.md`](LIMITATIONS.md): a comparison cannot be sourced from the
+subjects' own documentation, because neither documents the other, so
+relevance and authority pull in opposite directions and relevance wins.

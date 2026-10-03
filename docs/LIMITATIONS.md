@@ -134,6 +134,46 @@ provider abstraction is proven at the type level only.
 **English-centric.** Extraction prompts and quote matching are untested on
 other languages.
 
+## Comparisons
+
+**A comparison cannot be sourced from the subjects' own documentation,
+because neither documents the other.** `docs.langchain.com` describes
+LangGraph; it never says "unlike LangChain". A vendor documents its own
+product, so first-party pages are structurally single-subject.
+
+The engine therefore has to *assemble* a contrast from one verified claim
+per subject on a shared axis, which is what `build_comparison_pairs`
+does. But a low-authority page comparing two products in a single
+sentence offers a ready-made contrast, and that sentence is more
+*relevant* to a contrast slot than any single-subject quote from
+authoritative documentation. **Relevance and authority pull in opposite
+directions here, and relevance wins — correctly, because a quote that
+does not support the claim is useless however good its source.**
+
+Seven hosted runs of "langchain vs langgraph differences?", one per
+release from v1.9.0 to v1.15, show the shape.
+The most-cited source was a 0.59 blog in one run and a 0.64 listicle in
+another; in the same two runs, first-party documentation scoring 0.89 to
+0.96 supplied **five and five** citable quotes respectively and was never
+cited. The blogs supplied sentences like "LangChain handles state
+implicitly ... LangGraph provides explicit control over state". The
+documentation supplied accurate single-subject descriptions that fill a
+contrast slot only once paired, and pairing requires both halves to be
+present on the same axis in the same run.
+
+Telling the synthesiser to prefer the authoritative source does not
+resolve this, and v1.15 shipped that rule without being able to
+demonstrate an effect: the rule applies *among quotes supporting the same
+point*, and for a contrastive point there is frequently no competing
+documentation quote at all.
+
+**What this means in practice.** Comparison questions about two products
+will often cite secondary sources even when primary ones were retrieved
+and were usable. The citation is still exact, the claim is still
+entailed by its quote, and the source is still named with its quality
+score — but "verified" here means faithful to a blog, and the report says
+which.
+
 ## Publication
 
 **All three recorded demos publish nothing.** Under a `qwen3:4b`
