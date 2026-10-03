@@ -2,7 +2,28 @@
 
 Notable changes per release. Dates are UTC.
 
-## Unreleased
+## v1.14.0 — 2026-10-02
+
+Where v1.12.0 released three streams that were chasing a bottleneck, this
+one releases the two that found it. The engine now answers the question it
+was failing to answer five runs earlier.
+
+Measured on the same question throughout — *"langchain vs langgraph
+differences?"*:
+
+| | before v1.13 | after v1.13 |
+| --- | --- | --- |
+| Published claims | 3 | **6** |
+| Complete comparison pairs | 0 | **2** |
+| Answered the question? | no | **yes** |
+| Evidence cited / extracted | 14% | **21%** |
+
+[`docs/HOW-THIS-WAS-BUILT.md`](docs/HOW-THIS-WAS-BUILT.md), added in this
+release, records how each cause was found, three proposed fixes that were
+withdrawn when the measurement contradicted them, and two hypotheses that
+turned out to be wrong.
+
+### Slot labels and source accounting
 
 Two self-inflicted losses, found in the first run that answered the
 question.
@@ -46,7 +67,7 @@ off-subject quotes, was too coarse. The diagnostic is kept because it costs
 nothing and reads zero honestly; it is not evidence of anything on this
 run.
 
----
+### Claim-to-evidence binding
 
 Claim-to-evidence binding. The v1.12 retrieval fix worked and moved the
 bottleneck one stage downstream.
@@ -98,6 +119,7 @@ The binding diagnosis and the subject tagging are deterministic and
 mutation-tested. The two prompt changes are not, and no offline test can be
 — their effect needs a live run.
 
+---
 
 ## v1.12.0 — 2026-10-02
 
