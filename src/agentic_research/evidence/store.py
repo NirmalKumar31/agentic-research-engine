@@ -428,9 +428,24 @@ class EvidenceStore:
                 if len(quote) > max_quote_chars:
                     quote = quote[:max_quote_chars].rstrip() + "..."
                 page = f", p. {item.page}" if item.page else ""
-                # The evidence id is what the synthesiser must reference.
-                # Showing the source id here would invite it to cite sources
-                # directly and reintroduce the ambiguity this design removes.
+                # What kind of source this quote came from, on the line
+                # where the id is chosen.
+                #
+                # The sort below already prefers an authoritative source
+                # when relevance ties -- but a sort is invisible to a
+                # model reading a list, which has no way to know the
+                # order means anything. A hosted run makes the cost
+                # plain: three first-party documentation pages at
+                # 0.91-0.96 yielded five citable quotes and were never
+                # cited, while six of seven citations went to the two
+                # lowest-quality sources in the set, at 0.62 and 0.64.
+                #
+                # The source id is still withheld -- showing it would
+                # invite citing sources directly and reintroduce the
+                # ambiguity this design removes. The *kind* of source is
+                # not the same thing, and is what the choice needs.
+                kind = source.source_type.value.replace("_", " ")
+                origin = f", {kind} {source.quality_score:.2f}"
                 # The subject tag goes on the line the synthesiser reads
                 # when choosing an evidence id, not only in the heading
                 # summary: choosing happens per item.
@@ -441,7 +456,8 @@ class EvidenceStore:
                     )
                     tag = f" [{' + '.join(covered)}]" if covered else " [neither subject named]"
                 lines.append(
-                    f'- {item.id} ({item.stance.value}{page}){tag} {item.claim}\n  quote: "{quote}"'
+                    f"- {item.id} ({item.stance.value}{page}{origin}){tag} {item.claim}\n"
+                    f'  quote: "{quote}"'
                 )
                 included += 1
 

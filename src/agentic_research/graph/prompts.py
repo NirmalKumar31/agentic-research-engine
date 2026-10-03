@@ -346,6 +346,20 @@ that were not about the claim's own subject: the sentences were written \
 first, then an id was attached to each. Read the quote, then say what it \
 supports.
 
+Each evidence item names the kind of source its quote came from and that \
+source's quality score, like `(supports, official docs 0.96)` or \
+`(supports, blog 0.58)`. **When two quotes support the same point, cite \
+the more authoritative one.** Official documentation, a standards body and \
+a peer-reviewed paper are the thing itself; a blog, a tutorial or a \
+listicle is an account of it, and an account can be wrong in ways the \
+original cannot. One run cited a 0.64 listicle six times while three \
+first-party documentation pages scoring 0.91 to 0.96, with five usable \
+quotes between them, went untouched.
+
+This does not override relevance. A quote that does not support your point \
+is useless however authoritative its source; prefer the better source \
+among quotes that actually carry the claim.
+
 For a comparison, each sub-question heading states which subjects its \
 evidence covers, and each item is tagged with the subject it names, like \
 `[LangGraph]` or `[LangChain + LangGraph]`. Where a heading says only one \
