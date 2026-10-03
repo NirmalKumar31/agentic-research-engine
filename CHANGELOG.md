@@ -2,7 +2,16 @@
 
 Notable changes per release. Dates are UTC.
 
-## Unreleased
+## v1.15.0 — 2026-10-03
+
+**What this release does.** It makes source authority visible at
+evidence-selection time, and it removes exact semantic restatements within
+one answer slot.
+
+**What is established about it.** Both changes are mutation-tested. Its
+prompt-level improvements are **not separately causal-proven**. It does
+**not** prove general real-model performance, and it does **not** turn the
+engine into a universal research-answering system.
 
 Selection, and a restatement published twice.
 
@@ -59,6 +68,55 @@ length filter already handled, now deleted — and one was a badly
 constructed mutant that left the asserted phrase intact, rebuilt and
 caught.
 
+### Release evidence
+
+| | |
+| --- | --- |
+| Branched from | `dca1384` — the docs PR #19 merge, CI 9/9 success |
+| Test totals | 2451 passed, 31 skipped, 20 deselected (Python); 92 passed (frontend) |
+| Provider calls made for this release | **none** |
+| Spend incurred for this release | **none** |
+
+The release commit's own SHA and CI result are recorded in the pull
+request and in the merge commit, not duplicated here: a SHA written into
+the file it is a hash of cannot be correct.
+
+**What was run:** the full gate set — `ruff check`, `ruff format --check`,
+`mypy`, `mypy examples`, the complete non-integration test suite, the
+frontend typecheck, unit tests and production build, a clean `npm ci`
+against the regenerated lock, and the packaging checks: wheel and sdist
+built, the wheel installed into an empty virtual environment, the CLI run
+from it, the three bundled recordings confirmed present in the installed
+package, and `pricing.toml` confirmed resolvable from outside the
+repository.
+
+The three container jobs — CLI-in-container, web image health probe, and
+the real-NLI checkpoint job — were **not** run locally, because Docker is
+not available in this environment. They run in CI on this commit, and the
+result is the authority for them.
+
+**What was not run:** no live research run, no paid provider request, no
+new measurement of output quality. This release packages work already on
+`main` and verified there; it changes no behaviour.
+
+**Outstanding limitations, unchanged by this release:**
+
+* Only the **query-writer** prompt mechanism has direct observable
+  support — four searches instead of three, first-party documentation
+  appearing where the previous run on the same question had none.
+* The **three synthesiser prompt rules** remain non-causal observations.
+  Reports improved while they shipped; that is not evidence that they
+  caused it.
+* Real-model evidence remains a **small, variable sample**. Run-to-run
+  variance exceeded the effects being measured, which is why the
+  measurement loop was stopped.
+* **No claim is made that increasing the source count improves output.**
+  The measurement contradicted it: across three runs on three different
+  questions the engine extracted 85 evidence items and cited 8.
+* **No broad claim is drawn from the LangChain/LangGraph example.** It is
+  one question, used as a fixed before/after probe, not a benchmark.
+
+---
 
 ## v1.14.0 — 2026-10-02
 
