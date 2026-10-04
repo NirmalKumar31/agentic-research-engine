@@ -29,14 +29,19 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from agentic_research.config import ModelRole, ModelSpec, Provider, Settings
+from langchain_core.runnables import RunnableConfig
+
+from agentic_research.citations.fake_nli import FakeScorer
+from agentic_research.config import LLMMode, ModelRole, ModelSpec, Provider, Settings
 from agentic_research.graph.state import RunContext, initial_state
 from agentic_research.llm.base import UsageTracker
-from agentic_research.models import FetchResult, FetchStatus, SearchQuery, SearchResult
+from agentic_research.models import FetchStatus, SearchQuery, SearchResult
+from agentic_research.retrieval.fetcher import FetchResult
 from agentic_research.schemas import (
     AnalysisOut,
     ClaimOut,
@@ -44,10 +49,13 @@ from agentic_research.schemas import (
     PlanOut,
     QueriesOut,
     QueryOut,
+    RelevanceOut,
+    RelevanceVerdictOut,
     ReportOut,
     SectionOut,
     SubQuestionOut,
 )
+from agentic_research.search.base import SearchResponse
 
 # ---------------------------------------------------------------------------
 # The corpus. Two short, original pages -- enough to exercise two
@@ -79,8 +87,7 @@ _PAGE_B_TEXT = (
 # to it. The quote is real and extracted; the claim overclaims what it
 # says, scored below threshold by the FakeScorer entry below.
 _UNSUPPORTED_CLAIM = (
-    "Exponential backoff with jitter guarantees that every client "
-    "succeeds within three attempts."
+    "Exponential backoff with jitter guarantees that every client succeeds within three attempts."
 )
 
 PAGES: dict[str, str] = {_PAGE_A_URL: _PAGE_A_TEXT, _PAGE_B_URL: _PAGE_B_TEXT}
@@ -118,7 +125,7 @@ class ScriptedRouter:
         self.tracker = UsageTracker(max_calls=10_000)
         self._spec = ModelSpec(provider=Provider.OLLAMA, model="frozen-corpus:scripted")
 
-    def get(self, role: ModelRole) -> "_ScriptedRole":
+    def get(self, role: ModelRole) -> _ScriptedRole:
         return _ScriptedRole(role, self)
 
     def assignments(self) -> dict[ModelRole, ModelSpec]:
@@ -207,7 +214,11 @@ def _extraction(user: str) -> Any:
         return ExtractionOut(
             evidence=[
                 EvidenceOut(
-                    sub_question_id="SQ1", claim=SUPPORTED_CLAIM, quote=_PAGE_A_TEXT, stance="supports", relevance=0.95,
+                    sub_question_id="SQ1",
+                    claim=SUPPORTED_CLAIM,
+                    quote=_PAGE_A_TEXT,
+                    stance="supports",
+                    relevance=0.95,
                 ),
                 EvidenceOut(
                     sub_question_id="SQ1",
@@ -221,7 +232,11 @@ def _extraction(user: str) -> Any:
     return ExtractionOut(
         evidence=[
             EvidenceOut(
-                sub_question_id="SQ2", claim=SUPPORTED_CLAIM_2, quote=_PAGE_B_TEXT, stance="supports", relevance=0.95,
+                sub_question_id="SQ2",
+                claim=SUPPORTED_CLAIM_2,
+                quote=_PAGE_B_TEXT,
+                stance="supports",
+                relevance=0.95,
             )
         ]
     )
@@ -230,30 +245,67 @@ def _extraction(user: str) -> Any:
 def _coverage(_: str) -> Any:
     from agentic_research.schemas import CoverageOut
 
-    return CoverageOut(weak_sub_question_ids=[], contradictions=[], missing_angles=[], reasoning="covered")
+    return CoverageOut(
+        weak_sub_question_ids=[], contradictions=[], missing_angles=[], reasoning="covered"
+    )
 
 
 def _report(_: str) -> ReportOut:
     return ReportOut(
         title="Exponential Backoff with Jitter",
-        summary_claims=[],
+        summary_claims=[
+            ClaimOut(
+                text=SUPPORTED_CLAIM, answer_slot="part_1", evidence_ids=["S1-e1"], kind="factual"
+            )
+        ],
         sections=[
             SectionOut(
-                heading="What jitter adds",
-                claims=[ClaimOut(text=SUPPORTED_CLAIM, answer_slot="", evidence_ids=["S1-e1"], kind="factual")],
-            ),
-            SectionOut(
                 heading="Why retries are capped",
-                claims=[ClaimOut(text=SUPPORTED_CLAIM_2, answer_slot="", evidence_ids=["S2-e1"], kind="factual")],
+                claims=[
+                    ClaimOut(
+                        text=SUPPORTED_CLAIM_2,
+                        answer_slot="part_2",
+                        evidence_ids=["S2-e1"],
+                        kind="factual",
+                    )
+                ],
             ),
             SectionOut(
                 heading="Guarantees",
-                claims=[ClaimOut(text=_UNSUPPORTED_CLAIM, answer_slot="", evidence_ids=["S1-e2"], kind="factual")],
+                claims=[
+                    ClaimOut(
+                        text=_UNSUPPORTED_CLAIM,
+                        answer_slot="part_1",
+                        evidence_ids=["S1-e2"],
+                        kind="factual",
+                    )
+                ],
             ),
         ],
         key_findings=[],
         contradictions=[],
         limitations=[],
+    )
+
+
+def _relevance(user: str) -> RelevanceOut:
+    """Judge every candidate claim relevant to its own sub-question.
+
+    The two true claims in this corpus genuinely answer what they are
+    filed under; marking them relevant is not a thumb on the scale, it
+    is what a correct judge would say. The overclaiming third claim is
+    withheld on entailment regardless of this verdict -- relevance is a
+    separate gate from support, and this corpus does not need relevance
+    to do the refusing.
+    """
+    indices = [int(m) for m in re.findall(r"^(\d+)\. ", user, flags=re.MULTILINE)]
+    return RelevanceOut(
+        verdicts=[
+            RelevanceVerdictOut(
+                claim_index=i, answers_question=True, reason="answers its sub-question"
+            )
+            for i in indices
+        ]
     )
 
 
@@ -264,6 +316,7 @@ _RESPONSES = {
     "ExtractionOut": _extraction,
     "CoverageOut": _coverage,
     "ReportOut": _report,
+    "RelevanceOut": _relevance,
 }
 
 
@@ -278,18 +331,23 @@ class ScriptedSearch:
 
         self.stats = SearchStats()
 
-    async def run_query(self, query: SearchQuery):
-        from agentic_research.search.base import SearchResponse
-
+    async def run_query(self, query: SearchQuery) -> SearchResponse:
         self.stats.calls += 1
         self.stats.credits += 1.0
         url = _PAGE_A_URL if query.sub_question_id == "SQ1" else _PAGE_B_URL
         result = SearchResult(
-            url=url, title=url, snippet="", score=0.9, provider="frozen-corpus",
-            query_id=query.id, query_text=query.text,
+            url=url,
+            title=url,
+            snippet="",
+            score=0.9,
+            provider="frozen-corpus",
+            query_id=query.id,
+            query_text=query.text,
         )
         self.stats.results += 1
-        return SearchResponse(query_id=query.id, query_text=query.text, provider="frozen-corpus", results=[result])
+        return SearchResponse(
+            query_id=query.id, query_text=query.text, provider="frozen-corpus", results=[result]
+        )
 
 
 @dataclass
@@ -310,20 +368,22 @@ class ScriptedFetcher:
         return FetchResult(url=url, final_url=url, status=FetchStatus.OK, text=text)
 
 
-def _fake_scorer():
+def _fake_scorer() -> FakeScorer:
     """Entails the two true claims exactly; everything else scores 0.
 
     Keyed on (quote, claim) so the one claim this corpus does not support
     is refused by the same gate a live run uses, not special-cased away.
     """
-    from agentic_research.citations.fake_nli import FakeScorer
-
     return FakeScorer(
         scores={
             (_PAGE_A_TEXT, SUPPORTED_CLAIM): (0.99, 0.01, 0.0),
             (_PAGE_B_TEXT, SUPPORTED_CLAIM_2): (0.99, 0.01, 0.0),
         },
-        default=(0.01, 0.1, 0.0),
+        # A valid probability distribution that stays below threshold --
+        # NLIScores rejects a triple that does not sum to ~1.0, which the
+        # first version of this default did not and failed as "malformed
+        # scores" rather than as a withheld claim.
+        default=(0.01, 0.95, 0.04),
     )
 
 
@@ -381,15 +441,15 @@ async def run_frozen_corpus() -> tuple[dict[str, Any], ReproducibilityManifest]:
     corpus -- nothing here holds a real client.
     """
     from langgraph.checkpoint.memory import InMemorySaver
+    from pydantic import SecretStr
 
-    from agentic_research.graph.nodes import reporting
     from agentic_research.graph.workflow import compile_graph
     from agentic_research.provenance import capture as capture_provenance
     from agentic_research.provenance import prompt_version, schema_version
 
     settings = Settings(
-        llm_mode="local",
-        tavily_api_key="frozen-corpus-unused",
+        llm_mode=LLMMode.LOCAL,
+        tavily_api_key=SecretStr("frozen-corpus-unused"),
         max_research_rounds=1,
         max_search_queries=4,
         max_sources=4,
@@ -397,7 +457,6 @@ async def run_frozen_corpus() -> tuple[dict[str, Any], ReproducibilityManifest]:
         max_llm_calls=20,
         persist_runs=False,
         checkpoint_backend="memory",
-        _env_file=None,
     )
 
     router = ScriptedRouter()
@@ -413,11 +472,14 @@ async def run_frozen_corpus() -> tuple[dict[str, Any], ReproducibilityManifest]:
     )
 
     app = compile_graph(checkpointer=InMemorySaver())
-    config = {"configurable": {"thread_id": "frozen-corpus"}}
+    config: RunnableConfig = {"configurable": {"thread_id": "frozen-corpus"}}
     async for _mode, _chunk in app.astream(
         initial_state("frozen-corpus", QUESTION),
         config=config,
         context=context,
+        # Must be a list, not a tuple -- see runner.py's own comment on
+        # the same call: LangGraph switches on isinstance(..., list) to
+        # decide whether to yield (mode, chunk) pairs.
         stream_mode=["custom", "updates"],
     ):
         pass
@@ -425,30 +487,57 @@ async def run_frozen_corpus() -> tuple[dict[str, Any], ReproducibilityManifest]:
     state = snapshot.values
 
     report = state.get("report")
-    markdown = state.get("final_markdown") or ""
     published_claims: list[str] = []
     if report is not None:
         published_claims = [
             c.text
-            for c in list(report.summary_claims) + list(report.key_findings)
+            for c in list(report.summary_claims)
+            + list(report.key_findings)
             + [c for s in report.sections for c in s.claims]
         ]
 
-    report_hash = hashlib.sha256(markdown.encode()).hexdigest()
+    # Hashed from structured content, deliberately not from
+    # `final_markdown`. The rendered report ends with "Generated by
+    # Agentic Research Engine on <timestamp> UTC." -- correct behaviour
+    # for a real report, and it means the rendered markdown can never be
+    # byte-identical across two runs made in different seconds, however
+    # deterministic the engine itself is. The first version of this
+    # manifest hashed the markdown and failed its own reproducibility
+    # check for exactly that reason, on its first real invocation.
+    content = {
+        "title": report.title if report is not None else None,
+        "summary_claims": [c.text for c in report.summary_claims] if report is not None else [],
+        "key_findings": [c.text for c in report.key_findings] if report is not None else [],
+        "sections": [
+            {"heading": sec.heading, "claims": [c.text for c in sec.claims]}
+            for sec in (report.sections if report is not None else [])
+        ],
+        "limitations": list(report.limitations) if report is not None else [],
+    }
+    report_hash = hashlib.sha256(json.dumps(content, sort_keys=True).encode()).hexdigest()
     provenance = capture_provenance(settings)
     git_commit = provenance.get("git", {}).get("commit", "unavailable")
 
     evidence_ids = tuple(sorted(e.id for e in state.get("evidence", [])))
 
+    schemas_requested = {schema for _role, schema in router.calls}
     assertions = {
-        "no_network_reachable_objects_in_context": not hasattr(context.search, "_client")
-        and not hasattr(context.fetcher, "_client"),
+        # Proves the run used the scripted I/O objects, not merely that
+        # it *could have* -- an isinstance check on what RunContext
+        # actually holds, rather than probing for an attribute a real
+        # client happens to have.
+        "search_and_fetch_are_the_scripted_objects": isinstance(context.search, ScriptedSearch)
+        and isinstance(context.fetcher, ScriptedFetcher),
         "report_was_produced": report is not None,
         "supported_claim_published": SUPPORTED_CLAIM in published_claims,
         "second_supported_claim_published": SUPPORTED_CLAIM_2 in published_claims,
         "unsupported_claim_withheld": _UNSUPPORTED_CLAIM not in published_claims,
-        "llm_calls_only_to_scripted_router": set(router.calls) <= set(_RESPONSES.keys())
-        or True,  # calls store (role, schema); checked structurally below instead
+        # The router was actually exercised (not bypassed by a cached
+        # path) and only ever asked for schemas this module scripts --
+        # guaranteed by `_ScriptedRole.structured` raising on anything
+        # else, so this is a sanity check on that guarantee holding.
+        "router_was_used_and_only_for_scripted_schemas": bool(router.calls)
+        and schemas_requested <= set(_RESPONSES.keys()),
         "evidence_ids_nonempty": bool(evidence_ids),
     }
 
@@ -474,7 +563,19 @@ def _engine_version() -> str:
 
 
 def expected_manifest_path() -> Path:
-    return Path(__file__).resolve().parents[3] / "examples" / "reproducibility" / "expected-manifest.json"
+    """Where the committed expectation lives.
+
+    Packaged as data under ``evaluation/data/``, not under the
+    repository's top-level ``examples/`` -- a relative path climbed from
+    ``__file__`` resolves inside a source checkout and nowhere inside an
+    installed wheel, where this file still has to be found: the CI job
+    that installs the wheel into a bare /tmp venv runs this command, and
+    there is no ``examples/`` directory there at all. Resolved the same
+    way ``recorded_runs`` already is.
+    """
+    from importlib.resources import files
+
+    return Path(str(files("agentic_research.evaluation") / "data" / "expected-manifest.json"))
 
 
 def load_expected_manifest() -> dict[str, Any] | None:
@@ -491,7 +592,13 @@ def diff_against_expected(manifest: ReproducibilityManifest) -> list[str]:
     if expected is None:
         return ["no expected manifest is committed yet -- run with --write-expected first"]
     problems = []
-    for key in ("corpus_fingerprint", "prompt_version", "schema_version", "report_hash", "evidence_ids"):
+    for key in (
+        "corpus_fingerprint",
+        "prompt_version",
+        "schema_version",
+        "report_hash",
+        "evidence_ids",
+    ):
         got = manifest.to_dict()[key]
         want = expected.get(key)
         if got != want:

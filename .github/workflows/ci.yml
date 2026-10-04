@@ -101,6 +101,17 @@ jobs:
           /tmp/fresh/bin/agentic-research --help
           LLM_MODE=local /tmp/fresh/bin/agentic-research graph | head -5
 
+      # Run from /tmp, away from the repository, so the committed
+      # examples/ directory is not reachable by accident: the expected
+      # manifest has to be found as packaged data, the same way the
+      # recorded demo runs are, or this would pass locally and fail for
+      # the first user who installs the wheel somewhere else. It caught
+      # exactly that bug once already.
+      - name: Verify frozen-corpus reproducibility from the installed wheel
+        run: |
+          cd /tmp
+          /tmp/fresh/bin/agentic-research verify-reproducible
+
       # The public site runs from the installed wheel, not a source
       # checkout. If the recording JSON were not packaged, the deployed
       # demo would come up with nothing to show and the failure would

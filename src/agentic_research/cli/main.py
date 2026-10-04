@@ -234,6 +234,76 @@ def check() -> None:
         raise typer.Exit(code=1)
 
 
+@app.command("verify-reproducible")
+def verify_reproducible(
+    write_expected: Annotated[
+        bool,
+        typer.Option(
+            "--write-expected",
+            help="Overwrite the committed expected manifest with this run's output, "
+            "instead of checking against it. Use only when the corpus, prompt or "
+            "schema version changed on purpose.",
+        ),
+    ] = False,
+) -> None:
+    """Run the engine against a frozen, offline corpus and check it is
+    byte-for-byte deterministic.
+
+    Makes no network request and needs no credential: search, fetch and
+    the model router are scripted, and verification runs against the
+    project's own deterministic NLI stand-in. This proves the engine's
+    own machinery is deterministic end to end -- not that a real model
+    or real search would reproduce the same report, which they will not.
+    """
+    import asyncio
+
+    from agentic_research.evaluation.frozen_corpus import (
+        diff_against_expected,
+        expected_manifest_path,
+        run_frozen_corpus,
+    )
+
+    configure_logging("WARNING", "console")
+    _state, manifest = asyncio.run(run_frozen_corpus())
+
+    table = Table(title="Frozen-corpus reproducibility", show_header=True)
+    table.add_column("Assertion")
+    table.add_column("Result")
+    all_passed = True
+    for name, passed in manifest.assertions.items():
+        all_passed &= passed
+        table.add_row(name, "[green]pass[/green]" if passed else "[red]FAIL[/red]")
+    console.print(table)
+
+    if not all_passed:
+        _fail(
+            "the engine produced a different result than the corpus is built to "
+            "demonstrate -- this is an engine regression, not a drift in expectations.",
+        )
+
+    if write_expected:
+        path = expected_manifest_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(manifest.to_dict(), indent=2, sort_keys=True) + "\n")
+        console.print(f"[green]Wrote[/green] {path}")
+        return
+
+    problems = diff_against_expected(manifest)
+    if problems:
+        console.print()
+        console.print("[red]Drift from the committed expected manifest:[/red]")
+        for problem in problems:
+            console.print(f"  - {problem}")
+        _fail(
+            "reproducibility check failed",
+            "If this drift is intentional (corpus, prompt or schema changed on "
+            "purpose), regenerate with `agentic-research verify-reproducible "
+            "--write-expected` and commit the new manifest.",
+        )
+
+    console.print("[green]Matches the committed expected manifest exactly.[/green]")
+
+
 @app.command("show")
 def show_run(
     run_id: Annotated[str, typer.Argument(help="Run id, or 'latest'.")] = "latest",
