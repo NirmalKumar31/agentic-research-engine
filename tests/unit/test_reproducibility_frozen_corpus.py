@@ -174,3 +174,62 @@ class TestTheExpectedManifestFileItself:
         make every future check compare against a failure."""
         data = json.loads(fc.expected_manifest_path().read_text())
         assert all(data["assertions"].values()), data["assertions"]
+
+
+class TestReplayReproducibility:
+    """Level 1: replaying a committed recorded run makes no network call.
+
+    This complements `test_replay_mode.py`'s payload/provenance/labelling
+    assertions with the one thing they do not check: that replaying is
+    not merely fast in practice, but structurally incapable of reaching
+    the network, the same hard guarantee Level 2 proves for the engine
+    itself.
+    """
+
+    def test_listing_recordings_touches_no_socket(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        import socket
+
+        from agentic_research.web import recordings
+
+        def refuse(*_args: object, **_kwargs: object) -> None:
+            raise AssertionError("listing recordings attempted a real network connection")
+
+        monkeypatch.setattr(socket, "create_connection", refuse)
+        assert len(recordings.available()) >= 1
+
+    def test_loading_and_rendering_a_recording_touches_no_socket(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import socket
+
+        from agentic_research.web import recordings
+
+        def refuse(*_args: object, **_kwargs: object) -> None:
+            raise AssertionError("replaying a recording attempted a real network connection")
+
+        monkeypatch.setattr(socket, "create_connection", refuse)
+        summaries = recordings.available()
+        for summary in summaries:
+            payload = recordings.load(summary.id)
+            assert payload.get("result", {}).get("markdown"), summary.id
+
+    def test_every_recording_replays_through_the_cli(self) -> None:
+        """The explicit command Level 1 asks for, exercised end to end."""
+        from typer.testing import CliRunner
+
+        from agentic_research.cli.main import app
+        from agentic_research.web import recordings
+
+        runner = CliRunner()
+        for summary in recordings.available():
+            result = runner.invoke(app, ["replay", summary.id])
+            assert result.exit_code == 0, result.output
+
+    def test_an_unknown_recording_id_fails_loudly_not_silently(self) -> None:
+        from typer.testing import CliRunner
+
+        from agentic_research.cli.main import app
+
+        runner = CliRunner()
+        result = runner.invoke(app, ["replay", "this-id-does-not-exist"])
+        assert result.exit_code != 0

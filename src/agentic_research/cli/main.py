@@ -234,6 +234,51 @@ def check() -> None:
         raise typer.Exit(code=1)
 
 
+@app.command("replay")
+def replay(
+    recording_id: Annotated[
+        str,
+        typer.Argument(help="A recorded example id, or 'list' to show what is available."),
+    ] = "list",
+) -> None:
+    """Re-render a committed recorded run with no network access at all.
+
+    This is the same payload the web demo replays through
+    ``/api/examples/{id}``, reached here without starting a server --
+    reading the packaged JSON is the only I/O this command does, which is
+    the reproducibility property Level 1 claims: the same bytes render
+    the same report every time, forever, because nothing here can change
+    between two runs.
+    """
+    from agentic_research.web import recordings
+
+    if recording_id == "list":
+        table = Table(title="Recorded examples", show_header=True)
+        table.add_column("id")
+        table.add_column("question")
+        table.add_column("published")
+        for summary in recordings.available():
+            table.add_row(summary.id, summary.question, str(summary.published_claims))
+        console.print(table)
+        console.print("\n[dim]agentic-research replay <id>[/dim]")
+        return
+
+    try:
+        payload = recordings.load(recording_id)
+    except recordings.RecordingNotFound:
+        _fail(
+            f"no recorded example named {recording_id!r}.",
+            "Run `agentic-research replay list` to see what exists.",
+        )
+        return
+
+    markdown = payload.get("result", {}).get("markdown", "")
+    if not markdown:
+        _fail(f"recording {recording_id!r} has no rendered markdown.")
+        return
+    console.print(Markdown(markdown))
+
+
 @app.command("verify-reproducible")
 def verify_reproducible(
     write_expected: Annotated[
