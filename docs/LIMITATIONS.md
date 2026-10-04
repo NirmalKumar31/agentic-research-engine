@@ -176,11 +176,46 @@ which.
 
 ## Publication
 
-**All three recorded demos publish nothing.** Under a `qwen3:4b`
-synthesiser, 35 substantive claims were generated. One exact duplicate
-was removed, and the verifier evaluated the remaining 34 unique claims:
-28 partially supported, 6 unsupported. The fail-closed publication gate
-removed every one, so no synthesised claim was published.
+**Historical: the three canonical runs once published nothing, under a
+verifier since replaced.** On 2026-09-24 (commit `ae22fcc`), the three
+canonical questions were regenerated under a `qwen3:4b` synthesiser and
+the **generative qwen3:4b verifier that predates the NLI classifier**
+(the pinned DeBERTa classifier was not introduced until the next day,
+`300d2c2`, 2026-09-25). 35 substantive claims were generated; one exact
+duplicate was removed; the verifier evaluated the remaining 34: 28
+partially supported, 6 unsupported. The fail-closed publication gate
+removed every one, so no claim was published that day.
+
+The commit's own diagnosis was the atomicity rule over-firing -- refusing
+true compound claims whose individual halves each had supporting
+evidence -- not a property of the synthesiser or the verifier design in
+general. That rule was rewritten the following day (`c581500`,
+`349ad31`, 2026-09-26, "proposition atomicity, enforced deadlines" /
+"wire proposition atomicity into the actual gate"), and the three
+recordings were regenerated again under the fixed rule, repeatedly,
+across the next several days.
+
+**Current: the three committed recordings publish claims.** The
+`recorded_runs/*.json` files shipped today are from 2026-09-28
+(`a40e17e`, `e8fd3b5`), recorded under the pinned DeBERTa-v3 NLI
+classifier at the frozen 0.98 entailment threshold, after the atomicity
+fix. Counted directly from the committed payloads' `summary_claims` +
+section claims + `key_findings`:
+
+| Recording | Published claims |
+| --- | --- |
+| `rag-vector-vs-search` | 2 |
+| `nist-ai-risk-framework` | 3 (2 summary + 1 section claim) |
+| `fraud-detection-imbalanced` | 6 |
+
+These are the same three questions as the 2026-09-24 snapshot above, not
+a different experiment -- the engine that ran them, and what it was
+verified against, changed in between. A reader who takes the historical
+sentence as describing what ships today would be wrong; a
+[regression test](../tests/unit/test_limitations_claims_are_current.py)
+now fails if this document or the README state a published-claim count
+for these three recordings that does not match what is actually
+committed.
 
 **The publication gate is binary, and the three-way verdict is not.**
 Only `supported` publishes. `partially_supported` and `unsupported` both
