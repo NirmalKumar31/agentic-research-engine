@@ -1,0 +1,199 @@
+"""Phase A of the local-vs-cloud benchmark: construction and validation,
+no provider call. See docs/BENCHMARK-PROTOCOL.md.
+
+What this file does NOT re-test, because it already exists and passing
+here would only duplicate it: `test_ab_harness.py` already proves both
+arms of a comparison run over the *same* `EvidenceCorpus` object
+(`TestComparison.test_both_arms_run_over_the_same_corpus`), and
+`test_web_api.py` already exercises `DegradedCorpusError` for a corpus
+with stripped source text. This file covers what Phase A actually adds:
+the manifest, the blinding utility, and the committed question set.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from agentic_research.evaluation.benchmark_manifest import (
+    BenchmarkManifest,
+    build_manifest,
+)
+from agentic_research.evaluation.blinding import blind, contains_no_identifier
+
+ROOT = Path(__file__).resolve().parents[2]
+QUESTIONS_PATH = ROOT / "examples" / "benchmark" / "questions.json"
+
+REQUIRED_SHAPES = {
+    "definition",
+    "factual_numeric",
+    "procedural",
+    "multi_part_comparison",
+    "relationship",
+    "causal",
+    "time_sensitive",
+    "research_methods",
+    "ambiguous_underspecified",
+    "long_tail_technical",
+    "adversarial_evidence_shape",
+    "no_defensible_answer",
+}
+
+
+class TestTheManifestNamesWhatIsMissing:
+    def test_an_empty_manifest_reports_every_required_field(self) -> None:
+        manifest = BenchmarkManifest(
+            benchmark_version="v1",
+            frozen_engine_commit="",
+            cloud_model_id="",
+            nli_model_id="",
+            nli_model_revision="",
+            prompt_version="",
+            schema_version="",
+            config_fingerprint="",
+        )
+        problems = manifest.completeness_problems()
+        assert len(problems) >= 7
+        assert any("corpus hashes" in p for p in problems)
+
+    def test_a_short_nli_revision_is_flagged(self) -> None:
+        """Matches the same requirement config.py already enforces for a
+        live run -- a benchmark should not be looser than production."""
+        manifest = BenchmarkManifest(
+            benchmark_version="v1",
+            frozen_engine_commit="abc123",
+            cloud_model_id="openai:gpt-6-luna",
+            nli_model_id="x",
+            nli_model_revision="short",
+            prompt_version="p",
+            schema_version="s",
+            config_fingerprint="c",
+            corpus_hashes={"q1": "deadbeef"},
+        )
+        problems = manifest.completeness_problems()
+        assert any("40-character" in p for p in problems)
+
+    def test_a_complete_manifest_reports_no_problems(self) -> None:
+        manifest = BenchmarkManifest(
+            benchmark_version="v1",
+            frozen_engine_commit="abc123",
+            cloud_model_id="openai:gpt-6-luna",
+            nli_model_id="MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+            nli_model_revision="b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+            prompt_version="p" * 12,
+            schema_version="s" * 12,
+            config_fingerprint="c" * 12,
+            corpus_hashes={"q1": "deadbeef"},
+        )
+        assert manifest.completeness_problems() == []
+
+    def test_build_manifest_reads_the_projects_own_provenance_sources(self) -> None:
+        """Not a parallel source of truth: the same functions every other
+        measurement in this project already reads from."""
+        from agentic_research.config import Settings
+
+        settings = Settings(llm_mode="local", tavily_api_key="tvly-test", _env_file=None)
+        manifest = build_manifest(
+            settings,
+            benchmark_version="v1",
+            cloud_model_id="openai:gpt-6-luna",
+            corpus_hashes={"q1": "deadbeef"},
+        )
+        assert manifest.prompt_version
+        assert manifest.schema_version
+        assert manifest.ceilings["max_research_rounds"] == settings.max_research_rounds
+
+
+class TestBlinding:
+    def test_known_identifiers_are_replaced(self) -> None:
+        text = "This answer was produced by openai using gpt-6-luna with ollama as a fallback."
+        result = blind("Arm A", text)
+        assert result.redaction_count >= 2
+        assert contains_no_identifier(result.markdown)
+
+    def test_the_opaque_label_appears_in_place_of_identifiers(self) -> None:
+        result = blind("Arm B", "Served by ollama running qwen3:4b.")
+        assert "[Arm B]" in result.markdown
+        assert "ollama" not in result.markdown.lower()
+        assert "qwen3" not in result.markdown.lower()
+
+    def test_text_with_no_identifier_is_unchanged_and_the_count_says_so(self) -> None:
+        text = "SQLite serializes writes; PostgreSQL does not."
+        result = blind("Arm A", text)
+        assert result.redaction_count == 0
+        assert result.markdown == text
+
+    def test_extra_identifiers_can_be_supplied_per_benchmark(self) -> None:
+        result = blind(
+            "Arm A", "Generated by my-custom-model-v2.", extra_identifiers=("my-custom-model-v2",)
+        )
+        assert contains_no_identifier(result.markdown, extra_identifiers=("my-custom-model-v2",))
+
+    def test_case_is_not_a_loophole(self) -> None:
+        result = blind("Arm A", "Powered by OPENAI.")
+        assert contains_no_identifier(result.markdown)
+
+
+class TestTheCommittedQuestionSet:
+    """The pre-registration itself: twelve questions, each with a rubric
+    decided before any answer exists."""
+
+    def test_the_file_exists_and_is_valid_json(self) -> None:
+        assert QUESTIONS_PATH.is_file()
+        data = json.loads(QUESTIONS_PATH.read_text())
+        assert "questions" in data
+
+    def test_there_are_exactly_twelve_questions(self) -> None:
+        data = json.loads(QUESTIONS_PATH.read_text())
+        assert len(data["questions"]) == 12
+
+    def test_every_required_shape_is_covered_exactly_once(self) -> None:
+        data = json.loads(QUESTIONS_PATH.read_text())
+        shapes = [q["shape"] for q in data["questions"]]
+        assert set(shapes) == REQUIRED_SHAPES
+        assert len(shapes) == len(set(shapes)), "a shape is duplicated"
+
+    def test_every_question_has_an_id_text_and_rubric(self) -> None:
+        data = json.loads(QUESTIONS_PATH.read_text())
+        ids = set()
+        for q in data["questions"]:
+            for field in (
+                "id",
+                "shape",
+                "text",
+                "expected_answerable",
+                "forbidden_overclaims",
+                "rubric",
+            ):
+                assert field in q, f"{q.get('id', '?')} missing {field}"
+            assert q["id"] not in ids, f"duplicate id {q['id']}"
+            ids.add(q["id"])
+            assert len(q["forbidden_overclaims"]) >= 1
+
+    def test_every_question_marked_unanswerable_states_why(self) -> None:
+        """Non-vacuity: a refusal-expected question without a stated
+        condition would make the rubric unscorable by a human reviewer."""
+        data = json.loads(QUESTIONS_PATH.read_text())
+        for q in data["questions"]:
+            if not q["expected_answerable"]:
+                assert q.get("expected_refusal_condition"), (
+                    f"{q['id']} expects refusal but states no condition for it"
+                )
+
+    def test_at_least_three_questions_expect_a_refusal(self) -> None:
+        """The set is not all easy questions -- the ambiguous, adversarial
+        and no-defensible-answer shapes are specifically designed to be
+        hard to refuse correctly."""
+        data = json.loads(QUESTIONS_PATH.read_text())
+        refusals = [q for q in data["questions"] if not q["expected_answerable"]]
+        assert len(refusals) >= 3
+
+
+class TestTheProtocolDocumentExistsAndStatesTheStopRule:
+    def test_the_document_exists(self) -> None:
+        assert (ROOT / "docs" / "BENCHMARK-PROTOCOL.md").is_file()
+
+    def test_it_states_phase_b_is_not_authorized(self) -> None:
+        text = (ROOT / "docs" / "BENCHMARK-PROTOCOL.md").read_text()
+        assert "does not authorize running one" in text or "does not grant that" in text
+        assert "48 total runs" in text
