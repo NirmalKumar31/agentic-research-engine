@@ -18,6 +18,7 @@ models being compared.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from dataclasses import dataclass, field
@@ -156,6 +157,13 @@ class ArmResult:
     label: str
     models: dict[str, str]
     ok: bool
+    timed_out: bool = False
+    """Distinguishes "did not finish within the wall-clock ceiling" from
+    every other failure, because the two need different follow-up: a
+    timeout may mean the ceiling is too tight for this model, an
+    exception usually means something broke. Conflating them into one
+    `ok=False` bucket would hide that distinction in exactly the
+    data this field exists to report."""
     markdown: str = ""
     metrics: list[Metric] = field(default_factory=list)
     duration_s: float = 0.0
@@ -246,7 +254,25 @@ async def run_arm(
         graph.add_edge("verify_citations", END)
 
         try:
-            final = await graph.compile().ainvoke(state, context=context)
+            # Bounded by the same wall-clock ceiling a live run already
+            # uses (`settings.run_timeout_seconds`), not a new number
+            # invented for this path. Before this, a hung local model
+            # call had nothing stopping it from blocking indefinitely --
+            # the existing call/token/cost ceilings bound spend, not
+            # time, and a frozen-corpus arm makes real model calls even
+            # though it makes no search calls.
+            async with asyncio.timeout(settings.run_timeout_seconds):
+                final = await graph.compile().ainvoke(state, context=context)
+        except TimeoutError:
+            log.warning("ab_arm_timed_out", label=label, timeout_s=settings.run_timeout_seconds)
+            return ArmResult(
+                label=label,
+                models=router.describe(),
+                ok=False,
+                timed_out=True,
+                duration_s=round(time.perf_counter() - started, 2),
+                error=f"arm did not complete within {settings.run_timeout_seconds:.0f}s",
+            )
         except Exception as exc:
             log.warning("ab_arm_failed", label=label, error=str(exc)[:200])
             return ArmResult(

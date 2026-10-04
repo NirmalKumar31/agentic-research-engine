@@ -117,13 +117,25 @@ What this phase proves, each with an automated test and no provider call:
 
 ## Phase B — the budget request, not an action
 
-Recommended pilot, **not run**: 12 questions × 2 repetitions × 2 arms
-(local, cloud) = **48 total runs**. Local runs are sequential, to avoid
-Ollama contention. Arm order is counterbalanced per question. No retries
-except a documented infrastructure failure *before* a provider request
-is made. Cloud runs stop immediately on a spend ceiling, a provider
-outage, or a benchmark-integrity failure (any row in the table above
-failing during the run).
+**"48 total runs" means Track 1 only, unambiguously.** 12 questions × 2
+repetitions × **2 Track-1 arms** (local, cloud) over a frozen evidence
+corpus = **48 total arm-runs**. This does not include the 12 corpus
+freezes needed to produce those corpora (retrieval + extraction, run
+once per question, priced separately and accounted in the same spend
+ceiling) and it does not include any Track 2 (live end-to-end) run at
+all -- Track 2 is out of scope for this authorization and requires its
+own, separately authorized budget. An earlier draft of this document
+left "48 total runs" ambiguous between the two tracks; this paragraph is
+the fix, not a restatement of something that was already clear.
+
+Local runs are sequential, to avoid Ollama contention. Arm order is
+counterbalanced per question. No retries except a documented
+infrastructure failure *before* a provider request is made, and a retry
+never creates an additional billed run beyond the 48 preregistered ones.
+Cloud runs stop immediately on a spend ceiling, a provider outage, or a
+benchmark-integrity failure (any row in the table above failing during
+the run, including a corpus-hash mismatch or a run exceeding its
+timeout).
 
 Before any cloud run: the exact run count, worst-case cloud cost, search
 credits, expected wall-clock time, and this stopping rule go to the

@@ -91,6 +91,66 @@ class BenchmarkManifest:
         return problems
 
 
+class CorpusHashMismatchError(Exception):
+    """A frozen corpus does not match the hash recorded for it.
+
+    Raised, not logged: a benchmark run over evidence that silently
+    drifted from what was frozen is not measuring what it claims to be
+    measuring, and the whole reason a corpus is hashed at freeze time is
+    so this is checkable mechanically rather than trusted by convention.
+    """
+
+
+def corpus_hash(corpus: Any) -> str:
+    """A deterministic sha256 of exactly what `EvidenceCorpus.save` would
+    write to disk.
+
+    Hashes the artifact as it will actually be read back -- including
+    `captured_at` -- not a looser "same semantic content" notion. Two
+    freezes of the same question on different days are different
+    artifacts and get different hashes on purpose: a benchmark run
+    should be verified against the one frozen corpus it was actually
+    pointed at, not against "a" corpus that happens to answer the same
+    question.
+    """
+    import hashlib
+    import json
+
+    payload = corpus.to_dict()
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def freeze_corpus_hashes(corpora: dict[str, Any]) -> dict[str, str]:
+    """`{question_id: sha256}` for a batch of frozen corpora -- the form
+    `BenchmarkManifest.corpus_hashes` expects, computed rather than typed
+    in by hand."""
+    return {question_id: corpus_hash(corpus) for question_id, corpus in corpora.items()}
+
+
+def verify_corpus_hash(question_id: str, corpus: Any, manifest: BenchmarkManifest) -> None:
+    """Fail closed if `corpus` does not match the hash the manifest
+    recorded for `question_id` at freeze time.
+
+    Called immediately before a corpus is handed to `compare()` -- after
+    this, the comparison itself is read-only evidence, and checking here
+    rather than trusting the caller is what makes "frozen" an enforced
+    property instead of a naming convention.
+    """
+    expected = manifest.corpus_hashes.get(question_id)
+    if expected is None:
+        raise CorpusHashMismatchError(
+            f"no hash recorded for {question_id!r} -- the manifest does not "
+            "know about this corpus at all, which is worse than a mismatch"
+        )
+    actual = corpus_hash(corpus)
+    if actual != expected:
+        raise CorpusHashMismatchError(
+            f"{question_id}: corpus hash is {actual}, manifest recorded "
+            f"{expected} -- the evidence this would run against is not the "
+            "evidence that was frozen and verified"
+        )
+
+
 def build_manifest(
     settings: Any,
     *,
