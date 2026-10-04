@@ -36,3 +36,4 @@ checkpoints/
 .DS_Store
 .idea/
 .vscode/
+.local-environment.json
