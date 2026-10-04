@@ -530,6 +530,20 @@ verification machinery: across 24 generated claims, **58% were refused
 on synthesis quality** (38% irrelevant, 21% guard failures) and 17% on
 evidence below threshold.
 
+**This is v1.9.0 data.** Six later releases (v1.10–v1.15) targeted the
+comparison weakness specifically — see
+[`docs/HOW-THIS-WAS-BUILT.md`](docs/HOW-THIS-WAS-BUILT.md) for what each
+one found. On the fixed before/after question used there, published
+claims went 5 → 7 and complete comparison pairs 0 → 2 at peak. That
+measurement is real but is a single question tracked across releases,
+not a replacement for the comparison row above — the two are different
+measurements and neither supersedes the other. Three of those six
+releases were prompt changes with no causal proof behind them, and the
+measurement loop was deliberately stopped once run-to-run variance
+exceeded the effects being chased; see
+[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md#comparisons) for why a
+comparison is structurally the hardest shape regardless.
+
 **Live research is still labelled experimental and fail-closed**, and
 the interface says so where a visitor is about to use it — one question
 per shape is coverage, not a benchmark, and nothing here licenses a
