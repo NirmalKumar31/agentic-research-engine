@@ -1,0 +1,24 @@
+{
+  "assertions": {
+    "evidence_ids_nonempty": true,
+    "report_was_produced": true,
+    "router_was_used_and_only_for_scripted_schemas": true,
+    "search_and_fetch_are_the_scripted_objects": true,
+    "second_supported_claim_published": true,
+    "supported_claim_published": true,
+    "unsupported_claim_withheld": true
+  },
+  "corpus_fingerprint": "4a7d0daceb486c505a88f95d6c5d7fbe7a49d142c145628f3378fe3fe274e19d",
+  "engine_version": "1.15.0",
+  "evidence_ids": [
+    "S1-e1",
+    "S1-e2",
+    "S2-e1"
+  ],
+  "git_commit": "05751701353ebd843ed3f370f67038fd27aa37b3",
+  "prompt_version": "2de0f5f45843",
+  "published_claim_count": 2,
+  "report_hash": "c4832ca22ff4158593189523aaea5da4a7a172b6f031530511af2dd5f917aa24",
+  "schema_version": "0c5c89d58011",
+  "withheld_claim_count": 1
+}

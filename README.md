@@ -219,6 +219,56 @@ agentic-research research "your question"   # run
 agentic-research show latest                # re-display a stored run
 ```
 
+## Local reproducibility
+
+A fresh live research run is **not** bit-for-bit reproducible, and
+nothing here claims otherwise: search results change over time, a model
+tag like `qwen3:4b` can move to different weights, and hardware
+differences affect generation. What *is* reproducible is bounded and
+explicit, in three levels:
+
+| Level | What it proves | Command | Needs |
+|---|---|---|---|
+| **1. Replay** | A committed recorded run re-renders identically, forever | `agentic-research replay <id>` | nothing — no network, no credentials |
+| **2. Frozen-corpus engine determinism** | The engine's own machinery (retrieval selection, extraction, citation binding, verification, report generation) is deterministic end to end | `agentic-research verify-reproducible` | nothing — scripted model, scripted search/fetch, the project's own deterministic NLI stand-in |
+| **3. Local environment** | What's actually installed matches what you set up with | `./scripts/bootstrap-local.sh` then `./scripts/verify-local.sh` | Python, optionally Ollama and Node |
+
+**Level 2 validates engine behaviour, not model quality.** It runs the
+real compiled graph against two short original pages of text and a
+scripted model that always returns the same structured output, so a
+passing result says the state machine, reducers, retrieval selection and
+publication gate behave the same way on the same input — nothing about
+whether a real model's judgement would.
+
+```bash
+agentic-research replay list                 # see what is committed
+agentic-research replay rag-vector-vs-search  # re-render one, offline
+agentic-research verify-reproducible          # engine determinism, offline
+```
+
+Dependency integrity is separate from all three: `requirements-lock.txt`
+hash-pins the core runtime dependencies plus the `web` and `dev` extras
+for the exact platform CI's clean-install job uses (linux/cp312).
+`pip install --require-hashes -r requirements-lock.txt` installs byte-
+verified copies of what was resolved when the lock was generated. This is
+**dependency integrity, not a hermetic build or a supply-chain
+attestation** — it proves the bytes installed match what was pinned, not
+that the resolution is reproducible on every platform or that nothing
+upstream could be compromised before the next regeneration.
+`nli-local` (torch) is deliberately not hash-pinned: wheels vary by
+platform and CUDA build, and centrally pinning one would be wrong for
+most people who install it. Install it unpinned with
+`pip install -e ".[nli-local]"`.
+
+For Ollama specifically: `ollama pull qwen3:4b` pulls a **tag**, not an
+immutable digest, so two people (or two days) can end up running
+different weights under the same name. `bootstrap-local.sh` records the
+digest it actually observes to an untracked `.local-environment.json`;
+`verify-local.sh` compares against it if you export
+`EXPECTED_OLLAMA_DIGEST` yourself, and refuses rather than silently
+accepting a mismatch. Without that export, a changed digest is a real
+limitation this script will not catch — stated rather than hidden.
+
 ## Modes
 
 | Mode | Models | Notes |
@@ -731,13 +781,15 @@ src/agentic_research/
     retrieval/      URL safety, fetcher, PDF and content extraction
     evidence/       deduplication, quality, store, quote verification
     citations/      resolution, verification, publication gate
-    evaluation/     metrics, benchmark, A/B, attribution experiment
+    evaluation/     metrics, benchmark, A/B, attribution experiment, frozen-corpus determinism
     cli/            Typer commands, terminal progress rendering
     web/            FastAPI, recorded runs
 web/                React + Vite frontend
 tests/              unit (hermetic) · integration (opt-in)
 examples/           attribution experiment, archived artifacts
+scripts/            bootstrap-local.sh · verify-local.sh · generate-lock.py
 docs/               ARCHITECTURE.md · HOW-THIS-WAS-BUILT.md · LIMITATIONS.md
+requirements-lock.txt   hash-pinned core deps, linux/cp312 (see "Local reproducibility")
 ```
 
 ## Technology

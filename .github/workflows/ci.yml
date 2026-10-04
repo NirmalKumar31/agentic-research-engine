@@ -51,23 +51,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      # Examples are linted too: they are code a reader will run.
+      # Examples and scripts are linted too: they are code a reader will run.
       - name: Lint
-        run: ruff check src tests examples
+        run: ruff check src tests examples scripts
 
       - name: Format check
-        run: ruff format --check src tests examples
+        run: ruff format --check src tests examples scripts
 
-      # Two invocations on purpose. Bare `mypy` uses the `packages` setting
+      # Three invocations on purpose. Bare `mypy` uses the `packages` setting
       # in pyproject.toml, resolving imports the way an importer does; that
       # is what a contributor runs, and it catches package-resolution faults
-      # a path-based run silently tolerates. The second checks the examples,
-      # which are outside the package: ruff does not resolve attributes, so
-      # a renamed field surfaces here rather than at runtime.
+      # a path-based run silently tolerates. The others check examples and
+      # scripts, both outside the package: ruff does not resolve attributes,
+      # so a renamed field surfaces here rather than at runtime.
       - name: Type check
         run: |
           mypy
           mypy examples
+          mypy scripts
 
       # No credentials are configured for this job, so any test that reaches a
       # paid API would fail rather than silently spend money. Integration tests
@@ -91,6 +92,17 @@ jobs:
           python -m pip install --upgrade pip build
           python -m build
 
+      # requirements-lock.txt is generated on macOS, cross-resolved for
+      # linux/cp312 -- the one platform that can actually install it is
+      # this job. Proved here rather than claimed: a lock that only
+      # pip's resolver has seen is a hash list, not a tested install.
+      - name: Install from the hash-pinned lock
+        run: |
+          python -m venv /tmp/locked
+          /tmp/locked/bin/pip install --require-hashes -r requirements-lock.txt
+          /tmp/locked/bin/pip install --no-deps -e .
+          /tmp/locked/bin/agentic-research --help
+
       # Installs the built wheel into a fresh environment and runs the CLI, so
       # a missing package or a broken entry point fails here rather than for
       # the first person who clones the repository.
@@ -100,6 +112,17 @@ jobs:
           /tmp/fresh/bin/pip install dist/*.whl
           /tmp/fresh/bin/agentic-research --help
           LLM_MODE=local /tmp/fresh/bin/agentic-research graph | head -5
+
+      # Run from /tmp, away from the repository, so the committed
+      # examples/ directory is not reachable by accident: the expected
+      # manifest has to be found as packaged data, the same way the
+      # recorded demo runs are, or this would pass locally and fail for
+      # the first user who installs the wheel somewhere else. It caught
+      # exactly that bug once already.
+      - name: Verify frozen-corpus reproducibility from the installed wheel
+        run: |
+          cd /tmp
+          /tmp/fresh/bin/agentic-research verify-reproducible
 
       # The public site runs from the installed wheel, not a source
       # checkout. If the recording JSON were not packaged, the deployed
