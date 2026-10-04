@@ -32,7 +32,12 @@ expressed as a noun-phrase substitution, such as an attribute stated of
 **Published figures come from single runs**, except the attribution
 experiment, which has three repeats. There are no confidence intervals.
 
-**The twelve-question benchmark has never been run.**
+**The twelve-question benchmark has never been run.** Construction and
+validation for it exist — the question set, a frozen-configuration
+manifest, and a blinded-review mechanism — at
+[`docs/BENCHMARK-PROTOCOL.md`](BENCHMARK-PROTOCOL.md). No run has been
+authorized or executed; that document states the exact cost and stop
+rule a run would need approved first.
 
 **There is no independent benchmark result for the verifier.** The thirty
 labelled cases are development calibration data: they shaped three

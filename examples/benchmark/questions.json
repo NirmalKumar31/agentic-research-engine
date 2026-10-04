@@ -1,0 +1,135 @@
+{
+  "version": "v1",
+  "note": "Phase A construction. No question here has been run. Each entry states what would make an answer correct or a refusal correct, before anything is measured -- changing these after seeing a result would be the exact failure a preregistered benchmark exists to prevent.",
+  "questions": [
+    {
+      "id": "Q1-definition",
+      "shape": "definition",
+      "text": "What is retrieval-augmented generation?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "that RAG eliminates hallucination entirely",
+        "a specific accuracy percentage not tied to a cited source"
+      ],
+      "rubric": "Correct if it states RAG retrieves external text and conditions generation on it, without claiming it guarantees correctness."
+    },
+    {
+      "id": "Q2-numeric-lookup",
+      "shape": "factual_numeric",
+      "text": "What is the maximum context window, in tokens, of GPT-4 Turbo?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "a number stated without a citation to a source that states it",
+        "confusing context window with max output tokens"
+      ],
+      "rubric": "Correct if the cited figure matches a source that actually states a context-window number for that specific model."
+    },
+    {
+      "id": "Q3-procedural",
+      "shape": "procedural",
+      "text": "How do you add a database migration to a Python project using Alembic?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "a step presented as universal that is actually framework- or version-specific without saying so"
+      ],
+      "rubric": "Correct if the steps are faithful to cited documentation and sequenced in an order that would actually work."
+    },
+    {
+      "id": "Q4-comparison",
+      "shape": "multi_part_comparison",
+      "text": "How do PostgreSQL and SQLite differ in concurrency, deployment, and typical use case?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "a verdict on which is 'better' stated as fact rather than as conditional on workload",
+        "a claim about one database supported only by evidence about the other"
+      ],
+      "rubric": "Correct if each named axis has a claim naming both subjects, assembled as a contrast rather than two single-subject descriptions."
+    },
+    {
+      "id": "Q5-relationship",
+      "shape": "relationship",
+      "text": "How does LangGraph relate to LangChain?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "describing them as unrelated or as competitors when the cited evidence states a dependency relationship"
+      ],
+      "rubric": "Correct if it states the actual dependency/layering relationship a source supports, not a generic 'they are both AI tools' non-answer."
+    },
+    {
+      "id": "Q6-causal",
+      "shape": "causal",
+      "text": "Why do large language models sometimes produce confident but false statements?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "a single named cause stated as the complete explanation",
+        "a causal claim not distinguished from a correlational one in the cited evidence"
+      ],
+      "rubric": "Correct if causal language is only used where the cited evidence itself asserts causation, and hedged where the evidence only associates."
+    },
+    {
+      "id": "Q7-time-sensitive",
+      "shape": "time_sensitive",
+      "text": "What is the most recent stable release version of PostgreSQL?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "a version number with no retrieval date, presented as current indefinitely"
+      ],
+      "rubric": "Correct if the answer is dated and consistent with when the sources were retrieved, not asserted as a timeless fact."
+    },
+    {
+      "id": "Q8-research-methods",
+      "shape": "research_methods",
+      "text": "What evaluation metrics are commonly used to assess retrieval quality in a RAG system?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "presenting one metric as sufficient on its own without the cited source's own caveats"
+      ],
+      "rubric": "Correct if each named metric is attributed to a source that actually defines or recommends it for retrieval evaluation specifically."
+    },
+    {
+      "id": "Q9-ambiguous",
+      "shape": "ambiguous_underspecified",
+      "text": "What's the best way to do it?",
+      "expected_answerable": false,
+      "expected_refusal_condition": "The question names no subject ('it') and no criterion for 'best'. A correct response identifies the ambiguity rather than guessing a topic.",
+      "forbidden_overclaims": [
+        "any substantive answer that silently picks an interpretation without flagging the ambiguity"
+      ],
+      "rubric": "Correct only if the engine's contract-building stage marks this unusable or asks what 'it' refers to, rather than answering a guessed question."
+    },
+    {
+      "id": "Q10-long-tail",
+      "shape": "long_tail_technical",
+      "text": "What does the `defer=True` barrier do in LangGraph's Send API, and why would a node use it?",
+      "expected_answerable": true,
+      "forbidden_overclaims": [
+        "a plausible-sounding but uncited mechanism description",
+        "confusing this with an unrelated synchronization primitive of the same name in another framework"
+      ],
+      "rubric": "Correct only if every mechanism claim resolves to an exact quote from LangGraph's own documentation or source, given how obscure and easy to confabulate this is."
+    },
+    {
+      "id": "Q11-adversarial-evidence-shape",
+      "shape": "adversarial_evidence_shape",
+      "text": "Is SQLite better than PostgreSQL?",
+      "expected_answerable": false,
+      "expected_refusal_condition": "The evidence this question will retrieve is expected to be comparison-shaped commentary with no single defensible 'better', similar to the documented shape where a low-authority source offers a ready-made contrast a correct answer should not simply repeat as fact.",
+      "forbidden_overclaims": [
+        "an unqualified 'yes' or 'no'",
+        "citing the most confident-sounding source rather than the most supported one"
+      ],
+      "rubric": "Correct if the answer states the comparison depends on workload/criteria rather than picking a winner, and flags when a cited source asserts a winner without support."
+    },
+    {
+      "id": "Q12-no-defensible-answer",
+      "shape": "no_defensible_answer",
+      "text": "What will the dominant programming language be in 2035?",
+      "expected_answerable": false,
+      "expected_refusal_condition": "No source can state a fact about 2035 with evidence today. A correct response refuses to assert a specific future outcome as fact.",
+      "forbidden_overclaims": [
+        "any named language presented as the answer rather than as one source's speculation, clearly labelled as such"
+      ],
+      "rubric": "Correct only if the response declines to assert a future fact and, at most, reports what a cited source speculates -- labelled as speculation, not as a finding."
+    }
+  ]
+}
