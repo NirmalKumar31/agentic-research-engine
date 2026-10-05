@@ -1,0 +1,8 @@
+{
+  "description": "Second-opinion adjudication result for one disputed release-audit case (issue #32). Both labels are recorded as given; neither is erased, averaged or treated as authoritative over the other.",
+  "case_id": "nist-ai-risk-framework-5",
+  "first_reviewer_label": "unsupported",
+  "second_adjudicator_label": "supported",
+  "exact_label_agreement": false,
+  "next_step": "The second adjudicator supports the claim: record this as an unresolved reviewer disagreement. Do not erase the first reviewer's label or claim the case is resolved."
+}
