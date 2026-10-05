@@ -546,6 +546,31 @@ Three things follow from this that are easy to miss:
 * **It costs no provider request**, which is why every candidate is
   checked rather than a sample.
 
+### 7.6 The full publication pipeline
+
+Two different models, doing two different jobs. The generative model
+never decides whether its own claims are supported.
+
+| Stage | Who | What |
+|---|---|---|
+| Planning, search, extraction, synthesis | `qwen3:4b` locally, or a cloud model | Decomposes the question, writes queries, pulls exact quotes, writes atomic claims |
+| Deterministic guards | Plain Python | Refuse narrow, high-confidence overclaims: a figure not in the quote, a hedge promoted to a requirement, an invented ranking, causation from association, invented exclusivity |
+| Semantic entailment | `DeBERTa-v3-large-mnli-fever-anli-ling-wanli`, pinned to revision `b3546ea6` | Scores each claim against each cited quote separately and returns probabilities only |
+| Publication gate | Plain Python | Publishes only when one guard-passing quote entails the claim at ≥ 0.98 |
+
+Claims must be **atomic** — enforced before scoring, because a fused
+claim defeats every other guard. A claim publishes when **a single
+cited quote carries it on its own**; quotes are never concatenated.
+
+The threshold is calibrated, not guessed, and the model and revision
+are pinned and recorded on every judgment. **What this does not
+mean:** the classifier is a learned model and can be wrong; it is
+conservative by construction, so its usual error is withholding a
+true claim. This is not zero hallucinations or general entailment
+correctness — it is a measured, fail-closed filter whose behaviour on
+the cases tested is in
+[`VALIDATION-HISTORY.md`](VALIDATION-HISTORY.md).
+
 ## 8. Constraints imposed by a 4B local model
 
 Three properties of `qwen3:4b` shaped the design rather than merely being

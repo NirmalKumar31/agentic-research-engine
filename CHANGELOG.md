@@ -16,10 +16,11 @@ change -- no version bump unless a new package release is intended:
   attempted (43 produced output, 5 timed out), $0.027093 known cloud
   spend. Full results, limitations, protocol deviations, and execution
   provenance: [`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md).
-- Phase B's blinded review was performed by two independent Codex (AI)
-  sessions rather than the human reviewers `docs/BENCHMARK-PROTOCOL.md`
-  specifies -- a disclosed deviation. 6 reviewer disagreements (2 score,
-  4 harmful-claim-flag) remain unadjudicated by design.
+- Phase B's blinded review: Protocol deviation. Performed by two
+  separately run, blinded Codex (AI) sessions, not the human reviewers
+  `docs/BENCHMARK-PROTOCOL.md` specifies. Result: 6 reviewer
+  disagreements (2 score, 4 harmful-claim-flag) remain unadjudicated by
+  design.
 - The deployed instance (commit `5f3ee5e3`) predates this work; none of
   it touches the web app's request-serving path (only
   `src/agentic_research/evaluation/*` and the CLI), so redeployment is
@@ -592,7 +593,7 @@ of 240, $0.008809 of a $0.05 ceiling, 14 of 30 provider requests, 6 of 8
 Tavily credits, all 41 candidates preserved, one visible start event, one
 attempt with no retry. Evidence:
 `examples/live-validation/question-shapes/overfitting-20260930-221039/` and
-`docs/RELEASE-EVIDENCE-v1.9.0.md`.
+`docs/history/releases/RELEASE-EVIDENCE-v1.9.0.md`.
 
 **What remains offline-validated only.** Three authorised paid runs were
 made in total: the `causal_drivers` question above, a structured comparison

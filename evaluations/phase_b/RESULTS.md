@@ -5,7 +5,7 @@ The abort policy used while freezing corpora changed mid-run (see "Protocol
 deviations" below). That change does not affect the frozen-corpus
 comparison's validity -- both arms still saw byte-identical evidence per
 question -- but it means this run deviated from its own written protocol
-once, and that is disclosed here rather than smoothed over.
+once. **Protocol deviation**, disclosed below, not smoothed over.
 
 - Manifest: [`manifest.json`](manifest.json) -- engine commit `a451aa3ffef337abccd086c1a89e53a8fcde65a7` (see "Execution provenance" for what that commit does and does not pin)
 - Cloud model: `gpt-6-luna`; Ollama model: `qwen3:4b` (digest, re-verified in full post-hoc: `359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7` -- the manifest itself recorded only the first 12 hex characters; see "Execution provenance")
@@ -16,7 +16,7 @@ once, and that is disclosed here rather than smoothed over.
 - **Known/recorded cloud cost: $0.027093**, against the $10.00 ceiling (full ledger: [`spend_ledger.json`](spend_ledger.json)). This is *not* represented as an exact total: every one of the 24 cloud runs recorded `cost_is_complete: false` (the pricing table does not cover every cost component OpenAI may bill), so the true cost may be marginally higher than this figure, though it is bounded by the enforced per-call ceiling (`max_cloud_cost_usd`), which gates on *projected* cost before dispatch regardless of whether the eventual actual figure is complete. Tavily search-credit cost during corpus freezing is **unmeasured** -- not priced anywhere in this repository -- and is not included in any total here. The $10 ceiling was therefore enforced against *known* cloud cost, not against every metered external service this run touched.
 - A separate, one-time pre-study smoke test (one throwaway question, not part of the 48, not in any table below) made one real cloud call and cost **$0.000426** (`cost_is_complete` was `true` for that single call). Not included in the $0.027093 figure above.
 - Wall-clock elapsed: 116.8 minutes (arm-run phase only; corpus freezing beforehand took considerably longer and was interrupted twice by infrastructure -- see "Protocol deviations").
-- **AI scoring complete; disagreements intentionally unresolved.** Two independent Codex (AI) sessions scored every candidate -- not the human reviewers `docs/BENCHMARK-PROTOCOL.md` specifies, a stated protocol deviation. Reconciliation found 6 disagreements (2 score, 4 harmful-claim-flag); all 6 remain unadjudicated by design -- see "Blinded review results" for which ones, why, and what the results do and do not support claiming.
+- **AI scoring complete; disagreements intentionally unresolved.** Two separately run, blinded Codex sessions scored every candidate -- not the human reviewers `docs/BENCHMARK-PROTOCOL.md` specifies, a stated protocol deviation. Reconciliation found 6 disagreements (2 score, 4 harmful-claim-flag); all 6 remain unadjudicated by design -- see "Blinded review results" for which ones, why, and what the results do and do not support claiming.
 
 **Statistical caveat, stated once and binding throughout:** each cell below aggregates n=2 repetitions. No significance test is computed or implied; a difference between arms here is a measured observation at n=2, not a generalizable claim of model superiority, factual correctness, or broad applicability beyond these 12 questions.
 
@@ -46,7 +46,7 @@ reporting what happened:
    disk for an already-frozen corpus or an already-completed arm-run before
    redoing either.
 3. **A real blinding defect was found and fixed after this data was first
-   committed, before any human review occurred.** The first version of the
+   committed, before any review occurred.** The first version of the
    blinding step called `blind(arm.upper(), ...)`, which replaced every
    redacted identifier with the literal string `[LOCAL]` or `[CLOUD]` --
    directly naming the arm it was supposed to hide. This was caught before
@@ -57,8 +57,10 @@ reporting what happened:
    before/after detail.
 4. **Blinded review was performed by two AI reviewers, not two human
    reviewers.** `docs/BENCHMARK-PROTOCOL.md` explicitly requires human
-   judgment for this step. Both reviews here were independent Codex
-   sessions instead, authorized by the project owner. The reviewing model
+   judgment for this step. Both reviews here were separately run, blinded
+   Codex sessions instead, authorized by the project owner -- blinded to
+   candidate identity, not independent in a statistical or institutional
+   sense. The reviewing model
    shares a provider (OpenAI) with the cloud arm's synthesizer
    (`gpt-6-luna`), which is a direct, disclosed limitation on how the
    review's findings should be read -- see "Blinded review results."
@@ -69,7 +71,7 @@ These are not footnotes: they bound what this data can honestly be used to claim
 
 1. **Two corpora have one unfetchable source each.** Q6-causal (1 of 5 sources) and Q9-ambiguous (1 of 10 sources) each had one source fail to fetch live (paywall/block/timeout) at freeze time. Citable evidence still existed from the remaining sources in each case (16 and 52 citable items respectively), so freezing continued rather than aborting -- but both corpora are verifiably *not* at full source strength. Detail in "Limitations" below.
 2. **Blinding redacted zero identifiers on 44 of 48 outputs.** The 4 exceptions are *all four* of Q2-numeric-lookup's runs (8, 13, 9, and 8 redactions respectively) -- expected, since Q2 literally asks about a named OpenAI model ("GPT-4 Turbo"), so its answer content legitimately contains provider/model strings on the blinding list. The other 44 outputs never mentioned an identifier at all.
-3. **Blinded review was performed by two independent AI reviewers (Codex), not human reviewers.** This is a deviation from `docs/BENCHMARK-PROTOCOL.md`'s explicit requirement for human judgment, and the reviewing AI shares a provider with the cloud arm -- see "Blinded review results" below for the full disclosure and what it does and does not license claiming.
+3. **Blinded review was performed by two separately run, blinded Codex (AI) sessions, not human reviewers.** The two sessions were blinded to candidate identity, not independent in a statistical or institutional sense. This is a deviation from `docs/BENCHMARK-PROTOCOL.md`'s explicit requirement for human judgment, and the reviewing AI shares a provider with the cloud arm -- see "Blinded review results" below for the full disclosure and what it does and does not license claiming.
 
 ## Per-question, per-arm raw results
 
@@ -339,9 +341,11 @@ titles, domains, `content_hash`, timestamps, quality scores, the model's
 own `claim` paraphrases, relevance, citability) unchanged. See
 `corpora_public/README.md` for the reproduction procedure. **These
 redacted files will not reproduce `corpus_hash()` against the values in
-`manifest.json`** -- that hash was computed over the original full-text
-corpus, which is kept locally for the record and is not redistributed
-in this repository.
+`manifest.json`** -- that hash describes the original full-text corpus.
+Plaintext originals are not retained in the repository or working
+tree: two independently stored encrypted archives were round-trip
+verified (decrypted, every file checked against its SHA-256) before
+the plaintext was deleted.
 
 **The same redaction was applied to 3 of the 48 run outputs.** Q2-numeric-lookup,
 Q6-causal and Q10-long-tail's `rep1 local` runs hit a "no claim passed
@@ -352,7 +356,8 @@ instead of 12. `scripts/redact_phase_b_quote_excerpts.py` strips the quote
 text from both `runs/*.json`'s `markdown` field and the corresponding
 `blinded/*.md` file, in place, leaving every measurement (`ok`, `timed_out`,
 `duration_s`, cost, tokens, metrics) and every other section of the report
-untouched. Unredacted originals are kept locally, not committed. This
+untouched. Unredacted originals are not retained in the repository or
+working tree -- see the encrypted-archive note above. This
 repository's git history was also rewritten (see below) to remove the
 original unredacted blobs for both the corpora and these 3 files from every
 reachable commit on this branch -- not merely untracked going forward.

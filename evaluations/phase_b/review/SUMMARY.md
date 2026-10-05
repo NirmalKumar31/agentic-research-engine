@@ -1,6 +1,6 @@
 # Phase B blinded review -- reconciled descriptive summary
 
-**Reviewers: two independent Codex (AI) sessions, not the human reviewers docs/BENCHMARK-PROTOCOL.md specifies -- a disclosed deviation, not an implied substitute. n=2 repetitions per question. All numbers below are descriptive means over scored outputs, never blended into a single pooled number without showing both raw scores. This is not statistical significance evidence.**
+**Reviewers: two separately run, blinded Codex (AI) sessions -- blinded to candidate identity, not independent in a statistical or institutional sense -- not the human reviewers docs/BENCHMARK-PROTOCOL.md specifies, a disclosed deviation, not an implied substitute. n=2 repetitions per question. All numbers below are descriptive means over scored outputs, never blended into a single pooled number without showing both raw scores. This is not statistical significance evidence.**
 
 ## Paired quality comparison (both arms produced output)
 

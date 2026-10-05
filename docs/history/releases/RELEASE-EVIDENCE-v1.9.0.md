@@ -94,7 +94,7 @@ Stated plainly, not softened.
   records which.
 - **The one-round public budget may still end with weak coverage.** This run
   ended with 2 covered and 3 weak. A second round is not enabled, and the
-  audit in `docs/vnext-baseline/phase5-budget-audit.md` explains why: round
+  audit in `docs/history/vnext-baseline/phase5-budget-audit.md` explains why: round
   one exhausts the query and source caps, and no runtime measurement exists
   for a two-round profile.
 - **The provider cost ceiling is an application admission control, not a

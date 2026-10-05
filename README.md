@@ -12,124 +12,53 @@ existed. Claims are held to a contract built from the question before
 retrieval starts, and one that fills no part of it is withheld with its own
 reason rather than reported as unsupported, which it is not.
 
-> **[How this was built](docs/HOW-THIS-WAS-BUILT.md)** — how the output
-> quality work was diagnosed: which measurement justified each fix, three
-> proposed fixes that were withdrawn when the measurement contradicted
-> them, and two hypotheses that turned out to be wrong. Read it if you want
-> the reasoning rather than the feature list.
-
----
+> **[How this was built](docs/HOW-THIS-WAS-BUILT.md)** — which
+> measurement justified each output-quality fix. **[Validation
+> history](docs/VALIDATION-HISTORY.md)** — the full release-by-release
+> record behind "Measured results" below.
 
 ## The problem
 
-Ask one model a broad research question and you get fluent prose with
-confident, frequently fabricated citations. Three failures are bundled
-together: no decomposition, no retrieval discipline, and no verification.
-This project separates them and measures whether the result holds.
+A single-model research workflow can produce fluent prose with
+fabricated or misattributed citations — no decomposition, no retrieval
+discipline, no verification. This project separates the three.
 
 ## What it does
 
 - **Builds an answer contract** from the question before retrieving
-  anything — the canonical slots an answer of that kind must fill — and
-  **refuses rather than guesses**: a comparison naming fewer than two
-  entities produces an unusable contract with no slots at all.
-- **Decomposes** the question into 4–6 researchable dimensions.
-- **Searches in parallel**, one query per dimension, rewriting queries each
-  round so follow-ups do not repeat earlier searches.
-- **Deduplicates before fetching.** A page found by four sub-questions costs
-  one fetch and one extraction call.
-- **Extracts evidence as exact-normalized source quotes**, each checked
-  against the retrieved text. Only a match after whitespace and
-  punctuation normalisation can ground a citation.
-- **Reads PDFs page by page**, so a citation renders `[S4, p. 5]` when
-  page-aware PDF extraction succeeded.
+  anything, and **refuses rather than guesses**: a comparison naming
+  fewer than two entities produces an unusable contract with no slots.
+- **Decomposes** the question into 4–6 dimensions and **searches in
+  parallel**, one query per dimension.
+- **Extracts evidence as exact-normalized source quotes**, with
+  page-aware PDF citations where extraction succeeds.
 - **Assesses its own coverage** and loops on specific gaps, under hard
   limits on rounds, queries, sources and model calls.
-- **Writes atomic claims** — one verifiable proposition each, with the
-  source's own modality, scope, quantities and time frame preserved.
-- **Checks every claim against each of its own quotes separately**, using a
-  pinned NLI classifier plus deterministic guards, and removes everything
-  that does not clear the bar before publishing.
-- **Checks relevance separately from support**, so a true, well-cited
-  claim that answers nothing is withheld for that reason and labelled as
-  such.
-- **Repairs wording, never substance.** A claim refused on phrasing alone
-  gets one rewrite, validated before it is re-verified.
-- **Reports what it did not answer.** A report that publishes claims and
-  fills none of the contract's core slots says so in its limitations.
-- **Falls back to exact source excerpts** when nothing passes, rather than
-  publishing an empty report or relaxing the bar.
+- **Writes atomic claims** and **checks each against its own quotes
+  separately**, using a pinned NLI classifier plus deterministic guards.
+- **Checks relevance separately from support**: a true, well-cited claim
+  that answers nothing is withheld for that reason and labelled as such.
+- **Reports what it did not answer**, falling back to exact source
+  excerpts when nothing passes rather than relaxing the bar.
 
 ## How a claim gets published
 
-Two different models, doing two different jobs. The generative model never
-decides whether its own claims are supported.
-
-| Stage | Who | What |
-|---|---|---|
-| Planning, search, extraction, synthesis | `qwen3:4b` locally, or a cloud model | Decomposes the question, writes queries, pulls exact quotes, writes atomic claims |
-| Deterministic guards | Plain Python | Refuse narrow, high-confidence overclaims: a figure not in the quote, a hedge promoted to a requirement, an invented ranking, causation from association, invented exclusivity |
-| Semantic entailment | `DeBERTa-v3-large-mnli-fever-anli-ling-wanli`, pinned to revision `b3546ea6` | Scores each claim against each cited quote separately and returns probabilities only |
-| Publication gate | Plain Python | Publishes only when one guard-passing quote entails the claim at ≥ 0.98 |
-
-Claims must be **atomic** — one independently verifiable proposition
-each. That is enforced before scoring, not merely requested of the
-synthesiser, because a fused claim defeats every other guard: each of
-them reasons about "the sentence that supports this claim", and a
-compound claim hands them two.
-
-A claim publishes when **a single cited quote carries it on its own**.
-Quotes are never concatenated: assembling a broad claim out of several
-partial ones is the failure this gate exists to prevent. Anything else is
-withheld — below threshold, guard failure, unresolved evidence, a
-non-citable quote, or a classifier that could not be reached. Every failure
-path withholds, and none falls back to asking a generative model.
-
-The threshold is calibrated, not guessed, and the model and revision are
-pinned because a checkpoint that moves silently invalidates every number
-here. All three are recorded on every judgment.
-
-**What this does not mean.** The classifier is a learned model and can be
-wrong. It is conservative by construction and by threshold, so its usual
-error is withholding a true claim, but "withheld" and "published" are not
-proofs. This is not zero hallucinations, not perfect factuality, not general
-entailment correctness — it is a measured, fail-closed filter whose
-behaviour on the cases tested is written down below.
+Two different models, doing two different jobs: a generative model writes
+claims and quotes, and a separate, deterministic pipeline — guards, a
+pinned semantic-entailment classifier, then a publication gate — decides
+whether each one is supported. Full pipeline table and what "the
+classifier can be wrong" does and does not mean:
+[`docs/ARCHITECTURE.md` §7.6](docs/ARCHITECTURE.md#76-the-full-publication-pipeline), measured behaviour in
+[validation history](docs/VALIDATION-HISTORY.md).
 
 ## Does it answer the question?
 
-A separate axis from support, and for one release only the first was
-being asked. A deployed run published five claims that every gate above
-passed — entailed by their own quotes, correctly cited, atomic — and
-that collectively did not address what was asked. "Supported" had been
-standing in for "an answer".
-
-| Stage | Who | What |
-|---|---|---|
-| Answer contract | Plain Python | Turns the question into the slots an answer must fill. A comparison needs a direct contrast; a definition needs a definition. Refuses when the question cannot be given a shape. |
-| Proposition decomposition | Plain Python | Splits a claim on a new subject with a finite verb, not on the word "and". Each assertion must earn its own entailment score. |
-| Structural relevance | Plain Python | Does the claim fill the slot it declared, and mention what the question is about? Free, so it runs on everything. |
-| Relevance judgement | The **critic** model, one batched call | Does this claim help answer the question? Asked of the critic, not the synthesiser — a model marking its own homework finds its work relevant. |
-| Bounded repair | The critic, then every gate again | One rewrite for claims refused on wording alone. |
-| Coverage | Plain Python | Which core slots the published report actually filled. |
-
-**Support is checked per assertion, not per sentence.** A claim bundling
-a measured figure with an assertion its quote never contained published
-at 0.983, because the sentence as a whole was close enough to the quote
-as a whole. Verifying the sentence verified the average of its parts,
-and the unsupported half rode in on the supported one.
-
-**Repair may not launder.** A rewrite is checked deterministically
-before it is re-verified, and refused if it adds or changes a number,
-introduces a named subject, invents causation, or states the claim more
-strongly. Causal, exclusivity, framing and hedge failures are never
-eligible at all: those are about what a claim says, not how, and
-rephrasing them is laundering. Every attempt is recorded, including the
-refused ones.
-
-**Relevance fails closed.** If the judgement cannot be obtained, the
-claims it would have covered are withheld. An unanswered relevance
-question is not a yes.
+A separate axis from support (the five-claims incident above). A
+relevance judgement, from a critic model rather than the synthesiser,
+and one bounded repair pass run against every claim; **relevance fails
+closed** — if the judgement cannot be obtained, the claims it would
+have covered are withheld. Mechanism detail:
+[`docs/ANSWER-SHAPES.md`](docs/ANSWER-SHAPES.md).
 
 ## Architecture
 
@@ -147,53 +76,17 @@ graph TD
     style GF fill:#fff4e5
 ```
 
-Blue nodes are fan-in barriers. The orange node is the only back-edge, and
-it is budget-guarded. Design rationale, including rejected alternatives:
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
-## Provenance
-
-A claim references **evidence ids**, not source ids. The engine resolves
-those to sources itself:
-
-```python
-Claim(
-    text="Precision-recall is the better metric under heavy imbalance",
-    evidence_ids=["S3-e1"],  # supplied by the model
-    citation_ids=["S3"],  # derived by the engine
-    kind=ClaimKind.FACTUAL,
-)
-
-EvidenceItem(
-    id="S3-e1",
-    source_id="S3",
-    sub_question_id="SQ2",
-    discovery=DiscoveryRef(query_id="Q5", sub_question_id="SQ2"),  # or None
-    cross_attributed=False,
-    quote="precision-recall curves are a more informative evaluation than ROC AUC",
-    quote_match=QuoteMatch.EXACT_NORMALIZED,
-    page=14,
-)
-```
-
-That ordering is the point. Letting a model emit both invites the two to
-disagree. An evidence id that does not resolve, or resolves to a quote that
-never aligned to its source, is dropped and reported.
-
-The chain has two halves with different guarantees:
-
-- **Guaranteed.** Every citation resolves to an exact evidence item, its
-  exact-normalized source quote, its source, and its page when page-aware
-  PDF extraction succeeded for that source.
-- **Conditional.** The link back to a query exists only where that source
-  was genuinely retrieved for that sub-question. Much of the evidence —
-  20.8% to 83.3% across the three recorded runs — is reused across
-  sub-questions and is marked `cross_attributed` with no query id, rather
-  than borrowing an unrelated one.
+Blue nodes are fan-in barriers; the orange node is the only back-edge,
+and it is budget-guarded. A claim references **evidence ids**, resolved
+to sources by the engine rather than supplied by the model, so the two
+cannot disagree — citation to exact quote to source is **guaranteed**,
+the query-attribution link is **conditional**. Design rationale and full
+code example: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Install
 
-Python 3.11 or 3.12.
+Python 3.11 or 3.12. Needs a search provider key in every mode —
+[Tavily](https://app.tavily.com) has a sufficient free tier.
 
 ```bash
 git clone https://github.com/NirmalKumar31/agentic-research-engine.git
@@ -201,115 +94,41 @@ cd agentic-research-engine
 python -m venv .venv && source .venv/bin/activate
 pip install -e .
 cp .env.example .env
-```
+# then set TAVILY_API_KEY=tvly-... in .env
 
-Web search needs a provider key in every mode.
-[Tavily](https://app.tavily.com) has a sufficient free tier:
-
-```bash
-# .env
-TAVILY_API_KEY=tvly-...
-```
-
-## Quickstart
-
-```bash
 agentic-research check                      # verify configuration
 agentic-research research "your question"   # run
 agentic-research show latest                # re-display a stored run
 ```
-
-## Local reproducibility
-
-A fresh live research run is **not** bit-for-bit reproducible, and
-nothing here claims otherwise: search results change over time, a model
-tag like `qwen3:4b` can move to different weights, and hardware
-differences affect generation. What *is* reproducible is bounded and
-explicit, in three levels:
-
-| Level | What it proves | Command | Needs |
-|---|---|---|---|
-| **1. Replay** | A committed recorded run re-renders identically, forever | `agentic-research replay <id>` | nothing — no network, no credentials |
-| **2. Frozen-corpus engine determinism** | The engine's own machinery (retrieval selection, extraction, citation binding, verification, report generation) is deterministic end to end | `agentic-research verify-reproducible` | nothing — scripted model, scripted search/fetch, the project's own deterministic NLI stand-in |
-| **3. Local environment** | What's actually installed matches what you set up with | `./scripts/bootstrap-local.sh` then `./scripts/verify-local.sh` | Python, optionally Ollama and Node |
-
-**Level 2 validates engine behaviour, not model quality.** It runs the
-real compiled graph against two short original pages of text and a
-scripted model that always returns the same structured output, so a
-passing result says the state machine, reducers, retrieval selection and
-publication gate behave the same way on the same input — nothing about
-whether a real model's judgement would.
-
-```bash
-agentic-research replay list                 # see what is committed
-agentic-research replay rag-vector-vs-search  # re-render one, offline
-agentic-research verify-reproducible          # engine determinism, offline
-```
-
-Dependency integrity is separate from all three: `requirements-lock.txt`
-hash-pins the core runtime dependencies plus the `web` and `dev` extras
-for the exact platform CI's clean-install job uses (linux/cp312).
-`pip install --require-hashes -r requirements-lock.txt` installs byte-
-verified copies of what was resolved when the lock was generated. This is
-**dependency integrity, not a hermetic build or a supply-chain
-attestation** — it proves the bytes installed match what was pinned, not
-that the resolution is reproducible on every platform or that nothing
-upstream could be compromised before the next regeneration.
-`nli-local` (torch) is deliberately not hash-pinned: wheels vary by
-platform and CUDA build, and centrally pinning one would be wrong for
-most people who install it. Install it unpinned with
-`pip install -e ".[nli-local]"`.
-
-For Ollama specifically: `ollama pull qwen3:4b` pulls a **tag**, not an
-immutable digest, so two people (or two days) can end up running
-different weights under the same name. `bootstrap-local.sh` records the
-digest it actually observes to an untracked `.local-environment.json`;
-`verify-local.sh` compares against it if you export
-`EXPECTED_OLLAMA_DIGEST` yourself, and refuses rather than silently
-accepting a mismatch. Without that export, a changed digest is a real
-limitation this script will not catch — stated rather than hidden.
 
 ## Modes
 
 | Mode | Models | Notes |
 |---|---|---|
 | `local` | Ollama (`qwen3:4b`) | No paid LLM usage. ~15 minutes per run on an M-series laptop. Still needs a search provider. |
-| `cloud` | OpenAI | Substantially faster, at metered cost. A frozen-corpus local-vs-cloud comparison is published: [`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md) (24/24 cloud runs completed in 8.84-28.51s each; local completed 19/24 in 54.50-118.21s, the other 5 ran into a 120.02-122.78s timeout -- n=2 per question, no significance claimed). One bounded live validation run is also recorded under [examples/live-validation/](examples/live-validation/). |
+| `cloud` | OpenAI | Substantially faster, at metered cost. |
 | `hybrid` | Extraction local, reasoning cloud | Extraction is the highest-volume role and is mechanical. |
 
 Set `LLM_MODE` and, for cloud or hybrid, `OPENAI_API_KEY`.
-`ALLOW_CLOUD_FALLBACK` defaults to false: choosing local mode should not
-quietly start spending money if Ollama is unreachable.
+`ALLOW_CLOUD_FALLBACK` defaults to false, so local mode never silently
+falls back to a paid cloud LLM if Ollama is unreachable -- the search
+provider is separate and still consumes its own credits in every mode.
+Frozen-corpus local-vs-cloud comparison published:
+[`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md) (cloud
+8.84-28.51s per run; local 54.50-118.21s completed, 120.02-122.78s
+timeout — n=2 per question, no significance claimed).
 
 ## Web interface
 
-React and Vite in front of FastAPI, streaming the same graph events the CLI
-consumes over SSE. The interface has two modes, chosen by the server.
-
-**Replay** (`LIVE_RESEARCH_ENABLED=false`, the default) serves research runs
-recorded earlier and committed inside the package. It needs no API key, no
-search provider and no model.
-
-**Live** (`LIVE_RESEARCH_ENABLED=true`) additionally accepts a visitor's own
-question, under the demo ceilings.
-
-Replay is the default **blueprint**: it needs no credentials and spends
-nothing, so it is the configuration that can be left running unattended.
-The currently-running public deployment at the live demo URL below has
-live mode enabled (`OPENAI_API_KEY` configured, `LIVE_RESEARCH_ENABLED=true`)
--- check `/api/config` and `/api/readiness` on that URL for the
-instance's actual current mode and quota state rather than assuming this
-document describes it; a deployment's configuration can change
-independently of what this README recommends as the default.
-
-The daily cap for live mode is held in an external atomic counter rather than
-process memory, because a host that sleeps when idle would reset an in-memory
-count on every cold start. That counter is shared across web instances and
-survives a web restart. On Render's free Key Value plan it does **not** survive
-a restart of the store itself — Render states that persistence is unavailable
-on that plan — so the financial backstop there is the spend limit set on the
-provider account, not this counter. Per-run request and spend ceilings are
-separate and unaffected.
+React and Vite in front of FastAPI, streaming the same graph events the
+CLI consumes over SSE. **Replay** (`LIVE_RESEARCH_ENABLED=false`, the
+default blueprint) serves recorded runs committed inside the package —
+no API key, no search provider, no model. **Live**
+(`LIVE_RESEARCH_ENABLED=true`) additionally accepts a visitor's own
+question, under demo ceilings. Full mode comparison and the
+shared-quota-store caveats: [`docs/ARCHITECTURE.md` §2.1](docs/ARCHITECTURE.md#21-two-deployment-modes),
+[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md). Check `/api/config` on a
+running instance for its actual current state.
 
 ```bash
 pip install -e ".[web]"
@@ -317,418 +136,93 @@ cd web && npm install && npm run build && cd ..
 uvicorn agentic_research.web.api:get_asgi_app --factory
 ```
 
-`render.yaml` deploys the replay site and declares no secrets.
-`deploy/render-live.yaml` deploys the live variant. It prompts for three
-credentials — OpenAI, Tavily, and a Hugging Face token for the private
-verifier endpoint — and for three non-secret deployment values: the two
-model IDs and the endpoint URL. It also provisions the Key Value store that
-holds the daily cap, so that connection string is wired rather than pasted.
-Render's free tier sleeps when idle, so the first visit after a quiet period
-takes about a minute; replay makes that cheap, because waking the service
-spends nothing.
+`render.yaml` deploys the replay site with no secrets. `deploy/render-live.yaml`
+deploys the live variant, which prompts for three
+credentials (OpenAI, Tavily, and a Hugging Face token for the
+private verifier endpoint).
 
-## Usage
-
-**Live demo:** <https://agentic-research-engine-live.onrender.com> — a free
-instance, so the first request wakes it and takes about a minute.
-
-**Start with the recorded runs.** They are the better demonstration and
-cost nothing to explore. Live research on the demo is an **experimental,
-fail-closed integration, not a general research assistant** — see
-[what live research does and does not do](#what-live-research-does-and-does-not-do).
-
-The interface shows the answer contract beside the report: which parts
-of the question the run was required to fill, and which it did. That
-panel appears on a live run. The three recorded runs predate contracts
-entirely and carry none, so it is hidden for them rather than shown
-empty — a recording back-filled with a contract it was never held to
-would be the opposite of what this project is for.
-
-The public demo replays recorded runs and needs no credentials. To run
-live research yourself:
+**Live demo:** <https://agentic-research-engine-live.onrender.com> — free
+tier, so the first request wakes it (~1 minute). Start with the recorded
+runs: they cost nothing and are the better demonstration. Live research on
+the demo is an **experimental, fail-closed integration, not a general
+research assistant** — scope and measured behavior in
+[validation history](docs/VALIDATION-HISTORY.md).
 
 ```bash
 pip install -e ".[nli-local]"     # includes the local semantic verifier
 cp .env.example .env              # add a search provider key
-agentic-research check            # verifies the whole path before spending
+agentic-research check            # exits non-zero if the path can't complete a verified run
 agentic-research research "your question"
 ```
 
-`check` exits non-zero if the selected path cannot complete a verified
-run — a missing search key, an unreachable model, a model with no
-verified price, or a verifier that cannot answer. Local mode runs the
-models on Ollama with no paid LLM usage; live web research still needs a
-search provider.
+## Local reproducibility
+
+A fresh live research run is **not** bit-for-bit reproducible: search
+results change over time and a model tag like `qwen3:4b` can move to
+different weights. What *is* reproducible is bounded and explicit, in
+three levels:
+
+| Level | What it proves | Command | Needs |
+|---|---|---|---|
+| **1. Replay** | A committed recording replays deterministically by the supported code, without network access or credentials | `agentic-research replay <id>` | nothing — no network, no credentials |
+| **2. Frozen-corpus engine determinism** | The engine's own machinery is deterministic end to end | `agentic-research verify-reproducible` | nothing — scripted model, scripted search/fetch |
+| **3. Local environment** | What's installed matches what you set up with | `./scripts/bootstrap-local.sh` then `./scripts/verify-local.sh` | Python, optionally Ollama and Node |
+
+Level 2 validates **engine behaviour, not model quality**: a scripted
+model always returns the same output, so a pass says the state machine
+and publication gate behave consistently — nothing about real judgement.
+
+```bash
+agentic-research replay list                 # see what is committed
+agentic-research verify-reproducible          # engine determinism, offline
+```
+
+Dependency-pinning scope (`requirements-lock.txt`, the unpinned
+`nli-local` extra) and the Ollama tag-vs-digest caveat:
+[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md#operations).
 
 ## Measured results
 
-Three recorded local `qwen3:4b` runs, one round each, verified by the
-pinned DeBERTa NLI classifier at threshold 0.98. Every substantive claim
-was checked against each of its own quotes — `checked == checkable` in
-all three — and only claims one quote carried on its own were published.
+Three recorded local `qwen3:4b` runs: 21 unique candidates checked, **11
+published, 10 withheld**. A blinded self-review by the project author
+(verdict hidden) found **precision 1.00, recall 0.58 — zero unsupported
+or uncertain claims published**; this was a self-review, not an
+independent benchmark — the reviewer built the system. On a frozen
+adversarial set (eleven cases, seventeen claims) across two releases,
+irrelevant published claims went from 6 to 0, at the cost of published
+claims falling from 14 to 6 and one correct claim now wrongly withheld.
 
-| | RAG comparison | NIST framework | Fraud detection |
-|---|---|---|---|
-| Unique sources | 5 | 5 | 5 |
-| Evidence items | 10 | 26 | 30 |
-| Generated substantive claims | 11 | 19 | 16 |
-| Exact duplicates removed | 5 | 12 | 8 |
-| Unique candidates checked | 6/6 | 7/7 | 8/8 |
-| **Withheld** | 4 | 4 | 2 |
-| **Published** | **2** | **3** | **6** |
-| Quote fidelity (exact) | 70% | 92% | 90% |
-| Page-cited evidence | 0 | 6 | 0 |
-| Duration | 1478s | 1453s | 1067s |
+Across eight live hosted runs on one question shape plus four more
+question shapes added later: definitional and factual-lookup questions
+produce short, correct, cited answers in 50-120s for under a cent;
+comparison and procedural questions stay weak. In the original
+eight-run study, the bottleneck was measured as synthesis quality (58%
+of refusals), not the verification machinery, and **every refusal
+inspected in that study was the correct refusal.**
 
-21 unique candidates across the three runs, all checked, **11 published
-and 10 withheld**.
-
-### Release validation
-
-Publishing something is easy; publishing only what the evidence supports
-is the claim being made. So every candidate — not only the published
-ones — was reviewed against the exact quote the gate selected, **with the
-automated verdict, score, guard results and publication decision
-hidden**, and the labels joined back by case id afterwards. The packet,
-the labels and the join are in
-[`examples/release-audit/`](examples/release-audit/).
-
-| | published | withheld |
-|---|---|---|
-| **reviewer: supported** | 11 | 8 |
-| **reviewer: unsupported or uncertain** | **0** | 2 |
-
-Precision 1.00, recall 0.58. **Zero unsupported published claims, zero
-uncertain ones.**
-
-Of the 10 withheld: 5 scored below the entailment threshold and 5 were
-refused by a deterministic guard before the score mattered (3 atomicity,
-1 hedge, 1 numeric). One of those — a claim dropping the source's
-*"often"* — is the frequency-deletion rule catching a real overclaim on
-live data.
-
-This is a **blinded self-review, not an independent benchmark**: the
-reviewer built the system. A packet for a genuinely independent second
-reviewer is committed at
-[`examples/release-audit/reviewer-packet.json`](examples/release-audit/reviewer-packet.json),
-carrying only claims, quotes and sources — no verdict, score, guard
-result or prior label.
-
-### Adversarial quality set
-
-Eleven cases, seventeen claims, frozen in
-[`examples/quality-eval/`](examples/quality-eval/) and run
-credential-free. Entailment is pinned per (claim, evidence) pair,
-because the 0.98 threshold is not what this measures — the subject is
-evidence selection, the guards, relevance, and coverage.
-
-`python examples/quality-eval/run_eval.py`
-
-| | v1.1.1 | v1.2.0 |
-|---|---|---|
-| **Irrelevant claims published** | **6** | **0** |
-| Irrelevant publication rate | 0.429 | 0.0 |
-| Wrong evidence selected | 1 | 0 |
-| Mean selected source quality | 0.855 | 0.935 |
-| Lowest selected source quality | 0.55 | 0.88 |
-| Claims published | 14 | 6 |
-| Correct claims wrongly withheld | 0 | **1** |
-| Cases publishing nothing | 2 | **6** |
-
-**Read the bottom three rows as carefully as the top one.** This is a
-precision-for-recall trade, and it is a large one: published claims
-fell from 14 to 6, one correct claim is now wrongly withheld that was
-not before, and six of eleven cases publish nothing at all. What was
-bought is that no claim in the set is published that does not answer
-its question, where previously 43% were.
-
-Whether that trade is right depends on what the report is for. For a
-research tool whose entire premise is that a citation means something,
-withholding a true claim costs a line; publishing a well-cited
-irrelevance costs the premise.
-
-### Hosted acceptance
-
-Deployment acceptance, not a research-quality evaluation: one live run
-through the deployed endpoint under the public budgets, captured byte
-for byte. Everything in
-[`examples/live-validation/v12-20260929-001737/`](examples/live-validation/v12-20260929-001737/)
-is derived from those bytes offline, and rebuilding it is a command —
-a file that no longer matches `checksums.sha256` was edited, not
-derived.
-
-*"How does a large language model differ from a neural network?"* —
-chosen because the previous release answered it badly.
-
-| | |
-|---|---|
-| Generated / checked / **published** | 7 / 7 / **3** |
-| Withheld: below threshold | 1 |
-| Withheld: guard failure (atomicity) | 1 |
-| Withheld: **supported but irrelevant** | **2** |
-| Duration | 165.4s of a 240s ceiling |
-| Cost | $0.009466 OpenAI, 6 Tavily credits |
-
-The two withheld for irrelevance are the point. Both were entailed by
-their own quotes — at **0.996** and **0.990** — and correctly cited:
-
-> *"Neural networks consist of layers of nodes, with each node
-> representing a mathematical function."*
-> → withheld: *defines neural networks but does not distinguish them
-> from LLMs or explain their relationship.*
-
-True, sourced, and not an answer. Under the previous release it would
-have published.
-
-The engine then disagreed with its own output. It published three
-claims and wrote in its limitations that *"this research did not answer
-the question. Nothing published states how large language model (LLM)
-and neural network differ; what survived describes them separately."*
-
-**Two findings, both recorded rather than smoothed over**, in
-[`manual-review.md`](examples/live-validation/v12-20260929-001737/manual-review.md):
-
-1. A rewrite was refused with *"cannot fill the contrast slot"* and the
-   identical sentence published — correct, because the two claims
-   declared different slots, and unreadable, because the slot was not
-   serialised. Fixed for future runs; **the artifact for this run
-   cannot be repaired**, because the field was never sent and the
-   deployment admits one run a day.
-2. For *"how does X differ from Y"* where Y is a superset of X, the
-   honest answer is a subset relationship — which the engine found,
-   published, and then reported as not answering, because the
-   contract's core slot for a comparison was a direct contrast.
-   **Fixed:** a comparison is now answered by a contrast *or* a
-   relationship. Verified by replaying this run's own contract and
-   published slots through the new coverage — the change post-dates
-   the capture, and the deployment admits one run a day, so it is
-   not covered by a second live run.
-
-**Proposition decomposition was not exercised by this run.** No claim
-decomposed into more than one part, so that path is covered by tests
-and unproven in production. One run is not a benchmark either: three
-published claims here says nothing about the next question.
-
-### The fixes, verified on the deployment
-
-The two defects above were fixed *after* the acceptance capture, so
-neither had been through the live pipeline. A second run, on the public
-demo at `1d21b110`, closed that:
-[`examples/live-validation/v121-20260929-024544/`](examples/live-validation/v121-20260929-024544/)
-
-Same question. 6 claims generated, **2 published**, 155.2s, $0.008523.
-The decisive pair arrived on its own:
-
-| Claim | Slot | Outcome |
-| --- | --- | --- |
-| *An LLM is a type of neural network that specifically uses transformer…* | `relationship` | **published** |
-| *The evidence distinguishes LLMs as a specific class built on n…* | `direct_contrast` | withheld, entailment **0.007** |
-
-The only claim that would have filled the contrast slot directly was
-refused by its own evidence, the core requirement was discharged by the
-alternative, and the report carries **no** "did not answer the question"
-limitation. On this same question, v1.2.0 reported the opposite.
-
-The gate did not become permissive: four of six claims were still
-withheld, by four different mechanisms — two on entailment, one by the
-relevance judgement, one by the structural check.
-
-**And the run found a third defect.** `AnswerContract.to_dict()` dropped
-`satisfied_by`, so nothing outside the engine could see that a core slot
-had been discharged by an alternative. The interface recomputes coverage
-from the published claims, so it concluded the question was unanswered
-and would have printed that directly above a report saying otherwise.
-Found by pointing the interface's own logic at the run's payload.
-
-**Not verified by this run:** the missing-`answer_slot` path. This model
-declared a slot on every claim, so the behaviour that had made local
-mode publish nothing was never reached. Unit tests and two local runs
-cover it; this run is silent on it.
-
-## What live research does and does not do
-
-Measured across eight live runs on a deployment, each committed with its
-raw stream under [`examples/live-validation/`](examples/live-validation/).
-
-**What it does.** Completes in about 150s of a 240s ceiling for roughly
-$0.009. Grounds the question in a contract before retrieving anything.
-Refuses what the evidence does not carry, and says when it has not
-answered. Every claim it publishes resolves to an exact-normalised quote
-at a live URL. Across those eight runs, **every refusal inspected was the
-correct refusal.**
-
-**What it does not do — and where that depends on the question.** The
-first eight runs all asked the *same* question, and an earlier version
-of this section generalised from them that the reports are "too thin to
-use as research". Four more runs across different question shapes
-contradict that, so it is retracted:
-
-| Shape | Question | Published |
-| --- | --- | --- |
-| definition | What is retrieval-augmented generation? | **2 of 3** |
-| numeric | What is the context window size of GPT-4 Turbo? | **1 of 1** |
-| procedural | How do you fine-tune a model using LoRA? | 1 of 4 |
-| comparison (×8 runs) | How does an LLM differ from a neural network? | 0–3, mostly 0–1 |
-
-The question those eight runs used is a **hypernym comparison** — the
-engine's worst case by construction. A comparison's core slot is a
-direct contrast, a contrast asserts two things, and the atomicity guard
-refuses compound claims because every other guard reasons about "the
-sentence that supports this claim". The one shape under test was the one
-whose core slot is close to unfillable.
-
-On definitional and factual-lookup questions it produces short,
-correct, cited answers in 50–120s for under a cent. It stays weak on
-comparisons and on procedural questions.
-
-The bottleneck on the weak shapes is measured and it is not the
-verification machinery: across 24 generated claims, **58% were refused
-on synthesis quality** (38% irrelevant, 21% guard failures) and 17% on
-evidence below threshold.
-
-**This is v1.9.0 data.** Six later releases (v1.10–v1.15) targeted the
-comparison weakness specifically — see
-[`docs/HOW-THIS-WAS-BUILT.md`](docs/HOW-THIS-WAS-BUILT.md) for what each
-one found. On the fixed before/after question used there, published
-claims went 5 → 7 and complete comparison pairs 0 → 2 at peak. That
-measurement is real but is a single question tracked across releases,
-not a replacement for the comparison row above — the two are different
-measurements and neither supersedes the other. Three of those six
-releases were prompt changes with no causal proof behind them, and the
-measurement loop was deliberately stopped once run-to-run variance
-exceeded the effects being chased; see
-[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md#comparisons) for why a
-comparison is structurally the hardest shape regardless.
-
-**Live research is still labelled experimental and fail-closed**, and
-the interface says so where a visitor is about to use it — one question
-per shape is coverage, not a benchmark, and nothing here licenses a
-claim of general correctness. What it does license is not overstating
-the negative.
-
-The study is at
-[`examples/live-validation/question-shapes/`](examples/live-validation/question-shapes/).
-The [adversarial set](examples/quality-eval/) is the measurement.
-
-### Eight hosted runs, and what each one found
-
-Every run is committed with its raw stream, derived artifacts and a
-written review, under
-[`examples/live-validation/`](examples/live-validation/).
-
-| Run | Published | What it found |
-| --- | --- | --- |
-| v1.2.0 | 3 of 7 | `answer_slot` not serialised; a relationship should answer a comparison |
-| v1.2.1 | 2 of 6 | `satisfied_by` not serialised, so the page contradicted the report |
-| v1.4.0 | — | the run died at the coverage critique |
-| v1.4.1 | 0 of 3 | two of three claims were about the evidence, not the subject |
-| v1.5.0 | 0 of 3 | meta-claims gone; no slot marked required |
-| v1.6.0 | 1 of 5 | a contrast is not atomic |
-| v1.6.1 | 0 of 13 | removing the claim bound made the report worse |
-| v1.6.1+ | 1 of 5 | the bound and the judge fixed; output unchanged |
-
-**Every refusal inspected across all six was the correct refusal.**
-What was wrong each time was upstream — what the synthesiser was
-told, or a value the engine computed and then did not pass on. Six
-instances of that second pattern are recorded in the changelog; four
-of them passed every test, because the test fakes constructed the
-object correctly while production did not.
-
-The v1.6.0 report publishes one claim:
-
-> **LLMs are built upon deep neural networks.** [S5]
->
-> *"At their core, LLMs are built upon deep neural networks, enabling
-> them to process vast amounts of text and learn complex patterns."*
-
-with an exact-normalised quote resolving to a live URL, and a
-limitations section naming what the evidence did not establish. It
-does not claim to have failed, because locating one subject inside
-the other is what "how does X differ from Y" means when Y is a
-category containing X.
-
-One published claim is a thin report and not a measurement of
-quality. The [adversarial set](examples/quality-eval/) is the
-measurement; these are deployment evidence.
-
-### How the audits went
-
-Six manually reviewed canonical audits. The first three each published
-exactly one claim that survived every automated check and failed a human
-read, and each produced a general rule rather than a patch:
-
-| Audit | What escaped | Fix |
-|---|---|---|
-| 1 | `"might lack"` published as `"lack"` | hedge-deletion guard |
-| 2 | `"We demonstrate that X"` published as `"X"` | research-voice guard |
-| 3 | `"our dataset"` → `"datasets"`, inside a two-sentence claim | proposition-level atomicity |
-| 4 | — | clean |
-| 5 | — | clean, blinded |
-| 6 | — | clean, blinded, and the first run with atomicity actually wired |
-
-Audit 6 exists because an independent code review found that audits 4
-and 5 were produced with the clause-level atomicity check **written and
-tested but never called** — the guard still counted sentences. The
-property had been reported as enforced and was not. Every guard now has
-an integration test that drives the real publication path with a scorer
-entailing everything, so a disconnected guard fails a test rather than a
-review.
-
-These are product artifacts, served by the demo. Live search is
-nondeterministic, so re-running these questions does not recover these
-sources — see [LIMITATIONS](docs/LIMITATIONS.md).
-
-### Attribution experiment
-
-Three extraction strategies over one frozen six-source corpus, three
-repeats each, `qwen3:4b`.
-
-| | all-open | retrieved-only | adjacent |
-|---|---|---|---|
-| Evidence coverage | **100%** | 16.7% | 50.0% |
-| Citable evidence | 27.3 | 17.7 | 18 |
-| Cross-attributed | 79.6% | 0% | 59.1% |
-
-No variation was observed across the three repeats of any arm. Three
-draws cannot establish that sampling noise is absent; the defensible
-point is structural. On this corpus each source was retrieved for a mean
-of 1.17 sub-questions, so retrieved-only extraction mechanically limits
-how many sub-questions can reach a two-source coverage bar. Production
-uses all-open because this project prioritises multi-source coverage
-over complete query-level lineage. Scope and caveats:
-[`examples/attribution-experiment/`](examples/attribution-experiment/).
-
-An earlier local-versus-cloud comparison used a corpus whose source text had
-been stripped and is excluded from current results.
+Full release-by-release numbers, every table, and what each hosted run
+found: **[`docs/VALIDATION-HISTORY.md`](docs/VALIDATION-HISTORY.md)**.
 
 ## Security
 
 Relevant because this fetches attacker-influenced URLs and feeds
 attacker-influenced text to a model.
 
-- **SSRF.** Deny-by-default on resolved addresses: loopback, private,
-  link-local, multicast, reserved and unspecified ranges are blocked across
-  IPv4 and IPv6 including IPv4-mapped forms. Every resolved address must be
-  safe, not merely one of them.
-- **DNS rebinding.** The connection goes to the address that was validated,
-  with the hostname carried in the `Host` header and TLS SNI. A target with
-  no validated address fails closed; failover never re-resolves; every
-  redirect hop is revalidated and re-pinned. Certificate verification is
-  preserved, and a wrong SNI is refused — tested against a real TLS server
-  with a real certificate.
-- **Spend.** Ceilings are reserved before each provider request rather
-  than counted after it. The provider-request and output-token ceilings
-  are exact. The input-token and cost ceilings are *estimated* before
-  dispatch — input size is approximated and prices come from a local
-  table — so they bound the expected cost, not the invoice. For a public
-  deployment the provider account's own spend limit is the durable
-  backstop, and the deployment docs say so.
+- **SSRF.** Deny-by-default on resolved addresses (loopback, private,
+  link-local, multicast, reserved, unspecified; IPv4 and IPv6).
+- **DNS rebinding.** Connects to the validated address; hostname carried
+  in `Host`/SNI; every redirect hop revalidated and re-pinned; a wrong
+  SNI is refused, tested against a real TLS server with a real
+  certificate.
+- **Spend.** Ceilings reserved before each request: provider-request and
+  output-token ceilings are exact, input-token and cost ceilings are
+  estimated before dispatch (bounding expected cost, not the invoice). A
+  deployment's own provider spend limit is the durable backstop.
 - **Prompt injection.** Retrieved text is framed as untrusted data, the
   extractor has no tools, and a claim invented from a page references no
   evidence so it fails resolution.
-- **Secrets.** gitleaks runs over full history with rules for the providers
-  used here, verified by a positive control that plants randomly generated
-  credentials each run.
+- **Secrets.** gitleaks runs over full history, verified by a positive
+  control that plants randomly generated credentials each run.
 
 ## Evaluation
 
@@ -751,17 +245,16 @@ not whether the world agrees.
 | `evidence_coverage` | Share of sub-questions with ≥2 exact-match items from ≥2 sources |
 | `source_diversity` | 1 − share held by the largest domain |
 
-`citation_integrity` is a structural invariant, not a quality signal: the
-engine derives citations from already-resolved evidence, so anything below
-100% is an engine bug.
+`citation_integrity` is a structural invariant, not a quality signal:
+anything below 100% is an engine bug, since citations derive from
+already-resolved evidence.
 
 ## Limitations
 
-The short version: it verifies faithfulness to retrieved evidence, not truth
-about the world. Exact quote matching proves textual alignment, not
-entailment. Published figures come from single runs.
-
-Full list: [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
+**Scope:** verifies faithfulness to retrieved evidence, not truth about
+the world. Exact quote matching proves textual alignment, not entailment.
+Published figures come from single runs. Full list:
+[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
 
 ## Testing
 
@@ -770,10 +263,10 @@ pip install -e ".[dev]"
 pytest              # hermetic: no network, no credentials, no cost
 ```
 
-Every external boundary is faked, while the real state machine, reducers,
-deduplication and verification execute. The TLS tests run a real local HTTPS
-server with a certificate from an in-process CA, because certificate
-verification cannot be asserted against a mock.
+Every external boundary is faked, while the real state machine, reducers
+and verification execute. The TLS tests run a real local HTTPS server
+with a certificate from an in-process CA — certificate verification
+cannot be asserted against a mock.
 
 ## Repository
 
@@ -792,18 +285,15 @@ src/agentic_research/
     web/            FastAPI, recorded runs
 web/                React + Vite frontend
 tests/              unit (hermetic) · integration (opt-in)
-examples/           attribution experiment, archived artifacts
+examples/           benchmark questions, quality-eval, attribution experiment, live validation
+evaluations/        Benchmark Phase B's public, redacted benchmark record (see evaluations/phase_b/README.md)
 scripts/            bootstrap-local.sh · verify-local.sh · generate-lock.py
-docs/               ARCHITECTURE.md · HOW-THIS-WAS-BUILT.md · LIMITATIONS.md
+docs/               see docs/README.md for the full index
 requirements-lock.txt   hash-pinned core deps, linux/cp312 (see "Local reproducibility")
 ```
 
-## Technology
+## Technology and license
 
 LangGraph 1.2 · LangChain 1.6 · Pydantic 2 · FastAPI · React 19 + Vite ·
 Tavily · trafilatura · pypdf · httpx · Typer · structlog · pytest, ruff,
-mypy strict.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+mypy strict. MIT — see [LICENSE](LICENSE).

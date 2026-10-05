@@ -10,11 +10,19 @@ the sentence describing them. Found during a closeout accuracy audit,
 not by this test -- this test exists so the next drift is found by CI
 instead of by a person reading carefully.
 
+The per-recording "Measured results" table moved from README.md to
+docs/VALIDATION-HISTORY.md during a documentation curation pass (the
+README now states only the aggregate); this test's detailed check
+followed it there, so it still checks the real table, not a stale
+reference to where that table used to live. A second check confirms
+README's new aggregate ("11 published, 10 withheld") still sums to the
+same per-recording counts.
+
 Two things are checked: the committed recordings' real published-claim
-counts agree with what README states about them, and no future prose in
-these two documents claims "publish nothing" (or an unscoped zero) about
-"the three" canonical recordings without naming the historical scope
-that claim needs.
+counts agree with what VALIDATION-HISTORY.md states about them, and no
+future prose in these documents claims "publish nothing" (or an
+unscoped zero) about "the three" canonical recordings without naming
+the historical scope that claim needs.
 """
 
 from __future__ import annotations
@@ -26,6 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RECORDINGS_DIR = ROOT / "src" / "agentic_research" / "web" / "recorded_runs"
 README = ROOT / "README.md"
+VALIDATION_HISTORY = ROOT / "docs" / "VALIDATION-HISTORY.md"
 LIMITATIONS = ROOT / "docs" / "LIMITATIONS.md"
 
 # id -> the README table's column label, in the order README lists them.
@@ -54,7 +63,7 @@ class TestReadmesPublishedCountsMatchTheCommittedRecordings:
         for recording_id in RECORDINGS:
             assert (RECORDINGS_DIR / f"{recording_id}.json").is_file(), recording_id
 
-    def test_the_readme_published_row_matches_reality(self) -> None:
+    def test_the_validation_history_published_row_matches_reality(self) -> None:
         """Parses the "Measured results" table's own Published row and
         checks each column against the recording it names.
 
@@ -62,16 +71,19 @@ class TestReadmesPublishedCountsMatchTheCommittedRecordings:
         list of numbers, so a regenerated recording with a different
         count fails this test instead of quietly outdating the table.
         """
-        text = README.read_text()
+        text = VALIDATION_HISTORY.read_text()
         header_match = re.search(
             r"\|\s*\|\s*" + r"\s*\|\s*".join(re.escape(c) for c in RECORDINGS.values()) + r"\s*\|",
             text,
         )
         assert header_match, (
-            "README's measured-results header no longer matches the expected columns"
+            "docs/VALIDATION-HISTORY.md's measured-results header no longer "
+            "matches the expected columns"
         )
         published_match = re.search(r"\|\s*\*\*Published\*\*\s*\|([^\n]+)\|", text)
-        assert published_match, "README has no **Published** row in the measured-results table"
+        assert published_match, (
+            "docs/VALIDATION-HISTORY.md has no **Published** row in the measured-results table"
+        )
         counts = [c.strip().strip("*") for c in published_match.group(1).split("|") if c.strip()]
         assert len(counts) == len(RECORDINGS), counts
 
@@ -79,9 +91,22 @@ class TestReadmesPublishedCountsMatchTheCommittedRecordings:
             payload = _load(recording_id)
             actual = _published_claim_count(payload)
             assert actual == int(count_str), (
-                f"README says {recording_id} publishes {count_str}, "
+                f"VALIDATION-HISTORY.md says {recording_id} publishes {count_str}, "
                 f"the committed recording actually publishes {actual}"
             )
+
+    def test_the_readme_aggregate_matches_the_sum_of_real_counts(self) -> None:
+        """README no longer states per-recording counts (see above test),
+        only the aggregate "11 published, 10 withheld" -- this must still
+        sum to the same real counts, not just look plausible."""
+        total_published = sum(_published_claim_count(_load(r)) for r in RECORDINGS)
+        text = README.read_text()
+        match = re.search(r"\*\*(\d+)\s+published,\s+(\d+)\s+withheld\*\*", text)
+        assert match, "README's aggregate published/withheld claim is missing or reworded"
+        assert int(match.group(1)) == total_published, (
+            f"README claims {match.group(1)} published, the three recordings "
+            f"actually total {total_published}"
+        )
 
 
 class TestNoUnscopedZeroPublicationClaim:

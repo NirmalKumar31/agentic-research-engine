@@ -20,7 +20,9 @@ not a blind reviewer of their own study even when the packet is
 correctly redacted.
 
 **For this benchmark run, specifically:** both reviewer roles were
-performed by two independent Codex (AI) sessions, not the two human
+performed by two separately run, blinded Codex (AI) sessions -- blinded
+to candidate identity, not independent in a statistical or
+institutional sense -- not the two human
 reviewers `docs/BENCHMARK-PROTOCOL.md` specifies -- a disclosed
 deviation, authorized by the project owner, not an implied
 substitution. This file describes the packet structure and workflow,

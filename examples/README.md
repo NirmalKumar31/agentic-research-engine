@@ -33,3 +33,16 @@ LLM_MODE=local MAX_RESEARCH_ROUNDS=1 MAX_SOURCES=5 \
 ```
 
 Local models cost nothing per token; only search credits are spent.
+
+## What's in this directory
+
+| Path | What it is |
+|---|---|
+| `programmatic.py` | The two entry points above, runnable directly |
+| `benchmark/` | `questions.json` -- the five benchmark questions `evaluate`/`compare` run against |
+| `quality-eval/` | The frozen adversarial quality set: cases written before a release, so the baseline is honest about what the pipeline did, not what it was later made to do |
+| `release-audit/` | Candidate-level validation of the publication gate at the unit it actually publishes -- the atomic generated claim |
+| `verifier-calibration/` | Development calibration cases that shaped the verifier designs -- partly fitted, explicitly not an independent benchmark |
+| `attribution-experiment/` | What it costs to give every piece of evidence a query-level lineage |
+| `live-validation/` | Hosted live-research runs, each committed with its raw stream and a written review -- see [`live-validation/README.md`](live-validation/README.md) |
+| `archive/` | Superseded evidence kept for the record, not for citing as current -- `invalid-cloud-comparison/` is referenced from [`docs/LIMITATIONS.md`](../docs/LIMITATIONS.md) as a known-invalid measurement, not deleted so the invalidity stays checkable |
