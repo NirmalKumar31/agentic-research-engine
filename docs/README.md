@@ -18,6 +18,10 @@
   measurement-driven history of output-quality fixes: which
   measurement justified each change, and which proposed fixes were
   withdrawn when the measurement said no.
+- **[`VALIDATION-HISTORY.md`](VALIDATION-HISTORY.md)** -- the
+  authoritative evidence location: full release-by-release measured
+  results, every table, behind the one-paragraph summary in the root
+  README's "Measured results".
 
 ## Historical
 

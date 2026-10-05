@@ -527,6 +527,17 @@ interrupted run.
 **Base images are not pinned by digest.** `constraints.txt` pins Python
 dependencies; `python:3.12-slim` and `node:24-slim` can move.
 
+**`requirements-lock.txt` hash-pins core dependencies for CI's exact
+platform** (linux/cp312) — dependency integrity, not a hermetic build
+or supply-chain attestation. `nli-local` (torch) is deliberately
+unpinned: platform/CUDA-specific wheels.
+
+**`ollama pull qwen3:4b` pulls a tag, not an immutable digest.**
+`bootstrap-local.sh` records the digest it observes; `verify-local.sh`
+compares against it only if `EXPECTED_OLLAMA_DIGEST` is exported —
+without that export, a changed digest is a real limitation neither
+script catches.
+
 **No observability beyond logs.** No metrics endpoint, no trace export.
 
 **The semantic verifier does not fit the free deployment tier.** Measured

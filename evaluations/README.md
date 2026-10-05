@@ -10,10 +10,12 @@ of scratch, untracked, and not part of this repository.
 ## The one deliberate exception
 
 [`evaluations/phase_b/`](phase_b/) is force-added past the gitignore on
-purpose: it's Benchmark Phase B's full evidentiary record (frozen
-corpora, all 48 raw run results, the blinded review, the spend ledger,
-environment snapshot), preserved because the whole point of a
-benchmark is that someone else can check it. See
+purpose: it's Benchmark Phase B's public, redistributable benchmark
+record (redacted corpora, all 48 raw run results, the blinded review,
+the spend ledger, environment snapshot) -- not the original full-text
+corpora, which are not retained in the repository or working tree.
+Preserved because the whole point of a benchmark is that someone else
+can check it. See
 [`evaluations/phase_b/README.md`](phase_b/README.md) for what's in it
 and how the pieces fit together.
 

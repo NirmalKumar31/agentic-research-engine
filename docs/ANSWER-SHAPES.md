@@ -117,3 +117,23 @@ nothing. It occurs in exactly two cases:
 - That the shape is always right. An explicit form read correctly can
   still be the wrong contract for what the user meant; `shape_source`
   exists so that can be audited after the fact.
+
+## Checking relevance, not just support
+
+Support and relevance are different axes, checked separately. A
+deployed run once published five claims that every support gate
+passed — entailed, cited, atomic — and that collectively did not
+address what was asked. "Supported" had been standing in for
+"an answer".
+
+| Stage | Who | What |
+|---|---|---|
+| Answer contract | Plain Python | Turns the question into the slots an answer must fill; refuses when the question cannot be given a shape |
+| Proposition decomposition | Plain Python | Splits a claim on a new subject with a finite verb, not on the word "and" |
+| Relevance judgement | The **critic** model, batched | Does this claim help answer the question? Asked of the critic, not the synthesiser — a model marking its own homework finds its work relevant |
+| Bounded repair | The critic, then every gate again | One rewrite for claims refused on wording alone; may not launder — refused if it adds a number, a subject, causation, or states the claim more strongly |
+| Coverage | Plain Python | Which core slots the published report actually filled |
+
+**Relevance fails closed:** if the judgement cannot be obtained, the
+claims it would have covered are withheld rather than published
+unjudged.
