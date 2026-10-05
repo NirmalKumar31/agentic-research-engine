@@ -1,0 +1,797 @@
+{
+  "question": "What evaluation metrics are commonly used to assess retrieval quality in a RAG system?",
+  "captured_at": "2026-10-04T21:28:04.902520+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What are the most widely adopted evaluation metrics for assessing retrieval quality in RAG systems?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "How do these metrics account for the semantic relevance of retrieved documents?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "What are the hidden costs or limitations of using these metrics in real-world R:AG deployments?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "Under what conditions do these metrics fail to accurately reflect retrieval quality?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://arxiv.org/html/2405.07437v2",
+      "canonical_url": "https://arxiv.org/html/2405.07437v2",
+      "title": "Evaluation of Retrieval-Augmented Generation: A Survey",
+      "domain": "arxiv.org",
+      "text": "[REDACTED: 11840 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "8ace6c7e3d3561f0",
+      "source_type": "academic",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.972,
+      "quality_reasons": [
+        "academic baseline 0.85",
+        "search relevance 0.86 -> +0.072",
+        "substantial content (1645 words) -> +0.050"
+      ],
+      "search_score": 0.86108357,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:18:50.036820Z",
+      "word_count": 1645,
+      "found_by_queries": [
+        "Q1",
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://www.patronus.ai/llm-testing/rag-evaluation-metrics",
+      "canonical_url": "https://patronus.ai/llm-testing/rag-evaluation-metrics",
+      "title": "RAG Evaluation Metrics: Best Practices for Evaluating RAG Systems",
+      "domain": "patronus.ai",
+      "text": "[REDACTED: 11602 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "ece66765d84308f7",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.625,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.87 -> +0.075",
+        "substantial content (1769 words) -> +0.050"
+      ],
+      "search_score": 0.87348515,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:18:50.036858Z",
+      "word_count": 1769,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://www.braintrust.dev/articles/what-is-rag-evaluation",
+      "canonical_url": "https://braintrust.dev/articles/what-is-rag-evaluation",
+      "title": "What is RAG evaluation? Measuring retrieval quality and answer groundedness - Articles - Braintrust",
+      "domain": "braintrust.dev",
+      "text": "[REDACTED: 11991 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "27befdd6031f5e71",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.626,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.88 -> +0.076",
+        "substantial content (1744 words) -> +0.050"
+      ],
+      "search_score": 0.8812988,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:18:50.036878Z",
+      "word_count": 1744,
+      "found_by_queries": [
+        "Q1",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://www.evidentlyai.com/llm-guide/rag-evaluation",
+      "canonical_url": "https://evidentlyai.com/llm-guide/rag-evaluation",
+      "title": "A complete guide to RAG evaluation: metrics, testing and best practices",
+      "domain": "evidentlyai.com",
+      "text": "[REDACTED: 11734 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "13b67525ff70e0c6",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.625,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.87 -> +0.075",
+        "substantial content (1860 words) -> +0.050"
+      ],
+      "search_score": 0.8729662,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:18:50.036897Z",
+      "word_count": 1860,
+      "found_by_queries": [
+        "Q1",
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://deepchecks.com/retrieval-vs-answer-quality-rag-evaluation",
+      "canonical_url": "https://deepchecks.com/retrieval-vs-answer-quality-rag-evaluation",
+      "title": "Retrieval Quality VS. Answer Quality: Why RAG Evaluation Fails | Deepchecks",
+      "domain": "deepchecks.com",
+      "text": "[REDACTED: 11903 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "3852ec4646d8eb89",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.622,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.86 -> +0.072",
+        "substantial content (1690 words) -> +0.050"
+      ],
+      "search_score": 0.86080295,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:18:50.036915Z",
+      "word_count": 1690,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The most widely adopted evaluation metrics for assessing retrieval quality in RAG systems",
+      "quote": "[REDACTED: 37 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T21:20:56.377432Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "How do these metrics account for the semantic relevance of retrieved documents?",
+      "quote": "[REDACTED: 415 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T21:20:56.381933Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the hidden costs or limitations of using these metrics in real-world RAG deployments?",
+      "quote": "[REDACTED: 230 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T21:20:56.386838Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Under what conditions do these metrics fail to accurately reflect retrieval quality?",
+      "quote": "[REDACTED: 86 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T21:20:56.390951Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Context precision measures the percentage of retrieved documents that are actually relevant to the query.",
+      "quote": "[REDACTED: 105 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:19:59.183561Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Context recall measures whether the retrieval captured all the relevant documents available in the knowledge base.",
+      "quote": "[REDACTED: 114 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:19:59.184628Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Retrieval ranking metrics such as NDCG@K and Precision@K evaluate whether the most relevant documents appear at the top of the results.",
+      "quote": "[REDACTED: 135 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:19:59.185512Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Faithfulness score to calculate the ratio of supported claims to total claims in the answer.",
+      "quote": "[REDACTED: 92 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:19:59.186499Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e5",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Answer relevancy, which checks whether the response actually addresses the user's question rather than discussing a tangential topic.",
+      "quote": "[REDACTED: 133 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:19:59.187493Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e6",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Answer similarity compares generated responses against reference answers using semantic similarity for queries where you have known correct answers.",
+      "quote": "[REDACTED: 148 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:19:59.188484Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The most widely adopted evaluation metrics for assessing retrieval quality in RAG systems",
+      "quote": "[REDACTED: 157 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:22:00.912508Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "How do these metrics account for the semantic relevance of retrieved documents?",
+      "quote": "[REDACTED: 217 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:22:00.916337Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "What are the hidden costs or limitations of using these metrics in real-world RAG deployments?",
+      "quote": "[REDACTED: 362 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:22:00.926222Z",
+      "query_id": "Q3",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.4
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Under what conditions do these metrics fail to accurately reflect retrieval quality?",
+      "quote": "[REDACTED: 87 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:22:00.936719Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The most widely adopted evaluation metrics for assessing retrieval quality in RAG systems",
+      "quote": "[REDACTED: 139 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:23:11.505856Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "How do these metrics account for the semantic relevance of retrieved documents?",
+      "quote": "[REDACTED: 139 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:23:11.509504Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the hidden costs or limitations of using these metrics in real-world R:AG deployments?",
+      "quote": "[REDACTED: 26 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:23:11.513753Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Under what conditions do these metrics fail to accurately reflect retrieval quality?",
+      "quote": "[REDACTED: 26 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:23:11.518097Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the most widely adopted evaluation metrics for assessing retrieval quality in RAG systems?",
+      "quote": "[REDACTED: 753 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T21:24:55.337674Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How do these metrics account for the semantic relevance of retrieved documents?",
+      "quote": "[REDACTED: 345 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T21:24:55.339735Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the hidden costs or limitations of using these metrics in real-world R:AG deployments?",
+      "quote": "[REDACTED: 193 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T21:24:55.341775Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "Under what conditions do these metrics fail to accurately reflect retrieval quality?",
+      "quote": "[REDACTED: 505 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T21:24:55.344135Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "commonly used evaluation metrics for RAG retrieval quality",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Directly addresses the most widely adopted metrics without technical jargon. Uses the question's own vocabulary: 'commonly used', 'evaluation metrics', 'RAG', 'retrieval quality'. This query targets general sources like tutorials and surveys that list standard metrics without requiring specialist papers."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "semantic relevance evaluation metrics for RAG systems",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Focuses on how metrics account for semantic relevance. Uses 'semantic relevance' from the question and 'RAG systems' to target explanations that address this specific aspect without going too technical. Avoids adding terms like 'how do' which might lead to overly specific results."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "hidden costs of evaluation metrics in RAG deployments",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Targets the limitations in real-world use. Uses 'hidden costs' from the question and 'RAG deployments' to find practical limitations without overcomplicating. This query avoids technical terms that might narrow results to niche papers."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "conditions where evaluation metrics fail RAG retrieval quality",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Addresses when metrics fail by using the question's phrasing. 'Fail RAG retrieval quality' is a direct phrase from the question, ensuring the query matches the intended meaning without adding technical terms that could mislead."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 10,
+        "distinct_sources": 5,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "6 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 4,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 4,
+        "distinct_sources": 3,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 4,
+        "distinct_sources": 3,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [],
+    "contradictions": [],
+    "domain_concentration": 0.2,
+    "recommended_followups": [],
+    "sufficient": true,
+    "reasoning": "I need to assess whether the evidence gathered so far is sufficient to answer the research question about evaluation metrics for RAG systems. Let me break this down by sub-question and see what's covered and what's missing."
+  }
+}

@@ -1,0 +1,304 @@
+{
+  "label": "Q10-long-tail-rep1-local",
+  "models": {
+    "planner": "ollama:qwen3:4b",
+    "researcher": "ollama:qwen3:4b",
+    "critic": "ollama:qwen3:4b",
+    "synthesizer": "ollama:qwen3:4b"
+  },
+  "ok": true,
+  "timed_out": false,
+  "error": "",
+  "duration_s": 90.5,
+  "llm_calls": 1,
+  "input_tokens": 2610,
+  "output_tokens": 625,
+  "known_cost_usd": 0.0,
+  "cost_is_complete": true,
+  "metrics": {
+    "evidence_integrity": 1.0,
+    "citation_integrity": 1.0,
+    "citation_coverage": 1.0,
+    "claim_support": 0.0,
+    "partial_support": 0.4,
+    "quote_fidelity": 0.6,
+    "quote_drift": 0.0,
+    "evidence_coverage": 1.0,
+    "source_diversity": 0.8,
+    "contradiction_auditability": null,
+    "duplicate_avoidance": null,
+    "unused_source_rate": 1.0
+  },
+  "markdown": "# LangGraph's `defer=True` Barrier: Function and Use Cases\n\n## Source excerpts\n\n_No synthesized claim passed evidence verification. Showing exact source excerpts instead. These are verbatim quotations, not findings, and no conclusion has been drawn from them._\n\n- \"[REDACTED: 333 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Langgraph's defer=True logic (or way of doing things) doesn't solve much and is fundamentally broken \u00b7 Issue #6005 \u00b7 langchain-ai/langgraph \u00b7 GitHub\n- \"[REDACTED: 259 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Langgraph's defer=True logic (or way of doing things) doesn't solve much and is fundamentally broken \u00b7 Issue #6005 \u00b7 langchain-ai/langgraph \u00b7 GitHub\n- \"[REDACTED: 322 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Langgraph's defer=True logic (or way of doing things) doesn't solve much and is fundamentally broken \u00b7 Issue #6005 \u00b7 langchain-ai/langgraph \u00b7 GitHub\n- \"[REDACTED: 333 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Langgraph's defer=True logic (or way of doing things) doesn't solve much and is fundamentally broken \u00b7 Issue #6005 \u00b7 langchain-ai/langgraph \u00b7 GitHub\n- \"[REDACTED: 300 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** I Can't Handle Errors by Both Updating the State and Short-Circuiting the Graph in LangGraph - LangGraph - LangChain Forum\n- \"[REDACTED: 12 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** I Can't Handle Errors by Both Updating the State and Short-Circuiting the Graph in LangGraph - LangGraph - LangChain Forum\n- \"[REDACTED: 220 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** I Can't Handle Errors by Both Updating the State and Short-Circuiting the Graph in LangGraph - LangGraph - LangChain Forum\n- \"[REDACTED: 209 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** I Can't Handle Errors by Both Updating the State and Short-Circuiting the Graph in LangGraph - LangGraph - LangChain Forum\n- \"[REDACTED: 98 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** Medium\n- \"[REDACTED: 235 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** Medium\n- \"[REDACTED: 43 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** Medium\n- \"[REDACTED: 47 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** Medium\n\n## Limitations\n\n- The evidence does not cover how `defer=True` interacts with state management and error handling mechanisms beyond the supervisor's role.\n- 8 extracted finding(s) were excluded because their quotes could not be located in the source text\n- 5 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [Langgraph's defer=True logic (or way of doing things) doesn't solve much and is fundamentally broken \u00b7 Issue #6005 \u00b7 langchain-ai/langgraph \u00b7 GitHub](https://github.com/langchain-ai/langgraph/issues/6005) \u2014 github.com, other, n.d., quality 0.58 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S2]** [Medium](https://medium.com/@gmurro/parallel-nodes-in-langgraph-managing-concurrent-branches-with-the-deferred-execution-d7e94d03ef78) \u2014 medium.com, blog, n.d., quality 0.54 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S3]** [I Can't Handle Errors by Both Updating the State and Short-Circuiting the Graph in LangGraph - LangGraph - LangChain Forum](https://forum.langchain.com/t/i-cant-handle-errors-by-both-updating-the-state-and-short-circuiting-the-graph-in-langgraph/2751) \u2014 forum.langchain.com, other, n.d., quality 0.56 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S4]** [Scaling LangGraph Agents: Parallelization, Subgraphs, and Map-Reduce Trade-Offs](https://aipractitioner.substack.com/p/scaling-langgraph-agents-parallelization) \u2014 aipractitioner.substack.com, blog, n.d., quality 0.53 _(retrieved, no citable quote could be extracted)_\n- **[S5]** [Advanced Error Handling Strategies in LangGraph Applications](https://sparkco.ai/blog/advanced-error-handling-strategies-in-langgraph-applications) \u2014 sparkco.ai, blog, n.d., quality 0.53 _(retrieved, no citable quote could be extracted)_\n\n## Citation verification\n\n- Evidence references: 0, 0 resolved to citable evidence (n/a, no references). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: n/a, no substantive claims were published\n- Entailment checked against each claim's own evidence, over every eligible claim: 0 supported, 2 partially supported, 3 unsupported, 0 not checked\n- Retrieved but never cited: S1, S2, S3, S4, S5\n\n<details><summary>Open citation issues</summary>\n\n- `unsupported_claim` best entailment 0.0008 from S2-e1 is below the 0.98 support threshold \u2014 The `defer=True` barrier in LangGraph's Send API ensures the supervisor waits for all dispatched work to complete before\n- `partially_supported_claim` best entailment 0.7167 from S2-e2 is below the 0.98 support threshold \u2014 A node uses `defer=True` when it requires pausing until dependent nodes have completed execution to maintain correct gra\n- `partially_supported_claim` best entailment 0.9780 from S1-e2 is below the 0.98 support threshold \u2014 Using `defer=True` may cause unintended node execution cycles due to graph structure dependencies.\n- `unsupported_claim` best entailment 0.0005 from S2-e3 is below the 0.98 support threshold \u2014 The `defer=True` barrier can lead to uncontrolled trajectories when applied without proper graph structure constraints.\n- `unsupported_claim` every cited quote failed a deterministic guard: atomicity \u2014 The `defer=True` barrier is a mechanism to delay node execution until all dependent work is complete, but improper usage\n\n</details>\n\n---\n\n_Generated by Agentic Research Engine on 2026-10-04 22:55 UTC._\n",
+  "verification": {
+    "total_claims": 0,
+    "substantive_claims": 0,
+    "total_citations": 0,
+    "resolvable_citations": 0,
+    "total_evidence_refs": 0,
+    "resolvable_evidence_refs": 0,
+    "supported_claims": 0,
+    "partially_supported_claims": 2,
+    "unsupported_claims": 3,
+    "off_subject_claims": 0,
+    "mislabelled_contrast_claims": 0,
+    "checked_claims": 5,
+    "checkable_claims": 5,
+    "not_checked_claims": 0,
+    "entailment_exhaustive": true,
+    "contradictions_total": 0,
+    "contradictions_auditable": 0,
+    "contradiction_sides_checkable": 0,
+    "contradiction_sides_checked": 0,
+    "contradictions_semantically_supported": 0,
+    "duplicate_claims_removed": 4,
+    "judgments": [
+      {
+        "claim_text": "The `defer=True` barrier in LangGraph's Send API ensures the supervisor waits for all dispatched work to complete before making the next decision.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S2-e1"
+        ],
+        "verdict": "unsupported",
+        "reason": "best entailment 0.0008 from S2-e1 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S2-e1",
+            "entailment": 0.00081,
+            "neutral": 0.999023,
+            "contradiction": 0.000173,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S2-e1",
+        "best_entailment": 0.00081,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "A node uses `defer=True` when it requires pausing until dependent nodes have completed execution to maintain correct graph progression.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S2-e2"
+        ],
+        "verdict": "partially_supported",
+        "reason": "best entailment 0.7167 from S2-e2 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S2-e2",
+            "entailment": 0.716797,
+            "neutral": 0.282715,
+            "contradiction": 0.000688,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S2-e2",
+        "best_entailment": 0.716797,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "Using `defer=True` may cause unintended node execution cycles due to graph structure dependencies.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e2"
+        ],
+        "verdict": "partially_supported",
+        "reason": "best entailment 0.9780 from S1-e2 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e2",
+            "entailment": 0.978027,
+            "neutral": 0.021057,
+            "contradiction": 0.000873,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S1-e2",
+        "best_entailment": 0.978027,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "The `defer=True` barrier can lead to uncontrolled trajectories when applied without proper graph structure constraints.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S2-e3"
+        ],
+        "verdict": "unsupported",
+        "reason": "best entailment 0.0005 from S2-e3 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S2-e3",
+            "entailment": 0.000566,
+            "neutral": 0.991699,
+            "contradiction": 0.007774,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S2-e3",
+        "best_entailment": 0.000566,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "The `defer=True` barrier is a mechanism to delay node execution until all dependent work is complete, but improper usage can create cycles and uncontrolled execution paths.",
+        "kind": "synthesis",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e2",
+          "S2-e3"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: atomicity",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e2",
+            "entailment": 0.874023,
+            "neutral": 0.125244,
+            "contradiction": 0.000803,
+            "guards_passed": false,
+            "failed_guards": [
+              "atomicity"
+            ]
+          },
+          {
+            "evidence_id": "S2-e3",
+            "entailment": 0.000564,
+            "neutral": 0.999023,
+            "contradiction": 0.000194,
+            "guards_passed": false,
+            "failed_guards": [
+              "atomicity"
+            ]
+          }
+        ],
+        "best_evidence_id": "S1-e2",
+        "best_entailment": 0.874023,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      }
+    ],
+    "generated_substantive_claims": 9,
+    "removed_after_verification": 5,
+    "final_published_claims": 0,
+    "evidence_only_excerpts": 12,
+    "issues": [
+      {
+        "type": "unused_source",
+        "severity": "info",
+        "claim_text": "",
+        "citation_id": "S3",
+        "evidence_id": "",
+        "detail": "retrieved but never cited"
+      },
+      {
+        "type": "unused_source",
+        "severity": "info",
+        "claim_text": "",
+        "citation_id": "S4",
+        "evidence_id": "",
+        "detail": "retrieved but never cited"
+      },
+      {
+        "type": "unused_source",
+        "severity": "info",
+        "claim_text": "",
+        "citation_id": "S5",
+        "evidence_id": "",
+        "detail": "retrieved but never cited"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "The `defer=True` barrier in LangGraph's Send API ensures the supervisor waits for all dispatched work to complete before making the next decision.",
+        "citation_id": "",
+        "evidence_id": "S2-e1",
+        "detail": "best entailment 0.0008 from S2-e1 is below the 0.98 support threshold"
+      },
+      {
+        "type": "partially_supported_claim",
+        "severity": "warning",
+        "claim_text": "A node uses `defer=True` when it requires pausing until dependent nodes have completed execution to maintain correct graph progression.",
+        "citation_id": "",
+        "evidence_id": "S2-e2",
+        "detail": "best entailment 0.7167 from S2-e2 is below the 0.98 support threshold"
+      },
+      {
+        "type": "partially_supported_claim",
+        "severity": "warning",
+        "claim_text": "Using `defer=True` may cause unintended node execution cycles due to graph structure dependencies.",
+        "citation_id": "",
+        "evidence_id": "S1-e2",
+        "detail": "best entailment 0.9780 from S1-e2 is below the 0.98 support threshold"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "The `defer=True` barrier can lead to uncontrolled trajectories when applied without proper graph structure constraints.",
+        "citation_id": "",
+        "evidence_id": "S2-e3",
+        "detail": "best entailment 0.0005 from S2-e3 is below the 0.98 support threshold"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "The `defer=True` barrier is a mechanism to delay node execution until all dependent work is complete, but improper usage can create cycles and uncontrolled execution paths.",
+        "citation_id": "",
+        "evidence_id": "S1-e2,S2-e3",
+        "detail": "every cited quote failed a deterministic guard: atomicity"
+      }
+    ],
+    "unused_source_ids": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5"
+    ],
+    "repaired": false
+  }
+}

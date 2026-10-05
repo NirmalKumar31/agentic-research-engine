@@ -1,0 +1,796 @@
+{
+  "question": "What will the dominant programming language be in 2035?",
+  "captured_at": "2026-10-04T22:16:36.498496+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What is the current market share of major programming languages in the enterprise sector?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "Which programming language has the highest adoption rate among new developers?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "How do the ecosystem maturity levels of major programming languages compare in terms of tooling, libraries, and community support?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "What are the projected growth rates of major programming languages in the next 5 years based on industry reports?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://www.maximizemarketresearch.com/market-report/global-programming-language-market/77679",
+      "canonical_url": "https://maximizemarketresearch.com/market-report/global-programming-language-market/77679",
+      "title": "Programming Language Market - Industry Analysis Forecast",
+      "domain": "maximizemarketresearch.com",
+      "text": "[REDACTED: 11239 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "72c23024adfcc901",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.62,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.85 -> +0.070",
+        "substantial content (1592 words) -> +0.050"
+      ],
+      "search_score": 0.84767824,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T22:07:17.719020Z",
+      "word_count": 1592,
+      "found_by_queries": [
+        "Q1",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://rockstardeveloperuniversity.com/programming-language-statistics",
+      "canonical_url": "https://rockstardeveloperuniversity.com/programming-language-statistics",
+      "title": "Programming Language Popularity Index 2026: TIOBE,\u2026",
+      "domain": "rockstardeveloperuniversity.com",
+      "text": "[REDACTED: 11895 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "4a9591e22f175523",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.605,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.78 -> +0.055",
+        "substantial content (1971 words) -> +0.050"
+      ],
+      "search_score": 0.776708,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T22:07:17.719047Z",
+      "word_count": 1971,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://chronosphere.io/learn/best-languages-for-microservices",
+      "canonical_url": "https://chronosphere.io/learn/best-languages-for-microservices",
+      "title": "Best languages for microservices | Chronosphere",
+      "domain": "chronosphere.io",
+      "text": "[REDACTED: 11857 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "537b3668cc0ce656",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.597,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.74 -> +0.047",
+        "substantial content (1502 words) -> +0.050"
+      ],
+      "search_score": 0.7361925,
+      "discovered_by": [
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T22:07:17.719067Z",
+      "word_count": 1502,
+      "found_by_queries": [
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://www.researchandmarkets.com/reports/5983858/programming-language-market-report",
+      "canonical_url": "https://researchandmarkets.com/reports/5983858/programming-language-market-report",
+      "title": "Programming Language Market Report 2026 - Research and Markets",
+      "domain": "researchandmarkets.com",
+      "text": "[REDACTED: 11866 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "ce2f416359c7762b",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.632,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.91 -> +0.082",
+        "substantial content (1592 words) -> +0.050"
+      ],
+      "search_score": 0.9088853,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T22:07:17.719087Z",
+      "word_count": 1592,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://www.tiobe.com/tiobe-index",
+      "canonical_url": "https://tiobe.com/tiobe-index",
+      "title": "TIOBE Index - TIOBE",
+      "domain": "tiobe.com",
+      "text": "[REDACTED: 10850 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "19d057291ca34973",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.599,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.75 -> +0.049",
+        "substantial content (2264 words) -> +0.050"
+      ],
+      "search_score": 0.7451949,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T22:07:17.719107Z",
+      "word_count": 2264,
+      "found_by_queries": [
+        "Q1",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ4"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The programming language market size has grown rapidly in recent years. It will grow from $199.56 billion in 2025 to $220.81 billion in 2026 at a compound annual growth rate (CAGR) of 10.6%.",
+      "quote": "[REDACTED: 190 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:09:26.907136Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The programming language market size is expected to see strong growth in the next few years. It will grow to $311.4 billion in 2030 at a compound annual growth rate (CAGR) of 9%.",
+      "quote": "[REDACTED: 178 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:09:26.909995Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Major companies operating in the programming language market are Apple Inc., Google LLC, Microsoft Corporation, Meta Platforms Inc., International Business Machines Corporation, Oracle Corporation, NIIT Ltd., Mozilla Foundation, The Apache Software Foundation, PHP Group, JetBrains, Linux Foundation, edX Inc., Udacity Inc., Aptech Ltd., Julia Computing, Erlang Solutions Ltd., D Language Foundation, Django Software Foundation, Zig Software Foundation, Haxe Foundation, Ruby Central Inc.",
+      "quote": "[REDACTED: 488 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:09:26.913335Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "The programming language market size is expected to see strong growth in the next few years. It will grow to $311.4 billion in 2030 at a compound annual growth rate (CAGR) of 9%.",
+      "quote": "[REDACTED: 178 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:09:26.916311Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "What is the current market share of major programming languages in the enterprise sector?",
+      "quote": "[REDACTED: 130 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:08:08.297243Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Which programming language has the highest adoption rate among new developers?",
+      "quote": "[REDACTED: 133 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T22:08:08.299394Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How do the ecosystem maturity levels of major programming languages compare in terms of tooling, libraries, and community support?",
+      "quote": "[REDACTED: 146 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T22:08:08.301483Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "What are the projected growth rates of major programming languages in the next 5 years based on industry reports?",
+      "quote": "[REDACTED: 145 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T22:08:08.303408Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Python leads the TIOBE Index at 21.81% share (up 7 points YoY) and is the world's most-used language.",
+      "quote": "[REDACTED: 101 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:11:03.975193Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "JavaScript dominates web development at 66% developer usage (Stack Overflow 2025).",
+      "quote": "[REDACTED: 82 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:11:03.976339Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "TypeScript ranks #1 on GitHub by repository count.",
+      "quote": "[REDACTED: 50 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:11:03.977086Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The global developer population reached 47.2 million in 2025 (SlashData).",
+      "quote": "[REDACTED: 73 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:11:03.977936Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e5",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "Rust, Go, and Scala command the highest salary premiums (+15-25% over median).",
+      "quote": "[REDACTED: 78 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:11:03.978879Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e6",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "Python leads the U.S. job market with 64,000+ open positions, ahead of Java (43K) and JavaScript (30K) (GKDrift, 2025).",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:11:03.984106Z",
+      "query_id": "Q2",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.4
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The current market share of major programming languages in the enterprise sector",
+      "quote": "[REDACTED: 343 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:12:34.257545Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Which programming language has the highest adoption rate among new developers",
+      "quote": "[REDACTED: 151 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T22:12:34.259341Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How do the ecosystem maturity levels of major programming languages compare in terms of tooling, libraries, and community support",
+      "quote": "[REDACTED: 189 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T22:12:34.261175Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "What are the projected growth rates of major programming languages in the next 5 years based on industry reports",
+      "quote": "[REDACTED: 343 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T22:12:34.263016Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What is the current market share of major programming languages in the enterprise sector?",
+      "quote": "[REDACTED: 122 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:13:18.565947Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Which programming language has the highest adoption rate among new developers?",
+      "quote": "[REDACTED: 126 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.3,
+      "extracted_at": "2026-10-04T22:13:18.568003Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.3
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "How do the ecosystem maturity levels of major programming languages compare in terms of tooling, libraries, and community support?",
+      "quote": "[REDACTED: 171 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T22:13:18.570068Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the projected growth rates of major programming languages in the next 5 years based on industry reports?",
+      "quote": "[REDACTED: 162 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T22:13:18.571879Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "current market share enterprise programming languages",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query uses the question's own vocabulary: 'current market share', 'enterprise', 'programming languages'. It avoids technical jargon that would narrow results to research papers or specialists. The phrase 'enterprise sector' is implied by 'enterprise' in the context of programming languages, so we don't need to add it to keep the query short."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "highest adoption rate new developers programming languages",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query uses the question's own vocabulary: 'highest adoption rate', 'new developers', 'programming languages'. It avoids technical jargon that would narrow results to research papers or specialists. The phrase 'adoption rate' is the key term for new developers, and 'programming languages' is the subject."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "ecosystem maturity tooling libraries community support programming languages",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query uses the question's own vocabulary: 'ecosystem maturity', 'tooling', 'libraries', 'community support', 'programming languages'. It avoids technical jargon that would narrow results to research papers or specialists. The phrase 'ecosystem maturity' is a common term in the context of programming languages, and the other terms are directly from the question."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "projected growth rates programming languages next 5 years industry reports",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query uses the question's own vocabulary: 'projected growth rates', 'programming languages', 'next 5 years', 'industry reports'. It avoids technical jargon that would narrow results to research papers or specialists. The phrase 'industry reports' is the key source for projected growth rates."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 9,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 5,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 5,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [
+      "The research question asks for the dominant programming language in 2035, but the evidence provided focuses on current market shares, adoption rates among new developers, ecosystem maturity, and projected growth rates. None of the evidence explicitly states which programming language will be dominant in 2035. The evidence shows that Python is currently the most-used language (TIOBE Index), JavaScript dominates web development, and TypeScript ranks #1 on GitHub. However, the evidence does not project which language will be dominant in 2035. The projected growth rates (e.g., $311.4 billion in 2030) are mentioned but do not specify which language will be dominant.",
+      "The evidence mentions market size growth but does not break down the growth by programming language. For example, the market size is expected to grow to $311.4 billion in 2030, but it does not specify which programming languages are driving this growth or which one will be the dominant language.",
+      "The evidence does not provide a clear timeline for when a language becomes dominant. The research question is about the future (2035), but the evidence includes data up to 2025 and projections up to 2030. There is a gap between 2030 and 2035, and the evidence does not address what happens after 2030.",
+      "The evidence does not consider the impact of emerging technologies (e.g., AI, quantum computing) on programming language dominance. For example, AI tools might shift the landscape significantly by 2035, but the evidence does not mention this.",
+      "The evidence does not address the criteria for 'dominant' programming language. Is it based on market share, number of developers, usage in critical systems, or something else? The research question does not specify, but the evidence does not clarify this either."
+    ],
+    "contradictions": [],
+    "domain_concentration": 0.2,
+    "recommended_followups": [
+      "gap: The research question asks for the dominant programming language in 2035, but the evidence provided focuses on current market shares, adoption rates among new developers, ecosystem maturity, and projected growth rates. None of the evidence explicitly states which programming language will be dominant in 2035. The evidence shows that Python is currently the most-used language (TIOBE Index), JavaScript dominates web development, and TypeScript ranks #1 on GitHub. However, the evidence does not project which language will be dominant in 2035. The projected growth rates (e.g., $311.4 billion in 2030) are mentioned but do not specify which language will be dominant.",
+      "gap: The evidence mentions market size growth but does not break down the growth by programming language. For example, the market size is expected to grow to $311.4 billion in 2030, but it does not specify which programming languages are driving this growth or which one will be the dominant language.",
+      "gap: The evidence does not provide a clear timeline for when a language becomes dominant. The research question is about the future (2035), but the evidence includes data up to 2025 and projections up to 2030. There is a gap between 2030 and 2035, and the evidence does not address what happens after 2030.",
+      "gap: The evidence does not consider the impact of emerging technologies (e.g., AI, quantum computing) on programming language dominance. For example, AI tools might shift the landscape significantly by 2035, but the evidence does not mention this."
+    ],
+    "sufficient": true,
+    "reasoning": "The research question is: 'What will the dominant programming language be in 2:35?' (which seems to be a typo for 'in 2035'). The evidence gathered covers four sub-questions (SQ1-SQ4), each with four sources. The mechanical coverage counts indicate that each sub-question is covered by 4 exact-match items across 4 sources. However, the evidence provided does not directly answer the research question about the dominant programming language in 2035. Let's analyze each sub-question to see what they cover and whether they are relevant to the research question."
+  }
+}

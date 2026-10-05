@@ -1,0 +1,712 @@
+{
+  "question": "What is retrieval-augmented generation?",
+  "captured_at": "2026-10-04T19:40:25.838271+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What is the core technical mechanism of retrieval-augmented generation?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "How does retrieval-augmented generation improve accuracy over traditional language models?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "What are the key limitations of retrieval-augmented generation in real-world applications?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "What are the most common use cases for retrieval-augmented generation?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://arxiv.org/html/2506.00054v1",
+      "canonical_url": "https://arxiv.org/html/2506.00054v1",
+      "title": "Retrieval-Augmented Generation: A Comprehensive Survey of Architectures, Enhancements, and Robustness Frontiers",
+      "domain": "arxiv.org",
+      "text": "[REDACTED: 11690 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "2e152f6f00c25dde",
+      "source_type": "academic",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.96,
+      "quality_reasons": [
+        "academic baseline 0.85",
+        "search relevance 0.80 -> +0.060",
+        "substantial content (1502 words) -> +0.050"
+      ],
+      "search_score": 0.80014634,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:31:23.795664Z",
+      "word_count": 1502,
+      "found_by_queries": [
+        "Q1"
+      ],
+      "answers_sub_questions": [
+        "SQ1"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://cloud.google.com/use-cases/retrieval-augmented-generation",
+      "canonical_url": "https://cloud.google.com/use-cases/retrieval-augmented-generation",
+      "title": "What is Retrieval-Augmented Generation (RAG)? | Google Cloud",
+      "domain": "cloud.google.com",
+      "text": "[REDACTED: 11944 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "b4c453cb574e6323",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.625,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.88 -> +0.075",
+        "substantial content (1665 words) -> +0.050"
+      ],
+      "search_score": 0.8773195,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:31:23.795709Z",
+      "word_count": 1665,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://community.latenode.com/t/the-limitations-of-rag-systems-in-real-world-applications/34947",
+      "canonical_url": "https://community.latenode.com/t/the-limitations-of-rag-systems-in-real-world-applications/34947",
+      "title": "The limitations of RAG systems in real-world applications - RAG - Latenode Official Community",
+      "domain": "community.latenode.com",
+      "text": "[REDACTED: 4231 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "9d93c00174dad24a",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.625,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.88 -> +0.075",
+        "substantial content (647 words) -> +0.050"
+      ],
+      "search_score": 0.87605256,
+      "discovered_by": [
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:31:23.795732Z",
+      "word_count": 647,
+      "found_by_queries": [
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-use-cases.html",
+      "canonical_url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-use-cases.html",
+      "title": "Use cases for Retrieval Augmented Generation - AWS Prescriptive Guidance",
+      "domain": "docs.aws.amazon.com",
+      "text": "[REDACTED: 2591 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "069ed50c0129eddf",
+      "source_type": "official_docs",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.909,
+      "quality_reasons": [
+        "official_docs baseline 0.85",
+        "search relevance 0.79 -> +0.059"
+      ],
+      "search_score": 0.79254496,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:31:23.795767Z",
+      "word_count": 377,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://en.wikipedia.org/wiki/Retrieval-augmented_generation",
+      "canonical_url": "https://en.wikipedia.org/wiki/Retrieval-augmented_generation",
+      "title": "Retrieval-augmented generation - Wikipedia",
+      "domain": "en.wikipedia.org",
+      "text": "[REDACTED: 11551 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "12b51691b890e232",
+      "source_type": "reference",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.823,
+      "quality_reasons": [
+        "reference baseline 0.70",
+        "search relevance 0.86 -> +0.073",
+        "substantial content (1531 words) -> +0.050"
+      ],
+      "search_score": 0.86441374,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:31:23.795787Z",
+      "word_count": 1531,
+      "found_by_queries": [
+        "Q1",
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The core technical mechanism of retrieval-augmented generation",
+      "quote": "[REDACTED: 149 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:33:08.328934Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How does retrieval-augmented generation improve accuracy over traditional language models?",
+      "quote": "[REDACTED: 155 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:33:08.331648Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the key limitations of retrieval-augmented generation in real-world applications?",
+      "quote": "[REDACTED: 295 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:33:08.334311Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the most common use cases for retrieval-augmented generation?",
+      "quote": "[REDACTED: 154 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:33:08.337240Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What is the core technical mechanism of retrieval-augmented generation?",
+      "quote": "[REDACTED: 190 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:32:02.939408Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How does retrieval-augmented generation improve accuracy over traditional language models?",
+      "quote": "[REDACTED: 110 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:32:02.939854Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the key limitations of retrieval-augmented generation in real-world applications?",
+      "quote": "[REDACTED: 231 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:32:02.940334Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "What are the most common use cases for retrieval-augmented generation?",
+      "quote": "[REDACTED: 127 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:32:02.940761Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The core technical mechanism of retrieval-augmented generation",
+      "quote": "[REDACTED: 165 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:34:33.119247Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "How does retrieval-augmented generation improve accuracy over traditional language models?",
+      "quote": "[REDACTED: 85 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:34:33.123611Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the key limitations of retrieval-augmented generation in real-world applications?",
+      "quote": "[REDACTED: 217 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:34:33.127781Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the most common use cases for retrieval-augmented generation?",
+      "quote": "[REDACTED: 225 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:34:33.132226Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The core technical mechanism of retrieval-augmented generation",
+      "quote": "[REDACTED: 680 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:06.756151Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "How does retrieval-augmented generation improve accuracy over traditional language models?",
+      "quote": "[REDACTED: 168 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:06.759187Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the key limitations of retrieval-augmented generation in real-world applications?",
+      "quote": "[REDACTED: 315 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:06.761963Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the most common use cases for retrieval-augmented generation?",
+      "quote": "[REDACTED: 350 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:06.764790Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The core technical mechanism of retrieval-augmented generation",
+      "quote": "[REDACTED: 99 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:50.053536Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How does retrieval-augmented generation improve accuracy over traditional language models?",
+      "quote": "[REDACTED: 49 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:50.054288Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "What are the key limitations of retrieval-augmented generation in real-world applications?",
+      "quote": "[REDACTED: 71 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:50.054976Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the most common use cases for retrieval-augmented generation?",
+      "quote": "[REDACTED: 61 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:36:50.055774Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "retrieval augmented generation core technical mechanism",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "The question asks for the core technical mechanism of retrieval-augmented generation. Using the question's own vocabulary ensures the search targets definitions and explanations. The phrase 'core technical mechanism' directly addresses the mechanism without adding unnecessary terms."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "retrieval augmented generation improve accuracy traditional language models",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "The sub-question asks how retrieval-augmented generation improves accuracy over traditional language models. The query uses the question's vocabulary to focus on comparative improvements without adding technical jargon that might narrow results to specialist papers."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "retrieval augmented generation key limitations real world applications",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "The sub-question asks for key limitations in real-world applications. The query uses the question's vocabulary to target practical limitations without over-specializing, ensuring results cover real-world contexts."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "retrieval augmented generation common use cases",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "The sub-question asks for common use cases. The query uses the question's vocabulary to find practical examples without adding terms that might limit results to niche applications."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 5,
+        "distinct_sources": 5,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 5,
+        "distinct_sources": 5,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 5,
+        "distinct_sources": 5,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 5,
+        "distinct_sources": 5,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [],
+    "contradictions": [],
+    "domain_concentration": 0.2,
+    "recommended_followups": [],
+    "sufficient": true,
+    "reasoning": "The user has provided evidence gathered for four sub-questions (SQ1-SQ4) about 'What is retrieval-augmented generation?' along with mechanical coverage counts and specific evidence from four sources. I need to assess whether this evidence is sufficient to answer the research question and identify any genuine gaps that would change the answer."
+  }
+}

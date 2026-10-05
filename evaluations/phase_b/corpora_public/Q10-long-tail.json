@@ -1,0 +1,796 @@
+{
+  "question": "What does the `defer=True` barrier do in LangGraph's Send API, and why would a node use it?",
+  "captured_at": "2026-10-04T21:58:09.457777+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "How does the `defer=True` barrier in LangGraph's Send API defer execution of subsequent nodes until the current node completes?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "What are the specific conditions under which a node would choose to use `defer=True` instead of immediate execution?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "What hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://github.com/langchain-ai/langgraph/issues/6005",
+      "canonical_url": "https://github.com/langchain-ai/langgraph/issues/6005",
+      "title": "Langgraph's defer=True logic (or way of doing things) doesn't solve much and is fundamentally broken \u00b7 Issue #6005 \u00b7 langchain-ai/langgraph \u00b7 GitHub",
+      "domain": "github.com",
+      "text": "[REDACTED: 7503 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "6526fc20d14a0882",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.583,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.67 -> +0.033",
+        "substantial content (1110 words) -> +0.050"
+      ],
+      "search_score": 0.66569364,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:50:39.413984Z",
+      "word_count": 1110,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ3",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://medium.com/@gmurro/parallel-nodes-in-langgraph-managing-concurrent-branches-with-the-deferred-execution-d7e94d03ef78",
+      "canonical_url": "https://medium.com/@gmurro/parallel-nodes-in-langgraph-managing-concurrent-branches-with-the-deferred-execution-d7e94d03ef78",
+      "title": "Medium",
+      "domain": "medium.com",
+      "text": "[REDACTED: 6909 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "50faf67f8ae8caec",
+      "source_type": "blog",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.544,
+      "quality_reasons": [
+        "blog baseline 0.45",
+        "search relevance 0.72 -> +0.044",
+        "substantial content (795 words) -> +0.050"
+      ],
+      "search_score": 0.7180613,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:50:39.413999Z",
+      "word_count": 795,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ3",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://forum.langchain.com/t/i-cant-handle-errors-by-both-updating-the-state-and-short-circuiting-the-graph-in-langgraph/2751",
+      "canonical_url": "https://forum.langchain.com/t/i-cant-handle-errors-by-both-updating-the-state-and-short-circuiting-the-graph-in-langgraph/2751",
+      "title": "I Can't Handle Errors by Both Updating the State and Short-Circuiting the Graph in LangGraph - LangGraph - LangChain Forum",
+      "domain": "forum.langchain.com",
+      "text": "[REDACTED: 9192 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "8ccd8cae331d25ff",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.558,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.54 -> +0.008",
+        "substantial content (1383 words) -> +0.050"
+      ],
+      "search_score": 0.5393963,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:50:39.414017Z",
+      "word_count": 1383,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://aipractitioner.substack.com/p/scaling-langgraph-agents-parallelization",
+      "canonical_url": "https://aipractitioner.substack.com/p/scaling-langgraph-agents-parallelization",
+      "title": "Scaling LangGraph Agents: Parallelization, Subgraphs, and Map-Reduce Trade-Offs",
+      "domain": "aipractitioner.substack.com",
+      "text": "[REDACTED: 11829 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "7735ef209fb3375a",
+      "source_type": "blog",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.53,
+      "quality_reasons": [
+        "blog baseline 0.45",
+        "search relevance 0.65 -> +0.030",
+        "substantial content (1698 words) -> +0.050"
+      ],
+      "search_score": 0.6512002,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:50:39.414029Z",
+      "word_count": 1698,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://sparkco.ai/blog/advanced-error-handling-strategies-in-langgraph-applications",
+      "canonical_url": "https://sparkco.ai/blog/advanced-error-handling-strategies-in-langgraph-applications",
+      "title": "Advanced Error Handling Strategies in LangGraph Applications",
+      "domain": "sparkco.ai",
+      "text": "[REDACTED: 11862 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "956afc0bcaa71716",
+      "source_type": "blog",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.528,
+      "quality_reasons": [
+        "blog baseline 0.45",
+        "search relevance 0.64 -> +0.028",
+        "substantial content (1477 words) -> +0.050"
+      ],
+      "search_score": 0.6415577,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:50:39.414046Z",
+      "word_count": 1477,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "How does the `defer=True` barrier in LangGraph's Send API defer execution of subsequent nodes until the current node completes?",
+      "quote": "[REDACTED: 333 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T21:52:06.043929Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "What are the specific conditions under which a node would choose to use `defer=True` instead of immediate execution?",
+      "quote": "[REDACTED: 259 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T21:52:06.046836Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "What hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow?",
+      "quote": "[REDACTED: 322 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T21:52:06.049792Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms?",
+      "quote": "[REDACTED: 333 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T21:52:06.052119Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The `defer=True` barrier in LangGraph's Send API defers execution of subsequent nodes until the current node completes",
+      "quote": "[REDACTED: 300 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T21:53:25.320259Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The specific conditions under which a node would choose to use `defer=True` instead of immediate execution",
+      "quote": "[REDACTED: 12 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T21:53:25.323804Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow",
+      "quote": "[REDACTED: 220 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T21:53:25.327212Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms",
+      "quote": "[REDACTED: 209 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T21:53:25.330659Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "How does the `defer=True` barrier in LangGraph's Send API defer execution of subsequent nodes until the current node completes?",
+      "quote": "[REDACTED: 98 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:54:21.863696Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "What are the specific conditions under which a node would choose to use `defer=True` instead of immediate execution?",
+      "quote": "[REDACTED: 235 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:54:21.870475Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "What hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow?",
+      "quote": "[REDACTED: 43 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:54:21.875040Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms?",
+      "quote": "[REDACTED: 47 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:54:21.886827Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "How does the `defer=True` barrier in LangGraph's Send API defer execution of subsequent nodes until the current node completes?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:55:16.226976Z",
+      "query_id": "Q1",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "What are the specific conditions under which a node would choose to use `defer=True` instead of immediate execution?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:55:16.233399Z",
+      "query_id": "Q2",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "What hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:55:16.239937Z",
+      "query_id": "Q3",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:55:16.246433Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How does the `defer=True` barrier in LangGraph's Send API defer execution of subsequent nodes until the current node completes?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:56:06.911025Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the specific conditions under which a node would choose to use `defer=True` instead of immediate execution?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:56:06.921357Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:56:06.932231Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms?",
+      "quote": "[REDACTED: 119 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:56:06.942377Z",
+      "query_id": "Q4",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "defer true barrier langgraph send api node execution timing",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Directly addresses how defer=True delays node execution by focusing on timing and the Send API's role. Uses exact terms from the question to ensure results cover LangGraph's implementation without over-specializing."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "langgraph node defer true conditions immediate execution alternative",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Targets the decision criteria for using defer=True by contrasting it with immediate execution. Avoids technical jargon that might narrow results to niche cases, keeping it focused on practical conditions."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "langgraph defer true hidden costs side effects workflow impact",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Highlights potential downsides without assuming specific scenarios. Uses 'workflow impact' to capture broader consequences rather than narrow technical details that might not be documented."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "langgraph defer true state management error handling interaction",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Specifically links defer=True to state and error handling mechanisms, avoiding vague terms like 'barrier' which could confuse results. Matches LangGraph's documented components."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 5,
+        "distinct_sources": 3,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 5,
+        "distinct_sources": 3,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 5,
+        "distinct_sources": 3,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 5,
+        "distinct_sources": 3,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [
+      "The evidence shows contradictions between sources (S1 vs S2) on how `defer=True` works, but doesn't clarify the actual implementation details or intended behavior from LangGraph's official documentation.",
+      "There's no clear explanation of when `defer=True` is actually useful versus when it causes problems (as mentioned in the contradictions), which is critical for understanding why a node would use it.",
+      "The evidence doesn't address the specific error handling mechanisms or state management interactions that would be relevant for production use cases.",
+      "The evidence doesn't provide concrete examples of how `defer=True` is used in real-world workflows or what the actual performance implications are.",
+      "The evidence lacks a clear distinction between the intended behavior of `defer=True` and the practical limitations that can arise from its use, which is essential for answering 'why would a node use it?'"
+    ],
+    "contradictions": [
+      "[S1] How does the `defer=True` barrier in LangGraph's Send API defer execution of subsequent nodes until the current node completes?",
+      "[S1] What are the specific conditions under which a node would choose to use `defer=True` instead of immediate execution?",
+      "[S1] What hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow?",
+      "[S1] How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms?",
+      "[S3] The `defer=True` barrier in LangGraph's Send API defers execution of subsequent nodes until the current node completes",
+      "[S3] The specific conditions under which a node would choose to use `defer=True` instead of immediate execution",
+      "[S3] The hidden costs or side effects might arise from using `defer=True` in a LangGraph workflow",
+      "[S3] How does the `defer=True` barrier interact with LangGraph's state management and error handling mechanisms"
+    ],
+    "domain_concentration": 0.2,
+    "recommended_followups": [
+      "gap: The evidence shows contradictions between sources (S1 vs S2) on how `defer=True` works, but doesn't clarify the actual implementation details or intended behavior from LangGraph's official documentation.",
+      "gap: There's no clear explanation of when `defer=True` is actually useful versus when it causes problems (as mentioned in the contradictions), which is critical for understanding why a node would use it.",
+      "gap: The evidence doesn't address the specific error handling mechanisms or state management interactions that would be relevant for production use cases.",
+      "gap: The evidence doesn't provide concrete examples of how `defer=True` is used in real-world workflows or what the actual performance implications are."
+    ],
+    "sufficient": true,
+    "reasoning": "The evidence gathered so far covers all four sub-questions (SQ1-SQ4) with mechanical counts showing 3 exact-match items per sub-question across 3 sources. However, the evidence has significant contradictions and lacks clarity on critical aspects. Let's analyze each sub-question's evidence in detail to determine if it's sufficient for a defensible answer."
+  }
+}

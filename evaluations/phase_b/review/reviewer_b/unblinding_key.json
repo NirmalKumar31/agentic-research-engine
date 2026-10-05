@@ -1,0 +1,251 @@
+{
+  "reviewable": {
+    "43d48b": {
+      "question_id": "Q1-definition",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "bc822b": {
+      "question_id": "Q1-definition",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "0a3a7d": {
+      "question_id": "Q1-definition",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "3fd91d": {
+      "question_id": "Q1-definition",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "a11989": {
+      "question_id": "Q2-numeric-lookup",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "4b01e3": {
+      "question_id": "Q2-numeric-lookup",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "88804f": {
+      "question_id": "Q2-numeric-lookup",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "7eb8fe": {
+      "question_id": "Q2-numeric-lookup",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "6486f8": {
+      "question_id": "Q3-procedural",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "7e8c1a": {
+      "question_id": "Q3-procedural",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "4a1056": {
+      "question_id": "Q3-procedural",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "9ea649": {
+      "question_id": "Q3-procedural",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "503138": {
+      "question_id": "Q4-comparison",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "13ed0a": {
+      "question_id": "Q4-comparison",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "122b7d": {
+      "question_id": "Q4-comparison",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "02059b": {
+      "question_id": "Q5-relationship",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "faef7a": {
+      "question_id": "Q5-relationship",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "7fd175": {
+      "question_id": "Q6-causal",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "676f9f": {
+      "question_id": "Q6-causal",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "34aac5": {
+      "question_id": "Q6-causal",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "cae851": {
+      "question_id": "Q7-time-sensitive",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "d7cf00": {
+      "question_id": "Q7-time-sensitive",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "89671c": {
+      "question_id": "Q7-time-sensitive",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "b541b9": {
+      "question_id": "Q7-time-sensitive",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "db0424": {
+      "question_id": "Q8-research-methods",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "f8720b": {
+      "question_id": "Q8-research-methods",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "9db37a": {
+      "question_id": "Q8-research-methods",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "1e9b0f": {
+      "question_id": "Q8-research-methods",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "7e870a": {
+      "question_id": "Q9-ambiguous",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "129048": {
+      "question_id": "Q9-ambiguous",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "7951d4": {
+      "question_id": "Q9-ambiguous",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "626f95": {
+      "question_id": "Q10-long-tail",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "841c80": {
+      "question_id": "Q10-long-tail",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "d6023f": {
+      "question_id": "Q10-long-tail",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "292517": {
+      "question_id": "Q10-long-tail",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "ba375b": {
+      "question_id": "Q11-adversarial-evidence-shape",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "6b8c16": {
+      "question_id": "Q11-adversarial-evidence-shape",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "79b2da": {
+      "question_id": "Q11-adversarial-evidence-shape",
+      "repetition": 1,
+      "arm": "local"
+    },
+    "b17e40": {
+      "question_id": "Q11-adversarial-evidence-shape",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "c63bb9": {
+      "question_id": "Q12-no-defensible-answer",
+      "repetition": 2,
+      "arm": "local"
+    },
+    "cfe3df": {
+      "question_id": "Q12-no-defensible-answer",
+      "repetition": 2,
+      "arm": "cloud"
+    },
+    "7116cd": {
+      "question_id": "Q12-no-defensible-answer",
+      "repetition": 1,
+      "arm": "cloud"
+    },
+    "fa422d": {
+      "question_id": "Q12-no-defensible-answer",
+      "repetition": 1,
+      "arm": "local"
+    }
+  },
+  "unreviewable_timeouts": [
+    {
+      "question_id": "Q4-comparison",
+      "repetition": 1,
+      "arm": "local",
+      "reason": "arm did not complete within 120s"
+    },
+    {
+      "question_id": "Q5-relationship",
+      "repetition": 1,
+      "arm": "local",
+      "reason": "arm did not complete within 120s"
+    },
+    {
+      "question_id": "Q5-relationship",
+      "repetition": 2,
+      "arm": "local",
+      "reason": "arm did not complete within 120s"
+    },
+    {
+      "question_id": "Q6-causal",
+      "repetition": 2,
+      "arm": "local",
+      "reason": "arm did not complete within 120s"
+    },
+    {
+      "question_id": "Q9-ambiguous",
+      "repetition": 1,
+      "arm": "local",
+      "reason": "arm did not complete within 120s"
+    }
+  ]
+}

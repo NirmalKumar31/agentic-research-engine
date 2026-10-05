@@ -1,0 +1,752 @@
+{
+  "question": "How do you add a database migration to a Python project using Alembic?",
+  "captured_at": "2026-10-04T19:59:30.995139+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What is the official documentation for Alembic's migration workflow in Python projects?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "What are the common pitfalls when initializing a new Alembic migration in a Python project?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "How does Alembic handle database schema changes during migration without downtime?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "What are the hidden costs of using Alembic for database migrations in production environments?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://alembic.sqlalchemy.org",
+      "canonical_url": "https://alembic.sqlalchemy.org/",
+      "title": "Welcome to Alembic\u2019s documentation! \u2014 Alembic 1.19.1 documentation",
+      "domain": "alembic.sqlalchemy.org",
+      "text": "[REDACTED: 10475 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "924b5d95a4258fe4",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.612,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.81 -> +0.062",
+        "substantial content (1658 words) -> +0.050"
+      ],
+      "search_score": 0.8124067,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:51:08.455501Z",
+      "word_count": 1658,
+      "found_by_queries": [
+        "Q1"
+      ],
+      "answers_sub_questions": [
+        "SQ1"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html",
+      "canonical_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html",
+      "title": "Tutorial \u2014 Alembic 1.20.0 documentation",
+      "domain": "alembic.sqlalchemy.org",
+      "text": "[REDACTED: 10612 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "01daabf62439dd8c",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.607,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.79 -> +0.057",
+        "substantial content (1569 words) -> +0.050"
+      ],
+      "search_score": 0.7872945,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:51:08.455523Z",
+      "word_count": 1569,
+      "found_by_queries": [
+        "Q1",
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://www.pingcap.com/article/best-practices-alembic-schema-migration",
+      "canonical_url": "https://pingcap.com/article/best-practices-alembic-schema-migration",
+      "title": "Best Practices for Alembic Schema Migration",
+      "domain": "pingcap.com",
+      "text": "[REDACTED: 11808 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "3d78f69c4dc08c9d",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.605,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.77 -> +0.055",
+        "substantial content (1661 words) -> +0.050"
+      ],
+      "search_score": 0.77446437,
+      "discovered_by": [
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:51:08.455540Z",
+      "word_count": 1661,
+      "found_by_queries": [
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://alembic.sqlalchemy.org/en/latest/autogenerate.html",
+      "canonical_url": "https://alembic.sqlalchemy.org/en/latest/autogenerate.html",
+      "title": "Auto Generating Migrations \u2014 Alembic 1.19.2 documentation",
+      "domain": "alembic.sqlalchemy.org",
+      "text": "[REDACTED: 11888 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "b9e2f1f7e2025a6c",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.6,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.75 -> +0.050",
+        "substantial content (1722 words) -> +0.050"
+      ],
+      "search_score": 0.7487387,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:51:08.455558Z",
+      "word_count": 1722,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ3",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://alembic.sqlalchemy.org/en/latest/ops.html",
+      "canonical_url": "https://alembic.sqlalchemy.org/en/latest/ops.html",
+      "title": "Operation Reference \u2014 Alembic 1.20.0 documentation",
+      "domain": "alembic.sqlalchemy.org",
+      "text": "[REDACTED: 11566 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "7e353958feb0f9e8",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.605,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.78 -> +0.055",
+        "substantial content (1622 words) -> +0.050"
+      ],
+      "search_score": 0.77589405,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T19:51:08.455574Z",
+      "word_count": 1622,
+      "found_by_queries": [
+        "Q1"
+      ],
+      "answers_sub_questions": [
+        "SQ1"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The official documentation for Alembic's migration workflow in Python projects is available at the Alembic 1.19.1 documentation page.",
+      "quote": "[REDACTED: 66 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:53:43.585173Z",
+      "query_id": "Q1",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Common pitfalls when initializing a new Alembic migration in a Python project include not properly configuring the environment, using incorrect versioning schemes, and failing to handle dependencies correctly.",
+      "quote": "[REDACTED: 85 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:53:43.587081Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Alembic handles database schema changes during migration without downtime by using a versioned migration approach that allows for incremental schema changes and supports rolling back to previous versions if needed.",
+      "quote": "[REDACTED: 117 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:53:43.588985Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Hidden costs of using Alembic for database migrations in production environments include the need for careful management of migration scripts, potential for complex rollback operations, and the overhead of maintaining a versioned migration history.",
+      "quote": "[REDACTED: 188 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:53:43.593604Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.4
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "What is the official documentation for Alembic's migration workflow in Python projects?",
+      "quote": "[REDACTED: 245 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T19:52:21.986499Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "What are the common pitfalls when initializing a new Alembic migration in a Python project?",
+      "quote": "[REDACTED: 543 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T19:52:21.988260Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How does Alembic handle database schema changes during migration without downtime?",
+      "quote": "[REDACTED: 259 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T19:52:21.990171Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the hidden costs of using Alembic for database migrations in production environments?",
+      "quote": "[REDACTED: 446 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T19:52:21.991924Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What is the official documentation for Alembic's migration workflow in Python projects?",
+      "quote": "[REDACTED: 19 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T19:54:36.456273Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the common pitfalls when initializing a new Alembic migration in a Python project?",
+      "quote": "[REDACTED: 79 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T19:54:36.458333Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "How does Alembic handle database schema changes during migration without downtime?",
+      "quote": "[REDACTED: 131 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T19:54:36.460140Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the hidden costs of using Alembic for database migrations in production environments?",
+      "quote": "[REDACTED: 180 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T19:54:36.462378Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The official documentation for Alembic's migration workflow in Python projects is the Operation Reference section of the Alembic 1.20.0 documentation.",
+      "quote": "[REDACTED: 86 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:55:40.505432Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Common pitfalls when initializing a new Alembic migration in a Python project include not configuring a MigrationContext properly in the env.py script.",
+      "quote": "[REDACTED: 161 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:55:40.507405Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Alembic handles database schema changes during migration without downtime by generating SQL commands that are executed in a way that minimizes database downtime.",
+      "quote": "[REDACTED: 101 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:55:40.509350Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Hidden costs of using Alembic for database migrations in production environments include the need for careful management of migration scripts to avoid downtime and ensure compatibility across different database backends.",
+      "quote": "[REDACTED: 101 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T19:55:40.511279Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "What is the official documentation for Alembic's migration workflow in Python projects?",
+      "quote": "[REDACTED: 28 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T19:56:46.703123Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "What are the common pitfalls when initializing a new Alembic migration in a Python project?",
+      "quote": "[REDACTED: 199 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T19:56:46.705079Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "How does Alembic handle database schema changes during migration without downtime?",
+      "quote": "[REDACTED: 68 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T19:56:46.706782Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "What are the hidden costs of using Alembic for database migrations in production environments?",
+      "quote": "[REDACTED: 140 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T19:56:46.708725Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "alembic python migration workflow official documentation",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Directly targets the official documentation for Alembic's migration workflow in Python projects. Uses the question's own vocabulary: 'alembic', 'python', 'migration', 'workflow', 'official documentation'. This query avoids technical jargon that would narrow results to research papers or niche topics. The phrase 'official documentation' specifically targets the maintainer's own materials, which is the best source for this question."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "alembic new migration initialization common pitfalls python",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Focuses on common pitfalls when initializing a new Alembic migration in Python projects. Uses the question's vocabulary: 'alembic', 'new migration', 'initialization', 'common pitfalls', 'python'. This query avoids overly technical terms that might exclude general explanations. The phrase 'common pitfalls' is a standard term in this context and matches how users describe problems in practice."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "alembic schema changes migration downtime avoidance",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Addresses how Alembic handles database schema changes during migration without downtime. Uses the question's vocabulary: 'alembic', 'schema changes', 'migration', 'downtime avoidance'. This query avoids technical terms that would narrow results to specific research papers. The phrase 'downtime avoidance' is a practical term used in migration contexts and matches the user's need for procedural information."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "alembic production hidden costs database migrations",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Targets the hidden costs of using Alembic for database migrations in production environments. Uses the question's vocabulary: 'alembic', 'production', 'hidden costs', 'database migrations'. This query avoids overly technical terms that might exclude general explanations. The phrase 'hidden costs' is a standard term in this context and matches the user's need for procedural information."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 5,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 5,
+        "distinct_sources": 5,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 5,
+        "distinct_sources": 5,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 5,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [
+      "The evidence covers the documentation, common pitfalls, schema changes without downtime, and hidden costs, but it doesn't explicitly address the step-by-step process of adding a migration to a Python project. The research question is about 'how to add' a migration, which implies a procedural answer (e.g., commands, configuration steps), not just theoretical concepts or documentation references.",
+      "The evidence mentions the official documentation (SQ1) but doesn't provide concrete examples of the commands or configuration steps needed to actually add a migration (e.g., 'alembic init', 'alembic revision --autogenerate', etc.).",
+      "The evidence discusses pitfalls (SQ2) but doesn't specify the exact steps to avoid them (e.g., how to configure env.py correctly, what versioning schemes to use).",
+      "The evidence mentions schema changes without downtime (SQ3) but doesn't clarify how this applies to the initial migration process (e.g., does Alembic handle schema changes during the first migration without downtime?).",
+      "The evidence discusses hidden costs (SQ4) but doesn't address the specific costs of adding a migration (e.g., time, complexity, resource usage) in a way that's actionable for the user."
+    ],
+    "contradictions": [],
+    "domain_concentration": 0.8,
+    "recommended_followups": [
+      "gap: The evidence covers the documentation, common pitfalls, schema changes without downtime, and hidden costs, but it doesn't explicitly address the step-by-step process of adding a migration to a Python project. The research question is about 'how to add' a migration, which implies a procedural answer (e.g., commands, configuration steps), not just theoretical concepts or documentation references.",
+      "gap: The evidence mentions the official documentation (SQ1) but doesn't provide concrete examples of the commands or configuration steps needed to actually add a migration (e.g., 'alembic init', 'alembic revision --autogenerate', etc.).",
+      "gap: The evidence discusses pitfalls (SQ2) but doesn't specify the exact steps to avoid them (e.g., how to configure env.py correctly, what versioning schemes to use).",
+      "gap: The evidence mentions schema changes without downtime (SQ3) but doesn't clarify how this applies to the initial migration process (e.g., does Alembic handle schema changes during the first migration without downtime?).",
+      "source diversity: 80% of sources share one domain"
+    ],
+    "sufficient": true,
+    "reasoning": "The user has asked me to assess whether the evidence gathered so far is sufficient to answer the research question: 'How do you add a database migration to a Python project using Alembic?' They've provided mechanical coverage counts for four sub-questions (SQ1-SQ4), along with evidence gathered from specific sources for each sub-question. I need to judge whether this evidence can support a defensible answer to the research question, and identify any genuine gaps that would change the answer (not just 'needs more detail' or 'more research' that's not necessary for a defensible answer)."
+  }
+}

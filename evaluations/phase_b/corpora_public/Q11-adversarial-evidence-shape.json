@@ -1,0 +1,874 @@
+{
+  "question": "Is SQLite better than PostgreSQL?",
+  "captured_at": "2026-10-04T22:06:28.866942+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What are the key differences in data storage and query performance between SQLite and PostgreSQL?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "How do the licensing models and total cost of ownership (TCO) compare for SQLite and PostgreSQL?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "What are the security and privacy implications of using SQLite versus PostgreSQL?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "In what scenarios would SQLite be more suitable than PostgreSQL, and vice versa?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://airbyte.com/data-engineering-resources/sqlite-vs-postgresql",
+      "canonical_url": "https://airbyte.com/data-engineering-resources/sqlite-vs-postgresql",
+      "title": "SQLite vs PostgreSQL: Key Differences | Airbyte",
+      "domain": "airbyte.com",
+      "text": "[REDACTED: 11952 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "1f2ee6b3acb829da",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.634,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.92 -> +0.084",
+        "substantial content (1489 words) -> +0.050"
+      ],
+      "search_score": 0.9205687,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:58:46.411177Z",
+      "word_count": 1489,
+      "found_by_queries": [
+        "Q1"
+      ],
+      "answers_sub_questions": [
+        "SQ1"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://tech-insider.org/postgresql-vs-sql-server-2026",
+      "canonical_url": "https://tech-insider.org/postgresql-vs-sql-server-2026",
+      "title": "PostgreSQL vs SQL Server 2026: $0 vs $15K License",
+      "domain": "tech-insider.org",
+      "text": "[REDACTED: 11922 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "14252828cc1542e4",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.615,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.82 -> +0.065",
+        "substantial content (1857 words) -> +0.050"
+      ],
+      "search_score": 0.8232293,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:58:46.411209Z",
+      "word_count": 1857,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://news.ycombinator.com/item?id=32676455",
+      "canonical_url": "https://news.ycombinator.com/item?id=32676455",
+      "title": "SQLite vs Postgres for a local database (on disk, not over the network): who win... | Hacker News",
+      "domain": "news.ycombinator.com",
+      "text": "[REDACTED: 11983 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "b63e8652105d2b89",
+      "source_type": "forum",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.469,
+      "quality_reasons": [
+        "forum baseline 0.35",
+        "search relevance 0.85 -> +0.069",
+        "substantial content (2297 words) -> +0.050"
+      ],
+      "search_score": 0.8452414,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:58:46.411244Z",
+      "word_count": 2297,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ3",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://www.freedomdev.com/technologies/sql-server-vs-postgresql",
+      "canonical_url": "https://freedomdev.com/technologies/sql-server-vs-postgresql",
+      "title": "SQL Server vs PostgreSQL \u2014 Cost, Performance & Migration | FreedomDev",
+      "domain": "freedomdev.com",
+      "text": "[REDACTED: 11160 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "2303cac9064049bc",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.61,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.80 -> +0.060",
+        "substantial content (1644 words) -> +0.050"
+      ],
+      "search_score": 0.7992077,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:58:46.411270Z",
+      "word_count": 1644,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://dev.to/lovestaco/postgresql-vs-sqlite-dive-into-two-very-different-databases-5a90",
+      "canonical_url": "https://dev.to/lovestaco/postgresql-vs-sqlite-dive-into-two-very-different-databases-5a90",
+      "title": "PostgreSQL vs SQLite: Dive into Two Very Different Databases - DEV Community",
+      "domain": "dev.to",
+      "text": "[REDACTED: 9325 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "6c9a513a6308702d",
+      "source_type": "blog",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.582,
+      "quality_reasons": [
+        "blog baseline 0.45",
+        "search relevance 0.91 -> +0.082",
+        "substantial content (1312 words) -> +0.050"
+      ],
+      "search_score": 0.90965873,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:58:46.411288Z",
+      "word_count": 1312,
+      "found_by_queries": [
+        "Q1",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ4"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite delivers exceptional performance for single-user scenarios and read-heavy workloads but encounters limitations under high concurrency due to file-level locking and single-writer constraints inherent in its architecture.",
+      "quote": "[REDACTED: 226 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:59:53.262277Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL excels in multi-user environments through MVCC implementation, parallel query processing, sophisticated query optimization, and advanced indexing strategies that maintain performance as data volumes and concurrent users increase significantly.",
+      "quote": "[REDACTED: 254 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:59:53.264919Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "SQLite exists in the public domain without copyright restrictions, allowing unlimited use, modification, and distribution without licensing fees or attribution requirements in any type of project.",
+      "quote": "[REDACTED: 196 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:59:53.267431Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL operates under a permissive open-source license similar to BSD, requiring only attribution while allowing commercial use, modification, and distribution without royalty payments or usage restrictions.",
+      "quote": "[REDACTED: 211 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:59:53.269783Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e5",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "SQLite implements complete serializable ACID transactions, ensuring data reliability even during unexpected system failures, power outages, or application crashes.",
+      "quote": "[REDACTED: 163 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:59:53.271752Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e6",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL provides comprehensive administrative tools, including command-line utilities, graphical interfaces, detailed logging systems, monitoring capabilities, user management, and sophisticated backup and recovery options suitable for enterprise environments.",
+      "quote": "[REDACTED: 263 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:59:53.274074Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL has better data storage and query performance than SQL Server for most workloads",
+      "quote": "[REDACTED: 414 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:01:04.255598Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL has no license fee while SQL Server 2025 Enterprise Edition costs $15,123 per two-core pack",
+      "quote": "[REDACTED: 281 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:01:04.259017Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL has better security and privacy implications than SQL Server",
+      "quote": "[REDACTED: 186 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T22:01:04.261708Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL is more suitable for greenfield projects while SQL Server is better for enterprises already invested in Microsoft's ecosystem",
+      "quote": "[REDACTED: 580 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:01:04.265516Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Key differences in data storage and query performance between SQLite and PostgreSQL",
+      "quote": "[REDACTED: 182 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:01:56.935783Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "Licensing models and total cost of ownership (TCO) compare for SQLite and PostgreSQL",
+      "quote": "[REDACTED: 87 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T22:01:56.942450Z",
+      "query_id": "Q2",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.12
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Security and privacy implications of using SQLite versus PostgreSQL",
+      "quote": "[REDACTED: 223 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T22:01:56.948712Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.105
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Scenarios where SQLite would be more suitable than PostgreSQL, and vice versa",
+      "quote": "[REDACTED: 101 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T22:01:56.955393Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.09
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite is an embedded database, it's not a separate server process. Instead, it's a library that your application links directly into. All your data lives inside a single file on disk.",
+      "quote": "[REDACTED: 184 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:03:01.025639Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL (often called Postgres) is a client-server database. It runs as a background process (daemon), and your app connects to it over a network socket using credentials.",
+      "quote": "[REDACTED: 174 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:03:01.027220Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite allows many readers at the same time, but only one writer. It uses file-level locks or WAL (Write-Ahead Logging) to maintain consistency.",
+      "quote": "[REDACTED: 144 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:03:01.028776Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL uses MVCC (Multi-Version Concurrency Control), meaning readers don\u2019t block writers and vice versa.",
+      "quote": "[REDACTED: 107 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:03:01.030343Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e5",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite: Blazing fast for small datasets and local apps. Minimal latency because it avoids network calls. However, performance drops under heavy concurrent writes.",
+      "quote": "[REDACTED: 162 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:03:01.032015Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e6",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL: Designed for scale. Handles gigabytes to terabytes of data, thousands of concurrent connections, and complex analytical queries.",
+      "quote": "[REDACTED: 138 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T22:03:01.033700Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite is going to win in terms of performance for local database workloads unless you care about data durability at power loss time",
+      "quote": "[REDACTED: 103 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T22:04:10.234581Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite handles write contention better than PostgreSQL when using WAL mode with Sync set to normal",
+      "quote": "[REDACTED: 158 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T22:04:10.237413Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL is better for write-heavy workloads with many concurrent processes",
+      "quote": "[REDACTED: 184 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T22:04:10.240395Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite has no licensing costs while PostgreSQL has licensing costs",
+      "quote": "[REDACTED: 68 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T22:04:10.250270Z",
+      "query_id": "Q2",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.09
+    },
+    {
+      "id": "S3-e5",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite has lower TCO for small to medium workloads",
+      "quote": "[REDACTED: 114 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.5,
+      "extracted_at": "2026-10-04T22:04:10.258918Z",
+      "query_id": "Q2",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.2
+    },
+    {
+      "id": "S3-e6",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite has better data durability at power loss time than PostgreSQL",
+      "quote": "[REDACTED: 380 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T22:04:10.270661Z",
+      "query_id": "Q3",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.12
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "sqlite vs postgresql data storage differences",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Focuses on the specific aspect of data storage without being too broad. Uses the exact terms from the sub-question to ensure relevant results."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "sqlite postgresql licensing cost comparison",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Directly addresses licensing and cost without adding extra terms that might narrow results too much. Uses the terms from the sub-question to target relevant information."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "sqlite postgresql security privacy implications",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Targets the security and privacy aspects as specified in the sub-question. Keeps the query concise and uses the exact terms to avoid irrelevant results."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "when is sqlite better than postgresql use cases",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Focuses on the scenarios where each database is more suitable, using the exact terms from the sub-question to ensure the results are relevant."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 13,
+        "distinct_sources": 5,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "12 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 1,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 6,
+        "distinct_sources": 2,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "3 exact-match items across 2 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 5,
+        "distinct_sources": 2,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "2 exact-match items across 2 sources, each discussing this sub-question's terms",
+        "off_topic_items": 1,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 2,
+        "distinct_sources": 1,
+        "has_contradiction": true,
+        "verdict": "weak",
+        "note": "only 1 admissible item(s) from 1 source(s)",
+        "off_topic_items": 0,
+        "gap_cause": "evidence insufficient"
+      }
+    ],
+    "coverage_ratio": 0.75,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3"
+    ],
+    "weak": [
+      "SQ4"
+    ],
+    "missing": [],
+    "contradictions": [
+      "[S4] Key differences in data storage and query performance between SQLite and PostgreSQL"
+    ],
+    "domain_concentration": 0.2,
+    "recommended_followups": [
+      "weak coverage for SQ4"
+    ],
+    "sufficient": true,
+    "reasoning": "I need to assess whether the gathered evidence supports a defensible answer to the research question 'Is SQLite better than PostgreSQL?' based on the provided mechanical coverage counts and evidence details. Let me analyze each sub-question (SQ) and see what's covered and what's missing."
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "label": "Q2-numeric-lookup-rep1-local",
+  "models": {
+    "planner": "ollama:qwen3:4b",
+    "researcher": "ollama:qwen3:4b",
+    "critic": "ollama:qwen3:4b",
+    "synthesizer": "ollama:qwen3:4b"
+  },
+  "ok": true,
+  "timed_out": false,
+  "error": "",
+  "duration_s": 117.66,
+  "llm_calls": 1,
+  "input_tokens": 3791,
+  "output_tokens": 629,
+  "known_cost_usd": 0.0,
+  "cost_is_complete": true,
+  "metrics": {
+    "evidence_integrity": 1.0,
+    "citation_integrity": 1.0,
+    "citation_coverage": 1.0,
+    "claim_support": 0.0,
+    "partial_support": 0.1667,
+    "quote_fidelity": 1.0,
+    "quote_drift": 0.0,
+    "evidence_coverage": 1.0,
+    "source_diversity": 0.4,
+    "contradiction_auditability": null,
+    "duplicate_avoidance": null,
+    "unused_source_rate": 1.0
+  },
+  "markdown": "# GPT-4 Turbo Context Window Analysis\n\n## Source excerpts\n\n_No synthesized claim passed evidence verification. Showing exact source excerpts instead. These are verbatim quotations, not findings, and no conclusion has been drawn from them._\n\n- \"[REDACTED: 103 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** GPT-4o Context Window: Token Limits, Architecture, and MCP | Fastio\n- \"[REDACTED: 147 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** GPT-4o Context Window: Token Limits, Architecture, and MCP | Fastio\n- \"[REDACTED: 103 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** GPT-4o Context Window: Token Limits, Architecture, and MCP | Fastio\n- \"[REDACTED: 103 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** GPT-4o Context Window: Token Limits, Architecture, and MCP | Fastio\n- \"[REDACTED: 65 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Mastering The GPT-4o Context Window: Your Practical (and Slightly Sarcastic) Guide | Zemith.com\n- \"[REDACTED: 206 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Mastering The GPT-4o Context Window: Your Practical (and Slightly Sarcastic) Guide | Zemith.com\n- \"[REDACTED: 206 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Mastering The GPT-4o Context Window: Your Practical (and Slightly Sarcastic) Guide | Zemith.com\n- \"[REDACTED: 392 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Mastering The GPT-4o Context Window: Your Practical (and Slightly Sarcastic) Guide | Zemith.com\n- \"[REDACTED: 78 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** What is the context window of gpt 4 - API - OpenAI Developer Community\n- \"[REDACTED: 83 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** What is the context window of gpt 4 - API - OpenAI Developer Community\n- \"[REDACTED: 78 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** What is the context window of gpt 4 - API - OpenAI Developer Community\n- \"[REDACTED: 180 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** What is the context window of gpt 4 - API - OpenAI Developer Community\n\n## Limitations\n\n- The evidence does not specify whether GPT-4 Turbo's context window is consistently used in production environments or if developers adjust it for specific use cases.\n- There is no evidence about the impact of context window size on model performance metrics like accuracy or latency.\n- 6 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [What is the context window of gpt 4 - API - OpenAI Developer Community](https://community.openai.com/t/what-is-the-context-window-of-gpt-4/701256) \u2014 community.openai.com, other, n.d., quality 0.59 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S2]** [GPT-4o Context Window: Token Limits, Architecture, and MCP | Fastio](https://fast.io/resources/gpt-4o-context-window) \u2014 fast.io, other, n.d., quality 0.63 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S3]** [Mastering The GPT-4o Context Window: Your Practical (and Slightly Sarcastic) Guide | Zemith.com](https://www.zemith.com/en/blogs/gpt-4-o-context-window) \u2014 zemith.com, other, n.d., quality 0.61 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S4]** [Cut down GPT-4 model that sits in between 3.5 and 4?](https://community.openai.com/t/cut-down-gpt-4-model-that-sits-in-between-3-5-and-4/568027) \u2014 community.openai.com, other, n.d., quality 0.58 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S5]** [GPT-4o Context Window is 128K but Getting error model's maximum context length is 8192 tokens, however you requested 21026 tokens - API - OpenAI Developer Community](https://community.openai.com/t/gpt-4o-context-window-is-128k-but-getting-error-models-maximum-context-length-is-8192-tokens-however-you-requested-21026-tokens/802809) \u2014 community.openai.com, other, n.d., quality 0.58 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n\n## Citation verification\n\n- Evidence references: 0, 0 resolved to citable evidence (n/a, no references). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: n/a, no substantive claims were published\n- Entailment checked against each claim's own evidence, over every eligible claim: 0 supported, 1 partially supported, 5 unsupported, 0 not checked\n- Retrieved but never cited: S1, S2, S3, S4, S5\n\n<details><summary>Open citation issues</summary>\n\n- `partially_supported_claim` best entailment 0.6049 from S1-e1 is below the 0.98 support threshold \u2014 GPT-4 Turbo has a maximum context window of 128,000 tokens.\n- `unsupported_claim` best entailment 0.0005 from S1-e4 is below the 0.98 support threshold \u2014 GPT-4 Turbo's 128,000-token context window is significantly larger than previous GPT models.\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 Setting the `max_tokens` parameter beyond 16,384 tokens returns an HTTP 400 error for GPT-4 Turbo API requests.\n- `unsupported_claim` every cited quote failed a deterministic guard: attribution \u2014 GPT-4 Turbo has a maximum response size of 4,096 tokens per API request.\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 Developers report using GPT-4 Turbo with a 4,096 token limit in some real-world applications.\n- `unsupported_claim` every cited quote failed a deterministic guard: numeric \u2014 GPT-4 Turbo has a larger context window than GPT-4 (8,192 tokens) and GPT-3.5.\n\n</details>\n\n---\n\n_Generated by Agentic Research Engine on 2026-10-04 22:23 UTC._\n",
+  "verification": {
+    "total_claims": 0,
+    "substantive_claims": 0,
+    "total_citations": 0,
+    "resolvable_citations": 0,
+    "total_evidence_refs": 0,
+    "resolvable_evidence_refs": 0,
+    "supported_claims": 0,
+    "partially_supported_claims": 1,
+    "unsupported_claims": 5,
+    "off_subject_claims": 0,
+    "mislabelled_contrast_claims": 0,
+    "checked_claims": 6,
+    "checkable_claims": 6,
+    "not_checked_claims": 0,
+    "entailment_exhaustive": true,
+    "contradictions_total": 0,
+    "contradictions_auditable": 0,
+    "contradiction_sides_checkable": 0,
+    "contradiction_sides_checked": 0,
+    "contradictions_semantically_supported": 0,
+    "duplicate_claims_removed": 1,
+    "judgments": [
+      {
+        "claim_text": "GPT-4 Turbo has a maximum context window of 128,000 tokens.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e1",
+          "S3-e1",
+          "S1-e3"
+        ],
+        "verdict": "partially_supported",
+        "reason": "best entailment 0.6049 from S1-e1 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e1",
+            "entailment": 0.60498,
+            "neutral": 0.39209,
+            "contradiction": 0.003233,
+            "guards_passed": true,
+            "failed_guards": []
+          },
+          {
+            "evidence_id": "S3-e1",
+            "entailment": 0.025406,
+            "neutral": 0.967773,
+            "contradiction": 0.006966,
+            "guards_passed": true,
+            "failed_guards": []
+          },
+          {
+            "evidence_id": "S1-e3",
+            "entailment": 0.60498,
+            "neutral": 0.39209,
+            "contradiction": 0.003233,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S1-e1",
+        "best_entailment": 0.60498,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "GPT-4 Turbo's 128,000-token context window is significantly larger than previous GPT models.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e4"
+        ],
+        "verdict": "unsupported",
+        "reason": "best entailment 0.0005 from S1-e4 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e4",
+            "entailment": 0.000587,
+            "neutral": 0.999512,
+            "contradiction": 0.000101,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S1-e4",
+        "best_entailment": 0.000587,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "Setting the `max_tokens` parameter beyond 16,384 tokens returns an HTTP 400 error for GPT-4 Turbo API requests.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S2-e2"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: numeric",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S2-e2",
+            "entailment": 0.003054,
+            "neutral": 0.982422,
+            "contradiction": 0.014641,
+            "guards_passed": false,
+            "failed_guards": [
+              "numeric"
+            ]
+          }
+        ],
+        "best_evidence_id": "S2-e2",
+        "best_entailment": 0.003054,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "GPT-4 Turbo has a maximum response size of 4,096 tokens per API request.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e2"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: attribution",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e2",
+            "entailment": 0.001863,
+            "neutral": 0.99707,
+            "contradiction": 0.000918,
+            "guards_passed": false,
+            "failed_guards": [
+              "attribution"
+            ]
+          }
+        ],
+        "best_evidence_id": "S1-e2",
+        "best_entailment": 0.001863,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "Developers report using GPT-4 Turbo with a 4,096 token limit in some real-world applications.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S5-e3"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: numeric",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S5-e3",
+            "entailment": 0.000597,
+            "neutral": 0.995605,
+            "contradiction": 0.003925,
+            "guards_passed": false,
+            "failed_guards": [
+              "numeric"
+            ]
+          }
+        ],
+        "best_evidence_id": "S5-e3",
+        "best_entailment": 0.000597,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "GPT-4 Turbo has a larger context window than GPT-4 (8,192 tokens) and GPT-3.5.",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e4"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: numeric",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e4",
+            "entailment": 0.047546,
+            "neutral": 0.95166,
+            "contradiction": 0.000762,
+            "guards_passed": false,
+            "failed_guards": [
+              "numeric"
+            ]
+          }
+        ],
+        "best_evidence_id": "S1-e4",
+        "best_entailment": 0.047546,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      }
+    ],
+    "generated_substantive_claims": 7,
+    "removed_after_verification": 6,
+    "final_published_claims": 0,
+    "evidence_only_excerpts": 12,
+    "issues": [
+      {
+        "type": "unused_source",
+        "severity": "info",
+        "claim_text": "",
+        "citation_id": "S4",
+        "evidence_id": "",
+        "detail": "retrieved but never cited"
+      },
+      {
+        "type": "partially_supported_claim",
+        "severity": "warning",
+        "claim_text": "GPT-4 Turbo has a maximum context window of 128,000 tokens.",
+        "citation_id": "",
+        "evidence_id": "S1-e1,S3-e1,S1-e3",
+        "detail": "best entailment 0.6049 from S1-e1 is below the 0.98 support threshold"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "GPT-4 Turbo's 128,000-token context window is significantly larger than previous GPT models.",
+        "citation_id": "",
+        "evidence_id": "S1-e4",
+        "detail": "best entailment 0.0005 from S1-e4 is below the 0.98 support threshold"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "Setting the `max_tokens` parameter beyond 16,384 tokens returns an HTTP 400 error for GPT-4 Turbo API requests.",
+        "citation_id": "",
+        "evidence_id": "S2-e2",
+        "detail": "every cited quote failed a deterministic guard: numeric"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "GPT-4 Turbo has a maximum response size of 4,096 tokens per API request.",
+        "citation_id": "",
+        "evidence_id": "S1-e2",
+        "detail": "every cited quote failed a deterministic guard: attribution"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "Developers report using GPT-4 Turbo with a 4,096 token limit in some real-world applications.",
+        "citation_id": "",
+        "evidence_id": "S5-e3",
+        "detail": "every cited quote failed a deterministic guard: numeric"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "GPT-4 Turbo has a larger context window than GPT-4 (8,192 tokens) and GPT-3.5.",
+        "citation_id": "",
+        "evidence_id": "S1-e4",
+        "detail": "every cited quote failed a deterministic guard: numeric"
+      }
+    ],
+    "unused_source_ids": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5"
+    ],
+    "repaired": false
+  }
+}

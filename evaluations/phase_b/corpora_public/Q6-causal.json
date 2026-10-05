@@ -1,0 +1,639 @@
+{
+  "question": "Why do large language models sometimes produce confident but false statements?",
+  "captured_at": "2026-10-04T21:06:00.904605+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What are the primary mechanisms by which LLMs generate confident but false statements?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "How do training data limitations contribute to the production of false statements in LLMs?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "What are the most common failure modes in LLMs that lead to false statements under specific conditions?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "What hidden costs or unintended consequences arise from LLMs producing confident but false statements?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12936108",
+      "canonical_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12936108",
+      "title": "Large language models show Dunning-Kruger-like effects in multilingual fact-checking",
+      "domain": "pmc.ncbi.nlm.nih.gov",
+      "text": "[REDACTED: 11270 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "4b53246a3122b366",
+      "source_type": "academic",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.949,
+      "quality_reasons": [
+        "academic baseline 0.85",
+        "search relevance 0.74 -> +0.049",
+        "substantial content (1449 words) -> +0.050"
+      ],
+      "search_score": 0.74318707,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:00:26.615753Z",
+      "word_count": 1449,
+      "found_by_queries": [
+        "Q1",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://sloanreview.mit.edu/article/the-working-limitations-of-large-language-models",
+      "canonical_url": "https://sloanreview.mit.edu/article/the-working-limitations-of-large-language-models",
+      "title": "The Working Limitations of Large Language Models",
+      "domain": "sloanreview.mit.edu",
+      "text": "[REDACTED: 3897 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "d90e377aee264dbf",
+      "source_type": "academic",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.891,
+      "quality_reasons": [
+        "academic baseline 0.85",
+        "search relevance 0.71 -> +0.041"
+      ],
+      "search_score": 0.70531887,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:00:26.615792Z",
+      "word_count": 595,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://arxiv.org/html/2602.06176v1",
+      "canonical_url": "https://arxiv.org/html/2602.06176v1",
+      "title": "Large Language Model Reasoning Failures",
+      "domain": "arxiv.org",
+      "text": "[REDACTED: 10758 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "9d8d40ddb5c63e6a",
+      "source_type": "academic",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.937,
+      "quality_reasons": [
+        "academic baseline 0.85",
+        "search relevance 0.68 -> +0.037",
+        "substantial content (1493 words) -> +0.050"
+      ],
+      "search_score": 0.68420124,
+      "discovered_by": [
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:00:26.615800Z",
+      "word_count": 1493,
+      "found_by_queries": [
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://blog.doubleslash.de/en/software-technologien/kuenstliche-intelligenz/where-llms-fails-failure-modes-and-limitations",
+      "canonical_url": "https://blog.doubleslash.de/en/software-technologien/kuenstliche-intelligenz/where-llms-fails-failure-modes-and-limitations",
+      "title": "LLM Failure Modes and Their Limitations",
+      "domain": "blog.doubleslash.de",
+      "text": "[REDACTED: 11523 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "650d6536068fb274",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.6,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.75 -> +0.050",
+        "substantial content (1674 words) -> +0.050"
+      ],
+      "search_score": 0.75027883,
+      "discovered_by": [
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:00:26.615825Z",
+      "word_count": 1674,
+      "found_by_queries": [
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://www.ox.ac.uk/news/2023-11-20-large-language-models-pose-risk-science-false-answers-says-oxford-study",
+      "canonical_url": "https://ox.ac.uk/news/2023-11-20-large-language-models-pose-risk-science-false-answers-says-oxford-study",
+      "title": "Large Language Models pose risk to science with false ...",
+      "domain": "ox.ac.uk",
+      "text": "[REDACTED: 0 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "",
+      "source_type": "academic",
+      "published_date": null,
+      "fetch_status": "http_error",
+      "fetch_error": "HTTP 403",
+      "quality_score": 0.0,
+      "quality_reasons": [],
+      "search_score": 0.67527276,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "none",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:00:26.615848Z",
+      "word_count": 0,
+      "found_by_queries": [
+        "Q1",
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The primary mechanisms by which LLMs generate confident but false statements",
+      "quote": "[REDACTED: 225 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:02:51.663613Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How do training data limitations contribute to the production of false statements in LLMs?",
+      "quote": "[REDACTED: 186 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:02:51.665497Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the most common failure modes in LLMs that lead to false statements under specific conditions?",
+      "quote": "[REDACTED: 320 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:02:51.667675Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "What hidden costs or unintended consequences arise from LLMs producing confident but false statements?",
+      "quote": "[REDACTED: 320 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:02:51.669806Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LLMs generate confident but false statements through mechanisms such as replicating human cognitive biases and heuristics",
+      "quote": "[REDACTED: 621 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T21:02:01.610164Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Training data limitations contribute to false statements in LLMs by causing LLMs to replicate human cognitive biases and heuristics",
+      "quote": "[REDACTED: 621 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T21:02:01.612659Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "The most common failure modes in LLMs that lead to false statements under specific conditions include replication of human cognitive biases and heuristics",
+      "quote": "[REDACTED: 621 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T21:02:01.615169Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Hidden costs or unintended consequences of LLMs producing confident but false statements include the replication of human cognitive biases and heuristics",
+      "quote": "[REDACTED: 621 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T21:02:01.617606Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LLMs generate confident but false statements due to overestimating capabilities",
+      "quote": "[REDACTED: 94 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:03:22.107861Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "Training data limitations contribute to false statements in LLMs",
+      "quote": "[REDACTED: 166 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:03:22.108902Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Failure modes in LLMs that lead to false statements under specific conditions",
+      "quote": "[REDACTED: 194 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:03:22.109756Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Hidden costs or unintended consequences from LLMs producing confident but false statements",
+      "quote": "[REDACTED: 262 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:03:22.110522Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LLMs generate confident but false statements through convincingly formulated errors",
+      "quote": "[REDACTED: 169 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:04:15.280010Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Training data limitations contribute to false statements in LLMs",
+      "quote": "[REDACTED: 240 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:04:15.282116Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "Common failure modes include convincingly phrased errors, unpredictable performance limits, overthinking, unreliable long-term performance, error accumulation and self-conditioning, unreliable self-assessment, local coherence without global consistency, responding despite lack of basis, unresolved choice between interpretations, incorrect constraint composition, constraint drift despite available requirements, and local prompt instability",
+      "quote": "[REDACTED: 235 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:04:15.283917Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Hidden costs include shifted testing effort, increased quality risks, downstream error costs, and quality debt",
+      "quote": "[REDACTED: 164 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:04:15.286163Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "large language models confident false statements mechanisms",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query directly addresses the primary mechanisms for confident false statements in LLMs using the question's own vocabulary. It avoids technical jargon to ensure broad relevance and matches the user's phrasing."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "training data limitations false statements large language models",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query focuses on how training data limitations contribute to false statements, using the user's terms without adding technical specifics. It ensures the search targets the effect (false statements) and the cause (training data limitations)."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "common failure modes large language models false statements",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query targets the most common failure modes leading to false statements in LLMs, using the user's terms to avoid narrowing the search to specialized literature. It keeps the query short and relevant."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "hidden costs confident false statements large language models",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query addresses the hidden costs or unintended consequences of confident false statements in LLMs, using the user's vocabulary to ensure broad applicability and relevance."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [],
+    "contradictions": [],
+    "domain_concentration": 0.25,
+    "recommended_followups": [],
+    "sufficient": true,
+    "reasoning": "I need to assess whether the evidence gathered so far is sufficient to answer the research question: 'Why do large language models sometimes produce confident but false statements?' The evidence is organized by four sub-questions (SQs), each with four sources (S1-S4) that have been assessed for coverage and quality. I'll analyze each sub-question to see if the evidence is on target, one-sided, and if there are important angles that haven't been considered."
+  }
+}

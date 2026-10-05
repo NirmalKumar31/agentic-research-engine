@@ -1,0 +1,21 @@
+{
+  "label": "Q5-relationship-rep2-local",
+  "models": {
+    "planner": "ollama:qwen3:4b",
+    "researcher": "ollama:qwen3:4b",
+    "critic": "ollama:qwen3:4b",
+    "synthesizer": "ollama:qwen3:4b"
+  },
+  "ok": false,
+  "timed_out": true,
+  "error": "arm did not complete within 120s",
+  "duration_s": 120.03,
+  "llm_calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "known_cost_usd": 0.0,
+  "cost_is_complete": true,
+  "metrics": {},
+  "markdown": "",
+  "verification": {}
+}

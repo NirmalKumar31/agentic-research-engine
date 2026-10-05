@@ -1,0 +1,37 @@
+{
+  "benchmark_version": "phase-b-track1-v1",
+  "frozen_engine_commit": "a451aa3ffef337abccd086c1a89e53a8fcde65a7",
+  "cloud_model_id": "gpt-6-luna",
+  "ollama_model": "qwen3:4b",
+  "ollama_version": "qwen3:4b",
+  "ollama_digest": "359d7dd4bcda",
+  "nli_model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+  "nli_model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+  "prompt_version": "2de0f5f45843",
+  "schema_version": "0c5c89d58011",
+  "config_fingerprint": "8d845ade5652",
+  "corpus_hashes": {
+    "Q1-definition": "f60941339ccc1d151ca1d8e6222dd647e1a349a9bf92f64b1fd674c3cc4ce693",
+    "Q2-numeric-lookup": "af1465128c6a34cac707a4fb6c9575731da72edf7253f215e1a8f05bf080b9e9",
+    "Q3-procedural": "d872526cb3d289b86a6f0b02ba7fa3534a10319b35ec0101f317deb0ab4aa1bf",
+    "Q4-comparison": "2a178e9fd96fa42741f5efb54b9623edea0438bfc68b060106a8e386165b766f",
+    "Q5-relationship": "4f7d442d2a7ee9fbf3650d51259a99c591e14077e9db601594155c3445afe44e",
+    "Q6-causal": "6db417898833acbf327a73b8b79f87569f3f45911ef2984a699acbd9bca7cc25",
+    "Q7-time-sensitive": "2c830046465c0cb3ac041e73ab2c4b83c620fc7e0d45d780255db19f39cc4e44",
+    "Q8-research-methods": "b1e8b8d28d93d844e56e95675113a8b2681b2ce66fca2feeafc4bd9061b56055",
+    "Q9-ambiguous": "af8f1b3ff6997ead77e6da7165c3469beb68ce6985653aa1ccac7b769b315349",
+    "Q10-long-tail": "0e536a087b24016cce8c083abfd224c569ce1c75ff212d70c8a987a9c5808e4d",
+    "Q11-adversarial-evidence-shape": "322b3bf08974d4bfd18b1fa6c1ff9829dd14c68ba7dfdf2be49a54a880f4118e",
+    "Q12-no-defensible-answer": "2a71ce9e0b4ff59cb64375f7dc40be76441695d28826ba4c5841064366173221"
+  },
+  "scoring_version": "v1",
+  "ceilings": {
+    "max_research_rounds": 2,
+    "max_sources": 12,
+    "max_llm_calls": 40,
+    "max_provider_requests": 120,
+    "total_spend_ceiling_usd": 10,
+    "per_call_cap_usd_cents": 50,
+    "arm_timeout_seconds": 120
+  }
+}

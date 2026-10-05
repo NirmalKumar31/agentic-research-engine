@@ -1,0 +1,784 @@
+{
+  "question": "How does LangGraph relate to LangChain?",
+  "captured_at": "2026-10-04T20:59:40.151468+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What is the core architectural difference between LangGraph and LangChain?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "How do the use cases for LangGraph differ from those for LangChain?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "What are the key security and privacy implications of using LangGraph versus LangChain?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "What hidden costs or trade-offs are associated with adopting LangGraph over LangChain?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://logic.inc/resources/langgraph-alternatives",
+      "canonical_url": "https://logic.inc/resources/langgraph-alternatives",
+      "title": "LangGraph Alternatives: Graph Control vs Managed Runtime in 2026 | Logic",
+      "domain": "logic.inc",
+      "text": "[REDACTED: 11031 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "9383cb4505617141",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.581,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.65 -> +0.031",
+        "substantial content (1613 words) -> +0.050"
+      ],
+      "search_score": 0.6530611,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:51:34.378266Z",
+      "word_count": 1613,
+      "found_by_queries": [
+        "Q1"
+      ],
+      "answers_sub_questions": [
+        "SQ1"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://www.ibm.com/think/topics/langgraph",
+      "canonical_url": "https://ibm.com/think/topics/langgraph",
+      "title": "What is LangGraph? | IBM",
+      "domain": "ibm.com",
+      "text": "[REDACTED: 11771 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "9d4ea8a9d7a7e479",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.61,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.80 -> +0.060",
+        "substantial content (1734 words) -> +0.050"
+      ],
+      "search_score": 0.79769903,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:51:34.378300Z",
+      "word_count": 1734,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://labs.cloudsecurityalliance.org/research/csa-research-note-langchain-langgraph-vulnerabilities-202603",
+      "canonical_url": "https://labs.cloudsecurityalliance.org/research/csa-research-note-langchain-langgraph-vulnerabilities-202603",
+      "title": "LangChain and LangGraph: Critical Vulnerabilities in AI Orchestration \u2013 Lab Space",
+      "domain": "labs.cloudsecurityalliance.org",
+      "text": "[REDACTED: 11243 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "cb598cb814e3ee1e",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.6,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.75 -> +0.050",
+        "substantial content (1465 words) -> +0.050"
+      ],
+      "search_score": 0.752468,
+      "discovered_by": [
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:51:34.378325Z",
+      "word_count": 1465,
+      "found_by_queries": [
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://www.alphabold.com/langchain-vs-langgraph",
+      "canonical_url": "https://alphabold.com/langchain-vs-langgraph",
+      "title": "LangChain vs LangGraph: Performance, Cost & ROI (2026 Guide)",
+      "domain": "alphabold.com",
+      "text": "[REDACTED: 11934 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "e9a0771aca7d0b0e",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.61,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.80 -> +0.060",
+        "substantial content (1692 words) -> +0.050"
+      ],
+      "search_score": 0.8018276,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:51:34.378349Z",
+      "word_count": 1692,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://www.projectpro.io/article/langgraph-projects-and-examples/1124",
+      "canonical_url": "https://projectpro.io/article/langgraph-projects-and-examples/1124",
+      "title": "10 Langgraph Projects to Build Intelligent AI Agents",
+      "domain": "projectpro.io",
+      "text": "[REDACTED: 11898 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "b057465215d8a747",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.608,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.79 -> +0.058",
+        "substantial content (1716 words) -> +0.050"
+      ],
+      "search_score": 0.79080546,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:51:34.378375Z",
+      "word_count": 1716,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangGraph is an open source AI agent framework designed to build, deploy and manage complex generative AI agent workflows. It provides a set of tools and libraries that enable users to create, run and optimize large language models (LLMs) in a scalable and efficient manner. At its core, LangGraph uses the power of graph-based architectures to model and manage the intricate relationships between various components of an AI agent workflow.",
+      "quote": "[REDACTED: 464 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:52:39.941431Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "LangGraph provides a framework for building agent-based systems, which can be used in applications such as robotics, autonomous vehicles or video games.",
+      "quote": "[REDACTED: 167 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:52:39.945064Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangGraph is built on several key technologies, including LangChain, a Python framework for building AI applications. LangChain includes a library for building and managing LLMs. LangGraph also uses the human-in-the-loop approach.",
+      "quote": "[REDACTED: 235 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:52:39.947710Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "By using a graph-based architecture, LangGraph enables users to scale artificial intelligence workflows without slowing down or sacrificing efficiency.",
+      "quote": "[REDACTED: 151 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:52:39.950623Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangChain uses a Directed Acyclic Graph (DAG) structure, where tasks execute sequentially. This makes it ideal for simple, straightforward input-to-output workflows, such as basic Q&A bots or prototype applications.",
+      "quote": "[REDACTED: 215 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:53:55.138478Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangGraph, by contrast, supports cyclic graph capabilities with centralized state management. This allows loops, retries, and conditional branching, and human-in-the-loop actions, making it suitable for complex LangGraph agent workflows and production-grade AI agents.",
+      "quote": "[REDACTED: 268 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:53:55.141932Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangChain helps teams move quickly in the early stages, while LangGraph provides the control and persistence required for production.",
+      "quote": "[REDACTED: 133 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:53:55.145388Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "For teams evaluating AI frameworks, the pattern is consistent. LangChain helps teams move quickly in the early stages, while LangGraph provides the control and persistence required for production.",
+      "quote": "[REDACTED: 196 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:53:55.148826Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e5",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangGraph shows its real strength as workflows grow longer and more complex. As one of the leading AI agent orchestration frameworks, it maintains O(1) complexity for conversation history length, keeping performance stable even as agents run for extended periods.",
+      "quote": "[REDACTED: 263 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:53:55.152419Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e6",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "According to LangChain\u2019s official documentation: 'LangGraph is a low-level orchestration framework for building, managing, and deploying long-running, stateful agents.'",
+      "quote": "[REDACTED: 168 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:53:55.161972Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.4
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What is the core architectural difference between LangGraph and LangChain?",
+      "quote": "[REDACTED: 340 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T20:54:46.707820Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "How do the use cases for LangGraph differ from those for LangChain?",
+      "quote": "[REDACTED: 178 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T20:54:46.711644Z",
+      "query_id": "Q2",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.32
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What are the key security and privacy implications of using LangGraph versus LangChain?",
+      "quote": "[REDACTED: 240 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T20:54:46.713613Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "What hidden costs or trade-offs are associated with adopting LangGraph over LangChain?",
+      "quote": "[REDACTED: 340 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.6,
+      "extracted_at": "2026-10-04T20:54:46.716081Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.6
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangGraph extends LangChain's capabilities to support stateful, multi-actor agentic workflows modeled as directed graphs, with built-in support for persistent state checkpoints.",
+      "quote": "[REDACTED: 177 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:56:18.912310Z",
+      "query_id": "",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.4
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "LangGraph is designed for stateful, multi-actor agentic workflows with persistent state checkpoints, while LangChain is more general-purpose for LLM applications.",
+      "quote": "[REDACTED: 553 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:56:18.914201Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "LangGraph\u2019s stateful checkpoint persistence layer contains two independently exploitable vulnerabilities: a remote code execution flaw via deserialized checkpoint data (CVE-2025-64439) and a SQL injection flaw in the SQLite checkpoint backend (CVE-2025-67644).",
+      "quote": "[REDACTED: 274 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:56:18.915965Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "The highest-severity vulnerability in this analysis cycle, CVE-2025-68664 (CVSS 9.3), enables serialization injection that allows an attacker to leverage prompt injection to escalate into arbitrary code execution, secret extraction from environment variables, and instantiation of trusted internal classes.",
+      "quote": "[REDACTED: 306 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:56:18.917685Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e5",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "The exploitation impact is amplified beyond what a typical web application presents: code execution in an agent environment yields not just application access but access to every external system the agent was credentialed against.",
+      "quote": "[REDACTED: 240 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:56:18.919540Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e6",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Patches are available for all documented vulnerabilities. Teams should treat the following upgrades as urgent remediation actions: langchain-core >= 0.3.81 (CVE-2025-68664), langchain-core >= 1.2.22 (CVE-2026-34070), langgraph-checkpoint >= 3.0, and langgraph-checkpoint-sqlite >= 3.0.1.",
+      "quote": "[REDACTED: 287 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:56:18.921479Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "LangGraph gives engineers low-level graph control over stateful workflows \u2014 useful when graph topology is the design problem. Logic takes a different posture: a managed-agent platform where you describe the agent in a structured spec and Logic runs the runtime, evals, versioning, observability, and routing.",
+      "quote": "[REDACTED: 308 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:57:13.074565Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Choose LangGraph when the graph itself is the product. Choose Logic when shipping and operating a fleet of production agents matters more than owning the orchestration layer.",
+      "quote": "[REDACTED: 174 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:57:13.076283Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The cost is a steep learning curve and a maintenance burden that grows with the graph: state schemas, checkpointers, cycle handling, plus the LangChain dependency tree LangGraph extends.",
+      "quote": "[REDACTED: 186 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:57:13.078162Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The maintenance compounds. When requirements change, you're tracing node dependencies, reworking execution paths, and retesting graph traversals \u2014 a change that should be near-instant stretches into days.",
+      "quote": "[REDACTED: 204 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:57:13.080202Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "core architectural difference LangGraph LangChain",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query directly targets the core architectural difference between the two tools using their exact names. It avoids adding technical terms that might narrow results to specialists, and keeps it to 4 words. The question itself uses 'core architectural difference' and the tool names, so this query matches the vocabulary the answer will use."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "use cases LangGraph LangChain",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query focuses on the use cases for each tool without adding extra terms. It uses the exact question terms 'use cases' and the tool names. Keeping it to 4 words ensures it's concise and matches the vocabulary the answer will use."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "security privacy implications LangGraph LangChain",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query addresses the security and privacy implications by using the exact terms from the question. It avoids adding technical terms that might narrow results, and keeps it to 5 words. The question uses 'security privacy implications', so this query matches the vocabulary the answer will use."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "hidden costs trade-offs LangGraph LangChain",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "This query targets the hidden costs and trade-offs by using the exact terms from the question. It avoids adding technical terms that might narrow results, and keeps it to 5 words. The question uses 'hidden costs trade-offs', so this query matches the vocabulary the answer will use."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 6,
+        "distinct_sources": 4,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "5 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 6,
+        "distinct_sources": 4,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "5 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 8,
+        "distinct_sources": 5,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 2,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 4,
+        "distinct_sources": 3,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 1,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [],
+    "contradictions": [
+      "[S1] LangGraph gives engineers low-level graph control over stateful workflows \u2014 useful when graph topology is the design problem. Logic takes a different posture: a managed-agent platform where you describe the agent in a structured spec and Logic runs the runtime, evals, versioning, observability, and routing.",
+      "[S1] Choose LangGraph when the graph itself is the product. Choose Logic when shipping and operating a fleet of production agents matters more than owning the orchestration layer.",
+      "[S1] The cost is a steep learning curve and a maintenance burden that grows with the graph: state schemas, checkpointers, cycle handling, plus the LangChain dependency tree LangGraph extends.",
+      "[S1] The maintenance compounds. When requirements change, you're tracing node dependencies, reworking execution paths, and retesting graph traversals \u2014 a change that should be near-instant stretches into days."
+    ],
+    "domain_concentration": 0.2,
+    "recommended_followups": [],
+    "sufficient": true,
+    "reasoning": "I need to assess whether the evidence gathered so far is sufficient to answer the research question 'How does LangGraph relate to LangChain?' by examining the four sub-questions (SQs) and the evidence provided for each. I'll check if the evidence is on target, one-sided, and if there are important angles that haven't been considered."
+  }
+}

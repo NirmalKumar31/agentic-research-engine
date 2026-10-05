@@ -1,0 +1,352 @@
+{
+  "label": "Q6-causal-rep1-local",
+  "models": {
+    "planner": "ollama:qwen3:4b",
+    "researcher": "ollama:qwen3:4b",
+    "critic": "ollama:qwen3:4b",
+    "synthesizer": "ollama:qwen3:4b"
+  },
+  "ok": true,
+  "timed_out": false,
+  "error": "",
+  "duration_s": 117.1,
+  "llm_calls": 1,
+  "input_tokens": 3462,
+  "output_tokens": 737,
+  "known_cost_usd": 0.0,
+  "cost_is_complete": true,
+  "metrics": {
+    "evidence_integrity": 1.0,
+    "citation_integrity": 1.0,
+    "citation_coverage": 1.0,
+    "claim_support": 0.0,
+    "partial_support": 0.0,
+    "quote_fidelity": 1.0,
+    "quote_drift": 0.0,
+    "evidence_coverage": 1.0,
+    "source_diversity": 0.75,
+    "contradiction_auditability": null,
+    "duplicate_avoidance": null,
+    "unused_source_rate": 1.0
+  },
+  "markdown": "# Why do large language models sometimes produce confident but false statements?\n\n## Source excerpts\n\n_No synthesized claim passed evidence verification. Showing exact source excerpts instead. These are verbatim quotations, not findings, and no conclusion has been drawn from them._\n\n- \"[REDACTED: 225 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Large language models show Dunning-Kruger-like effects in multilingual fact-checking\n- \"[REDACTED: 186 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Large language models show Dunning-Kruger-like effects in multilingual fact-checking\n- \"[REDACTED: 320 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Large language models show Dunning-Kruger-like effects in multilingual fact-checking\n- \"[REDACTED: 320 chars of verbatim source quote, not redistributed]\" \u2014 **[S1]** Large language models show Dunning-Kruger-like effects in multilingual fact-checking\n- \"[REDACTED: 621 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Large Language Model Reasoning Failures\n- \"[REDACTED: 621 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Large Language Model Reasoning Failures\n- \"[REDACTED: 621 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Large Language Model Reasoning Failures\n- \"[REDACTED: 621 chars of verbatim source quote, not redistributed]\" \u2014 **[S3]** Large Language Model Reasoning Failures\n- \"[REDACTED: 94 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** The Working Limitations of Large Language Models\n- \"[REDACTED: 166 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** The Working Limitations of Large Language Models\n- \"[REDACTED: 194 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** The Working Limitations of Large Language Models\n- \"[REDACTED: 262 chars of verbatim source quote, not redistributed]\" \u2014 **[S2]** The Working Limitations of Large Language Models\n\n## Limitations\n\n- The evidence does not specify the exact conditions under which LLMs produce confident but false statements beyond the general mechanisms described.\n- 7 generated claim(s) were excluded because the cited evidence did not support them, or because verification did not reach them within this run's budget.\n\n## Sources\n\n- **[S1]** [Large language models show Dunning-Kruger-like effects in multilingual fact-checking](https://pmc.ncbi.nlm.nih.gov/articles/PMC12936108) \u2014 pmc.ncbi.nlm.nih.gov, academic, n.d., quality 0.95 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S2]** [The Working Limitations of Large Language Models](https://sloanreview.mit.edu/article/the-working-limitations-of-large-language-models) \u2014 sloanreview.mit.edu, academic, n.d., quality 0.89 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S3]** [Large Language Model Reasoning Failures](https://arxiv.org/html/2602.06176v1) \u2014 arxiv.org, academic, n.d., quality 0.94 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n- **[S4]** [LLM Failure Modes and Their Limitations](https://blog.doubleslash.de/en/software-technologien/kuenstliche-intelligenz/where-llms-fails-failure-modes-and-limitations) \u2014 blog.doubleslash.de, other, n.d., quality 0.60 _(retrieved, not cited \u2014 4 citable quotes extracted)_\n\n## Citation verification\n\n- Evidence references: 0, 0 resolved to citable evidence (n/a, no references). Citation markers are derived from those references by the engine, so citation integrity is a structural invariant rather than a measurement.\n- Evidence-owing claims carrying a citation: n/a, no substantive claims were published\n- Entailment checked against each claim's own evidence, over every eligible claim: 0 supported, 0 partially supported, 7 unsupported, 0 not checked\n- Retrieved but never cited: S1, S2, S3, S4\n\n<details><summary>Open citation issues</summary>\n\n- `unsupported_claim` every cited quote failed a deterministic guard: atomicity \u2014 LLMs generate confident but false statements through hallucinations\n- `unsupported_claim` best entailment 0.0075 from S2-e1 is below the 0.98 support threshold \u2014 LLMs overestimate their capabilities\n- `unsupported_claim` best entailment 0.0014 from S4-e1 is below the 0.98 support threshold \u2014 Convincingly formulated errors in LLMs are difficult to detect\n- `unsupported_claim` every cited quote failed a deterministic guard: hedge \u2014 LLMs replicate human cognitive biases and heuristics\n- `unsupported_claim` best entailment 0.0004 from S2-e2 is below the 0.98 support threshold \u2014 Training data limitations contribute to false statements in LLMs\n- `unsupported_claim` every cited quote failed a deterministic guard: hedge \u2014 LLMs replicate human cognitive biases and heuristics\n- `unsupported_claim` every cited quote failed a deterministic guard: hedge \u2014 Resource-constrained organizations using smaller LLMs risk miscalibrated fact-checking tools\n\n</details>\n\n---\n\n_Generated by Agentic Research Engine on 2026-10-04 22:39 UTC._\n",
+  "verification": {
+    "total_claims": 0,
+    "substantive_claims": 0,
+    "total_citations": 0,
+    "resolvable_citations": 0,
+    "total_evidence_refs": 0,
+    "resolvable_evidence_refs": 0,
+    "supported_claims": 0,
+    "partially_supported_claims": 0,
+    "unsupported_claims": 7,
+    "off_subject_claims": 0,
+    "mislabelled_contrast_claims": 0,
+    "checked_claims": 7,
+    "checkable_claims": 7,
+    "not_checked_claims": 0,
+    "entailment_exhaustive": true,
+    "contradictions_total": 0,
+    "contradictions_auditable": 0,
+    "contradiction_sides_checkable": 0,
+    "contradiction_sides_checked": 0,
+    "contradictions_semantically_supported": 0,
+    "duplicate_claims_removed": 7,
+    "judgments": [
+      {
+        "claim_text": "LLMs generate confident but false statements through hallucinations",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e1"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: atomicity",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e1",
+            "entailment": 0.995605,
+            "neutral": 0.004219,
+            "contradiction": 0.000218,
+            "guards_passed": false,
+            "failed_guards": [
+              "atomicity"
+            ]
+          }
+        ],
+        "best_evidence_id": "S1-e1",
+        "best_entailment": 0.995605,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "LLMs overestimate their capabilities",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S2-e1"
+        ],
+        "verdict": "unsupported",
+        "reason": "best entailment 0.0075 from S2-e1 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S2-e1",
+            "entailment": 0.007595,
+            "neutral": 0.869141,
+            "contradiction": 0.12323,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S2-e1",
+        "best_entailment": 0.007595,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "Convincingly formulated errors in LLMs are difficult to detect",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S4-e1"
+        ],
+        "verdict": "unsupported",
+        "reason": "best entailment 0.0014 from S4-e1 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S4-e1",
+            "entailment": 0.001405,
+            "neutral": 0.998535,
+            "contradiction": 0.00028,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S4-e1",
+        "best_entailment": 0.001405,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "LLMs replicate human cognitive biases and heuristics",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S3-e1"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: hedge",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S3-e1",
+            "entailment": 0.981934,
+            "neutral": 0.015762,
+            "contradiction": 0.002281,
+            "guards_passed": false,
+            "failed_guards": [
+              "hedge"
+            ]
+          }
+        ],
+        "best_evidence_id": "S3-e1",
+        "best_entailment": 0.981934,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "Training data limitations contribute to false statements in LLMs",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S2-e2"
+        ],
+        "verdict": "unsupported",
+        "reason": "best entailment 0.0004 from S2-e2 is below the 0.98 support threshold",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S2-e2",
+            "entailment": 0.000444,
+            "neutral": 0.051117,
+            "contradiction": 0.948242,
+            "guards_passed": true,
+            "failed_guards": []
+          }
+        ],
+        "best_evidence_id": "S2-e2",
+        "best_entailment": 0.000444,
+        "guards_passed": true,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "LLMs replicate human cognitive biases and heuristics",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S3-e3"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: hedge",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S3-e3",
+            "entailment": 0.981934,
+            "neutral": 0.015762,
+            "contradiction": 0.002281,
+            "guards_passed": false,
+            "failed_guards": [
+              "hedge"
+            ]
+          }
+        ],
+        "best_evidence_id": "S3-e3",
+        "best_entailment": 0.981934,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      },
+      {
+        "claim_text": "Resource-constrained organizations using smaller LLMs risk miscalibrated fact-checking tools",
+        "kind": "factual",
+        "answer_slot": "",
+        "evidence_ids": [
+          "S1-e4"
+        ],
+        "verdict": "unsupported",
+        "reason": "every cited quote failed a deterministic guard: hedge",
+        "checked": true,
+        "model_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "model_revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+        "support_threshold": 0.98,
+        "evidence_scores": [
+          {
+            "evidence_id": "S1-e4",
+            "entailment": 0.994629,
+            "neutral": 0.005131,
+            "contradiction": 0.000332,
+            "guards_passed": false,
+            "failed_guards": [
+              "hedge"
+            ]
+          }
+        ],
+        "best_evidence_id": "S1-e4",
+        "best_entailment": 0.994629,
+        "guards_passed": false,
+        "publishable": false,
+        "propositions": [],
+        "relevance": null,
+        "repair": null
+      }
+    ],
+    "generated_substantive_claims": 14,
+    "removed_after_verification": 7,
+    "final_published_claims": 0,
+    "evidence_only_excerpts": 12,
+    "issues": [
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "LLMs generate confident but false statements through hallucinations",
+        "citation_id": "",
+        "evidence_id": "S1-e1",
+        "detail": "every cited quote failed a deterministic guard: atomicity"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "LLMs overestimate their capabilities",
+        "citation_id": "",
+        "evidence_id": "S2-e1",
+        "detail": "best entailment 0.0075 from S2-e1 is below the 0.98 support threshold"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "Convincingly formulated errors in LLMs are difficult to detect",
+        "citation_id": "",
+        "evidence_id": "S4-e1",
+        "detail": "best entailment 0.0014 from S4-e1 is below the 0.98 support threshold"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "LLMs replicate human cognitive biases and heuristics",
+        "citation_id": "",
+        "evidence_id": "S3-e1",
+        "detail": "every cited quote failed a deterministic guard: hedge"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "Training data limitations contribute to false statements in LLMs",
+        "citation_id": "",
+        "evidence_id": "S2-e2",
+        "detail": "best entailment 0.0004 from S2-e2 is below the 0.98 support threshold"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "LLMs replicate human cognitive biases and heuristics",
+        "citation_id": "",
+        "evidence_id": "S3-e3",
+        "detail": "every cited quote failed a deterministic guard: hedge"
+      },
+      {
+        "type": "unsupported_claim",
+        "severity": "warning",
+        "claim_text": "Resource-constrained organizations using smaller LLMs risk miscalibrated fact-checking tools",
+        "citation_id": "",
+        "evidence_id": "S1-e4",
+        "detail": "every cited quote failed a deterministic guard: hedge"
+      }
+    ],
+    "unused_source_ids": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "repaired": false
+  }
+}

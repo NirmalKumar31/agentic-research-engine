@@ -1,0 +1,722 @@
+{
+  "question": "What is the most recent stable release version of PostgreSQL?",
+  "captured_at": "2026-10-04T21:17:57.620998+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What is the latest version number of PostgreSQL that has been officially released and marked as stable by the PostgreSQL Global Development Group?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "How is the stability of the latest PostgreSQL release defined by the project's release process?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "Are there any known critical issues or failure modes that have been reported in the latest stable PostgreSQL release?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "What is the official release date of the latest stable PostgreSQL version?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://www.instaclustr.com/education/postgresql/postgres-versions-supported-releases-eol-dates-upgrades",
+      "canonical_url": "https://instaclustr.com/education/postgresql/postgres-versions-supported-releases-eol-dates-upgrades",
+      "title": "Postgres Versions: Supported Releases, EOL Dates & Upgrades",
+      "domain": "instaclustr.com",
+      "text": "[REDACTED: 11357 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "ca0aa8b95e2e0fe3",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.637,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.94 -> +0.087",
+        "substantial content (1621 words) -> +0.050"
+      ],
+      "search_score": 0.93707865,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:10:00.229363Z",
+      "word_count": 1621,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ3",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://pgpedia.info/postgresql-versions/index.html",
+      "canonical_url": "https://pgpedia.info/postgresql-versions",
+      "title": "PostgreSQL major versions - pgPedia - a PostgreSQL Encyclopedia",
+      "domain": "pgpedia.info",
+      "text": "[REDACTED: 5104 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "b2bbb7615baa6a5a",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.617,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.83 -> +0.067",
+        "substantial content (832 words) -> +0.050"
+      ],
+      "search_score": 0.83452857,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:10:00.229446Z",
+      "word_count": 832,
+      "found_by_queries": [
+        "Q1",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://en.wikipedia.org/wiki/PostgreSQL",
+      "canonical_url": "https://en.wikipedia.org/wiki/PostgreSQL",
+      "title": "PostgreSQL - Wikipedia",
+      "domain": "en.wikipedia.org",
+      "text": "[REDACTED: 11610 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "3d6a3145e936804e",
+      "source_type": "reference",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.815,
+      "quality_reasons": [
+        "reference baseline 0.70",
+        "search relevance 0.83 -> +0.065",
+        "substantial content (1232 words) -> +0.050"
+      ],
+      "search_score": 0.82728493,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        },
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:10:00.229482Z",
+      "word_count": 1232,
+      "found_by_queries": [
+        "Q1",
+        "Q2",
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ1",
+        "SQ2",
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://www.postgresql.org/developer/roadmap",
+      "canonical_url": "https://postgresql.org/developer/roadmap",
+      "title": "PostgreSQL: Roadmap",
+      "domain": "postgresql.org",
+      "text": "[REDACTED: 1292 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "a125fbd3eeee03f1",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.557,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.79 -> +0.057"
+      ],
+      "search_score": 0.78512776,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:10:00.229523Z",
+      "word_count": 204,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://www.herodevs.com/blog-posts/postgresql-eol-dates-every-versions-release-end-of-life-timeline",
+      "canonical_url": "https://herodevs.com/blog-posts/postgresql-eol-dates-every-versions-release-end-of-life-timeline",
+      "title": "HeroDevs Blog | PostgreSQL EOL Dates: Every Version's Release & End-of-Life Timeline",
+      "domain": "herodevs.com",
+      "text": "[REDACTED: 11963 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "1eb45d2637c734ec",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.605,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.78 -> +0.055",
+        "substantial content (1919 words) -> +0.050"
+      ],
+      "search_score": 0.7760977,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T21:10:00.229542Z",
+      "word_count": 1919,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The latest version number of PostgreSQL that has been officially released and marked as stable by the PostgreSQL Global Development Group",
+      "quote": "[REDACTED: 150 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:12:36.496587Z",
+      "query_id": "Q1",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "How is the stability of the latest PostgreSQL release defined by the project's release process?",
+      "quote": "[REDACTED: 116 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:12:36.499049Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Are there any known critical issues or failure modes that have been reported in the latest stable PostgreSQL release?",
+      "quote": "[REDACTED: 116 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:12:36.501322Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "What is the official release date of the latest stable PostgreSQL version?",
+      "quote": "[REDACTED: 150 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:12:36.507961Z",
+      "query_id": "Q4",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.15
+    },
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "The latest stable PostgreSQL release is PostgreSQL 18.4",
+      "quote": "[REDACTED: 73 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:11:06.406824Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "The stability of the latest PostgreSQL release is defined by the project's release process as a major version supported for 5 years from its release date",
+      "quote": "[REDACTED: 95 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:11:06.410992Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "There are known critical issues or failure modes reported in the latest stable PostgreSQL release",
+      "quote": "[REDACTED: 116 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:11:06.414405Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "The official release date of the latest stable PostgreSQL version is September 2025",
+      "quote": "[REDACTED: 24 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:11:06.422925Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL 18 is the latest stable version",
+      "quote": "[REDACTED: 22 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:13:22.379144Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The stability of the latest PostgreSQL release is defined by the project's release process",
+      "quote": "[REDACTED: 28 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:13:22.380428Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "No critical issues or failure modes reported in the latest stable PostgreSQL release",
+      "quote": "[REDACTED: 22 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:13:22.381564Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "The official release date of the latest stable PostgreSQL version is 2025-09-25",
+      "quote": "[REDACTED: 26 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:13:22.382796Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The latest stable PostgreSQL version is 18",
+      "quote": "[REDACTED: 51 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:14:27.482587Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The stability of the latest PostgreSQL release is defined by a five-year support window from the initial release date",
+      "quote": "[REDACTED: 253 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:14:27.485001Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "There are known critical issues in the latest stable PostgreSQL release (18) that have been reported",
+      "quote": "[REDACTED: 44 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:14:27.487455Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "The official release date of the latest stable PostgreSQL version is September 25, 2025",
+      "quote": "[REDACTED: 51 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T21:14:27.489441Z",
+      "query_id": "Q4",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "The latest version number of PostgreSQL that has been officially released and marked as stable by the PostgreSQL Global Development Group",
+      "quote": "[REDACTED: 113 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T21:14:54.033640Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "How is the stability of the latest PostgreSQL release defined by the project's release process?",
+      "quote": "[REDACTED: 266 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T21:14:54.033909Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "latest stable postgresql release version",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Directly answers the version number question using the question's own vocabulary. The phrase 'latest stable' matches the project's terminology for official releases, and 'release version' is the standard term used in PostgreSQL documentation to refer to version numbers."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "postgresql stable release definition process",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Focuses on the project's internal process for defining stability without adding technical jargon. The term 'definition process' is used to capture how the project formally defines stability, which is critical for understanding the release criteria without going into implementation details."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "critical issues postgresql latest stable release",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Targets known critical issues in the latest stable release by using the project's terminology. The phrase 'critical issues' is a standard term in software release reports, and 'latest stable release' ensures the query focuses on the most recent version without ambiguity."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "postgresql latest stable release date",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Specifically targets the official release date of the latest stable version. The phrase 'release date' is the standard term used in the project's documentation and release notes, ensuring the query retrieves the correct temporal information without confusion."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 5,
+        "distinct_sources": 4,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 5,
+        "distinct_sources": 5,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "5 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 4,
+        "distinct_sources": 4,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 4,
+        "distinct_sources": 3,
+        "has_contradiction": false,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [],
+    "contradictions": [
+      "[S1] There are known critical issues or failure modes reported in the latest stable PostgreSQL release",
+      "[S4] The latest version number of PostgreSQL that has been officially released and marked as stable by the PostgreSQL Global Development Group",
+      "[S4] How is the stability of the latest PostgreSQL release defined by the project's release process?"
+    ],
+    "domain_concentration": 0.2,
+    "recommended_followups": [],
+    "sufficient": true,
+    "reasoning": "I need to assess whether the evidence gathered so far supports a defensible answer to the research question: 'What is the most recent stable release version of PostgreSQL?'\n\nLet me break down what we have:\n\n1. The research question is asking for the most recent stable release version of PostgreSQL.\n\n2. The mechanical coverage counts show that all four sub-questions (SQ1-SQ4) are covered with exact matches across the specified number of sources.\n\n3. Let's look at what the evidence says about the most recent stable release version:\n\nFor SQ1 (What is the latest version number of PostgreSQL that has been officially released and marked as stable by the PostgreSQL Global Development Group?):\n- S1-e1: \"The latest stable PostgreSQL release is PostgreSQL 18.4\"\n- S2-e1: \"PostgreSQL 18 is the latest stable version\"\n- S5-e1: \"18 | Sep 25, 2025 | Nov 14, 2030 | Supported | 18.4\"\n\nFor SQ4 (What is the official release date of the latest stable PostgreSQL version?):\n- S1-e4: \"PostgreSQL 18 | Sep 2025\"\n- S2-e4: \"PostgreSQL 18 | 2025-09-25\"\n- S5-e4: \"18 | Sep 25, 2025 | Nov 14, 2030 | Supported | 18.4\"\n\nThere's a bit of inconsistency here. S1-e1 says \"PostgreSQL 18.4\" is the latest stable release, while S2-e1 and S5-e1 say \"PostgreSQL 18\" is the latest stable version. This is a critical difference because 18.4 is a minor release of version 18.\n\nLet me check the PostgreSQL versioning system to understand what's going on:\n\nIn PostgreSQL, the versioning follows the pattern: Major.Minor.Patch\n- Version 18 is the major version\n- Version 18.4 is a minor release within version 18\n\nThe key question is: What constitutes a \"stable release\" in PostgreSQL terms?\n\nFrom the evidence:\n- S5-e1 and S5-e4 both mention \"18 | Sep 25, 2025 | Nov 14, 2030 | Supported | 18.4\" - this suggests that version 18.4 is the latest stable release with a release date of September 25, 2025, and support until November 14, 2030.\n- S2-e1 says \"PostgreSQL 18 is the latest stable version\" - this suggests that version 18 is the latest major version, but it doesn't specify if there are minor releases.\n\nThe confusion here is between the major version (18) and the latest stable release (18.4). In PostgreSQL terminology, the \"latest stable release\" would be the most recent version that has been officially released and marked as stable.\n\nLooking at the evidence more carefully, I notice that S5-e1 and S5-e4 both mention \"18.4\" as the latest stable release, but they also show it as part of the version 18 series. This suggests that 18.4 is the latest stable release within the 18 major version.\n\nThe evidence also shows that there's a reference to PostgreSQL 19 Beta 1 in S1-e3, but it's marked as a \"preview release intended for testing rather than production use\" - so it's not stable yet.\n\nLet me check if there's any evidence about what constitutes a stable release in PostgreSQL:\n\nFrom S5-e2: \"Five-year support window: PGDG supports each major version for five years from its initial release. After the five-year anniversary, the version receives one final minor release containing any remaining fixes, and is then considered EOL and unsupported.\" This suggests that the latest stable release would be the most recent minor release within a major version that's still supported.\n\nThe evidence seems to indicate that the latest stable release is PostgreSQL 18.4, with a release date of September 25, 2025, and support until November 14, 2030.\n\nHowever, there's a potential issue with the dates. The evidence shows dates in 2025 and 2030, but the current year is 2023. This suggests that the evidence might be from a future-dated source (since the current year is 2023, but the evidence mentions 2025 and 2030).\n\nLet me think about what's missing:\n\n1. The evidence shows multiple sources saying different things about the latest stable version (18 vs 18.4). This needs clarification.\n2. The evidence shows future dates (2025, 2030), which is unusual for current information.\n3. There's no clear evidence about what constitutes a \"stable release\" in PostgreSQL terms beyond the general support policy.\n4. The evidence doesn't explicitly state which version is the most recent stable release in the context of the current time (2023).\n\nLet me analyze the evidence more carefully to see if it's sufficient for a defensible answer:\n\nThe research question is: \"What is the most recent stable release version of PostgreSQL?\"\n\nThe evidence shows:\n- S1-e1: \"The latest stable PostgreSQL release is PostgreSQL 18.4\"\n- S2-e1: \"PostgreSQL 18 is the latest stable version\"\n- S5-e1: \"18 | Sep 25, 2025 | Nov 14, 2030 | Supported | 18.4\"\n\nThe key distinction here is between the major version (18) and the latest stable release (18.4). In PostgreSQL, the latest stable release would be the most recent version that has been officially released and marked as stable.\n\nFrom the evidence, it appears that 18.4 is the latest stable release (as it's the most recent version mentioned with a specific release date), but there's confusion about whether 18.4 is a minor release of 18 or a separate version.\n\nThe evidence from S5-e1 and S5-e4 shows that version 18.4 is the latest stable release with a release date of September 25, 2025, and support until November 14, 2030.\n\nHowever, the dates (2025 and 2030) are in the future, which suggests that this information might be from a future-dated source or a hypothetical scenario.\n\nLet"
+  }
+}
