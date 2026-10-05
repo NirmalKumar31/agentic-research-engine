@@ -1,6 +1,6 @@
 {
-  "description": "Second-opinion adjudication for one disputed case from the Agentic Research Engine release audit (issue #32). A first independent reviewer labelled this claim unsupported; the system published it. Judge whether the quote supports the claim -- nothing about the first reviewer's label, the system's score, its guard results or its publication decision is included here.",
-  "instructions": "Label the one case below supported / unsupported / uncertain using the definitions provided. Judge the claim against its quote only -- not against what you know to be true about the subject. Write your label into second-opinion-label.json as {case_id: label}.",
+  "description": "Please review one claim-and-evidence pair. Judge only whether the supplied quote supports the claim.",
+  "instructions": "Do not use outside knowledge, search the web, or infer what anyone else decided. Label the case below supported / unsupported / uncertain using the definitions provided, then write your label into evidence-review-label.json as {case_id: label}, replacing the single null value, and return the file unchanged otherwise.",
   "label_definitions": {
     "supported": "This quote, on its own, states or directly implies the claim with its scope, modality, quantities and attribution intact.",
     "unsupported": "It does not. The claim says more than the quote, or something the quote does not say.",
@@ -8,7 +8,7 @@
   },
   "cases": [
     {
-      "case_id": "nist-ai-risk-framework-5",
+      "case_id": "EXR-45d21543",
       "claim": "The NIST AI Risk Management Framework 1.0 defines practical use cases through profiles that apply the framework to specific AI systems or technology classes.",
       "quote": "NIST AI RMF profiles \u200b\nA profile is how organizations adopt AI RMF 1.0 in their specific context. There are two common types:\nUse-case profile \u2014 applies AI RMF to a specific AI system or sector (e.g., credit underwriting, medical imaging triage, customer-service chatbot).\nCross-sectoral profile \u2014 applies AI RMF to a technology class across sectors (e.g., the Generative AI Profile, AI 600-1).",
       "source_title": null,

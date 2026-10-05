@@ -91,15 +91,29 @@ ever visible to them at all.
 ### One disputed case, a second opinion
 
 `reviewer-audit.json` found one published claim the independent
-reviewer labelled unsupported: `nist-ai-risk-framework-5` (tracked in
-issue #32). `second_opinion.py` hands that one case, and nothing else,
-to a second adjudicator -- not the first reviewer's label, not the
-system's score, guard result or publication decision.
+reviewer labelled unsupported (tracked internally in issue #32).
+`second_opinion.py` hands that one case, and nothing else, to a second
+adjudicator -- not the first reviewer's label, not the system's score,
+guard result or publication decision, not which run or audit it came
+from, and not a mention of issue #32 or any model/provider name. The
+outward-facing files (`evidence-review-packet.json`,
+`evidence-review-label.json`) use a neutral random case id instead of
+the repo's own case naming, specifically so neither file hints at the
+context this script itself knows about.
+
+A build-time check (`FORBIDDEN_TERMS` in `second_opinion.py`) scans the
+packet's own `description` and case data for exactly this class of
+leak before writing anything to disk. It exists because an earlier
+version of this packet failed at the one thing it was for: its
+hand-written description stated outright that "a first independent
+reviewer labelled this claim unsupported; the system published it" --
+caught before any human received it, not by a test, because the test
+didn't exist yet. It does now.
 
 ```bash
-python examples/release-audit/second_opinion.py build   # writes second-opinion-packet.json + a blank label
-#   ... a second adjudicator fills second-opinion-label.json ...
-python examples/release-audit/second_opinion.py join     # writes second-opinion-result.json
+python examples/release-audit/second_opinion.py build   # writes evidence-review-packet.json + a blank label
+#   ... give the packet to a second adjudicator, who fills evidence-review-label.json ...
+python examples/release-audit/second_opinion.py join     # writes evidence-review-result.json
 ```
 
 `join` records both labels side by side and what they imply -- it does
