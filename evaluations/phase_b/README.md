@@ -24,9 +24,9 @@ is the raw evidence that write-up is accountable to.
 `adjudication/` holds a blinded packet for an independent human
 adjudicator -- not committed, because its `adjudication_key.json` would
 prematurely reveal arm identity before any adjudicator has scored it.
-See [`adjudication/README.md`](adjudication/README.md) if that
-directory exists on your checkout (`scripts/prepare_adjudication_packet.py`
-regenerates it).
+See `adjudication/README.md` if that directory exists on your checkout
+-- it is not committed, so this is not a link
+(`scripts/prepare_adjudication_packet.py` regenerates it).
 
 The original full-text corpora and one unredacted-quotes backup were
 deleted after being encrypted and verified in duplicate; see
