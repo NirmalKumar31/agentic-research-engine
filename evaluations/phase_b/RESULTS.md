@@ -153,7 +153,9 @@ makes this split explicit; see "Blinded review results" below for the completed
 human-rubric -- in this case AI-rubric -- version of this same comparison).
 
 **3. Operational reliability and latency (a real, asymmetric difference).** Cloud: 24/24
-completed, 0 timeouts, 9-28s per run. Local: 19/24 completed in 55-123s per run; the other
+completed, 0 timeouts, 8.84-28.51s per run. Local: 19/24 completed in 54.50-118.21s per run
+(the 5 that timed out ran 120.02-122.78s before being stopped -- reported separately since a
+timeout's duration is a ceiling being hit, not a completion time); the other
 5/24 hit the fixed 120s timeout and produced no output at all. The local arm's failures
 cluster on relationship, comparison, causal and ambiguous question shapes -- not on
 definition, numeric or procedural ones -- which is itself a more specific finding than

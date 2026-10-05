@@ -274,7 +274,7 @@ limitation this script will not catch — stated rather than hidden.
 | Mode | Models | Notes |
 |---|---|---|
 | `local` | Ollama (`qwen3:4b`) | No paid LLM usage. ~15 minutes per run on an M-series laptop. Still needs a search provider. |
-| `cloud` | OpenAI | Substantially faster, at metered cost. A frozen-corpus local-vs-cloud comparison is published: [`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md) (24/24 cloud runs completed in 9-28s each; local completed 19/24 in 55-123s, 5 timed out at a 120s ceiling -- n=2 per question, no significance claimed). One bounded live validation run is also recorded under [examples/live-validation/](examples/live-validation/). |
+| `cloud` | OpenAI | Substantially faster, at metered cost. A frozen-corpus local-vs-cloud comparison is published: [`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md) (24/24 cloud runs completed in 8.84-28.51s each; local completed 19/24 in 54.50-118.21s, the other 5 ran into a 120.02-122.78s timeout -- n=2 per question, no significance claimed). One bounded live validation run is also recorded under [examples/live-validation/](examples/live-validation/). |
 | `hybrid` | Extraction local, reasoning cloud | Extraction is the highest-volume role and is mechanical. |
 
 Set `LLM_MODE` and, for cloud or hybrid, `OPENAI_API_KEY`.

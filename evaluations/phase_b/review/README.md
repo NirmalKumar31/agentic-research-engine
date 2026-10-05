@@ -19,6 +19,16 @@ evidence, and because the person who built and ran this benchmark is
 not a blind reviewer of their own study even when the packet is
 correctly redacted.
 
+**For this benchmark run, specifically:** both reviewer roles were
+performed by two independent Codex (AI) sessions, not the two human
+reviewers `docs/BENCHMARK-PROTOCOL.md` specifies -- a disclosed
+deviation, authorized by the project owner, not an implied
+substitution. This file describes the packet structure and workflow,
+which is identical either way; `evaluations/phase_b/RESULTS.md`'s
+"Blinded review results" section and `SUMMARY.md`'s header are the
+authoritative statement of who actually performed the scoring that
+produced this benchmark's real results.
+
 ## Workflow
 
 1. Each reviewer works from **only their own** `reviewer_a/` or
