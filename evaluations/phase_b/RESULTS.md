@@ -16,6 +16,7 @@ once, and that is disclosed here rather than smoothed over.
 - **Known/recorded cloud cost: $0.027093**, against the $10.00 ceiling (full ledger: [`spend_ledger.json`](spend_ledger.json)). This is *not* represented as an exact total: every one of the 24 cloud runs recorded `cost_is_complete: false` (the pricing table does not cover every cost component OpenAI may bill), so the true cost may be marginally higher than this figure, though it is bounded by the enforced per-call ceiling (`max_cloud_cost_usd`), which gates on *projected* cost before dispatch regardless of whether the eventual actual figure is complete. Tavily search-credit cost during corpus freezing is **unmeasured** -- not priced anywhere in this repository -- and is not included in any total here. The $10 ceiling was therefore enforced against *known* cloud cost, not against every metered external service this run touched.
 - A separate, one-time pre-study smoke test (one throwaway question, not part of the 48, not in any table below) made one real cloud call and cost **$0.000426** (`cost_is_complete` was `true` for that single call). Not included in the $0.027093 figure above.
 - Wall-clock elapsed: 116.8 minutes (arm-run phase only; corpus freezing beforehand took considerably longer and was interrupted twice by infrastructure -- see "Protocol deviations").
+- **Blinded review complete: two independent AI reviewers (Codex), not human** -- a stated protocol deviation; see "Blinded review results" for the full disclosure, the judge-provider-family concern, and what the results do and do not support claiming.
 
 **Statistical caveat, stated once and binding throughout:** each cell below aggregates n=2 repetitions. No significance test is computed or implied; a difference between arms here is a measured observation at n=2, not a generalizable claim of model superiority, factual correctness, or broad applicability beyond these 12 questions.
 
@@ -54,14 +55,21 @@ reporting what happened:
    regenerated from the untouched raw markdown in `runs/*.json` -- no
    provider was called again to do this. See "Execution provenance" for the
    before/after detail.
+4. **Blinded review was performed by two AI reviewers, not two human
+   reviewers.** `docs/BENCHMARK-PROTOCOL.md` explicitly requires human
+   judgment for this step. Both reviews here were independent Codex
+   sessions instead, authorized by the project owner. The reviewing model
+   shares a provider (OpenAI) with the cloud arm's synthesizer
+   (`gpt-6-luna`), which is a direct, disclosed limitation on how the
+   review's findings should be read -- see "Blinded review results."
 
 ## Prominent limitations (read before the table)
 
 These are not footnotes: they bound what this data can honestly be used to claim.
 
 1. **Two corpora have one unfetchable source each.** Q6-causal (1 of 5 sources) and Q9-ambiguous (1 of 10 sources) each had one source fail to fetch live (paywall/block/timeout) at freeze time. Citable evidence still existed from the remaining sources in each case (16 and 52 citable items respectively), so freezing continued rather than aborting -- but both corpora are verifiably *not* at full source strength. Detail in "Limitations" below.
-2. **Blinding redacted zero identifiers on 44 of 48 outputs.** The 4 exceptions are *all four* of Q2-numeric-lookup's runs (8, 13, 9, and 8 redactions respectively) -- expected, since Q2 literally asks about a named OpenAI model ("GPT-4 Turbo"), so its answer content legitimately contains provider/model strings on the blinding list. The other 44 outputs never mentioned an identifier at all. Per the protocol's own stated caveat, a run with zero redactions is a signal to spot-check during blinded review, not an assumption of a clean run -- that spot-check has not yet happened (see "Next step" below).
-3. **Blinded human review has not been performed.** Nothing in this document scores whether a claim is an overclaim against its question's `forbidden_overclaims`, or whether a refusal was the *correct* refusal. Those are judgement calls for a human reviewer against `evaluations/phase_b/blinded/`, not something this script claims to have decided.
+2. **Blinding redacted zero identifiers on 44 of 48 outputs.** The 4 exceptions are *all four* of Q2-numeric-lookup's runs (8, 13, 9, and 8 redactions respectively) -- expected, since Q2 literally asks about a named OpenAI model ("GPT-4 Turbo"), so its answer content legitimately contains provider/model strings on the blinding list. The other 44 outputs never mentioned an identifier at all.
+3. **Blinded review was performed by two independent AI reviewers (Codex), not human reviewers.** This is a deviation from `docs/BENCHMARK-PROTOCOL.md`'s explicit requirement for human judgment, and the reviewing AI shares a provider with the cloud arm -- see "Blinded review results" below for the full disclosure and what it does and does not license claiming.
 
 ## Per-question, per-arm raw results
 
@@ -140,8 +148,9 @@ any summary computed from this column must restrict itself to the 19 question-re
 where both arms produced output, for the same selection-bias reason given below -- this
 document does not compute such a summary itself, but a reader extending this table should
 not average cloud's 24 raw values against local's 19 without first checking which
-repetitions are actually paired (`evaluations/phase_b/review/reconciliation.csv`, once
-human review exists, makes this split explicit).
+repetitions are actually paired (`evaluations/phase_b/review/reconciliation.csv`
+makes this split explicit; see "Blinded review results" below for the completed
+human-rubric -- in this case AI-rubric -- version of this same comparison).
 
 **3. Operational reliability and latency (a real, asymmetric difference).** Cloud: 24/24
 completed, 0 timeouts, 9-28s per run. Local: 19/24 completed in 55-123s per run; the other
@@ -165,7 +174,7 @@ These four are kept apart deliberately: collapsing them into a single "cloud won
 
 - n=2 repetitions per arm per question: no statistical significance claimed or computable.
 - Track 1 holds retrieval fixed (frozen corpus); it answers "do the models differ on the same evidence", not "which pipeline is better in practice" (Track 2, not run here).
-- Whether a claim is an overclaim against its question's `forbidden_overclaims`, and whether a refusal was the correct one, are not scored mechanically -- blinded human review (see `evaluations/phase_b/blinded/`) decides those, not this script.
+- Whether a claim is an overclaim against its question's `forbidden_overclaims`, and whether a refusal was the correct one, are not scored mechanically -- the blinded review (see "Blinded review results" below; performed by two AI reviewers, not human) decides those, not this script.
 - Tavily search-credit cost during corpus freezing is not priced per-credit anywhere in this repository and is not included in the $ figure above; it is assumed to remain within the account's free tier, consistent with every prior run in this project.
 - `blind()` catches identifying strings, not a model describing its own architecture in other words.
 - Non-fatal corpus degradation at freeze time (a source failed to fetch live, e.g. paywall/block/timeout; citable evidence still existed from the remaining sources, so freezing continued rather than aborting):
@@ -174,26 +183,100 @@ These four are kept apart deliberately: collapsing them into a single "cloud won
 - 5 local-arm run(s) failed outright; see Failures above for which capability was unavailable locally.
 - Blinding redaction counts, exact, from `evaluations/phase_b/blinded/*.md`: 44 of 48 files redacted 0 identifiers. The remaining 4 are all four runs of Q2-numeric-lookup: rep1-cloud 8, rep1-local 13, rep2-cloud 9, rep2-local 8. No other question had any redaction.
 
-## Next step
+## Blinded review results
 
-Blinded human review has not happened yet. The tooling for it
-(`scripts/prepare_phase_b_review.py`, `scripts/join_phase_b_review.py`,
-`scripts/reconcile_phase_b_review.py`, under `evaluations/phase_b/review/`)
-produces **two independently randomized reviewer packets**, per
-`docs/BENCHMARK-PROTOCOL.md`'s own requirement for two reviewers with
-disagreement recorded rather than averaged away -- a single reviewer,
-particularly the person who built and ran this benchmark, is not a blind
-judge of their own study. Each reviewer scores against the question's
-own pre-registered `rubric` and `forbidden_overclaims`
-(`examples/benchmark/questions.json`) without seeing which arm or model
-produced any candidate. Scoring happens before either reviewer's
-unblinding key is opened; the reconciliation step then joins both
-reviewers' scores, flags per-dimension disagreements for separate
-adjudication, and restricts any arm-vs-arm quality comparison to the 19
-paired question-repetitions (see point 2 and 3 above). No claim
-stronger than what is in this document -- in particular, no claim about
-which arm answered "better" -- should be written until that review and
-reconciliation exist.
+**Review method deviation, disclosed prominently, not buried:**
+`docs/BENCHMARK-PROTOCOL.md` requires two independent **human** reviewers.
+Both reviews below were instead performed by two separately-run **Codex
+(OpenAI) sessions**, each given only its own randomized packet (a copy of
+`evaluations/phase_b/review/reviewer_{a,b}/packet/` and
+`scores_template.csv`, distributed without the corresponding
+`unblinding_key.json`), no shared context with each other, and no access
+to either unblinding key before scoring.
+This substitutes AI judgment for the human judgment the protocol calls
+for -- authorized by the project owner, stated here exactly as what it is.
+
+**Judge-family concern, stated directly:** the cloud arm's synthesizer is
+`gpt-6-luna` (OpenAI); the reviewer in both sessions was Codex (also
+OpenAI). LLM-as-judge research documents a measurable same-provider-family
+preference effect that survives blinding of explicit identity strings.
+The finding below -- cloud scoring higher than local on every dimension,
+agreed by both reviewers -- should be read with this directly in mind: it
+is evidence from two blinded-to-identity AI raters, not proof of quality
+superiority independent of who is judging.
+
+### Paired quality comparison (19 question-repetitions, both arms completed)
+
+The only fair arm-vs-arm comparison in this document. Both reviewers
+scored independently; both numbers are shown, never pooled into one mean.
+
+| Dimension | local: reviewer A | local: reviewer B | cloud: reviewer A | cloud: reviewer B |
+|---|---|---|---|---|
+| relevance | 2.53 | 2.63 | 4.00 | 4.16 |
+| completeness | 2.47 | 2.47 | 3.58 | 3.58 |
+| clarity | 3.63 | 3.58 | 4.26 | 4.32 |
+| claim_support | 3.47 | 3.26 | 4.42 | 4.05 |
+| citation_usefulness | 2.74 | 3.05 | 3.37 | 3.53 |
+
+(n=19 per cell; 1-5 scale.)
+
+### Inter-rater agreement
+
+- **215 dimension-score comparisons** (43 scored outputs x 5 dimensions):
+  **2 disagreements at \|diff\| >= 2 (0.93%)**, both the same cell type --
+  Q3-procedural, `claim_support`, local arm, both repetitions. Both
+  reviewers' written rationales agree the output failed to give actual
+  migration steps; they differ on whether `claim_support` should score the
+  few claims it did make in isolation (reviewer A: 5) or overall adequacy
+  against the question (reviewer B: 3) -- a rubric-interpretation
+  ambiguity on this one dimension, not a disagreement about the
+  underlying output's quality.
+- **`harmful_or_unsupported_claims`: 4 of 43 scored outputs disagreed
+  (9.3%)**, clustered on Q10-long-tail (3 of 4) and
+  Q11-adversarial-evidence-shape (1 of 4) -- this benchmark's two hardest,
+  most judgment-dependent question shapes (an obscure-API sourcing
+  standard; a comparison requiring refusal). Representative disagreement:
+  on Q10, reviewer A rated citations sufficient while reviewer B held them
+  to "exact LangGraph documentation or source" and flagged a GitHub-issue
+  citation as insufficient; both rationales are defensible readings of the
+  same rubric line.
+- **None of these are adjudicated here.** `evaluations/phase_b/review/reconciliation.csv`'s
+  `adjudicated_*` columns are left blank, per the no-averaging-away
+  requirement, for the project owner to resolve.
+
+### Unpaired cloud-only outputs (5 reps, selection-biased, not pooled above)
+
+Both reviewers' scores pooled (n=10) since only cloud produced output for
+these repetitions:
+
+| Dimension | Mean |
+|---|---|
+| relevance | 3.40 |
+| completeness | 3.00 |
+| clarity | 4.00 |
+| claim_support | 4.40 |
+| citation_usefulness | 3.70 |
+
+### Directional observation, explicitly bounded
+
+Both reviewers independently rated cloud higher than local on every one of
+the 5 dimensions across the 19 paired repetitions. This is a more
+consistent cross-dimension pattern than the automated `claim_support`
+metric showed earlier in this document (which swung with no consistent
+winner at the per-question level) -- but it is **not** a significance
+claim: 19 paired observations are not independent in the statistical
+sense (clustered within 12 questions), no test is computed, and the
+same-provider-judge-family concern above directly limits what can be read
+into this independent of the fact that the rater and the cloud arm share
+a provider. Read as: two blinded AI reviewers, working from Codex's own
+judgment, agreed cloud's outputs scored higher on this rubric for this
+question set -- not as: cloud is the better research model in general.
+
+Raw data: `evaluations/phase_b/review/reconciliation.csv` (per-cell, both
+reviewers, disagreement flags, blank adjudication columns),
+`reviewer_{a,b}/joined_results.csv` (full per-reviewer join including
+rationale text), `_submitted_originals/` (the reviewers' CSVs exactly as
+submitted, unmodified).
 
 ## Execution provenance
 
@@ -274,12 +357,22 @@ reachable commit on this branch -- not merely untracked going forward.
 
 **Git history on this branch has been rewritten** to remove the original,
 full-text blobs (12 corpora, 3 run outputs) from every commit that ever
-contained them, using exact blob-hash matching (`git filter-repo
---strip-blobs-with-ids`) rather than a text-content search -- a plain
-text/substring replacement risked rewriting unrelated, already-released
-history elsewhere in this repository that happens to quote the same
-publicly-known facts (e.g. GPT-4 Turbo's context window size, independently
-retrieved in an earlier, unrelated benchmark run on `main`). `main`, all
-tags, and every commit this branch shares with them are unchanged -- verified
-by SHA comparison before force-pushing. Old and new commit SHAs for this
-branch are recorded in the PR description.
+contained them. `git filter-repo --strip-blobs-with-ids` was tried first and
+rejected: it strips GPG signatures from every commit it reprocesses as a
+side effect, which cascaded through roughly 125 shared, already-released,
+already-tagged commits (e.g. `v1.7.1`) -- changing their hashes even though
+their content never changed, and would have desynced this branch from
+`main`'s real shared history. A plain text/substring replacement was also
+rejected for a related reason: one of the quotes needing removal (GPT-4
+Turbo's context window size) is independently quoted, for an unrelated
+reason, in that same already-released `v1.7.1` history -- a blanket
+text-replace would have silently rewritten it too. Used direct git plumbing
+instead (`git commit-tree`): a single new commit built on the exact,
+byte-verified tree of the already-sanitized final state, parented directly
+on the unchanged engine commit `a451aa3`. It has no ancestor that ever
+contained the unredacted blobs, so there is no intermediate history for
+them to be reachable through, and it cannot touch anything outside itself.
+`main`, every tag, and every commit this branch shares with them are
+byte-for-byte unchanged -- verified by direct SHA comparison, both locally
+and against the actual remote, before force-pushing. Old and new commit
+SHAs for this branch are recorded in the PR description.
