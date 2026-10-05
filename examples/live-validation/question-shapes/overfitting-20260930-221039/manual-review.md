@@ -1,7 +1,7 @@
 # Manual review
 
 Read by hand against the pass criteria committed **before** the run at
-`docs/vnext-baseline/paid-run-acceptance.md`, so the criteria could not be
+`docs/history/vnext-baseline/paid-run-acceptance.md`, so the criteria could not be
 fitted to the result.
 
 ## Queries

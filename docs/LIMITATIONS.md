@@ -644,25 +644,28 @@ A run whose candidate pool is entirely blogs will still read blogs.
 Preference decides among what was found, and what is found is the
 search provider's doing — one query set, one provider, six pages.
 
-### The deployed demo is not currently blueprint-managed
+### The deployed demo was not blueprint-managed as of v1.2.1 (2026-09-29)
 
-`deploy/render-live.yaml` describes the public demo, and for now it
-describes rather than governs it.
+**Dated observation, not reverified since.** `deploy/render-live.yaml`
+describes the public demo; as of the date above it described rather
+than governed it, and this has not been checked against Render again
+since.
 
 A rename was attempted and reverted (see v1.2.1). In between, the
 blueprint's web service was replaced and then deleted, which left
 `agentic-research-engine-live` running as a standalone service and the
 blueprint instance managing only the Key Value store. Render cannot
 adopt an existing unmanaged service into a blueprint by name, so that
-instance reports a failed sync and will keep doing so.
+instance reported a failed sync at the time.
 
-The consequence to be aware of: **a change to the env vars in
-`render-live.yaml` will not reach the running demo.** The committed
-file is still the reviewable record of what the deployment should be,
-and the deployment currently matches it, but the two are no longer
-wired together. Re-establishing that means deleting the service and the
-store and recreating both from the blueprint, with every credential
-re-entered.
+Observed consequence at the time: **a change to the env vars in
+`render-live.yaml` would not reach the running demo.** The committed
+file was still the reviewable record of what the deployment should be,
+and the deployment matched it, but the two were not wired together.
+Re-establishing that would mean deleting the service and the store and
+recreating both from the blueprint, with every credential re-entered.
+Reverify directly against Render before relying on this if the
+deployment has been touched since 2026-09-29.
 
 ## Security
 

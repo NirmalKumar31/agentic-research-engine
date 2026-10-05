@@ -8,9 +8,11 @@
 > end-to-end) remains out of scope and unexecuted. Two deviations from
 > this document as originally written: the freeze-time corpus-abort rule
 > was changed mid-study (a single degraded source is no longer treated as
-> fatal), and the blinded review below was performed by **two independent
-> Codex (AI) sessions**, not the two human reviewers this protocol
-> specifies -- a disclosed substitution, not a silent one. That review
+> fatal), and the blinded review below was performed by **two separately
+> run, blinded Codex (AI) sessions** -- blinded to candidate identity,
+> not independent in a statistical or institutional sense -- not the two
+> human reviewers this protocol specifies -- a disclosed substitution,
+> not a silent one. That review
 > surfaced 6 reviewer disagreements (2 score, 4 harmful-claim-flag) that
 > remain **unadjudicated** as of this banner; see RESULTS.md's "Blinded
 > review results" for which ones and why.

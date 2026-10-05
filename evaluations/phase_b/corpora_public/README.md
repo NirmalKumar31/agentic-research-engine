@@ -8,8 +8,11 @@ titles, domains, `content_hash`, timestamps, quality scores, the
 model's own `claim` paraphrases, relevance scores, and citability.
 
 **These files will not reproduce the `corpus_hash()` values recorded in
-`../manifest.json`** -- that hash covers the original, full-text corpus,
-kept locally for the record and not redistributed here.
+`../manifest.json`** -- that hash covers the original, full-text corpus.
+Plaintext originals are not retained in the repository or working tree:
+two independently stored encrypted archives were round-trip verified
+(decrypted, every file checked against its SHA-256) before the
+plaintext was deleted -- see `../RESULTS.md`'s redistribution note.
 
 ## Reproduction procedure
 

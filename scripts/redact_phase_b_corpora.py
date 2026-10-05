@@ -17,7 +17,9 @@ except `text` and `quote` is preserved (sources, URLs, timestamps,
 What is lost is exactly the ability to recompute `corpus_hash()` against
 this file, since that hash covers the original including the stripped
 text -- the hash in `manifest.json` refers to the original full-text
-corpus kept locally, not to this redacted rendition. A reproduction
+corpus, not to this redacted rendition. Plaintext originals are not
+retained in the repository or working tree; see RESULTS.md's
+redistribution note for the encrypted-archive record. A reproduction
 procedure (re-run `agentic-research freeze` against the same question
 text) is the documented path to an equivalent corpus for independent
 verification, not a guarantee of byte-identical text from live web
@@ -69,8 +71,11 @@ titles, domains, `content_hash`, timestamps, quality scores, the
 model's own `claim` paraphrases, relevance scores, and citability.
 
 **These files will not reproduce the `corpus_hash()` values recorded in
-`../manifest.json`** -- that hash covers the original, full-text corpus,
-kept locally for the record and not redistributed here.
+`../manifest.json`** -- that hash covers the original, full-text corpus.
+Plaintext originals are not retained in the repository or working tree:
+two independently stored encrypted archives were round-trip verified
+(decrypted, every file checked against its SHA-256) before the
+plaintext was deleted -- see `../RESULTS.md`'s redistribution note.
 
 ## Reproduction procedure
 

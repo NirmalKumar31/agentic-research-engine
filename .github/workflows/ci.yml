@@ -58,6 +58,14 @@ jobs:
       - name: Format check
         run: ruff format --check src tests examples scripts
 
+      # Pure stdlib, no deps beyond what Lint/Format already needed: internal
+      # links resolve, the required index files exist, README stays under its
+      # line ceiling, and no new doc states a deployed SHA as a present-tense
+      # fact outside docs/history/. Catches a documentation regression here
+      # rather than in the next external scrutiny pass.
+      - name: Documentation gates
+        run: python scripts/check_docs.py
+
       # Three invocations on purpose. Bare `mypy` uses the `packages` setting
       # in pyproject.toml, resolving imports the way an importer does; that
       # is what a contributor runs, and it catches package-resolution faults

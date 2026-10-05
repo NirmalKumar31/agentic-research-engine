@@ -13,10 +13,13 @@ corpora, smaller in scope.
 Only the quote text inside `- "<quote>" — **[Sx]** title` lines is
 replaced; the attribution, every other section (Summary, Limitations,
 Sources, Citation verification), and every measurement (`ok`,
-`timed_out`, `duration_s`, cost, tokens, metrics) are untouched. A
-backup of the original unredacted files is kept locally (not committed)
-at `evaluations/phase_b/_local_only_unredacted_backup/` before this
-runs.
+`timed_out`, `duration_s`, cost, tokens, metrics) are untouched. This
+script backed up the original unredacted files at
+`evaluations/phase_b/_local_only_unredacted_backup/` before running.
+That backup, like the frozen corpora, is not retained in the repository
+or working tree: two independently stored encrypted archives were
+round-trip verified before the plaintext was deleted -- see
+`evaluations/phase_b/RESULTS.md`'s redistribution note.
 """
 
 from __future__ import annotations
