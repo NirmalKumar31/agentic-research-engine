@@ -2,6 +2,29 @@
 
 Notable changes per release. Dates are UTC.
 
+## Unreleased
+
+Post-v1.15.0 evaluation and reproducibility tooling, not a public runtime
+change -- no version bump unless a new package release is intended:
+
+- Three levels of reproducibility (replay, frozen-corpus engine
+  determinism, local environment) and a bootstrap/verify script pair.
+- Benchmark Phase A: protocol, manifest, blinding utility, the
+  twelve-question set (construction and validation only, no run).
+- Benchmark Phase B executed under an authorized $10 spend ceiling: the
+  frozen-corpus Ollama-vs-cloud comparison, 48/48 preregistered arm-runs
+  attempted (43 produced output, 5 timed out), $0.027093 known cloud
+  spend. Full results, limitations, protocol deviations, and execution
+  provenance: [`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md).
+- Phase B's blinded review was performed by two independent Codex (AI)
+  sessions rather than the human reviewers `docs/BENCHMARK-PROTOCOL.md`
+  specifies -- a disclosed deviation. 6 reviewer disagreements (2 score,
+  4 harmful-claim-flag) remain unadjudicated by design.
+- The deployed instance (commit `5f3ee5e3`) predates this work; none of
+  it touches the web app's request-serving path (only
+  `src/agentic_research/evaluation/*` and the CLI), so redeployment is
+  optional, not a runtime fix.
+
 ## v1.15.0 — 2026-10-03
 
 **What this release does.** It makes source authority visible at

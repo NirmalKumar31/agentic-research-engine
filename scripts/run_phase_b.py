@@ -563,8 +563,11 @@ def write_report(
     )
     lines.append(
         "- Whether a claim is an overclaim against its question's `forbidden_overclaims`, "
-        "and whether a refusal was the correct one, are not scored mechanically -- blinded "
-        "human review (see `evaluations/phase_b/blinded/`) decides those, not this script."
+        "and whether a refusal was the correct one, are not scored mechanically -- a "
+        "separately-authorized blinded review (see `evaluations/phase_b/blinded/`; "
+        "docs/BENCHMARK-PROTOCOL.md specifies human reviewers, so check "
+        "evaluations/phase_b/review/ for who actually performed it, if that review has "
+        "happened) decides those, not this script."
     )
     lines.append(
         "- Tavily search-credit cost during corpus freezing is not priced per-credit anywhere "
