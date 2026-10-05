@@ -274,7 +274,7 @@ limitation this script will not catch — stated rather than hidden.
 | Mode | Models | Notes |
 |---|---|---|
 | `local` | Ollama (`qwen3:4b`) | No paid LLM usage. ~15 minutes per run on an M-series laptop. Still needs a search provider. |
-| `cloud` | OpenAI | Substantially faster, at metered cost. No clean-corpus benchmark run is published, so no timing is quoted here. One bounded live validation run is recorded under [examples/live-validation/](examples/live-validation/). |
+| `cloud` | OpenAI | Substantially faster, at metered cost. A frozen-corpus local-vs-cloud comparison is published: [`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md) (24/24 cloud runs completed in 9-28s each; local completed 19/24 in 55-123s, 5 timed out at a 120s ceiling -- n=2 per question, no significance claimed). One bounded live validation run is also recorded under [examples/live-validation/](examples/live-validation/). |
 | `hybrid` | Extraction local, reasoning cloud | Extraction is the highest-volume role and is mechanical. |
 
 Set `LLM_MODE` and, for cloud or hybrid, `OPENAI_API_KEY`.
@@ -293,8 +293,14 @@ search provider and no model.
 **Live** (`LIVE_RESEARCH_ENABLED=true`) additionally accepts a visitor's own
 question, under the demo ceilings.
 
-Replay is the default for the public deployment: it needs no credentials and
-spends nothing, so it is the mode that can be left running.
+Replay is the default **blueprint**: it needs no credentials and spends
+nothing, so it is the configuration that can be left running unattended.
+The currently-running public deployment at the live demo URL below has
+live mode enabled (`OPENAI_API_KEY` configured, `LIVE_RESEARCH_ENABLED=true`)
+-- check `/api/config` and `/api/readiness` on that URL for the
+instance's actual current mode and quota state rather than assuming this
+document describes it; a deployment's configuration can change
+independently of what this README recommends as the default.
 
 The daily cap for live mode is held in an external atomic counter rather than
 process memory, because a host that sleeps when idle would reset an in-memory

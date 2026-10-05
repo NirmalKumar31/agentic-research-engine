@@ -1,5 +1,20 @@
 # Local-vs-cloud benchmark protocol (Phase A)
 
+> **Post-execution status (added after the fact; the Phase A text below is
+> preserved unchanged as the historical preregistration, not rewritten to
+> match what happened):** Phase B was subsequently authorized and executed.
+> Full results: [`evaluations/phase_b/RESULTS.md`](../evaluations/phase_b/RESULTS.md).
+> Track 1 (frozen-corpus comparison) only was run; Track 2 (live
+> end-to-end) remains out of scope and unexecuted. Two deviations from
+> this document as originally written: the freeze-time corpus-abort rule
+> was changed mid-study (a single degraded source is no longer treated as
+> fatal), and the blinded review below was performed by **two independent
+> Codex (AI) sessions**, not the two human reviewers this protocol
+> specifies -- a disclosed substitution, not a silent one. That review
+> surfaced 6 reviewer disagreements (2 score, 4 harmful-claim-flag) that
+> remain **unadjudicated** as of this banner; see RESULTS.md's "Blinded
+> review results" for which ones and why.
+
 This is construction and validation, not a result. No question in this
 document has been run, and this document does not authorize running one.
 Phase B — any paid or cloud run — needs separate, explicit authorization

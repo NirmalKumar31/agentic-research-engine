@@ -122,7 +122,7 @@ jobs:
       - name: Verify frozen-corpus reproducibility from the installed wheel
         run: |
           cd /tmp
-          /tmp/fresh/bin/agentic-research verify-reproducible
+          LANGGRAPH_STRICT_MSGPACK=true /tmp/fresh/bin/agentic-research verify-reproducible
 
       # The public site runs from the installed wheel, not a source
       # checkout. If the recording JSON were not packaged, the deployed

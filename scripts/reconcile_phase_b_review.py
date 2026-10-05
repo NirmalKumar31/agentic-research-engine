@@ -151,10 +151,13 @@ def write_summary(rows: list[dict[str, Any]]) -> None:
 
     lines = ["# Phase B blinded review -- reconciled descriptive summary\n"]
     lines.append(
-        "**n=2 repetitions per question. All numbers below are descriptive "
-        "means over scored outputs from two independent reviewers, never "
-        "blended into a single pooled number without showing both raw "
-        "scores. This is not statistical significance evidence.**\n"
+        "**Reviewers: two independent Codex (AI) sessions, not the human "
+        "reviewers docs/BENCHMARK-PROTOCOL.md specifies -- a disclosed "
+        "deviation, not an implied substitute. n=2 repetitions per "
+        "question. All numbers below are descriptive means over scored "
+        "outputs, never blended into a single pooled number without "
+        "showing both raw scores. This is not statistical significance "
+        "evidence.**\n"
     )
 
     lines.append("## Paired quality comparison (both arms produced output)\n")
