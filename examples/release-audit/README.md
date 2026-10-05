@@ -57,3 +57,33 @@ python examples/release-audit/build_audit.py
 Reads the committed recordings, so it describes the same runs the demo
 site replays. Changing the numbers means re-recording, not re-running
 this.
+
+## Independent reviewer join
+
+`reviewer_packet.py` hands the same 21 candidates to someone other than
+the person who built the verifier -- `reviewer-packet.json` carries only
+the claim and its single selected quote, with the automated verdict,
+score, guard result, publication decision and prior label all
+structurally absent (asserted at build time, not just omitted by
+convention).
+
+```bash
+python examples/release-audit/reviewer_packet.py build   # writes the packet + a blank reviewer-labels.json
+#   ... a reviewer fills reviewer-labels.json with
+#       supported / unsupported / uncertain, one per case_id ...
+python examples/release-audit/reviewer_packet.py join     # writes reviewer-audit.json
+```
+
+`join` validates the returned labels (exactly 21, matching the packet's
+`case_id`s, every value one of the three allowed labels) before it joins
+anything to the hidden publication outcome. The output,
+`reviewer-audit.json`, carries a confusion matrix, every published claim
+labelled `unsupported` or `uncertain`, a non-identifying process
+attestation, and an explicit note that one external reviewer over a
+fixed 21-case set is independent release validation, not a statistical
+benchmark.
+
+This is a different thing from `blind-audit.json`: that is a blinded
+*self*-review (the same person who built the verifier, with the verdict
+hidden from them). This is a second person, with no automated outcome
+ever visible to them at all.
