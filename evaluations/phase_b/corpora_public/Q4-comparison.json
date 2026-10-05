@@ -1,0 +1,786 @@
+{
+  "question": "How do PostgreSQL and SQLite differ in concurrency, deployment, and typical use case?",
+  "captured_at": "2026-10-04T20:08:48.005628+00:00",
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "text": "What are the key differences in concurrency models between PostgreSQL and SQLite?",
+      "rationale": "",
+      "priority": 1,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ2",
+      "text": "How do PostgreSQL and SQLite differ in deployment requirements and infrastructure needs?",
+      "rationale": "",
+      "priority": 2,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ3",
+      "text": "What are the typical use cases for PostgreSQL versus SQLite based on real-world adoption data?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    },
+    {
+      "id": "SQ4",
+      "text": "What hidden costs or failure modes are associated with each database in high-concurrency scenarios?",
+      "rationale": "",
+      "priority": 3,
+      "round_introduced": 1,
+      "is_followup": false,
+      "parent_gap": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://www.red-gate.com/simple-talk/databases/postgresql/database-concurrency-in-postgresql",
+      "canonical_url": "https://red-gate.com/simple-talk/databases/postgresql/database-concurrency-in-postgresql",
+      "title": "Database Concurrency in PostgreSQL | Simple Talk",
+      "domain": "red-gate.com",
+      "text": "[REDACTED: 11868 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "63eb7ffea6411629",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.576,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.63 -> +0.026",
+        "substantial content (1829 words) -> +0.050"
+      ],
+      "search_score": 0.62852204,
+      "discovered_by": [
+        {
+          "query_id": "Q1",
+          "sub_question_id": "SQ1"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:00:24.325383Z",
+      "word_count": 1829,
+      "found_by_queries": [
+        "Q1"
+      ],
+      "answers_sub_questions": [
+        "SQ1"
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://coddy.tech/docs/sqlite/sqlite-vs-postgres",
+      "canonical_url": "https://coddy.tech/docs/sqlite/sqlite-vs-postgres",
+      "title": "Runnable SQLite Docs: SQLite vs Postgres | Coddy",
+      "domain": "coddy.tech",
+      "text": "[REDACTED: 11720 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "3cbaf7e026b13f8f",
+      "source_type": "vendor",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.642,
+      "quality_reasons": [
+        "vendor baseline 0.55",
+        "search relevance 0.71 -> +0.042",
+        "substantial content (1787 words) -> +0.050"
+      ],
+      "search_score": 0.70944256,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:00:24.325411Z",
+      "word_count": 1787,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://www.tinybird.co/blog/postgres-vs-sqlite",
+      "canonical_url": "https://tinybird.co/blog/postgres-vs-sqlite",
+      "title": "Postgres vs SQLite | Tinybird",
+      "domain": "tinybird.co",
+      "text": "[REDACTED: 11992 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "136ae2f735cd810d",
+      "source_type": "blog",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.549,
+      "quality_reasons": [
+        "blog baseline 0.45",
+        "search relevance 0.75 -> +0.049",
+        "substantial content (1541 words) -> +0.050"
+      ],
+      "search_score": 0.74652773,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        },
+        {
+          "query_id": "Q3",
+          "sub_question_id": "SQ3"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:00:24.325430Z",
+      "word_count": 1541,
+      "found_by_queries": [
+        "Q2",
+        "Q3"
+      ],
+      "answers_sub_questions": [
+        "SQ2",
+        "SQ3"
+      ]
+    },
+    {
+      "id": "S4",
+      "url": "https://oldmoe.blog/2024/07/08/the-write-stuff-concurrent-write-transactions-in-sqlite",
+      "canonical_url": "https://oldmoe.blog/2024/07/08/the-write-stuff-concurrent-write-transactions-in-sqlite",
+      "title": "The Write Stuff: Concurrent Write Transactions in SQLite \u2013 Oldmoe's blog",
+      "domain": "oldmoe.blog",
+      "text": "[REDACTED: 11790 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "ce5266327cf12e25",
+      "source_type": "other",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.536,
+      "quality_reasons": [
+        "other baseline 0.50",
+        "search relevance 0.43 -> -0.014",
+        "substantial content (1929 words) -> +0.050"
+      ],
+      "search_score": 0.42849702,
+      "discovered_by": [
+        {
+          "query_id": "Q4",
+          "sub_question_id": "SQ4"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:00:24.325448Z",
+      "word_count": 1929,
+      "found_by_queries": [
+        "Q4"
+      ],
+      "answers_sub_questions": [
+        "SQ4"
+      ]
+    },
+    {
+      "id": "S5",
+      "url": "https://dev.to/timtran007/swapping-databases-sqlite-to-postgresql-for-deployment-248a",
+      "canonical_url": "https://dev.to/timtran007/swapping-databases-sqlite-to-postgresql-for-deployment-248a",
+      "title": "Swapping Databases: SQLite to PostgreSQL for Deployment - DEV Community",
+      "domain": "dev.to",
+      "text": "[REDACTED: 2379 chars of retrieved source text, not redistributed here -- see content_hash and the reproduction procedure in evaluations/phase_b/corpora_public/README.md]",
+      "content_hash": "3a9ea6ed92f79283",
+      "source_type": "blog",
+      "published_date": null,
+      "fetch_status": "provider_content",
+      "fetch_error": null,
+      "quality_score": 0.501,
+      "quality_reasons": [
+        "blog baseline 0.45",
+        "search relevance 0.76 -> +0.051"
+      ],
+      "search_score": 0.7574541,
+      "discovered_by": [
+        {
+          "query_id": "Q2",
+          "sub_question_id": "SQ2"
+        }
+      ],
+      "content_origin": "provider_raw",
+      "page_count": null,
+      "page_offsets": [],
+      "duplicate_of": null,
+      "retrieved_at": "2026-10-04T20:00:24.325461Z",
+      "word_count": 379,
+      "found_by_queries": [
+        "Q2"
+      ],
+      "answers_sub_questions": [
+        "SQ2"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S2-e1",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "SQLite serializes writes: at any moment, one writer holds a lock on the database file, and other writers wait. Reads can happen in parallel (especially in WAL mode), but writes go one at a time.",
+      "quote": "[REDACTED: 194 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:03:19.322251Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e2",
+      "source_id": "S2",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL uses MVCC (multi-version concurrency control) and row-level locking. Many transactions can write to different rows simultaneously without blocking each other.",
+      "quote": "[REDACTED: 167 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:03:19.324393Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e3",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite is a library. It lives inside your application's process and reads from a single .db file on disk. No server, no port, no users to configure.",
+      "quote": "[REDACTED: 148 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:03:19.326375Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e4",
+      "source_id": "S2",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL is a server. It runs as its own process, listens on a network port, and your application connects to it as a client.",
+      "quote": "[REDACTED: 127 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:03:19.328377Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e5",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "A blog with 50 readers per second and one author writing occasionally? SQLite is fine.",
+      "quote": "[REDACTED: 86 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:03:19.330470Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S2-e6",
+      "source_id": "S2",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "An e-commerce checkout where hundreds of users update inventory at once? Postgres.",
+      "quote": "[REDACTED: 82 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:03:19.332554Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e1",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL employs various techniques to ensure concurrent access to the database while maintaining data consistency using atomicity and isolation of ACID properties",
+      "quote": "[REDACTED: 267 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:01:49.485516Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e2",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL uses Multi-Version Concurrency Control (MVCC) for concurrency control",
+      "quote": "[REDACTED: 330 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:01:49.488644Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e3",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL uses pessimistic locking for concurrency control",
+      "quote": "[REDACTED: 161 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:01:49.493138Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e4",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL uses optimistic locking for concurrency control",
+      "quote": "[REDACTED: 251 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:01:49.497968Z",
+      "query_id": "Q1",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S1-e5",
+      "source_id": "S1",
+      "sub_question_id": "SQ1",
+      "discovery": {
+        "query_id": "Q1",
+        "sub_question_id": "SQ1"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL uses multi-valued concurrency control (MVCC) for concurrency control",
+      "quote": "[REDACTED: 172 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "fuzzy",
+      "page": null,
+      "stance": "supports",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:01:49.522050Z",
+      "query_id": "Q1",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.4
+    },
+    {
+      "id": "S3-e1",
+      "source_id": "S3",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL and SQLite differ in concurrency models",
+      "quote": "[REDACTED: 303 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:04:26.113010Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e2",
+      "source_id": "S3",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL and SQLite differ in deployment requirements and infrastructure needs",
+      "quote": "[REDACTED: 259 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:04:26.115917Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e3",
+      "source_id": "S3",
+      "sub_question_id": "SQ3",
+      "discovery": {
+        "query_id": "Q3",
+        "sub_question_id": "SQ3"
+      },
+      "cross_attributed": false,
+      "claim": "Typical use cases for PostgreSQL versus SQLite based on real-world adoption data",
+      "quote": "[REDACTED: 254 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:04:26.118660Z",
+      "query_id": "Q3",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S3-e4",
+      "source_id": "S3",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "Hidden costs or failure modes in high-concurrency scenarios",
+      "quote": "[REDACTED: 415 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "contradicts",
+      "relevance": 1.0,
+      "extracted_at": "2026-10-04T20:04:26.121470Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 1.0
+    },
+    {
+      "id": "S4-e1",
+      "source_id": "S4",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "SQLite supports a single writer at a time in WAL mode, while PostgreSQL supports multiple writers through its server component",
+      "quote": "[REDACTED: 188 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.9,
+      "extracted_at": "2026-10-04T20:05:29.832110Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.9
+    },
+    {
+      "id": "S4-e2",
+      "source_id": "S4",
+      "sub_question_id": "SQ2",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL requires a server component to coordinate concurrent writes, while SQLite uses WAL journaling mode for write concurrency",
+      "quote": "[REDACTED: 205 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T20:05:29.834475Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.8
+    },
+    {
+      "id": "S4-e3",
+      "source_id": "S4",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "SQLite is used in write-heavy Ruby applications, while PostgreSQL is used in more complex enterprise systems",
+      "quote": "[REDACTED: 107 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.7,
+      "extracted_at": "2026-10-04T20:05:29.836859Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.7
+    },
+    {
+      "id": "S4-e4",
+      "source_id": "S4",
+      "sub_question_id": "SQ4",
+      "discovery": {
+        "query_id": "Q4",
+        "sub_question_id": "SQ4"
+      },
+      "cross_attributed": false,
+      "claim": "SQLite has hidden costs in high-concurrency scenarios due to fsync operations and durability issues",
+      "quote": "[REDACTED: 127 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "none",
+      "page": null,
+      "stance": "supports",
+      "relevance": 0.8,
+      "extracted_at": "2026-10-04T20:05:29.844926Z",
+      "query_id": "Q4",
+      "quote_verified": false,
+      "is_citable": false,
+      "confidence": 0.12
+    },
+    {
+      "id": "S5-e1",
+      "source_id": "S5",
+      "sub_question_id": "SQ1",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL uses a different concurrency model than SQLite",
+      "quote": "[REDACTED: 98 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T20:05:59.511030Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S5-e2",
+      "source_id": "S5",
+      "sub_question_id": "SQ2",
+      "discovery": {
+        "query_id": "Q2",
+        "sub_question_id": "SQ2"
+      },
+      "cross_attributed": false,
+      "claim": "PostgreSQL requires a server installation while SQLite is file-based",
+      "quote": "[REDACTED: 98 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T20:05:59.511229Z",
+      "query_id": "Q2",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S5-e3",
+      "source_id": "S5",
+      "sub_question_id": "SQ3",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL is used for production deployments while SQLite is used for development",
+      "quote": "[REDACTED: 126 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T20:05:59.511380Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    },
+    {
+      "id": "S5-e4",
+      "source_id": "S5",
+      "sub_question_id": "SQ4",
+      "discovery": null,
+      "cross_attributed": true,
+      "claim": "PostgreSQL has higher failure modes in high-concurrency scenarios",
+      "quote": "[REDACTED: 98 chars of verbatim source quote, not redistributed here]",
+      "quote_match": "exact_normalized",
+      "page": null,
+      "stance": "neutral",
+      "relevance": 0.0,
+      "extracted_at": "2026-10-04T20:05:59.511537Z",
+      "query_id": "",
+      "quote_verified": true,
+      "is_citable": true,
+      "confidence": 0.0
+    }
+  ],
+  "completed_queries": [
+    {
+      "id": "Q1",
+      "sub_question_id": "SQ1",
+      "text": "PostgreSQL concurrency model SQLite concurrency model",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Directly compares the two databases' concurrency models using their exact names. This query targets technical documentation and comparison pages that explicitly discuss concurrency mechanisms for both systems."
+    },
+    {
+      "id": "Q2",
+      "sub_question_id": "SQ2",
+      "text": "PostgreSQL deployment requirements SQLite deployment requirements",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Focuses on deployment specifics for both databases. Using the phrase 'deployment requirements' ensures the query targets infrastructure needs without drifting into general database deployment topics."
+    },
+    {
+      "id": "Q3",
+      "sub_question_id": "SQ3",
+      "text": "PostgreSQL use cases SQLite use cases real-world adoption data",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Includes real-world adoption data to prioritize answers with empirical evidence. This phrasing matches how technical communities discuss use cases and adoption metrics in practice."
+    },
+    {
+      "id": "Q4",
+      "sub_question_id": "SQ4",
+      "text": "PostgreSQL high-concurrency failure modes SQLite high-concurrency failure modes",
+      "round_number": 1,
+      "depth": "basic",
+      "rationale": "Targets failure modes specifically in high-concurrency scenarios for both databases. This avoids vague terms and focuses on documented failure cases from real-world deployments."
+    }
+  ],
+  "coverage": {
+    "round_number": 1,
+    "per_question": [
+      {
+        "sub_question_id": "SQ1",
+        "evidence_count": 10,
+        "distinct_sources": 5,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "8 exact-match items across 5 sources, each discussing this sub-question's terms",
+        "off_topic_items": 1,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ2",
+        "evidence_count": 5,
+        "distinct_sources": 4,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "4 exact-match items across 4 sources, each discussing this sub-question's terms",
+        "off_topic_items": 1,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ3",
+        "evidence_count": 5,
+        "distinct_sources": 3,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "3 exact-match items across 3 sources, each discussing this sub-question's terms",
+        "off_topic_items": 2,
+        "gap_cause": ""
+      },
+      {
+        "sub_question_id": "SQ4",
+        "evidence_count": 3,
+        "distinct_sources": 2,
+        "has_contradiction": true,
+        "verdict": "covered",
+        "note": "2 exact-match items across 2 sources, each discussing this sub-question's terms",
+        "off_topic_items": 0,
+        "gap_cause": ""
+      }
+    ],
+    "coverage_ratio": 1.0,
+    "covered": [
+      "SQ1",
+      "SQ2",
+      "SQ3",
+      "SQ4"
+    ],
+    "weak": [],
+    "missing": [],
+    "contradictions": [
+      "[S3] PostgreSQL and SQLite differ in concurrency models",
+      "[S3] PostgreSQL and SQLite differ in deployment requirements and infrastructure needs",
+      "[S3] Typical use cases for PostgreSQL versus SQLite based on real-world adoption data",
+      "[S3] Hidden costs or failure modes in high-concurrency scenarios"
+    ],
+    "domain_concentration": 0.2,
+    "recommended_followups": [],
+    "sufficient": true,
+    "reasoning": "I need to assess whether the evidence gathered so far is sufficient to answer the research question about how PostgreSQL and SQLite differ in concurrency, deployment, and typical use case. I'll go through each sub-question (SQ) and see what's covered and what might be missing."
+  }
+}

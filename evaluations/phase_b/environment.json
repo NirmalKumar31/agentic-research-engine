@@ -1,0 +1,79 @@
+{
+  "python": "3.12.3",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "processor": "arm",
+  "cpu_count": 10,
+  "packages": {
+    "agentic-research-engine": "1.2.0",
+    "langgraph": "1.2.12",
+    "langchain-core": "1.6.4",
+    "langchain-openai": "1.6.3",
+    "langchain-ollama": "1.1.0",
+    "openai": "3.18.0",
+    "pydantic": "2.13.5",
+    "httpx": "0.28.1",
+    "trafilatura": "2.2.0",
+    "pypdf": "6.19.0"
+  },
+  "provenance": {
+    "engine_version": "1.15.0",
+    "evaluator_version": "2",
+    "prompt_version": "2de0f5f45843",
+    "schema_version": "0c5c89d58011",
+    "git": {
+      "commit": "a451aa3ffef337abccd086c1a89e53a8fcde65a7",
+      "short_commit": "a451aa3f",
+      "dirty": true,
+      "branch": "main"
+    },
+    "config_fingerprint": "8d845ade5652",
+    "model_assignments": {
+      "planner": "ollama:qwen3:4b",
+      "researcher": "ollama:qwen3:4b",
+      "critic": "ollama:qwen3:4b",
+      "synthesizer": "ollama:qwen3:4b"
+    }
+  },
+  "ollama": {
+    "version": "0.32.5",
+    "models": {
+      "qwen2.5:7b-instruct": {
+        "digest": "845dbda0ea48ed74",
+        "size_bytes": 4683087332,
+        "quantization": "Q4_K_M",
+        "parameter_size": "7.6B"
+      },
+      "qwen3:4b": {
+        "digest": "359d7dd4bcdab3d8",
+        "size_bytes": 2497293931,
+        "quantization": "Q4_K_M",
+        "parameter_size": "4.0B"
+      },
+      "llama3.2:3b": {
+        "digest": "a80c4f17acd55265",
+        "size_bytes": 2019393189,
+        "quantization": "Q4_K_M",
+        "parameter_size": "3.2B"
+      },
+      "embeddinggemma:latest": {
+        "digest": "85462619ee721b46",
+        "size_bytes": 621875917,
+        "quantization": "BF16",
+        "parameter_size": "307.58M"
+      }
+    }
+  },
+  "settings": {
+    "llm_mode": "local",
+    "max_research_rounds": 2,
+    "max_sources": 12,
+    "max_sources_per_round": 5,
+    "max_llm_calls": 40,
+    "max_parallel_searches": 5,
+    "max_parallel_fetches": 8,
+    "max_parallel_local_llm_calls": 2,
+    "search_depth": "basic",
+    "llm_temperature": 0.2
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "ceiling_usd": 10.0,
+  "spent_usd": 0.027093,
+  "entries": [
+    {
+      "label": "Q1-definition-rep1-cloud",
+      "cost_usd": 0.001024,
+      "note": "ok",
+      "cumulative_usd": 0.001024
+    },
+    {
+      "label": "Q1-definition-rep2-cloud",
+      "cost_usd": 0.001139,
+      "note": "ok",
+      "cumulative_usd": 0.002163
+    },
+    {
+      "label": "Q2-numeric-lookup-rep1-cloud",
+      "cost_usd": 0.000959,
+      "note": "ok",
+      "cumulative_usd": 0.003122
+    },
+    {
+      "label": "Q2-numeric-lookup-rep2-cloud",
+      "cost_usd": 0.000824,
+      "note": "ok",
+      "cumulative_usd": 0.003946
+    },
+    {
+      "label": "Q3-procedural-rep1-cloud",
+      "cost_usd": 0.001124,
+      "note": "ok",
+      "cumulative_usd": 0.00507
+    },
+    {
+      "label": "Q3-procedural-rep2-cloud",
+      "cost_usd": 0.000877,
+      "note": "ok",
+      "cumulative_usd": 0.005947
+    },
+    {
+      "label": "Q4-comparison-rep1-cloud",
+      "cost_usd": 0.001347,
+      "note": "ok",
+      "cumulative_usd": 0.007294
+    },
+    {
+      "label": "Q4-comparison-rep2-cloud",
+      "cost_usd": 0.001172,
+      "note": "ok",
+      "cumulative_usd": 0.008466
+    },
+    {
+      "label": "Q5-relationship-rep1-cloud",
+      "cost_usd": 0.001309,
+      "note": "ok",
+      "cumulative_usd": 0.009775
+    },
+    {
+      "label": "Q5-relationship-rep2-cloud",
+      "cost_usd": 0.001473,
+      "note": "ok",
+      "cumulative_usd": 0.011248
+    },
+    {
+      "label": "Q6-causal-rep1-cloud",
+      "cost_usd": 0.001069,
+      "note": "ok",
+      "cumulative_usd": 0.012317
+    },
+    {
+      "label": "Q6-causal-rep2-cloud",
+      "cost_usd": 0.001283,
+      "note": "ok",
+      "cumulative_usd": 0.0136
+    },
+    {
+      "label": "Q7-time-sensitive-rep1-cloud",
+      "cost_usd": 0.000684,
+      "note": "ok",
+      "cumulative_usd": 0.014284
+    },
+    {
+      "label": "Q7-time-sensitive-rep2-cloud",
+      "cost_usd": 0.001195,
+      "note": "ok",
+      "cumulative_usd": 0.015479
+    },
+    {
+      "label": "Q8-research-methods-rep1-cloud",
+      "cost_usd": 0.001169,
+      "note": "ok",
+      "cumulative_usd": 0.016648
+    },
+    {
+      "label": "Q8-research-methods-rep2-cloud",
+      "cost_usd": 0.001234,
+      "note": "ok",
+      "cumulative_usd": 0.017882
+    },
+    {
+      "label": "Q9-ambiguous-rep1-cloud",
+      "cost_usd": 0.001351,
+      "note": "ok",
+      "cumulative_usd": 0.019233
+    },
+    {
+      "label": "Q9-ambiguous-rep2-cloud",
+      "cost_usd": 0.001205,
+      "note": "ok",
+      "cumulative_usd": 0.020438
+    },
+    {
+      "label": "Q10-long-tail-rep1-cloud",
+      "cost_usd": 0.001045,
+      "note": "ok",
+      "cumulative_usd": 0.021483
+    },
+    {
+      "label": "Q10-long-tail-rep2-cloud",
+      "cost_usd": 0.001037,
+      "note": "ok",
+      "cumulative_usd": 0.02252
+    },
+    {
+      "label": "Q11-adversarial-evidence-shape-rep1-cloud",
+      "cost_usd": 0.001218,
+      "note": "ok",
+      "cumulative_usd": 0.023738
+    },
+    {
+      "label": "Q11-adversarial-evidence-shape-rep2-cloud",
+      "cost_usd": 0.00128,
+      "note": "ok",
+      "cumulative_usd": 0.025018
+    },
+    {
+      "label": "Q12-no-defensible-answer-rep1-cloud",
+      "cost_usd": 0.001105,
+      "note": "ok",
+      "cumulative_usd": 0.026123
+    },
+    {
+      "label": "Q12-no-defensible-answer-rep2-cloud",
+      "cost_usd": 0.00097,
+      "note": "ok",
+      "cumulative_usd": 0.027093
+    }
+  ]
+}
