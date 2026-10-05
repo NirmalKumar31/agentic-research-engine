@@ -317,10 +317,17 @@ class TestRealPacketOnDisk:
         case_ids = {c["case_id"] for c in packet["cases"]}
         assert case_ids == {m.EXTERNAL_CASE_ID}
 
-    def test_the_committed_label_template_is_still_unfilled(self) -> None:
-        """This file ships blank in the repo; a real adjudicator fills
-        their own local copy or a PR fills it in when a label exists."""
-        assert json.loads(m.LABEL.read_text()) == {m.EXTERNAL_CASE_ID: None}
+    def test_the_real_second_adjudicator_label_is_recorded(self) -> None:
+        """A real, independent second adjudicator returned this label --
+        locks in the known state so a future silent edit is caught."""
+        assert json.loads(m.LABEL.read_text()) == {m.EXTERNAL_CASE_ID: "supported"}
+
+    def test_the_real_join_result_records_disagreement_not_resolution(self) -> None:
+        result = json.loads(m.RESULT.read_text())
+        assert result["first_reviewer_label"] == "unsupported"
+        assert result["second_adjudicator_label"] == "supported"
+        assert result["exact_label_agreement"] is False
+        assert "unresolved reviewer disagreement" in result["next_step"]
 
     def test_the_real_first_label_for_this_case_is_unsupported(self) -> None:
         """Locks in the known state this whole investigation is about --
