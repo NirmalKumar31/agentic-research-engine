@@ -1,4 +1,5 @@
-"""Build a packet for a second, genuinely independent reviewer.
+"""Build a packet for a second, genuinely independent reviewer, and
+join the returned labels back afterwards.
 
 The blinded audit in this directory hides the automated decision, which
 removes one bias. It does not remove the reviewer: the same person
@@ -12,22 +13,31 @@ decision, the previous human label and any explanation of a previous
 audit -- all of which would anchor a fresh reviewer just as effectively
 as the verdict did.
 
-    python examples/release-audit/reviewer_packet.py
+    python examples/release-audit/reviewer_packet.py build
+    python examples/release-audit/reviewer_packet.py join
 
-Writes reviewer-packet.json alongside an empty reviewer-labels.json for
-the reviewer to fill. Join afterwards with blind_packet.py-style
-joining on case_id.
+`build` writes reviewer-packet.json alongside an empty
+reviewer-labels.json for the reviewer to fill. `join` reads the filled
+labels back, validates them, and joins them to the hidden publication
+outcome by `case_id` -- mirroring `blind_packet.py`'s join, with one
+difference: this reviewer is independent of the system, so the result
+is release validation, not a self-review, and the join enforces that
+every case was actually labelled before it touches any hidden field.
 """
 
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).parent
 AUDIT = HERE / "candidate-audit.json"
 PACKET = HERE / "reviewer-packet.json"
 LABELS = HERE / "reviewer-labels.json"
+JOINED = HERE / "reviewer-audit.json"
+
+VALID_LABELS = {"supported", "unsupported", "uncertain"}
 
 DEFINITIONS = {
     "supported": (
@@ -41,7 +51,7 @@ DEFINITIONS = {
 }
 
 
-def main() -> None:
+def build() -> None:
     audit = json.loads(AUDIT.read_text())
     cases = []
     for run_id, run in audit["runs"].items():
@@ -95,5 +105,145 @@ def main() -> None:
     print(f"wrote {LABELS.name}: awaiting a second reviewer")
 
 
+class ValidationError(Exception):
+    """Raised when the returned labels cannot be safely joined.
+
+    Deliberately checked before the join touches `candidate-audit.json`'s
+    hidden fields at all: a count mismatch or a stray label value is a
+    data-integrity problem, not something to silently coerce or drop.
+    """
+
+
+def validate_labels(packet_case_ids: set[str], labels: dict[str, object]) -> None:
+    if len(packet_case_ids) != 21:
+        raise ValidationError(f"expected 21 cases in the packet, found {len(packet_case_ids)}")
+
+    label_ids = set(labels)
+    if label_ids != packet_case_ids:
+        missing = sorted(packet_case_ids - label_ids)
+        extra = sorted(label_ids - packet_case_ids)
+        raise ValidationError(
+            f"returned labels do not match the packet's case_ids exactly "
+            f"-- missing {missing}, unexpected {extra}"
+        )
+
+    invalid = {cid: v for cid, v in labels.items() if v not in VALID_LABELS}
+    if invalid:
+        raise ValidationError(
+            f"every label must be one of {sorted(VALID_LABELS)}; "
+            f"got invalid or unfilled values: {invalid}"
+        )
+
+
+def join() -> None:
+    audit = json.loads(AUDIT.read_text())
+    packet = json.loads(PACKET.read_text())
+    labels = json.loads(LABELS.read_text())
+
+    # Validate before any hidden field (publication outcome, diagnostic
+    # verdict, entailment score) is read at all.
+    validate_labels({c["case_id"] for c in packet["cases"]}, labels)
+
+    flat: dict[str, tuple[str, dict[str, object]]] = {}
+    for run_id, run in audit["runs"].items():
+        for index, candidate in enumerate(run["candidates"]):
+            flat[f"{run_id}-{index}"] = (run_id, candidate)
+
+    rows: list[dict[str, object]] = []
+    matrix = {"tp": 0, "fp": 0, "fn": 0, "tn": 0}
+    unsupported_published: list[dict[str, str]] = []
+    uncertain_published: list[dict[str, str]] = []
+    for case in packet["cases"]:
+        case_id = case["case_id"]
+        run_id, candidate = flat[case_id]
+        human = labels[case_id]
+        # `present_in_published_report` is the actual outcome a reader saw,
+        # not `publishable` (the gate's own internal diagnostic flag) --
+        # `gate_disagreements` in candidate-audit.json exists precisely to
+        # catch the two ever differing, so the real outcome is the one
+        # worth validating against.
+        published = bool(candidate["present_in_published_report"])
+        # Release-negative deliberately includes uncertain: a claim an
+        # independent reviewer cannot confirm from its own quote is not
+        # one the system should have published either.
+        positive = human == "supported"
+        if published and positive:
+            matrix["tp"] += 1
+        elif published and not positive:
+            matrix["fp"] += 1
+            (unsupported_published if human == "unsupported" else uncertain_published).append(
+                {"case_id": case_id, "claim": str(candidate["claim"]), "human": str(human)}
+            )
+        elif positive:
+            matrix["fn"] += 1
+        else:
+            matrix["tn"] += 1
+        rows.append(
+            {
+                "case_id": case_id,
+                "run": run_id,
+                "claim": candidate["claim"],
+                "evidence_id": candidate.get("best_evidence_id"),
+                "human_label": human,
+                "published": published,
+                "diagnostic_verdict": candidate.get("diagnostic_verdict"),
+                "best_entailment": candidate.get("best_entailment"),
+                "support_threshold": candidate.get("support_threshold"),
+                "withhold_reason": candidate.get("withhold_reason"),
+            }
+        )
+
+    precision = matrix["tp"] / (matrix["tp"] + matrix["fp"]) if matrix["tp"] + matrix["fp"] else 1.0
+    recall = matrix["tp"] / (matrix["tp"] + matrix["fn"]) if matrix["tp"] + matrix["fn"] else 0.0
+
+    JOINED.write_text(
+        json.dumps(
+            {
+                "description": (
+                    "Independent release-validation join. reviewer-labels.json was produced "
+                    "from reviewer-packet.json, which structurally cannot carry an automated "
+                    "verdict, score, guard result, publication decision or prior label -- "
+                    "joined here, by case_id, against the hidden candidate-audit.json outcome."
+                ),
+                "process_attestation": {
+                    "reviewer_independence": (
+                        "A second reviewer, independent of the person and process that built "
+                        "the verifier -- unlike the self-review recorded in blind-audit.json."
+                    ),
+                    "blinding": (
+                        "reviewer-packet.json cannot contain an automated verdict, score, "
+                        "guard result, publication decision or prior label: reviewer_packet.py "
+                        "asserts their absence before the packet is ever written, so labelling "
+                        "necessarily finished before any automated outcome existed to see."
+                    ),
+                    "basis": (
+                        "Each case is labelled supported / unsupported / uncertain against its "
+                        "own shown quote alone, per the packet's own instructions -- not "
+                        "against outside knowledge of the subject."
+                    ),
+                },
+                "validation_note": (
+                    "One external reviewer over this fixed 21-case set is independent release "
+                    "validation, not a statistical benchmark: n=1 reviewer, no inter-rater "
+                    "agreement and no significance claim is made or implied."
+                ),
+                "confusion": matrix,
+                "precision": round(precision, 4),
+                "recall": round(recall, 4),
+                "unsupported_published": unsupported_published,
+                "uncertain_published": uncertain_published,
+                "cases": rows,
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+    print(f"confusion: {matrix}  precision={precision:.2f} recall={recall:.2f}")
+    print(f"UNSUPPORTED PUBLISHED = {len(unsupported_published)}")
+    print(f"UNCERTAIN PUBLISHED   = {len(uncertain_published)}")
+    print(f"wrote {JOINED.name}")
+
+
 if __name__ == "__main__":
-    main()
+    command = sys.argv[1] if len(sys.argv) > 1 else "build"
+    {"build": build, "join": join}[command]()
