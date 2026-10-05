@@ -3,9 +3,9 @@ the build instead of waiting for the next scrutiny pass to find it.
 
 Four checks, each independently actionable:
 
-1. **Internal links resolve.** Every `[text](path)` markdown link whose
-   target is a repo-relative path (not `http(s)://`, not a bare
-   `#anchor`) must point at a file or directory that is actually
+1. **Tracked inline link targets exist.** Every `[text](path)` markdown
+   link whose target is a repo-relative path (not `http(s)://`, not a
+   bare `#anchor`) must point at a file or directory that is actually
    tracked by git -- not merely present on the machine running the
    check. A link validated against local disk (`Path.exists()`) can
    pass on a checkout that has extra untracked files -- an adjudication
@@ -16,7 +16,14 @@ Four checks, each independently actionable:
    committed) and resolved on this machine, then failed on a fresh
    checkout. Every check in this module that touches file existence
    now goes through `git ls-files`, not the filesystem, for that
-   reason.
+   reason. Named for exactly what it checks, not more: it validates
+   inline link targets only. It does not resolve `#anchor` fragments,
+   does not process reference-style `[text][ref]` links, and its
+   destination regex can misparse a target containing a literal `)`
+   (standard Markdown requires escaping or angle brackets there, which
+   nothing in this repo currently needs). None of those gaps currently
+   hide a broken tracked link; they are named here so the check's scope
+   is not overstated.
 2. **Required index files exist.** A handful of directories are large
    enough, or deliberately public enough, that a visitor needs an entry
    point rather than a raw file listing. "Exist" means tracked, for the
@@ -27,17 +34,22 @@ Four checks, each independently actionable:
    this is specifically to catch the README re-accumulating release
    chronology the way it did before `docs/VALIDATION-HISTORY.md` existed
    to hold that content instead.
-4. **No present-tense deployed-SHA claim outside history.** The exact
-   shape of a real incident: `docs/history/vnext-baseline/paid-run-
-   acceptance.md` correctly says, in the past tense and dated, which SHA
-   was deployed on 2026-09-29 -- that is a historical record and stays
-   exactly as written. A *new* document asserting "the deployed service
-   runs `<sha>`" as a present-tense fact would go stale the moment the
-   next deploy happens, silently, the same way the original incident did.
-   This check does not flag commit-SHA citations in general (those are
-   normal and frequent in this project's evidence-based docs) -- only
-   this specific "currently deployed/running" phrasing, outside the
-   directories whose whole point is to preserve a snapshot.
+4. **No known present-tense deployed-SHA form outside history.** The
+   exact shape of a real incident: `docs/history/vnext-baseline/paid-
+   run-acceptance.md` correctly says, in the past tense and dated,
+   which SHA was deployed on 2026-09-29 -- that is a historical record
+   and stays exactly as written. A *new* document asserting "the
+   deployed service runs `<sha>`" as a present-tense fact would go
+   stale the moment the next deploy happens, silently, the same way the
+   original incident did. This is a fixed list of known phrasings
+   (`the deployed service/demo/instance is/runs <sha>`, `this branch is
+   <sha>`, `current deployment: <sha>`, `live SHA is <sha>`, `deployed
+   at <sha>`, `serving commit <sha>`), not a general-purpose present-
+   tense detector -- a future phrasing not on this list would not be
+   caught, and this check does not flag commit-SHA citations in general
+   (those are normal and frequent in this project's evidence-based
+   docs), only these specific forms, outside the directories whose
+   whole point is to preserve a snapshot.
 """
 
 from __future__ import annotations
@@ -69,9 +81,14 @@ HISTORY_EXEMPT_PREFIXES = (
     "CHANGELOG.md",
 )
 
+_SHA = r"\s+\*{0,2}`[0-9a-f]{7,40}`"
 _CURRENT_STATE_SHA = re.compile(
-    r"\bthe deployed (?:service|demo|instance) (?:is|runs|currently runs)\s+\*{0,2}`[0-9a-f]{7,40}`"
-    r"|\bthis branch is\s+\*{0,2}`[0-9a-f]{7,40}`",
+    rf"\bthe deployed (?:service|demo|instance) (?:is|runs|currently runs){_SHA}"
+    rf"|\bthis branch is{_SHA}"
+    rf"|\bcurrent deployment:?{_SHA}"
+    rf"|\blive SHA is{_SHA}"
+    rf"|\bdeployed at{_SHA}"
+    rf"|\bserving commit{_SHA}",
     re.IGNORECASE,
 )
 
@@ -150,9 +167,9 @@ def check_no_unscoped_deployed_sha(root: Path, tracked: set[str]) -> list[str]:
         text = (root / rel).read_text(errors="ignore")
         if _CURRENT_STATE_SHA.search(text):
             problems.append(
-                f"{rel}: states a deployed/branch SHA as present-tense fact outside "
-                "docs/history/ or examples/live-validation/ -- date it and move it, "
-                "or rephrase as a dated historical observation"
+                f"{rel}: states a deployed/branch SHA in a known present-tense form "
+                "outside docs/history/ or examples/live-validation/ -- date it and "
+                "move it, or rephrase as a dated historical observation"
             )
     return problems
 
@@ -160,10 +177,12 @@ def check_no_unscoped_deployed_sha(root: Path, tracked: set[str]) -> list[str]:
 def main() -> int:
     tracked = tracked_files(ROOT)
     checks = {
-        "internal links resolve": lambda: check_links(ROOT, tracked),
+        "tracked inline link targets exist": lambda: check_links(ROOT, tracked),
         "required index files exist": lambda: check_required_indexes(tracked),
         "README.md length": lambda: check_readme_length(ROOT),
-        "no unscoped deployed-SHA claim": lambda: check_no_unscoped_deployed_sha(ROOT, tracked),
+        "no known present-tense deployed-SHA form": lambda: check_no_unscoped_deployed_sha(
+            ROOT, tracked
+        ),
     }
     all_problems: list[str] = []
     for name, fn in checks.items():

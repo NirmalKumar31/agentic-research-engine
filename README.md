@@ -19,8 +19,8 @@ reason rather than reported as unsupported, which it is not.
 
 ## The problem
 
-Ask one model a broad research question and you get fluent prose with
-confident, fabricated citations — no decomposition, no retrieval
+A single-model research workflow can produce fluent prose with
+fabricated or misattributed citations — no decomposition, no retrieval
 discipline, no verification. This project separates the three.
 
 ## What it does
@@ -48,7 +48,7 @@ claims and quotes, and a separate, deterministic pipeline — guards, a
 pinned semantic-entailment classifier, then a publication gate — decides
 whether each one is supported. Full pipeline table and what "the
 classifier can be wrong" does and does not mean:
-[`docs/ARCHITECTURE.md` §7.6](docs/ARCHITECTURE.md), measured behaviour in
+[`docs/ARCHITECTURE.md` §7.6](docs/ARCHITECTURE.md#76-the-full-publication-pipeline), measured behaviour in
 [validation history](docs/VALIDATION-HISTORY.md).
 
 ## Does it answer the question?
@@ -111,8 +111,9 @@ agentic-research show latest                # re-display a stored run
 
 Set `LLM_MODE` and, for cloud or hybrid, `OPENAI_API_KEY`.
 `ALLOW_CLOUD_FALLBACK` defaults to false, so local mode never silently
-starts spending money if Ollama is unreachable. Frozen-corpus
-local-vs-cloud comparison published:
+falls back to a paid cloud LLM if Ollama is unreachable -- the search
+provider is separate and still consumes its own credits in every mode.
+Frozen-corpus local-vs-cloud comparison published:
 [`evaluations/phase_b/RESULTS.md`](evaluations/phase_b/RESULTS.md) (cloud
 8.84-28.51s per run; local 54.50-118.21s completed, 120.02-122.78s
 timeout — n=2 per question, no significance claimed).
@@ -125,7 +126,7 @@ default blueprint) serves recorded runs committed inside the package —
 no API key, no search provider, no model. **Live**
 (`LIVE_RESEARCH_ENABLED=true`) additionally accepts a visitor's own
 question, under demo ceilings. Full mode comparison and the
-shared-quota-store caveats: [`docs/ARCHITECTURE.md` §2.1](docs/ARCHITECTURE.md),
+shared-quota-store caveats: [`docs/ARCHITECTURE.md` §2.1](docs/ARCHITECTURE.md#21-two-deployment-modes),
 [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md). Check `/api/config` on a
 running instance for its actual current state.
 
@@ -163,7 +164,7 @@ three levels:
 
 | Level | What it proves | Command | Needs |
 |---|---|---|---|
-| **1. Replay** | A committed recorded run re-renders identically, forever | `agentic-research replay <id>` | nothing — no network, no credentials |
+| **1. Replay** | A committed recording replays deterministically by the supported code, without network access or credentials | `agentic-research replay <id>` | nothing — no network, no credentials |
 | **2. Frozen-corpus engine determinism** | The engine's own machinery is deterministic end to end | `agentic-research verify-reproducible` | nothing — scripted model, scripted search/fetch |
 | **3. Local environment** | What's installed matches what you set up with | `./scripts/bootstrap-local.sh` then `./scripts/verify-local.sh` | Python, optionally Ollama and Node |
 

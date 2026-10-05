@@ -230,3 +230,25 @@ class TestNoUnscopedDeployedSha:
         problems = check_docs.check_no_unscoped_deployed_sha(git_repo, tracked)
 
         assert problems == []
+
+    @pytest.mark.parametrize(
+        "phrasing",
+        [
+            "Current deployment: `abc1234def`.",
+            "The live SHA is `abc1234def`.",
+            "Deployed at `abc1234def`.",
+            "Serving commit `abc1234def`.",
+        ],
+    )
+    def test_flags_each_additional_known_phrasing(self, git_repo: Path, phrasing: str) -> None:
+        """A second scrutiny pass found the original two patterns missed
+        equally stale, equally plausible phrasings. These four are now
+        recognised explicitly -- this is a fixed list, not a general
+        present-tense detector, so each variant needs its own case."""
+        _write(git_repo, "docs/NOTES.md", f"{phrasing}\n")
+        _git(git_repo, "add", "docs/NOTES.md")
+
+        tracked = check_docs.tracked_files(git_repo)
+        problems = check_docs.check_no_unscoped_deployed_sha(git_repo, tracked)
+
+        assert len(problems) == 1
