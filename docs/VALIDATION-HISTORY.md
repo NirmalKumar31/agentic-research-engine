@@ -55,10 +55,24 @@ live data.
 
 This is a **blinded self-review, not an independent benchmark**: the
 reviewer built the system. A packet for a genuinely independent second
-reviewer is committed at
-[`examples/release-audit/reviewer-packet.json`](../examples/release-audit/reviewer-packet.json),
-carrying only claims, quotes and sources — no verdict, score, guard
-result or prior label.
+reviewer, carrying only claims, quotes and sources — no verdict, score,
+guard result or prior label — was built at
+[`examples/release-audit/reviewer-packet.json`](../examples/release-audit/reviewer-packet.json)
+and has since been used.
+
+**That independent review found what the self-review could not catch
+itself: one published claim (of 21) that an independent reviewer judged
+unsupported.** A second, independent adjudicator was then given only
+that one claim and its quote — no prior label, score, guard result or
+publication outcome — and judged it supported. The two independent
+judgments disagree. Per the pre-registered decision rule, a disagreement
+like this is recorded, not resolved by picking a side: both labels
+stand, nothing was tuned or re-scored to make the disagreement go away,
+and the case remains open, tracked in issue #32, rather than quietly
+counted as resolved either way. Full trail —
+packet, labels, the join, the leak found and fixed in the second
+adjudicator's packet, and the final result — in
+[`examples/release-audit/`](../examples/release-audit/).
 
 ### Adversarial quality set
 
