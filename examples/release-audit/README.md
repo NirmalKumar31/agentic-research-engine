@@ -87,3 +87,26 @@ This is a different thing from `blind-audit.json`: that is a blinded
 *self*-review (the same person who built the verifier, with the verdict
 hidden from them). This is a second person, with no automated outcome
 ever visible to them at all.
+
+### One disputed case, a second opinion
+
+`reviewer-audit.json` found one published claim the independent
+reviewer labelled unsupported: `nist-ai-risk-framework-5` (tracked in
+issue #32). `second_opinion.py` hands that one case, and nothing else,
+to a second adjudicator -- not the first reviewer's label, not the
+system's score, guard result or publication decision.
+
+```bash
+python examples/release-audit/second_opinion.py build   # writes second-opinion-packet.json + a blank label
+#   ... a second adjudicator fills second-opinion-label.json ...
+python examples/release-audit/second_opinion.py join     # writes second-opinion-result.json
+```
+
+`join` records both labels side by side and what they imply -- it does
+not decide anything itself. If the second adjudicator's label is also
+`unsupported` or `uncertain`, the next step is investigating the
+claim-generation and verification path and proposing a narrow
+regression test and fix, in a separate PR. If the second adjudicator
+labels it `supported`, the result is an unresolved reviewer
+disagreement, recorded as exactly that -- neither label is erased, and
+the case is not declared resolved either way.
