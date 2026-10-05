@@ -1,11 +1,13 @@
 """Build the blinded adjudication packet for Phase B's 6 unresolved
 reviewer disagreements (2 dimension-score, 4 harmful-claim-flag).
 
-This script builds the packet and the private key, then stops. It does
-not adjudicate anything and must not be extended to -- the whole point
-of this step is a human decision, not a third AI opinion dressed up as
-one. `scripts/apply_adjudication.py` is the separate script that runs
-once a human has actually filled in the decisions.
+This script builds the packet and stops. It does not adjudicate
+anything and must not be extended to -- the whole point of this step
+is an independent human decision, not a third AI opinion dressed up as
+one. There is deliberately no companion script that reads back
+completed decisions yet: that only gets written once a human has
+actually returned a filled-in sheet, against the real one, not a
+guess at its shape in advance.
 
 Excluded from the packet, deliberately: arm, model, provider,
 repetition, either original reviewer's identity or scores/rationale,
@@ -17,23 +19,44 @@ for the original review). IDs here are freshly randomized and distinct
 from both original reviewers' IDs, so the packet can't be cross-
 referenced against either reviewer's original materials.
 
-Run once. Produces, under `evaluations/phase_b/adjudication/`:
+Blinding here is procedural, not cryptographic: the same candidate
+text is also reachable elsewhere in this public repository under
+arm-labelled filenames (`evaluations/phase_b/blinded/`,
+`evaluations/phase_b/review/reviewer_{a,b}/packet/`). An adjudicator
+who searches the repository, or opens either original reviewer's
+directory, can recover the arm that way -- the packet's own redaction
+does not prevent that. The instructions this script writes tell the
+adjudicator not to do that; it is a discipline, the same as the
+original reviewers not opening the unblinding key, not a guarantee
+enforced by the file format.
 
-- `packet.md` -- the 6 disputed candidates, in randomized order, under
-  fresh random IDs.
-- `adjudication_template.csv` -- blank, one row per case.
-- `adjudication_key.json` -- NOT for the adjudicator. Maps each random
-  ID back to (question_id, repetition, arm, dispute_type,
-  disputed_field). Kept out of the handoff copy entirely, the same
-  discipline as the original review's unblinding keys.
+Builds through a temporary staging directory and only moves the
+result into place once everything -- including the leak scan -- has
+succeeded, and refuses outright if the destination already exists and
+is non-empty (a packet, a key, or a possibly-in-progress or completed
+score sheet). Run again over an existing result by moving or deleting
+`evaluations/phase_b/adjudication/` first, deliberately, not by
+silently overwriting it.
+
+Produces, under `evaluations/phase_b/adjudication/`:
+
+- `packet.md`, `adjudication_template.csv`, `README.md` -- also
+  duplicated, unchanged, into `handoff/` (exactly these three files,
+  automatically -- not a manually-assembled copy).
+- `adjudication_key.json`, mode `0600`, kept out of `handoff/`
+  entirely. Maps each random ID back to (question_id, repetition, arm,
+  dispute_type, disputed_field). Not for the adjudicator.
 """
 
 from __future__ import annotations
 
 import csv
 import json
+import os
 import secrets
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,8 +69,14 @@ ADJ = PHASE_B / "adjudication"
 
 _LEAK_TERMS = (*_KNOWN_IDENTIFIERS, "[local]", "[cloud]", "redactions:")
 
+HANDOFF_FILES = ("packet.md", "adjudication_template.csv", "README.md")
+
 
 class LeakError(Exception):
+    pass
+
+
+class DestinationExistsError(Exception):
     pass
 
 
@@ -87,6 +116,48 @@ _PROMPTS = {
     ),
 }
 
+README_TEMPLATE = """# Phase B adjudication packet -- instructions
+
+6 disputed cases from the blinded review, for one independent human
+adjudicator. Not a third AI opinion -- if no independent human is
+available, these 6 stay unresolved; that is the correct, honest state,
+not a defect to paper over.
+
+## Before you start: procedural blinding, not cryptographic
+
+This packet's text is also reachable elsewhere in this public
+repository under filenames that do name the arm (model/provider) --
+`evaluations/phase_b/blinded/`, and each original reviewer's own
+`packet/` directory. Redacting identifiers from the text in front of
+you does not stop a search of the repository from recovering them.
+
+**Do not, before you have filled in all 6 decisions:**
+
+- browse or search this repository for the exact candidate passages
+  shown below,
+- open `evaluations/phase_b/blinded/`, either reviewer's directory
+  under `evaluations/phase_b/review/`, or any other benchmark artifact,
+- open `adjudication_key.json` -- it is not included in your copy of
+  this packet at all.
+
+Decide from what is on the page in front of you, nothing else.
+
+## Workflow
+
+1. Open `packet.md`. Read each `## Case` in order.
+2. For each case, fill one row in `adjudication_template.csv` (matched
+   by `blinded_id`):
+   - `final_decision`: for a `score_dimension` case, an integer 1-5.
+     For a `harmful_claim_flag` case, exactly `Yes` or `No`.
+   - `rationale`: your reasoning, required.
+   - `confidence`: `High`, `Medium`, or `Low`.
+   - `abstain_insufficient_evidence`: `Yes` if you cannot decide from
+     what is shown, otherwise `No`. An abstain is a valid, honest
+     answer -- it is not scored as a failure.
+3. All 6 rows, all fields, before returning the sheet.
+4. Save `adjudication_template.csv` in place and return it.
+"""
+
 
 def load_questions() -> dict[str, dict]:
     data = json.loads((ROOT / "examples" / "benchmark" / "questions.json").read_text())
@@ -102,8 +173,12 @@ def read_blinded_markdown(question_id: str, rep: int, arm: str) -> str:
     return text
 
 
-def build() -> None:
-    ADJ.mkdir(parents=True, exist_ok=True)
+def _build_into(staging: Path) -> int:
+    """Writes the full packet (plus its handoff copy) under `staging`.
+    Returns the number of disputed cases written. Raises before
+    anything is written to the real destination if a leak is found --
+    `build()` only moves `staging`'s contents into place after this
+    returns successfully."""
     questions = load_questions()
 
     order = list(DISPUTES)
@@ -162,46 +237,47 @@ def build() -> None:
 
     full_text = "\n".join(lines)
     scan_for_leaks(full_text, context="packet.md (assembled)")
-    (ADJ / "packet.md").write_text(full_text, encoding="utf-8")
 
-    with (ADJ / "adjudication_template.csv").open("w", newline="", encoding="utf-8") as f:
+    (staging / "packet.md").write_text(full_text, encoding="utf-8")
+
+    with (staging / "adjudication_template.csv").open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=list(template_rows[0].keys()))
         writer.writeheader()
         writer.writerows(template_rows)
 
-    (ADJ / "adjudication_key.json").write_text(json.dumps(key, indent=2), encoding="utf-8")
+    (staging / "README.md").write_text(README_TEMPLATE, encoding="utf-8")
 
-    readme = """# Phase B adjudication packet -- instructions
+    key_path = staging / "adjudication_key.json"
+    key_path.write_text(json.dumps(key, indent=2), encoding="utf-8")
+    os.chmod(key_path, 0o600)
 
-6 disputed cases from the blinded review, for one independent human
-adjudicator. Not a third AI opinion -- if no independent human is
-available, these 6 stay unresolved; that is the correct, honest state,
-not a defect to paper over.
+    handoff = staging / "handoff"
+    handoff.mkdir()
+    for name in HANDOFF_FILES:
+        shutil.copyfile(staging / name, handoff / name)
 
-## Workflow
+    return len(template_rows)
 
-1. Open `packet.md`. Read each `## Case` in order.
-2. For each case, fill one row in `adjudication_template.csv` (matched
-   by `blinded_id`):
-   - `final_decision`: for a `score_dimension` case, an integer 1-5.
-     For a `harmful_claim_flag` case, exactly `Yes` or `No`.
-   - `rationale`: your reasoning, required.
-   - `confidence`: `High`, `Medium`, or `Low`.
-   - `abstain_insufficient_evidence`: `Yes` if you cannot decide from
-     what is shown, otherwise `No`. An abstain is a valid, honest
-     answer -- it is not scored as a failure.
-3. All 6 rows, all fields, before returning the sheet.
-4. Do not open `adjudication_key.json` -- it is not included in your
-   copy of this packet at all.
-5. Save `adjudication_template.csv` in place and return it.
-"""
-    (ADJ / "README.md").write_text(readme, encoding="utf-8")
 
-    print(f"Packet built: {len(template_rows)} disputed cases.")
-    print(f"  {ADJ / 'packet.md'}")
-    print(f"  {ADJ / 'adjudication_template.csv'}")
-    print(f"  {ADJ / 'README.md'}")
-    print(f"  {ADJ / 'adjudication_key.json'}  <-- do NOT hand to the adjudicator")
+def build() -> None:
+    if ADJ.exists() and any(ADJ.iterdir()):
+        raise DestinationExistsError(
+            f"{ADJ} already exists and is not empty -- refusing to overwrite a packet, "
+            "key, or possibly-completed score sheet. If you really mean to rebuild from "
+            "scratch, move or delete it first, deliberately."
+        )
+
+    with tempfile.TemporaryDirectory(prefix="phase_b_adjudication_") as tmp:
+        staging = Path(tmp)
+        count = _build_into(staging)
+
+        ADJ.mkdir(parents=True, exist_ok=True)
+        for item in staging.iterdir():
+            shutil.move(str(item), str(ADJ / item.name))
+
+    print(f"Packet built: {count} disputed cases.")
+    print(f"  {ADJ / 'handoff'}/  <-- give this whole folder to the adjudicator")
+    print(f"  {ADJ / 'adjudication_key.json'}  <-- do NOT hand to the adjudicator (mode 0600)")
 
 
 if __name__ == "__main__":

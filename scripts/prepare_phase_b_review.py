@@ -155,6 +155,15 @@ evidence, and because the person who built and ran this benchmark is
 not a blind reviewer of their own study even when the packet is
 correctly redacted.
 
+**This file describes the packet structure and workflow, not who
+actually performs it.** This script runs before either packet is
+scored, so it cannot assert whether a human or an AI reviewer will
+fill in either one. Whoever actually did -- and if that deviates from
+the two-human-reviewers requirement above, it must be disclosed as a
+deviation, not implied -- is stated in `evaluations/phase_b/RESULTS.md`'s
+"Blinded review results" section and `SUMMARY.md`'s header once scoring
+is complete. Check those, not this file, for the actual answer.
+
 ## Workflow
 
 1. Each reviewer works from **only their own** `reviewer_a/` or
