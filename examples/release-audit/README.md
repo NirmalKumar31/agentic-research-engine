@@ -90,16 +90,24 @@ ever visible to them at all.
 
 ### One disputed case, a second opinion
 
-`reviewer-audit.json` found one published claim the independent
-reviewer labelled unsupported (tracked internally in issue #32).
-`second_opinion.py` hands that one case, and nothing else, to a second
-adjudicator -- not the first reviewer's label, not the system's score,
-guard result or publication decision, not which run or audit it came
-from, and not a mention of issue #32 or any model/provider name. The
-outward-facing files (`evidence-review-packet.json`,
-`evidence-review-label.json`) use a neutral random case id instead of
-the repo's own case naming, specifically so neither file hints at the
-context this script itself knows about.
+**Result: unresolved reviewer disagreement, not a resolution.**
+`reviewer-audit.json` found one published claim (of 21) the independent
+reviewer labelled unsupported (tracked in issue #32). A second,
+independent adjudicator, given only that claim and its quote, labelled
+it supported. The two independent judgments disagree;
+`evidence-review-result.json` records both labels as given -- neither
+is overwritten, averaged, or treated as authoritative over the other --
+and issue #32 stays open rather than being closed either way.
+
+`second_opinion.py` is the tool that produced this: it hands one
+disputed case, and nothing else, to a second adjudicator -- not the
+first reviewer's label, not the system's score, guard result or
+publication decision, not which run or audit it came from, and not a
+mention of issue #32 or any model/provider name. The outward-facing
+files (`evidence-review-packet.json`, `evidence-review-label.json`)
+use a neutral random case id instead of the repo's own case naming,
+specifically so neither file hints at the context this script itself
+knows about.
 
 A build-time check (`FORBIDDEN_TERMS` in `second_opinion.py`) scans the
 packet's own `description` and case data for exactly this class of
@@ -117,10 +125,11 @@ python examples/release-audit/second_opinion.py join     # writes evidence-revie
 ```
 
 `join` records both labels side by side and what they imply -- it does
-not decide anything itself. If the second adjudicator's label is also
-`unsupported` or `uncertain`, the next step is investigating the
-claim-generation and verification path and proposing a narrow
-regression test and fix, in a separate PR. If the second adjudicator
-labels it `supported`, the result is an unresolved reviewer
-disagreement, recorded as exactly that -- neither label is erased, and
-the case is not declared resolved either way.
+not decide anything itself. Had the second adjudicator's label also
+been `unsupported` or `uncertain`, the decision rule called for
+investigating the claim-generation and verification path and proposing
+a narrow regression test and fix, in a separate PR. Because the second
+adjudicator labelled it `supported` instead, the actual outcome is the
+unresolved-disagreement branch described above: no investigation was
+opened on the strength of one contested label, and no fix was proposed
+against a case that a second independent judgment did not corroborate.

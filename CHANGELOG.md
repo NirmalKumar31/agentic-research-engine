@@ -21,6 +21,17 @@ change -- no version bump unless a new package release is intended:
   `docs/BENCHMARK-PROTOCOL.md` specifies. Result: 6 reviewer
   disagreements (2 score, 4 harmful-claim-flag) remain unadjudicated by
   design.
+- `examples/release-audit/`'s genuinely-independent-reviewer packet
+  was used for the first time: 21 cases, 16 supported / 4 unsupported /
+  1 uncertain. One published claim was among the negative labels. A
+  second, independent adjudicator was then given only that one claim
+  and its quote and labelled it supported -- the two independent
+  judgments disagree, and per the pre-registered decision rule this is
+  recorded as an unresolved reviewer disagreement (issue #32), not
+  resolved by picking a side. One real process defect was found and
+  fixed along the way: the second adjudicator's packet leaked the
+  first reviewer's verdict and the system's publication outcome in a
+  hand-written description field, caught before any human received it.
 - The deployed instance (commit `5f3ee5e3`) predates this work; none of
   it touches the web app's request-serving path (only
   `src/agentic_research/evaluation/*` and the CLI), so redeployment is
