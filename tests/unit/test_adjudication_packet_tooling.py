@@ -54,9 +54,7 @@ class TestDisputesMatchRealReconciliation:
         assert len(DISPUTES) == 6
 
     def test_disputes_match_reconciliation_csv_exactly(self) -> None:
-        rows = list(
-            csv.DictReader((ROOT / "evaluations/phase_b/review/reconciliation.csv").open())
-        )
+        rows = list(csv.DictReader((ROOT / "evaluations/phase_b/review/reconciliation.csv").open()))
         score_disputes = {
             (r["question_id"], int(r["repetition"]), r["arm"])
             for r in rows

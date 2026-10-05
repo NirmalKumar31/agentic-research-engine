@@ -117,8 +117,7 @@ def build() -> None:
         "the Phase B blinded review. No arm, model, provider, repetition, or "
         "either original reviewer's score/rationale is shown -- decide each "
         "independently, from the question and the candidate's own report.\n",
-        "Do not compare cases to guess a pattern across them; each is an "
-        "independent decision.\n",
+        "Do not compare cases to guess a pattern across them; each is an independent decision.\n",
         "\n---\n",
     ]
 
