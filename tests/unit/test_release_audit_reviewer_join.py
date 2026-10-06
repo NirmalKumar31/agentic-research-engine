@@ -157,3 +157,49 @@ class TestJoinOnRealData:
         m.join()
 
         assert m.LABELS.read_text() == before
+
+
+class TestSourceMetadataForwardFix:
+    """candidate-audit.json's evidence records never carried source
+    title/domain, so every case in the already-used, already-labelled
+    reviewer-packet.json has `source_title`/`source_domain` null -- a
+    real gap, confirmed here rather than silently relied on. The fix is
+    forward-only: future packet builds resolve the real values from the
+    recorded run's own `result.sources[]`; the historical packet is
+    never regenerated, so the reviewer's already-returned labels stay
+    joined to exactly what they actually saw."""
+
+    def test_source_metadata_resolves_for_every_case_in_every_run(self) -> None:
+        audit = json.loads(m.AUDIT.read_text())
+        for run_id, run in audit["runs"].items():
+            meta = m._source_metadata(run_id)
+            for candidate in run["candidates"]:
+                best = candidate.get("best_evidence_id")
+                chosen = next(e for e in candidate["evidence"] if e["evidence_id"] == best)
+                assert chosen["source_id"] in meta, (
+                    f"{run_id}: no source metadata for {chosen['source_id']!r}"
+                )
+
+    def test_a_freshly_built_packet_has_real_non_null_source_metadata(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(m, "PACKET", tmp_path / "packet.json")
+        monkeypatch.setattr(m, "LABELS", tmp_path / "labels.json")
+
+        m.build()
+
+        packet = json.loads(m.PACKET.read_text())
+        assert len(packet["cases"]) == 21
+        for case in packet["cases"]:
+            assert case["source_title"], f"{case['case_id']}: source_title still null"
+            assert case["source_domain"], f"{case['case_id']}: source_domain still null"
+
+    def test_the_historical_already_used_packet_was_not_regenerated(self) -> None:
+        """This is the thing this fix must *not* do: the packet a real
+        reviewer already labelled stays exactly as they saw it. Both
+        fields are null in the historical artifact -- that is the
+        documented, disclosed limitation of the completed review, not
+        something this test should expect to see fixed."""
+        packet = json.loads(m.PACKET.read_text())
+        assert all(c["source_title"] is None for c in packet["cases"])
+        assert all(c["source_domain"] is None for c in packet["cases"])
