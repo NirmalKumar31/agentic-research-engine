@@ -32,10 +32,13 @@ change -- no version bump unless a new package release is intended:
   fixed along the way: the second adjudicator's packet leaked the
   first reviewer's verdict and the system's publication outcome in a
   hand-written description field, caught before any human received it.
-- The deployed instance (commit `5f3ee5e3`) predates this work; none of
-  it touches the web app's request-serving path (only
-  `src/agentic_research/evaluation/*` and the CLI), so redeployment is
-  optional, not a runtime fix.
+- The deployed instance (commit `5f3ee5e3`, the Phase A merge) already
+  includes the reproducibility and Phase A bullets above; it predates
+  Phase B's execution, its blinded review, and the release-audit
+  independent review. None of this work touches the web app's
+  request-serving path (only `src/agentic_research/evaluation/*` and
+  the CLI), so redeployment is optional, not a runtime fix -- unverified
+  against the live instance, which this changelog does not track.
 
 ## v1.15.0 — 2026-10-03
 

@@ -145,7 +145,7 @@ class TestJoinOnRealData:
             "independent of the person and process that built the verifier"
             in (attestation["reviewer_independence"])
         )
-        assert "before any automated outcome existed to see" in attestation["blinding"]
+        assert "procedural, not cryptographic" in attestation["blinding"]
         assert "own shown quote alone" in attestation["basis"]
 
     def test_join_does_not_mutate_the_labels_file(

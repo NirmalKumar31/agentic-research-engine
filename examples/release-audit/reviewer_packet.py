@@ -213,8 +213,13 @@ def join() -> None:
                     "blinding": (
                         "reviewer-packet.json cannot contain an automated verdict, score, "
                         "guard result, publication decision or prior label: reviewer_packet.py "
-                        "asserts their absence before the packet is ever written, so labelling "
-                        "necessarily finished before any automated outcome existed to see."
+                        "asserts their absence before the packet is ever written. This describes "
+                        "the packet only -- the automated outcome already existed, publicly, "
+                        "elsewhere in this repository (candidate-audit.json, blind-audit.json) "
+                        "by the time the packet was built. Blinding here is procedural, not "
+                        "cryptographic: it depends on the reviewer following the packet's own "
+                        "instruction not to look elsewhere, the same limitation disclosed for "
+                        "Phase B's blinded review."
                     ),
                     "basis": (
                         "Each case is labelled supported / unsupported / uncertain against its "

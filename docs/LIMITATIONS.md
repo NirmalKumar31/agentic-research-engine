@@ -32,12 +32,15 @@ expressed as a noun-phrase substitution, such as an attribute stated of
 **Published figures come from single runs**, except the attribution
 experiment, which has three repeats. There are no confidence intervals.
 
-**The twelve-question benchmark has never been run.** Construction and
-validation for it exist — the question set, a frozen-configuration
-manifest, and a blinded-review mechanism — at
-[`docs/BENCHMARK-PROTOCOL.md`](BENCHMARK-PROTOCOL.md). No run has been
-authorized or executed; that document states the exact cost and stop
-rule a run would need approved first.
+**The twelve-question benchmark ("Phase B") has been run once, under an
+authorized $10 ceiling.** Construction and validation — the question
+set, a frozen-configuration manifest, and a blinded-review mechanism —
+are at [`docs/BENCHMARK-PROTOCOL.md`](BENCHMARK-PROTOCOL.md). The run
+itself, its limitations, protocol deviations and full results are at
+[`evaluations/phase_b/RESULTS.md`](../evaluations/phase_b/RESULTS.md):
+48 preregistered arm-runs (43 completed, 5 timed out, all on the local
+arm), $0.027093 known cloud spend, two repetitions per question --
+descriptive, not a statistically significant sample.
 
 **There is no independent benchmark result for the verifier.** The thirty
 labelled cases are development calibration data: they shaped three
@@ -46,10 +49,13 @@ on them is partly fitted and is not a generalisation estimate. The only
 unfitted measurement is the synthetic adversarial suite, which tests
 refusal of specific transformation classes and nothing wider.
 
-**No clean local-versus-cloud comparison exists.** The earlier one used a
-corpus whose source text had been stripped, which drove citation integrity
-to 0% in both arms. It is archived under `examples/archive/` and excluded
-from current results; its 55.6%/81.2% figures are not valid measurements.
+**A clean local-versus-cloud comparison now exists (Phase B, above);
+an earlier attempt did not.** That earlier comparison used a corpus
+whose source text had been stripped, which drove citation integrity to
+0% in both arms. It is archived under `examples/archive/` and excluded
+from current results; its 55.6%/81.2% figures are not valid
+measurements and are superseded by Phase B's, not corrected by them --
+the two are different corpora under different conditions.
 
 ## The attribution experiment
 
@@ -233,10 +239,10 @@ Three designs using `qwen3:4b` as an entailment classifier were measured
 against human labels and all three failed: the first returned `supported`
 for none of thirty claims, the second for twenty-five of thirty including
 sixteen the reviewer had marked otherwise, and the third produced
-malformed audits on eleven of thirty. Those experiments are preserved on
-the `verifier-v1`, `verifier-v2` and `verifier-v3` branches. The
-conclusion was that a 4B instruction model is not a stable semantic
-classifier, not that the prompt needed more work.
+malformed audits on eleven of thirty. Those experiments are preserved in
+this repository's git history, not on `main`. The conclusion was that a
+4B instruction model is not a stable semantic classifier, not that the
+prompt needed more work.
 
 **The thirty labelled cases are development calibration data, not a
 benchmark.** They influenced four verifier designs. On them, at threshold
@@ -248,17 +254,24 @@ fuses them into "maintaining high recall accuracy". No guard reaches it
 and all three candidate classifiers score it above 0.95. The fix was in
 synthesis — atomic claims — not in another guard.
 
-**The release audit passes, and it took four attempts.** Every
-published claim in the three canonical recordings was read against the
-exact quote the gate chose for it: 11 of 11 supported, 0 unsupported.
-The first three audits each published exactly one claim that survived
-every automated check and failed a human read — a deleted hedge
-("might lack" as "lack"), a deleted research voice ("We demonstrate
-that X" as "X"), and a first-person scope deletion hidden inside a
-two-sentence claim. Each produced a general rule. None of that is
-evidence the next audit would be clean: the runs use live search and
-produce different claims every time, and the only thing that caught
-these was reading every published claim by hand.
+**The release audit is a self-review, an independent review and one
+second opinion -- not a statistically powered inter-rater study, and
+not clean.** Every published claim in the three canonical recordings
+was read against the exact quote the gate chose for it. The self-review
+(the system's own author, verdict hidden) found 11 of 11 supported, 0
+unsupported -- and took four attempts: the first three each published
+exactly one claim that survived every automated check and failed a
+human read (a deleted hedge, a deleted research voice, a first-person
+scope deletion). A separate, genuinely independent reviewer then read
+the same 21 candidates blind and found 1 of the 11 published claims
+unsupported. A second independent adjudicator, shown only that one
+claim and its quote, judged it supported -- the two independent
+judgments disagree, and that disagreement is recorded, not resolved,
+in issue #32. None of this is evidence the next audit would be clean:
+the runs use live search and produce different claims every time, two
+independent readers disagreed on one existing claim, and n=1 per
+reviewer role licenses no generalisation about how often that happens.
+Full trail: [`examples/release-audit/`](../examples/release-audit/).
 
 **Atomicity is enforced by a heuristic, not a parser.** A claim must
 assert one independently verifiable proposition, and this is checked

@@ -20,8 +20,8 @@ reason rather than reported as unsupported, which it is not.
 ## The problem
 
 A single-model research workflow can produce fluent prose with
-fabricated or misattributed citations — no decomposition, no retrieval
-discipline, no verification. This project separates the three.
+fabricated or misattributed citations — no decomposition, retrieval
+discipline, or verification. This project separates the three.
 
 ## What it does
 
@@ -187,21 +187,22 @@ Three recorded local `qwen3:4b` runs: 21 unique candidates checked, **11
 published, 10 withheld**. A blinded self-review by the project author
 (verdict hidden) found **precision 1.00, recall 0.58 — zero unsupported
 or uncertain claims published**; this was a self-review, not an
-independent benchmark — the reviewer built the system. On a frozen
-adversarial set (eleven cases, seventeen claims) across two releases,
-irrelevant published claims went from 6 to 0, at the cost of published
-claims falling from 14 to 6 and one correct claim now wrongly withheld.
+independent benchmark — the reviewer built the system. A separate
+independent reviewer judged 1 of those 11 published claims unsupported;
+a second adjudicator disagreed (supported) — recorded, not resolved. On
+a frozen adversarial set (eleven cases, seventeen claims)
+across two releases, irrelevant published claims went from 6 to 0, at
+the cost of published claims falling from 14 to 6 and one correct claim
+now wrongly withheld.
 
 Across eight live hosted runs on one question shape plus four more
-question shapes added later: definitional and factual-lookup questions
-produce short, correct, cited answers in 50-120s for under a cent;
-comparison and procedural questions stay weak. In the original
-eight-run study, the bottleneck was measured as synthesis quality (58%
-of refusals), not the verification machinery, and **every refusal
-inspected in that study was the correct refusal.**
-
-Full release-by-release numbers, every table, and what each hosted run
-found: **[`docs/VALIDATION-HISTORY.md`](docs/VALIDATION-HISTORY.md)**.
+shapes added later: definitional/factual-lookup questions produce
+short, correct, cited answers in 50-120s for under a cent; comparison
+and procedural questions stay weak. In the original eight-run study,
+the bottleneck was synthesis quality (58% of refusals), not
+verification, and **every refusal inspected there was correct.** Full
+release-by-release numbers, every table, and what each hosted run found:
+**[`docs/VALIDATION-HISTORY.md`](docs/VALIDATION-HISTORY.md)**.
 
 ## Security
 
