@@ -1,5 +1,7 @@
 # Agentic Research Engine
 
+https://github.com/user-attachments/assets/3e594e0b-62db-4871-9078-b53d7331b806
+
 A LangGraph research system that decomposes a question, searches the web in
 parallel, extracts evidence as exact-normalized source quotes, and publishes
 only the atomic claims a dedicated entailment classifier scored as supported
