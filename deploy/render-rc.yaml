@@ -57,7 +57,7 @@
 # explicit authorisation, flip LIVE_RESEARCH_ENABLED to true in the
 # Render dashboard and spend the single admitted run.
 #
-# See docs/v1.2.0-acceptance.md for the procedure this supports.
+# See docs/history/releases/v1.2.0-acceptance.md for the procedure this supports.
 #
 # TEARDOWN. After the candidate is accepted or rejected, delete this
 # web service -- and only this one. The Key Value instance belongs to
@@ -242,7 +242,7 @@ services:
       # --- runtime ---
       # Runs are not persisted, here as in the demo. The acceptance
       # transcript is captured client-side from the SSE stream instead,
-      # which is the only copy -- see docs/v1.2.0-acceptance.md.
+      # which is the only copy -- see docs/history/releases/v1.2.0-acceptance.md.
       - key: PERSIST_RUNS
         value: "false"
       - key: CHECKPOINT_BACKEND

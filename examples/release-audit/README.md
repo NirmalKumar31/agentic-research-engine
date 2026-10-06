@@ -86,7 +86,13 @@ benchmark.
 This is a different thing from `blind-audit.json`: that is a blinded
 *self*-review (the same person who built the verifier, with the verdict
 hidden from them). This is a second person, with no automated outcome
-ever visible to them at all.
+ever visible to them at all -- in the packet. The packet's blinding is
+procedural, not cryptographic: `candidate-audit.json` and
+`blind-audit.json` already carry the same case_ids and the automated
+outcome, publicly, elsewhere in this repository. Blinding here depends
+on the reviewer following the packet's own instruction not to look
+elsewhere, not on the outcome being unpublished -- the same limitation
+already disclosed for Phase B's blinded review.
 
 ### One disputed case, a second opinion
 
