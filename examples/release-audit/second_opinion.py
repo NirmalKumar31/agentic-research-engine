@@ -50,6 +50,7 @@ FIRST_LABELS = HERE / "reviewer-labels.json"
 PACKET = HERE / "evidence-review-packet.json"
 LABEL = HERE / "evidence-review-label.json"
 RESULT = HERE / "evidence-review-result.json"
+RECORDED_RUNS = HERE.parents[1] / "src" / "agentic_research" / "web" / "recorded_runs"
 
 # The real, internal case identifier -- used only to look the candidate
 # up in candidate-audit.json and the first reviewer's label up in
@@ -112,6 +113,23 @@ def _find_candidate() -> dict[str, Any]:
     return candidate
 
 
+def _source_metadata(run_id: str) -> dict[str, dict[str, Any]]:
+    """`source_id` -> {"title", "domain"} for one recorded run.
+
+    candidate-audit.json's evidence records never carried this metadata;
+    the real values live in the recorded run's own `result.sources[]`.
+    Duplicated from reviewer_packet.py's identical helper rather than
+    shared, matching this directory's existing pattern of small,
+    independent scripts (DEFINITIONS and VALID_LABELS are duplicated
+    the same way).
+    """
+    recording = json.loads((RECORDED_RUNS / f"{run_id}.json").read_text())
+    result = recording.get("result", recording)
+    return {
+        s["id"]: {"title": s.get("title"), "domain": s.get("domain")} for s in result["sources"]
+    }
+
+
 def _assert_not_leaking(packet: dict[str, Any]) -> None:
     # Only `description` and `cases` are checked. `instructions` and
     # `label_definitions` both legitimately name all three label words
@@ -128,6 +146,8 @@ def build() -> None:
     evidence = candidate["evidence"]
     best = candidate.get("best_evidence_id")
     chosen = next((e for e in evidence if e["evidence_id"] == best), evidence[0])
+    run_id = CASE_ID.rsplit("-", 1)[0]
+    meta = _source_metadata(run_id).get(chosen.get("source_id"), {})
 
     packet = {
         "description": (
@@ -147,8 +167,8 @@ def build() -> None:
                 "case_id": EXTERNAL_CASE_ID,
                 "claim": candidate["claim"],
                 "quote": chosen.get("quote"),
-                "source_title": chosen.get("source_title"),
-                "source_domain": chosen.get("source_domain"),
+                "source_title": meta.get("title"),
+                "source_domain": meta.get("domain"),
                 "source_id": chosen.get("source_id"),
                 "page": chosen.get("page"),
             }

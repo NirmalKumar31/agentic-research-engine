@@ -336,3 +336,40 @@ class TestRealPacketOnDisk:
         exists to catch."""
         first_labels = json.loads(m.FIRST_LABELS.read_text())
         assert first_labels[m.CASE_ID] == "unsupported"
+
+
+class TestSourceMetadataForwardFix:
+    """Mirrors reviewer_packet.py's identical fix: candidate-audit.json
+    never carried source title/domain, so this packet's one case had
+    both fields null. The fix is forward-only -- the already-used
+    packet, which the second adjudicator already saw and labelled, is
+    never regenerated."""
+
+    def test_source_metadata_resolves_for_the_disputed_case(self) -> None:
+        candidate = m._find_candidate()
+        best = candidate.get("best_evidence_id")
+        chosen = next(e for e in candidate["evidence"] if e["evidence_id"] == best)
+        run_id = m.CASE_ID.rsplit("-", 1)[0]
+        meta = m._source_metadata(run_id)
+        assert chosen["source_id"] in meta
+
+    def test_a_freshly_built_packet_has_real_non_null_source_metadata(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(m, "PACKET", tmp_path / "packet.json")
+        monkeypatch.setattr(m, "LABEL", tmp_path / "label.json")
+
+        m.build()
+
+        packet = json.loads(m.PACKET.read_text())
+        case = packet["cases"][0]
+        assert case["source_title"]
+        assert case["source_domain"]
+
+    def test_the_historical_already_used_packet_was_not_regenerated(self) -> None:
+        """What this fix must not do: the packet the real second
+        adjudicator already labelled stays exactly as they saw it."""
+        packet = json.loads(m.PACKET.read_text())
+        case = packet["cases"][0]
+        assert case["source_title"] is None
+        assert case["source_domain"] is None

@@ -83,6 +83,17 @@ attestation, and an explicit note that one external reviewer over a
 fixed 21-case set is independent release validation, not a statistical
 benchmark.
 
+**The completed review was quote-only, not quote-plus-source.** Both
+reviewer-packet.json and evidence-review-packet.json shipped with
+`source_title` and `source_domain` always `null` for every case:
+`candidate-audit.json`'s evidence records never carried that metadata,
+so neither reviewer ever saw a source's title or domain, only its
+quote. This was not disclosed as a limitation until found by an
+independent audit. `build()` now resolves the real values from the
+recorded run's own source list for *future* packets; the two completed,
+already-labelled packets are deliberately not regenerated, so what each
+reviewer actually saw stays exactly what they saw.
+
 This is a different thing from `blind-audit.json`: that is a blinded
 *self*-review (the same person who built the verifier, with the verdict
 hidden from them). This is a second person, with no automated outcome

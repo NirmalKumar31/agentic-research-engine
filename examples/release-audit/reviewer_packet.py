@@ -30,12 +30,14 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 HERE = Path(__file__).parent
 AUDIT = HERE / "candidate-audit.json"
 PACKET = HERE / "reviewer-packet.json"
 LABELS = HERE / "reviewer-labels.json"
 JOINED = HERE / "reviewer-audit.json"
+RECORDED_RUNS = HERE.parents[1] / "src" / "agentic_research" / "web" / "recorded_runs"
 
 VALID_LABELS = {"supported", "unsupported", "uncertain"}
 
@@ -51,23 +53,41 @@ DEFINITIONS = {
 }
 
 
+def _source_metadata(run_id: str) -> dict[str, dict[str, Any]]:
+    """`source_id` -> {"title", "domain"} for one recorded run.
+
+    candidate-audit.json's evidence records never carried this metadata
+    -- `chosen.get("source_title")` always returned `None`, silently,
+    for every case in both packets this script has ever built. The real
+    values live in the recorded run's own `result.sources[]`, keyed by
+    the same `source_id` evidence already references.
+    """
+    recording = json.loads((RECORDED_RUNS / f"{run_id}.json").read_text())
+    result = recording.get("result", recording)
+    return {
+        s["id"]: {"title": s.get("title"), "domain": s.get("domain")} for s in result["sources"]
+    }
+
+
 def build() -> None:
     audit = json.loads(AUDIT.read_text())
     cases = []
     for run_id, run in audit["runs"].items():
+        source_meta = _source_metadata(run_id)
         for index, candidate in enumerate(run["candidates"]):
             best = candidate.get("best_evidence_id")
             chosen = next(
                 (e for e in candidate["evidence"] if e["evidence_id"] == best),
                 (candidate["evidence"] or [{}])[0],
             )
+            meta = source_meta.get(chosen.get("source_id"), {})
             cases.append(
                 {
                     "case_id": f"{run_id}-{index}",
                     "claim": candidate["claim"],
                     "quote": chosen.get("quote"),
-                    "source_title": chosen.get("source_title"),
-                    "source_domain": chosen.get("source_domain"),
+                    "source_title": meta.get("title"),
+                    "source_domain": meta.get("domain"),
                     "source_id": chosen.get("source_id"),
                     "page": chosen.get("page"),
                 }
