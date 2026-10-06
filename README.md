@@ -1,5 +1,7 @@
 # Agentic Research Engine
 
+https://github.com/user-attachments/assets/3e594e0b-62db-4871-9078-b53d7331b806
+
 A LangGraph research system that decomposes a question, searches the web in
 parallel, extracts evidence as exact-normalized source quotes, and publishes
 only the atomic claims a dedicated entailment classifier scored as supported
@@ -247,15 +249,13 @@ not whether the world agrees.
 | `source_diversity` | 1 − share held by the largest domain |
 
 `citation_integrity` is a structural invariant, not a quality signal:
-anything below 100% is an engine bug, since citations derive from
-already-resolved evidence.
+anything below 100% is an engine bug, since citations derive from already-resolved evidence.
 
 ## Limitations
 
 **Scope:** verifies faithfulness to retrieved evidence, not truth about
-the world. Exact quote matching proves textual alignment, not entailment.
-Published figures come from single runs. Full list:
-[`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
+the world -- quote matching proves alignment, not entailment, and
+figures come from single runs. Full list: [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
 
 ## Testing
 
