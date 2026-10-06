@@ -1,6 +1,6 @@
 # Agentic Research Engine
-
-https://github.com/user-attachments/assets/3e594e0b-62db-4871-9078-b53d7331b806
+## Watch the explanation video below:
+https://github.com/user-attachments/assets/e191bbdc-ed6d-428e-a4fc-ae20d119843e
 
 A LangGraph research system that decomposes a question, searches the web in
 parallel, extracts evidence as exact-normalized source quotes, and publishes
